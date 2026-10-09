@@ -19,7 +19,21 @@ namespace Citybuilder
         public Color HoverColor = new Color(1f, 1f, 0f, 0.4f);
         public Color OccupiedColor = new Color(1f, 0f, 0f, 0.4f);
 
-        public GridSystem Grid { get; private set; }
+        private GridSystem grid;
+
+        // Ленивый доступ: после перезагрузки домена Unity поле пустеет,
+        // сетка пересоздаётся из настроек Inspector. Занятость при этом сбрасывается (V1).
+        public GridSystem Grid
+        {
+            get
+            {
+                if (grid == null)
+                {
+                    grid = new GridSystem(new GridSize(Width, Height), CellSize);
+                }
+                return grid;
+            }
+        }
         public GridPosition HoveredCell { get; private set; }
         public bool HasHoveredCell { get; private set; }
 
@@ -40,16 +54,58 @@ namespace Citybuilder
 
         private void Awake()
         {
-            Grid = new GridSystem(new GridSize(Width, Height), CellSize);
-            BuildGridLines();
-            hoverQuad = BuildQuad(HoverColor);
-            hoverQuad.SetActive(false);
-            BuildOccupiedMesh();
+            EnsureVisuals();
+            RefreshOccupied();
         }
 
         private void Update()
         {
+            if (hoverQuad == null || occupiedMesh == null)
+            {
+                EnsureVisuals();
+            }
             UpdateHover();
+        }
+
+        // Находит готовые объекты или строит заново. Дубли не плодит.
+        private void EnsureVisuals()
+        {
+            GameObject lines = FindChild("GridLines");
+            if (lines == null)
+            {
+                BuildGridLines();
+            }
+            if (hoverQuad == null)
+            {
+                hoverQuad = FindChild("HoverQuad");
+                if (hoverQuad == null)
+                {
+                    hoverQuad = BuildQuad(HoverColor);
+                }
+                hoverQuad.SetActive(false);
+            }
+            if (occupiedMesh == null)
+            {
+                GameObject overlay = FindChild("OccupiedOverlay");
+                if (overlay != null)
+                {
+                    occupiedMesh = overlay.GetComponent<MeshFilter>().mesh;
+                }
+                else
+                {
+                    BuildOccupiedMesh();
+                }
+            }
+        }
+
+        private GameObject FindChild(string childName)
+        {
+            Transform found = transform.Find(childName);
+            if (found == null)
+            {
+                return null;
+            }
+            return found.gameObject;
         }
 
         private void UpdateHover()
@@ -118,6 +174,7 @@ namespace Citybuilder
         private GameObject BuildQuad(Color color)
         {
             GameObject go = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            go.name = "HoverQuad";
             go.transform.SetParent(transform, false);
             go.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
             go.transform.localScale = new Vector3(CellSize, CellSize, 1f);

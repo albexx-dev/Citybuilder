@@ -29,22 +29,37 @@ namespace Citybuilder
 
         private void Start()
         {
+            EnsureReady();
+        }
+
+        // Восстанавливает систему после перезагрузки домена.
+        // Список построенного при перезагрузке теряется (чинятся сохранениями, не V1).
+        private bool EnsureReady()
+        {
             if (GridVisualizer == null)
             {
                 Debug.LogError("RoadPlacementController: задайте GridVisualizer в Inspector.");
                 enabled = false;
-                return;
+                return false;
             }
             if (View == null)
             {
-                View = gameObject.AddComponent<RoadView>();
+                View = GetComponent<RoadView>();
+                if (View == null)
+                {
+                    View = gameObject.AddComponent<RoadView>();
+                }
             }
-            system = new RoadSystem(GridVisualizer.Grid);
+            if (system == null)
+            {
+                system = new RoadSystem(GridVisualizer.Grid);
+            }
+            return true;
         }
 
         private void Update()
         {
-            if (system == null)
+            if (!EnsureReady())
             {
                 return;
             }

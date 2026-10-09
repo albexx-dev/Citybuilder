@@ -42,11 +42,22 @@ namespace Citybuilder
             {
                 return;
             }
-            builtMesh = new Mesh();
-            GameObject go = new GameObject("RoadsMesh");
-            go.transform.SetParent(transform, false);
-            go.AddComponent<MeshFilter>().mesh = builtMesh;
-            MeshRenderer renderer = go.AddComponent<MeshRenderer>();
+            GameObject go = FindOrCreateChild("RoadsMesh");
+            MeshFilter filter = go.GetComponent<MeshFilter>();
+            if (filter == null)
+            {
+                filter = go.AddComponent<MeshFilter>();
+            }
+            if (filter.mesh == null)
+            {
+                filter.mesh = new Mesh();
+            }
+            builtMesh = filter.mesh;
+            MeshRenderer renderer = go.GetComponent<MeshRenderer>();
+            if (renderer == null)
+            {
+                renderer = go.AddComponent<MeshRenderer>();
+            }
             Material material = new Material(Shader.Find("Unlit/Color"));
             material.color = Color.gray;
             renderer.material = material;
@@ -54,18 +65,41 @@ namespace Citybuilder
 
         private void EnsurePreview()
         {
-            if (previewMesh != null)
+            if (previewMesh != null && previewRenderer != null)
             {
                 return;
             }
-            previewMesh = new Mesh();
-            GameObject go = new GameObject("RoadPreview");
-            go.transform.SetParent(transform, false);
-            go.AddComponent<MeshFilter>().mesh = previewMesh;
-            previewRenderer = go.AddComponent<MeshRenderer>();
+            GameObject go = FindOrCreateChild("RoadPreview");
+            MeshFilter filter = go.GetComponent<MeshFilter>();
+            if (filter == null)
+            {
+                filter = go.AddComponent<MeshFilter>();
+            }
+            if (filter.mesh == null)
+            {
+                filter.mesh = new Mesh();
+            }
+            previewMesh = filter.mesh;
+            previewRenderer = go.GetComponent<MeshRenderer>();
+            if (previewRenderer == null)
+            {
+                previewRenderer = go.AddComponent<MeshRenderer>();
+            }
             validMaterial = PreviewMaterial(new Color(0f, 1f, 0f, 0.4f));
             invalidMaterial = PreviewMaterial(new Color(1f, 0f, 0f, 0.4f));
             previewRenderer.material = validMaterial;
+        }
+
+        private GameObject FindOrCreateChild(string childName)
+        {
+            Transform found = transform.Find(childName);
+            if (found != null)
+            {
+                return found.gameObject;
+            }
+            GameObject go = new GameObject(childName);
+            go.transform.SetParent(transform, false);
+            return go;
         }
 
         private Material PreviewMaterial(Color color)

@@ -25,22 +25,41 @@ namespace Citybuilder
 
         private void Start()
         {
+            EnsureReady();
+            RefreshView();
+        }
+
+        // Восстанавливает систему после перезагрузки домена.
+        // Нарисованное при перезагрузке теряется из данных (чинятся сохранениями, не V1).
+        private bool EnsureReady()
+        {
             if (GridVisualizer == null)
             {
                 Debug.LogError("ZonePaintingController: задайте GridVisualizer в Inspector.");
                 enabled = false;
-                return;
+                return false;
             }
             if (View == null)
             {
-                View = gameObject.AddComponent<ZoneView>();
+                View = GetComponent<ZoneView>();
+                if (View == null)
+                {
+                    View = gameObject.AddComponent<ZoneView>();
+                }
             }
-            system = new ZoneSystem(GridVisualizer.Grid);
-            RefreshView();
+            if (system == null)
+            {
+                system = new ZoneSystem(GridVisualizer.Grid);
+            }
+            return true;
         }
 
         private void Update()
         {
+            if (!EnsureReady())
+            {
+                return;
+            }
             if (!placementActive || system == null)
             {
                 return;

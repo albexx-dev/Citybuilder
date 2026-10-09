@@ -23,6 +23,7 @@ namespace Citybuilder
         // Перестроить все три слоя по словарю зон.
         public void Rebuild(Dictionary<ZoneType, List<GridPosition>> zones, float cellSize)
         {
+            EnsureLayers();
             FillMesh(residentialMesh, GetCells(zones, ZoneType.Residential), cellSize);
             FillMesh(commercialMesh, GetCells(zones, ZoneType.Commercial), cellSize);
             FillMesh(industrialMesh, GetCells(zones, ZoneType.Industrial), cellSize);
@@ -47,6 +48,38 @@ namespace Citybuilder
             residentialMesh = BuildLayer("ZoneResidential", new Color(0f, 1f, 0f, 0.3f));
             commercialMesh = BuildLayer("ZoneCommercial", new Color(0f, 0f, 1f, 0.3f));
             industrialMesh = BuildLayer("ZoneIndustrial", new Color(1f, 0.5f, 0f, 0.3f));
+        }
+
+        // После перезагрузки домена поля пустеют — подхватывает готовые слои.
+        private void EnsureLayers()
+        {
+            if (residentialMesh != null && commercialMesh != null && industrialMesh != null)
+            {
+                return;
+            }
+            residentialMesh = FindLayerMesh("ZoneResidential");
+            commercialMesh = FindLayerMesh("ZoneCommercial");
+            industrialMesh = FindLayerMesh("ZoneIndustrial");
+            if (residentialMesh == null || commercialMesh == null || industrialMesh == null)
+            {
+                CreateLayers();
+                return;
+            }
+        }
+
+        private Mesh FindLayerMesh(string layerName)
+        {
+            Transform found = transform.Find(layerName);
+            if (found == null)
+            {
+                return null;
+            }
+            MeshFilter filter = found.GetComponent<MeshFilter>();
+            if (filter == null)
+            {
+                return null;
+            }
+            return filter.mesh;
         }
 
         private Mesh BuildLayer(string layerName, Color color)

@@ -24,21 +24,42 @@ namespace Citybuilder
 
         private void Start()
         {
+            EnsureReady();
+        }
+
+        // Проверяет ссылки и восстанавливает систему после перезагрузки домена.
+        // Список построенного при перезагрузке теряется: снос старых зданий чинится сохранениями (не V1).
+        private bool EnsureReady()
+        {
             if (GridVisualizer == null || Definition == null)
             {
                 Debug.LogError("BuildingPlacementController: задайте GridVisualizer и Definition в Inspector.");
                 enabled = false;
-                return;
+                return false;
             }
-            system = new BuildingSystem(GridVisualizer.Grid);
-            validMaterial = BuildGhostMaterial(new Color(0f, 1f, 0f, 0.4f));
-            invalidMaterial = BuildGhostMaterial(new Color(1f, 0f, 0f, 0.4f));
-            ghost = BuildGhost();
-            ghost.SetActive(false);
+            if (system == null)
+            {
+                system = new BuildingSystem(GridVisualizer.Grid);
+            }
+            if (validMaterial == null || invalidMaterial == null)
+            {
+                validMaterial = BuildGhostMaterial(new Color(0f, 1f, 0f, 0.4f));
+                invalidMaterial = BuildGhostMaterial(new Color(1f, 0f, 0f, 0.4f));
+            }
+            if (ghost == null)
+            {
+                ghost = transform.Find("Ghost") != null ? transform.Find("Ghost").gameObject : BuildGhost();
+                ghost.SetActive(false);
+            }
+            return true;
         }
 
         private void Update()
         {
+            if (!EnsureReady())
+            {
+                return;
+            }
             if (system == null || !placementActive)
             {
                 return;
@@ -143,6 +164,8 @@ namespace Citybuilder
         {
             float cellSize = GridVisualizer.Grid.CellSize;
             GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.name = "Ghost";
+            go.transform.SetParent(transform, false);
             Destroy(go.GetComponent<Collider>());
             go.transform.localScale = new Vector3(Definition.Footprint.x * cellSize, 1f, Definition.Footprint.y * cellSize);
             return go;

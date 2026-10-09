@@ -9,11 +9,20 @@ namespace Citybuilder
         [Tooltip("Стартовый баланс города.")]
         public int StartingBalance = 1000;
 
-        public Treasury Treasury { get; private set; }
+        private Treasury treasury;
 
-        private void Awake()
+        // Ленивый доступ: после перезагрузки домена казна пересоздаётся.
+        // Баланс при этом сбрасывается (чинятся сохранениями, не V1).
+        public Treasury Treasury
         {
-            Treasury = new Treasury(StartingBalance);
+            get
+            {
+                if (treasury == null)
+                {
+                    treasury = new Treasury(StartingBalance);
+                }
+                return treasury;
+            }
         }
 
         private void OnGUI()
