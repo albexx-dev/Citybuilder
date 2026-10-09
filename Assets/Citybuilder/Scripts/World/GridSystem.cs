@@ -72,5 +72,11 @@ namespace Citybuilder
         {
             owners.Remove(position);
         }
+
+        // Снимок занятых клеток для визуализации. Только чтение.
+        public System.Collections.Generic.List<GridPosition> GetOccupiedCells()
+        {
+            return new System.Collections.Generic.List<GridPosition>(owners.Keys);
+        }
     }
 }

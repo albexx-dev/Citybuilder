@@ -6,7 +6,7 @@
 - [x] Done 002-domain-primitives + merged
 - [x] Done 003-simulation-clock + merged
 - [x] Done 004-grid-system + merged
-- [ ] ToDo 005-grid-visualization (Muse, high) — показ сетки, подсветка клетки
+- [x] Done 005-grid-visualization + merged
 - [ ] ToDo 006-building-definition (Muse, high) — BuildingDefinition ScriptableObject
 - [ ] ToDo 007-building-placement (Kimi, xhigh) — предпросмотр, проверки, установка/удаление
 - [ ] ToDo 008-basic-treasury (Kimi, xhigh) — баланс, транзакции, UI денег
