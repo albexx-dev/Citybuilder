@@ -4,7 +4,7 @@
 
 - [x] Done 001-project-foundation (Orchestrator) + branch task/001-project-foundation
 - [x] Done 002-domain-primitives + merged
-- [ ] ToDo 003-simulation-clock (Muse, high) — Paused/Playing/FastForward + тики
+- [x] Done 003-simulation-clock + merged
 - [ ] ToDo 004-grid-system (Kimi, xhigh) — IsInside, WorldToGrid, GridToWorld, Occupy/Release
 - [ ] ToDo 005-grid-visualization (Muse, high) — показ сетки, подсветка клетки
 - [ ] ToDo 006-building-definition (Muse, high) — BuildingDefinition ScriptableObject
