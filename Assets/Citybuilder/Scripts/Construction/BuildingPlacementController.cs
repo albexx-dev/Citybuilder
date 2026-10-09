@@ -150,7 +150,7 @@ namespace Citybuilder
 
         private Material BuildGhostMaterial(Color color)
         {
-            Material material = new Material(Shader.Find("Unlit/Transparent"));
+            Material material = new Material(Shader.Find("Unlit/Color"));
             material.color = color;
             return material;
         }

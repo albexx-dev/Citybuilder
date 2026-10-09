@@ -63,7 +63,7 @@ namespace Citybuilder
 
         private static Material BuildMaterial(Color color)
         {
-            Shader shader = Shader.Find("Unlit/Transparent");
+            Shader shader = Shader.Find("Unlit/Color");
             Material material = new Material(shader);
             material.color = color;
             return material;
