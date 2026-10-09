@@ -11,6 +11,8 @@ namespace Citybuilder
         public GridVisualizer GridVisualizer;
         [Tooltip("Что строить. Обычно House 2x2.")]
         public BuildingDefinition Definition;
+        [Tooltip("Казна для списания стоимости. Пусто = строить бесплатно.")]
+        public TreasuryView TreasuryView;
 
         private BuildingSystem system;
         private GameObject ghost;
@@ -74,6 +76,12 @@ namespace Citybuilder
 
         private void TryPlace(GridPosition cell)
         {
+            if (TreasuryView != null)
+            {
+                if (!system.CanPlace(Definition, cell)) return;
+                Treasury.TransactionResult spent = TreasuryView.Treasury.TrySpend(Definition.ConstructionCost, Definition.Id);
+                if (!spent.Success) return;
+            }
             BuildingState state = system.Place(Definition, cell);
             if (state == null) return;
             states.Add(state);
