@@ -13,7 +13,8 @@
 - [x] Done 009-road-foundation + merged
 - [x] Done 010-road-placement + merged (исключение по лимиту зафиксировано)
 - [x] Done 011-zone-foundation + merged
-- [ ] ToDo 012-zone-painting (Muse, high) — контроллер + вид зон
+- [x] Done 012-zone-painting + merged
 - BACKLOG-road-continue: старт дороги с конца (плата только за новые клетки)
+- NEXT: 013-settlement (дома на жилых зонах, рабочие места) — Этап 5 продолжается
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.

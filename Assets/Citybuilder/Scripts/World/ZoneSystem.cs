@@ -61,5 +61,11 @@ namespace Citybuilder
             }
             return count;
         }
+
+        // Копия всех назначенных клеток, только чтение. None не хранится.
+        public List<KeyValuePair<GridPosition, ZoneType>> GetZonedCells()
+        {
+            return new List<KeyValuePair<GridPosition, ZoneType>>(zones);
+        }
     }
 }
