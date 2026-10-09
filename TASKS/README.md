@@ -11,6 +11,6 @@
 - [x] Done 007-building-placement + merged (Muse, Kimi на паузе)
 - [x] Done 008-basic-treasury + merged — СРЕЗ ЗАКРЫТ
 - [x] Done 009-road-foundation + merged
-- [ ] ToDo 010-road-placement (Muse, high) — drag стройки, вид, оплата за клетки
+- [x] Done 010-road-placement + merged (исключение по лимиту зафиксировано)
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
