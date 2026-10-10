@@ -69,20 +69,36 @@ namespace Citybuilder
             {
                 return Instantiate(def.Prefab, at, Quaternion.identity, transform);
             }
-            return BuildCube(state.Origin, def, cellSize);
+            return BuildCube(state, def, cellSize);
         }
 
-        private GameObject BuildCube(GridPosition origin, BuildingDefinition def, float cellSize)
+        private GameObject BuildCube(BuildingState state, BuildingDefinition def, float cellSize)
         {
             GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cube.transform.SetParent(transform, false);
-            float width = def.Footprint.x * cellSize;
-            float depth = def.Footprint.y * cellSize;
-            cube.transform.localScale = new Vector3(width, 1f, depth);
-            cube.transform.localPosition = FootprintCenter(origin, def, cellSize, 0.5f);
+            float w = def.Footprint.x * cellSize * 0.9f;
+            float d = def.Footprint.y * cellSize * 0.9f;
+            float h = 1f + (state.Id.Value % 3) * 0.5f;
+            cube.transform.localScale = new Vector3(w, h, d);
+            cube.transform.localPosition = FootprintCenter(state.Origin, def, cellSize, h * 0.5f);
             Destroy(cube.GetComponent<Collider>());
             cube.GetComponent<MeshRenderer>().material = BuildMaterial();
+            BuildRoof(cube, h);
             return cube;
+        }
+
+        // Крыша-ребёнок наследует scale родителя: компенсируем делением на w/h/d,
+        // чтобы мировые размеры были (0.7w, 0.3, 0.7d), а низ — ровно на верху куба.
+        private void BuildRoof(GameObject parent, float h)
+        {
+            GameObject roof = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            roof.transform.SetParent(parent.transform, false);
+            roof.transform.localScale = new Vector3(0.7f, 0.3f / h, 0.7f);
+            roof.transform.localPosition = new Vector3(0f, 0.5f + 0.15f / h, 0f);
+            Destroy(roof.GetComponent<Collider>());
+            Material material = new Material(Shader.Find("Unlit/Color"));
+            material.color = new Color(0.45f, 0.25f, 0.1f);
+            roof.GetComponent<MeshRenderer>().material = material;
         }
 
         private Vector3 FootprintCenter(GridPosition origin, BuildingDefinition def, float cellSize, float height)
