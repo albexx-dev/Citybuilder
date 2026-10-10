@@ -11,6 +11,8 @@ namespace Citybuilder
         [Tooltip("Высота слоёв зон над сеткой в метрах.")]
         public float Height = 0.02f;
 
+        private const float ZoneFill = 0.7f;
+
         private Mesh residentialMesh;
         private Mesh commercialMesh;
         private Mesh industrialMesh;
@@ -45,9 +47,9 @@ namespace Citybuilder
 
         private void CreateLayers()
         {
-            residentialMesh = BuildLayer("ZoneResidential", new Color(0f, 1f, 0f, 0.3f));
-            commercialMesh = BuildLayer("ZoneCommercial", new Color(0f, 0f, 1f, 0.3f));
-            industrialMesh = BuildLayer("ZoneIndustrial", new Color(1f, 0.5f, 0f, 0.3f));
+            residentialMesh = BuildLayer("ZoneResidential", new Color(0.1f, 0.45f, 0.1f));
+            commercialMesh = BuildLayer("ZoneCommercial", new Color(0.1f, 0.2f, 0.6f));
+            industrialMesh = BuildLayer("ZoneIndustrial", new Color(0.6f, 0.3f, 0.05f));
         }
 
         // После перезагрузки домена поля пустеют — подхватывает готовые слои.
@@ -113,13 +115,13 @@ namespace Citybuilder
             int[] triangles = new int[cells.Count * 6];
             for (int c = 0; c < cells.Count; c++)
             {
-                float x0 = cells[c].X * cellSize;
-                float z0 = cells[c].Y * cellSize;
+                float x0 = (cells[c].X + (1f - ZoneFill) * 0.5f) * cellSize;
+                float z0 = (cells[c].Y + (1f - ZoneFill) * 0.5f) * cellSize;
                 int v = c * 4;
                 vertices[v] = new Vector3(x0, Height, z0);
-                vertices[v + 1] = new Vector3(x0 + cellSize, Height, z0);
-                vertices[v + 2] = new Vector3(x0 + cellSize, Height, z0 + cellSize);
-                vertices[v + 3] = new Vector3(x0, Height, z0 + cellSize);
+                vertices[v + 1] = new Vector3(x0 + cellSize * ZoneFill, Height, z0);
+                vertices[v + 2] = new Vector3(x0 + cellSize * ZoneFill, Height, z0 + cellSize * ZoneFill);
+                vertices[v + 3] = new Vector3(x0, Height, z0 + cellSize * ZoneFill);
                 int t = c * 6;
                 triangles[t] = v;
                 triangles[t + 1] = v + 2;

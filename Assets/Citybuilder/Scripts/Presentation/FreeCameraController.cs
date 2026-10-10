@@ -15,11 +15,13 @@ namespace Citybuilder
 
         [Header("Speeds")]
         [Tooltip("Скорость панорамы в м/с.")]
-        public float MoveSpeed = 20f;
+        public float MoveSpeed = 30f;
         [Tooltip("Зум: метров за единицу колеса мыши.")]
-        public float ZoomSpeed = 10f;
-        [Tooltip("Скорость поворота в град/с (клавиши и ПКМ-drag).")]
+        public float ZoomSpeed = 40f;
+        [Tooltip("Скорость поворота клавишами Q/E в град/с.")]
         public float RotateSpeed = 90f;
+        [Tooltip("Скорость обзора мышью в град/с.")]
+        public float DragSpeed = 240f;
 
         [Header("Limits")]
         [Tooltip("Минимальная высота камеры в метрах.")]
@@ -42,7 +44,8 @@ namespace Citybuilder
             {
                 return;
             }
-            float moveStep = Mathf.Max(MoveSpeed, 1f) * Time.deltaTime;
+            float boost = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) ? 3f : 1f;
+            float moveStep = Mathf.Max(MoveSpeed, 1f) * Time.deltaTime * boost;
             float turnStep = Mathf.Max(RotateSpeed, 1f) * Time.deltaTime;
             float right = (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow) ? 1f : 0f)
                 - (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow) ? 1f : 0f);
@@ -55,14 +58,14 @@ namespace Citybuilder
             float wheel = Input.GetAxis("Mouse ScrollWheel");
             if (wheel != 0f)
             {
-                Zoom(wheel);
+                Zoom(wheel * boost);
             }
             float turn = (Input.GetKey(KeyCode.E) ? 1f : 0f) - (Input.GetKey(KeyCode.Q) ? 1f : 0f);
             if (turn != 0f)
             {
                 AddYaw(turn * turnStep);
             }
-            DragRotate(turnStep);
+            DragRotate(Mathf.Max(DragSpeed, 1f) * Time.deltaTime);
         }
         // Сдвиг в метрах: right — вправо, forward — вперёд (плоскость XZ по yaw камеры).
         public void Pan(float right, float forward)
