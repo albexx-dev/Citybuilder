@@ -17,6 +17,7 @@
 - [x] Done 013-settlement + merged (Muse: BuildingDefinition AllowedZone/Capacity/Jobs + Population/SettlementSystem, dotnet 32/32, Unity Console чистый)
 - [x] Done 014-settlement-growth + merged (Muse: Zones-геттер + SettlementView + SettlementGrowthController; E2E в Unity: рост ×3, снос, Console чистый. Этап 5 ЗАКРЫТ)
 - [x] Done 015-road-continue + merged (Muse: IsOwnRoadCell/NewCellsCount, плата только за новые; E2E: 3 клетки −30, продолжение −20, чужое блокирует, Console чистый)
-- NEXT: 016 (Этап 6, дизайн нужен) — после 015
+- [ ] InProgress 016-household-foundation (Muse) + branch task/016-household-foundation
+- NEXT: 017 (панель населения, автовъезд) — Этап 6 продолжается
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
