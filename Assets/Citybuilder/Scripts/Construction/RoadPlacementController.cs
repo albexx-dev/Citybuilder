@@ -32,6 +32,21 @@ namespace Citybuilder
             EnsureReady();
         }
 
+        // Сброс drag при выключении: иначе висящее превью/коммит.
+        // View может быть не создан (ленивый), previewCells — гард на null.
+        private void OnDisable()
+        {
+            dragging = false;
+            if (previewCells != null)
+            {
+                previewCells.Clear();
+            }
+            if (View != null)
+            {
+                View.HidePreview();
+            }
+        }
+
         // Восстанавливает систему после перезагрузки домена.
         // Список построенного при перезагрузке теряется (чинятся сохранениями, не V1).
         private bool EnsureReady()

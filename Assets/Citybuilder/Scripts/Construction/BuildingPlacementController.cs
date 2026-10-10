@@ -27,6 +27,15 @@ namespace Citybuilder
             EnsureReady();
         }
 
+        // Прячем призрак при выключении: иначе висящий куб.
+        private void OnDisable()
+        {
+            if (ghost != null)
+            {
+                ghost.SetActive(false);
+            }
+        }
+
         // Проверяет ссылки и восстанавливает систему после перезагрузки домена.
         // Список построенного при перезагрузке теряется: снос старых зданий чинится сохранениями (не V1).
         private bool EnsureReady()

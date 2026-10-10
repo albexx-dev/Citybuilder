@@ -20,6 +20,7 @@
 - [x] Done 016-household-foundation + merged (Muse: HouseholdState + PopulationSystem MoveIn/MoveOut/EvictHome, dotnet 30/30, Unity 6/6, Console чистый)
 - [x] Done 017-population-panel + merged (Muse: PopulationController автовъезд + PopulationView + Homes/EvictHome в росте; E2E: 8/8 и 4 hh, снос выселил 4/2, Console чистый)
 - [x] Done 018-free-camera + merged (Muse: FreeCameraController WASD/колесо/QE/ПКМ, 147 строк; E2E: pan/yaw/zoom/клампы сошлись; компонент добавлен на MainCamera в сцену, Console чистый)
+- [ ] InProgress 019-mode-menu (Muse) + branch task/019-mode-menu
 - NEXT: 017 (панель населения, автовъезд) — Этап 6 продолжается
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
