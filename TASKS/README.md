@@ -14,7 +14,8 @@
 - [x] Done 010-road-placement + merged (исключение по лимиту зафиксировано)
 - [x] Done 011-zone-foundation + merged
 - [x] Done 012-zone-painting + merged
+- [ ] InProgress 013-settlement (Muse) + branch task/013-settlement
 - BACKLOG-road-continue: старт дороги с конца (плата только за новые клетки)
-- NEXT: 013-settlement (дома на жилых зонах, рабочие места) — Этап 5 продолжается
+- NEXT: 014-settlement-growth (автовырастание домов, вид) — Этап 5 продолжается
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.

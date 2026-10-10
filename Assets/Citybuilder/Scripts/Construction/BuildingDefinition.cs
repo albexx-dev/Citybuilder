@@ -21,6 +21,16 @@ namespace Citybuilder
         [Tooltip("Стоимость постройки. Не может быть отрицательной.")]
         public int ConstructionCost = 100;
 
+        [Header("Settlement")]
+        [Tooltip("На какой зоне может стоять тип здания.")]
+        public ZoneType AllowedZone = ZoneType.Residential;
+
+        [Tooltip("Сколько жителей вмещает одно здание. Не может быть отрицательным.")]
+        public int ResidentCapacity = 4;
+
+        [Tooltip("Сколько рабочих мест даёт одно здание. Не может быть отрицательным.")]
+        public int JobsProvided = 0;
+
         [Header("Presentation")]
         [Tooltip("Префаб здания. Может быть пустым до готовности арта.")]
         public GameObject Prefab;
@@ -44,6 +54,18 @@ namespace Citybuilder
             {
                 Debug.LogWarning("BuildingDefinition: cost fixed to 0.", this);
                 ConstructionCost = 0;
+            }
+
+            if (ResidentCapacity < 0)
+            {
+                Debug.LogWarning("BuildingDefinition: capacity fixed to 0.", this);
+                ResidentCapacity = 0;
+            }
+
+            if (JobsProvided < 0)
+            {
+                Debug.LogWarning("BuildingDefinition: jobs fixed to 0.", this);
+                JobsProvided = 0;
             }
         }
 
