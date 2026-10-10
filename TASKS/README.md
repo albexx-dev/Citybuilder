@@ -21,6 +21,7 @@
 - [x] Done 017-population-panel + merged (Muse: PopulationController автовъезд + PopulationView + Homes/EvictHome в росте; E2E: 8/8 и 4 hh, снос выселил 4/2, Console чистый)
 - [x] Done 018-free-camera + merged (Muse: FreeCameraController WASD/колесо/QE/ПКМ, 147 строк; E2E: pan/yaw/zoom/клампы сошлись; компонент добавлен на MainCamera в сцену, Console чистый)
 - [x] Done 019-mode-menu + merged (Muse: BuildModeMenu Выкл/Дома/Дороги/Зоны/Рост + OnDisable-чистка road/building; E2E + скриншот: кнопки видны, эксклюзивность сходится, Console чистый; компонент добавлен на Grid в сцену)
+- [ ] InProgress 020-employment-foundation (Muse) + branch task/020-employment-foundation
 - NEXT: 017 (панель населения, автовъезд) — Этап 6 продолжается
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
