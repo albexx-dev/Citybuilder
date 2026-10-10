@@ -23,6 +23,19 @@ namespace Citybuilder
         private GridPosition lastCell;
         private bool hasLastCell;
 
+        // Ленивый доступ для контроллера роста. Пусто после reload — починит EnsureReady.
+        public ZoneSystem Zones
+        {
+            get
+            {
+                if (system == null)
+                {
+                    EnsureReady();
+                }
+                return system;
+            }
+        }
+
         private void Start()
         {
             EnsureReady();

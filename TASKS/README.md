@@ -15,6 +15,7 @@
 - [x] Done 011-zone-foundation + merged
 - [x] Done 012-zone-painting + merged
 - [x] Done 013-settlement + merged (Muse: BuildingDefinition AllowedZone/Capacity/Jobs + Population/SettlementSystem, dotnet 32/32, Unity Console чистый)
+- [ ] InProgress 014-settlement-growth (Muse) + branch task/014-settlement-growth
 - BACKLOG-road-continue: старт дороги с конца (плата только за новые клетки)
 - NEXT: 014-settlement-growth (автовырастание домов, вид) — Этап 5 продолжается
 
