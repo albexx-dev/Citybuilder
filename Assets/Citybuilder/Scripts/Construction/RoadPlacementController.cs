@@ -122,7 +122,7 @@ namespace Citybuilder
             {
                 return;
             }
-            int total = previewCells.Count * system.CellCost(Definition);
+            int total = NewCellsCount() * system.CellCost(Definition);
             if (total > 0 && TreasuryView != null && TreasuryView.Treasury != null)
             {
                 Treasury.TransactionResult spent = TreasuryView.Treasury.TrySpend(total, "Road");
@@ -133,6 +133,10 @@ namespace Citybuilder
             }
             for (int i = 0; i < previewCells.Count; i++)
             {
+                if (IsOwnRoadCell(previewCells[i]))
+                {
+                    continue;
+                }
                 RoadState state = system.Place(previewCells[i]);
                 if (state != null)
                 {
@@ -162,17 +166,44 @@ namespace Citybuilder
         {
             for (int i = 0; i < previewCells.Count; i++)
             {
-                if (!system.CanPlace(previewCells[i]))
+                if (!system.CanPlace(previewCells[i]) && !IsOwnRoadCell(previewCells[i]))
                 {
                     return false;
                 }
             }
             if (TreasuryView != null && TreasuryView.Treasury != null)
             {
-                int total = previewCells.Count * system.CellCost(Definition);
+                int total = NewCellsCount() * system.CellCost(Definition);
                 return TreasuryView.Treasury.CanAfford(total);
             }
             return true;
+        }
+
+        // Своя клетка = уже есть в states (сравнение по Cell).
+        private bool IsOwnRoadCell(GridPosition cell)
+        {
+            for (int i = 0; i < states.Count; i++)
+            {
+                if (states[i].Cell == cell)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Число клеток превью, которых ещё нет в states.
+        private int NewCellsCount()
+        {
+            int count = 0;
+            for (int i = 0; i < previewCells.Count; i++)
+            {
+                if (!IsOwnRoadCell(previewCells[i]))
+                {
+                    count++;
+                }
+            }
+            return count;
         }
 
         private void RefreshView()
