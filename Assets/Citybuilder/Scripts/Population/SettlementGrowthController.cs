@@ -12,6 +12,7 @@ namespace Citybuilder
         [Tooltip("Кисть зон. Обязательна: даёт ZoneSystem с жилыми клетками.")] public ZonePaintingController ZonePainter;
         [Tooltip("Что выращивать. Обычно House 2x2 с AllowedZone Residential.")] public BuildingDefinition Definition;
         [Tooltip("Вид выросших домов. Пусто = создастся на этом же объекте.")] public SettlementView View;
+        [Tooltip("Население. Опционален: при сносе выселяет жителей дома.")] public PopulationController PopulationSource;
         [Header("Growth")]
         [Tooltip("Пауза между домами в секундах. Минимум 1.")] public float GrowthIntervalSec = 5f;
         [Tooltip("Потолок выросших домов. Минимум 1.")] public int MaxSettlements = 10;
@@ -20,6 +21,14 @@ namespace Citybuilder
         private SettlementSystem settlement;
         private readonly List<BuildingState> states = new List<BuildingState>();
         private float timer;
+        // Копия выросших домов для заселения. Отдаём копию, а не сам список.
+        public List<BuildingState> Homes
+        {
+            get
+            {
+                return new List<BuildingState>(states);
+            }
+        }
         private void Start()
         {
             ClampLimits();
@@ -97,8 +106,13 @@ namespace Citybuilder
         {
             int index = FindStateIndex(cell);
             if (index < 0) return;
-            settlement.Demolish(states[index]);
-            View.RemoveBuilding(states[index]);
+            BuildingState state = states[index];
+            settlement.Demolish(state);
+            if (PopulationSource != null && PopulationSource.Population != null)
+            {
+                PopulationSource.Population.EvictHome(state);
+            }
+            View.RemoveBuilding(state);
             states.RemoveAt(index);
             GridVisualizer.RefreshOccupied();
         }
