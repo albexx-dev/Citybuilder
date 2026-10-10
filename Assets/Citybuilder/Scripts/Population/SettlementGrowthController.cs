@@ -29,6 +29,14 @@ namespace Citybuilder
                 return new List<BuildingState>(states);
             }
         }
+        // Доступ к системе поселений для занятости. Может быть null до EnsureReady.
+        public SettlementSystem Settlement
+        {
+            get
+            {
+                return settlement;
+            }
+        }
         private void Start()
         {
             ClampLimits();
