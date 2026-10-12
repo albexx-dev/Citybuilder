@@ -37,6 +37,8 @@ namespace Citybuilder
         [Tooltip("Запас выхода камеры за край карты в метрах.")]
         public float Margin = 10f;
 
+        private bool lookBlocked;
+
         private void Update()
         {
             Camera camera = Target != null ? Target : Camera.main;
@@ -118,7 +120,16 @@ namespace Citybuilder
         // Поворот мышью при зажатой ПКМ. Только старый Input.
         private void DragRotate(float turnStep)
         {
+            if (Input.GetMouseButtonDown(1))
+            {
+                lookBlocked = UiClickGuard.IsOverMenu(Input.mousePosition);
+            }
             if (!Input.GetMouseButton(1))
+            {
+                lookBlocked = false;
+                return;
+            }
+            if (lookBlocked)
             {
                 return;
             }

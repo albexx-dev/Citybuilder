@@ -22,6 +22,7 @@ namespace Citybuilder
         private ZoneSystem system;
         private GridPosition lastCell;
         private bool hasLastCell;
+        private bool strokeBlocked;
 
         // Ленивый доступ для контроллера роста. Пусто после reload — починит EnsureReady.
         public ZoneSystem Zones
@@ -80,13 +81,25 @@ namespace Citybuilder
             if (!Input.GetMouseButton(0) && !Input.GetMouseButton(1))
             {
                 hasLastCell = false;
+                strokeBlocked = false;
                 return;
             }
+            if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+            {
+                strokeBlocked = UiClickGuard.IsOverMenu(Input.mousePosition);
+            }
+            if (strokeBlocked) return;
             GridPosition cell;
             if (!GridVisualizer.TryGetHoveredCell(out cell))
             {
                 return;
             }
+            PaintCell(cell);
+        }
+
+        // Один шаг штриха: пропуск повторов клетки, покраска, перестройка вида.
+        private void PaintCell(GridPosition cell)
+        {
             if (hasLastCell && cell == lastCell)
             {
                 return;
