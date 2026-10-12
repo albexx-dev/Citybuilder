@@ -33,6 +33,8 @@
 - [x] Done 029-clock-view + merged (Muse: ClockView 30 строк, формат проверен в Unity: Day/Hour/Пауза/Игра/x4; компонент добавлен на Simulation в сцену после переоткрытия Unity)
 - [x] Done 030-clock-speed + merged (Muse: кнопки Пауза/Игра/x4 под лейблом; E2E на сцене: все 3 переключают Runner.Speed, Console чистый)
 - [x] Done 031-clock-taxes + merged (Muse + 2 фикса оркестратора: placementActive-гейт, подписка в OnEnable; E2E: 3 тика +24, пауза тишина, дублей нет, Runner в сцене, Console чистый)
+- [ ] InProgress 032-menu-click-guard (Muse) + branch task/032-menu-click-guard
+- [ ] ToDo 033-growth-cost (после 032!) + branch task/033-growth-cost
 - NEXT: 017 (панель населения, автовъезд) — Этап 6 продолжается
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.

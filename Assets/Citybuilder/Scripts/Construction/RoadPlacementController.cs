@@ -91,7 +91,7 @@ namespace Citybuilder
             GridPosition cell;
             bool hovered = GridVisualizer.TryGetHoveredCell(out cell);
             HandleDrag(cell, hovered);
-            if (Input.GetMouseButtonDown(1) && hovered)
+            if (Input.GetMouseButtonDown(1) && hovered && !UiClickGuard.IsOverMenu(Input.mousePosition))
             {
                 TryDemolish(cell);
             }
@@ -99,7 +99,7 @@ namespace Citybuilder
 
         private void HandleDrag(GridPosition cell, bool hovered)
         {
-            if (Input.GetMouseButtonDown(0) && hovered)
+            if (Input.GetMouseButtonDown(0) && hovered && !UiClickGuard.IsOverMenu(Input.mousePosition))
             {
                 dragging = true;
                 dragStart = cell;

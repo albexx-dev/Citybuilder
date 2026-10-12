@@ -86,11 +86,11 @@ namespace Citybuilder
                 return;
             }
             ShowGhost(cell);
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) && !UiClickGuard.IsOverMenu(Input.mousePosition))
             {
                 TryPlace(cell);
             }
-            if (Input.GetMouseButtonDown(1))
+            if (Input.GetMouseButtonDown(1) && !UiClickGuard.IsOverMenu(Input.mousePosition))
             {
                 TryDemolish(cell);
             }
