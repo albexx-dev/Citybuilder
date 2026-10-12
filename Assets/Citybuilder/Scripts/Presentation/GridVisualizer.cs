@@ -71,8 +71,11 @@ namespace Citybuilder
         private void EnsureVisuals()
         {
             GameObject lines = FindChild("GridLines");
-            if (lines == null)
+            MeshFilter linesFilter = lines == null ? null : lines.GetComponent<MeshFilter>();
+            bool linesReady = linesFilter != null && linesFilter.mesh != null && linesFilter.mesh.vertexCount > 0;
+            if (!linesReady)
             {
+                if (lines != null) Destroy(lines);
                 BuildGridLines();
             }
             if (hoverQuad == null)
@@ -144,31 +147,31 @@ namespace Citybuilder
         {
             GameObject go = new GameObject("GridLines");
             go.transform.SetParent(transform, false);
-            LineRenderer lines = go.AddComponent<LineRenderer>();
-            lines.useWorldSpace = false;
-            lines.startWidth = 0.03f;
-            lines.endWidth = 0.03f;
-            lines.startColor = LineColor;
-            lines.endColor = LineColor;
-            lines.material = BuildMaterial(Color.white);
-            int vertical = Width + 1;
-            int horizontal = Height + 1;
-            lines.positionCount = (vertical + horizontal) * 2;
+            MeshFilter filter = go.AddComponent<MeshFilter>();
+            filter.mesh = new Mesh();
+            go.AddComponent<MeshRenderer>().material = BuildMaterial(LineColor);
+            int vertical = Width + 1, horizontal = Height + 1;
+            int count = (vertical + horizontal) * 2;
+            Vector3[] vertices = new Vector3[count];
+            int[] indices = new int[count];
+            float totalX = Width * CellSize, totalZ = Height * CellSize;
             int i = 0;
-            float totalX = Width * CellSize;
-            float totalZ = Height * CellSize;
             for (int x = 0; x < vertical; x++, i += 2)
             {
                 float px = x * CellSize;
-                lines.SetPosition(i, new Vector3(px, 0f, 0f));
-                lines.SetPosition(i + 1, new Vector3(px, 0f, totalZ));
+                vertices[i] = new Vector3(px, 0f, 0f);
+                vertices[i + 1] = new Vector3(px, 0f, totalZ);
             }
             for (int z = 0; z < horizontal; z++, i += 2)
             {
                 float pz = z * CellSize;
-                lines.SetPosition(i, new Vector3(0f, 0f, pz));
-                lines.SetPosition(i + 1, new Vector3(totalX, 0f, pz));
+                vertices[i] = new Vector3(0f, 0f, pz);
+                vertices[i + 1] = new Vector3(totalX, 0f, pz);
             }
+            for (int v = 0; v < count; v++) indices[v] = v;
+            filter.mesh.vertices = vertices;
+            filter.mesh.SetIndices(indices, MeshTopology.Lines, 0);
+            filter.mesh.RecalculateBounds();
         }
 
         private GameObject BuildQuad(Color color)
