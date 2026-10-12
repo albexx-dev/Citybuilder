@@ -23,11 +23,17 @@ namespace Citybuilder
         // Ряд кнопок скорости под лейблом. Клик — через приватный сеттер для E2E.
         private void DrawSpeedRow(SimulationRunner runner)
         {
+            float buttonWidth = 90f;
+            float buttonHeight = 26f;
+            float startX = 10f;
+            float startY = 84f;
+            float gap = 4f;
+            UiClickGuard.Set("speeds", new Rect(startX, startY, 3 * buttonWidth + 2 * gap, buttonHeight));
             SimulationSpeed[] speeds = { SimulationSpeed.Paused, SimulationSpeed.Playing, SimulationSpeed.FastForward };
             string[] labels = { "Пауза", "Игра", "x4" };
             for (int i = 0; i < speeds.Length; i++)
             {
-                Rect rect = new Rect(10 + i * (90 + 4), 84, 90, 26);
+                Rect rect = new Rect(startX + i * (buttonWidth + gap), startY, buttonWidth, buttonHeight);
                 if (DrawButton(rect, labels[i], runner.Speed == speeds[i]))
                 {
                     SetRunnerSpeed(speeds[i]);

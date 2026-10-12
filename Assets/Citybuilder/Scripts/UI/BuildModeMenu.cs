@@ -102,6 +102,7 @@ namespace Citybuilder
             float height = 30f;
             float margin = 10f;
             float x = Screen.width - width - margin;
+            UiClickGuard.Set("modes", new Rect(x, margin, width, 5 * (height + 4f)));
             for (int i = 0; i < modes.Length; i++)
             {
                 Rect rect = new Rect(x, margin + i * (height + 4f), width, height);
@@ -112,6 +113,7 @@ namespace Citybuilder
             }
             if (current == Mode.Zones)
             {
+                UiClickGuard.Set("brush", new Rect(x - 2 * (width + 4f), margin + 5 * (height + 4f) + 8f, 3 * width + 8f, height));
                 DrawBrushRow(x, margin + 5 * (height + 4f) + 8f, width, height);
             }
         }
