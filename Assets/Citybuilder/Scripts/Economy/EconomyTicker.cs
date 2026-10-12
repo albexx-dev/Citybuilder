@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Периодический сбор налогов: Employed × ставка в казну по таймеру. Только таймер.
-    // Настройка сцены: отдельный объект, Population/Growth/Treasury обязательны, по умолчанию включён.
+    // Сбор налогов по тикам часов: Employed × ставка в казну. Только подписка на часы.
+    // Настройка сцены: отдельный объект, Population/Growth/Treasury/Runner обязательны, по умолчанию включён.
     public class EconomyTicker : MonoBehaviour
     {
         [Header("References")]
@@ -13,16 +13,15 @@ namespace Citybuilder
         public SettlementGrowthController Growth;
         [Tooltip("Вид казны. Обязателен: даёт Treasury для зачисления налогов.")]
         public TreasuryView Treasury;
+        [Tooltip("Драйвер часов. Обязателен: даёт тики часов для сбора налогов.")]
+        public SimulationRunner Runner;
         [Header("Taxes")]
         [Tooltip("Налог с одного работающего за тик. 0 выключает сбор. Минимум 0.")]
         public int TaxPerWorker = 2;
-        [Tooltip("Пауза между сборами в секундах. Минимум 1.")]
-        public float TickIntervalSec = 10f;
         [Tooltip("Режим автосбора. Выключите для ручного сбора.")]
         public bool placementActive = true;
         private EmploymentSystem employment;
         private TaxSystem tax;
-        private float timer;
         // Доступ для E2E-проверок. Может быть null, пока системы не готовы.
         public TaxSystem Tax
         {
@@ -37,6 +36,36 @@ namespace Citybuilder
             ClampLimits();
             EnsureReady();
         }
+        // Подписка здесь, а не в Start: OnEnable срабатывает при каждом включении,
+        // чинит подписку после дозавязки ссылок и переживает перезагрузку домена.
+        private void OnEnable()
+        {
+            if (!EnsureReady())
+            {
+                return;
+            }
+            if (Runner != null && Runner.Clock != null)
+            {
+                Runner.Clock.TickCompleted += OnClockTick;
+            }
+        }
+        private void OnDisable()
+        {
+            if (Runner != null && Runner.Clock != null)
+            {
+                Runner.Clock.TickCompleted -= OnClockTick;
+            }
+        }
+        // Повторный OnEnable после OnDisable переподписывает один раз: отписка в OnDisable это гарантирует.
+        // Параметр времени не нужен: сам факт тика = один игровой час = один сбор.
+        private void OnClockTick(SimulationTime time)
+        {
+            if (!placementActive)
+            {
+                return;
+            }
+            Tick();
+        }
         private void OnValidate()
         {
             ClampLimits();
@@ -44,9 +73,9 @@ namespace Citybuilder
         // Проверяет ссылки и чинит логику после перезагрузки домена.
         private bool EnsureReady()
         {
-            if (Population == null || Growth == null || Treasury == null)
+            if (Population == null || Growth == null || Treasury == null || Runner == null)
             {
-                Debug.LogError("EconomyTicker: задайте Population, Growth и Treasury в Inspector.");
+                Debug.LogError("EconomyTicker: задайте Population, Growth, Treasury и Runner в Inspector.");
                 enabled = false;
                 return false;
             }
@@ -79,24 +108,6 @@ namespace Citybuilder
             employment = new EmploymentSystem(Population.Population, Growth.Settlement);
             tax = new TaxSystem(employment, Treasury.Treasury);
         }
-        private void Update()
-        {
-            if (!EnsureReady())
-            {
-                return;
-            }
-            if (!placementActive || tax == null)
-            {
-                return;
-            }
-            timer += Time.deltaTime;
-            if (timer < TickIntervalSec)
-            {
-                return;
-            }
-            timer = 0f;
-            Tick();
-        }
         // Один шаг сбора для E2E. Нет систем — тихо пропускаем.
         private void Tick()
         {
@@ -111,10 +122,6 @@ namespace Citybuilder
             if (TaxPerWorker < 0)
             {
                 TaxPerWorker = 0;
-            }
-            if (TickIntervalSec < 1f)
-            {
-                TickIntervalSec = 1f;
             }
         }
     }
