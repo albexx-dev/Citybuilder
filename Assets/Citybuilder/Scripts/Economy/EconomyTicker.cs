@@ -108,9 +108,11 @@ namespace Citybuilder
             employment = new EmploymentSystem(Population.Population, Growth.Settlement);
             tax = new TaxSystem(employment, Treasury.Treasury);
         }
-        // Один шаг сбора для E2E. Нет систем — тихо пропускаем.
+        // Один шаг сбора для тиков часов. Системы пересобираются: поселения
+        // могли появиться позже подписки (рост включается меню уже в игре).
         private void Tick()
         {
+            EnsureSystems();
             if (tax == null)
             {
                 return;
