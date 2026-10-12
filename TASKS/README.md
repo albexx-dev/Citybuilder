@@ -25,7 +25,7 @@
 - [x] Done 021-camera-zones-polish + merged (Muse: скорости 30/40, DragSpeed 240, Shift ×3, inset-квадраты зон + глухие цвета; E2E: inset 2.15–2.85, Console чистый; скорости 30/40 прописаны в сцену)
 - [x] Done 022-houses-look + merged (Muse + фикс крыши оркестратором: контр-scale; швы 0.9, высоты 1/1.5/2, крыши; E2E: геометрия точная, Console чистый)
 - [x] Done 023-taxes + merged (Muse: TaxSystem Collect + EconomyTicker + геттер Settlement; E2E: 6×2=+12, Collect(0)=Fail, тикер на пустом тихо; объект Economy в сцене, Console чистый)
-- [ ] InProgress 024-workplaces-growth (Muse) + branch task/024-workplaces-growth
+- [x] Done 024-workplaces-growth + merged (Muse: Definitions + подбор по зоне, 167 строк — исключение из лимита; E2E: house+shop выросли, jobs 6, налог +4; Shop/Factory-ассеты в Unity, Definitions=[H,C,I] в сцене, Console чистый)
 - NEXT: 017 (панель населения, автовъезд) — Этап 6 продолжается
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
