@@ -65,6 +65,13 @@ namespace Citybuilder
             }
         }
 
+        // Кисть зон. None и null ZonePainter — игнор. Публичный для E2E-моста.
+        public void SetBrush(ZoneType zone)
+        {
+            if (zone == ZoneType.None || Zones == null) return;
+            Zones.Brush = zone;
+        }
+
         // Ленивый добор недостающих ссылок на том же объекте.
         private void EnsureRefs()
         {
@@ -98,23 +105,44 @@ namespace Citybuilder
             for (int i = 0; i < modes.Length; i++)
             {
                 Rect rect = new Rect(x, margin + i * (height + 4f), width, height);
-                DrawModeButton(rect, modes[i], labels[i]);
+                if (DrawButton(rect, labels[i], current == modes[i]))
+                {
+                    SetMode(modes[i]);
+                }
+            }
+            if (current == Mode.Zones)
+            {
+                DrawBrushRow(x, margin + 5 * (height + 4f) + 8f, width, height);
             }
         }
 
-        // Одна кнопка: активная подсвечена жёлтым, цвет восстанавливается.
-        private void DrawModeButton(Rect rect, Mode mode, string label)
+        // Ряд кисти зон под кнопками режимов. Те же размеры, активная подсвечена.
+        private void DrawBrushRow(float x, float y, float width, float height)
+        {
+            ZoneType[] brushes = { ZoneType.Residential, ZoneType.Commercial, ZoneType.Industrial };
+            string[] labels = { "Жилая", "Коммерция", "Промзона" };
+            for (int i = 0; i < brushes.Length; i++)
+            {
+                Rect rect = new Rect(x - (brushes.Length - 1 - i) * (width + 4f), y, width, height);
+                bool highlighted = Zones != null && Zones.Brush == brushes[i];
+                if (DrawButton(rect, labels[i], highlighted))
+                {
+                    SetBrush(brushes[i]);
+                }
+            }
+        }
+
+        // Одна кнопка: подсвечена жёлтым, цвет восстанавливается. Возвращает клик.
+        private bool DrawButton(Rect rect, string label, bool highlighted)
         {
             Color saved = GUI.backgroundColor;
-            if (current == mode)
+            if (highlighted)
             {
                 GUI.backgroundColor = Color.yellow;
             }
-            if (GUI.Button(rect, label))
-            {
-                SetMode(mode);
-            }
+            bool clicked = GUI.Button(rect, label);
             GUI.backgroundColor = saved;
+            return clicked;
         }
     }
 }
