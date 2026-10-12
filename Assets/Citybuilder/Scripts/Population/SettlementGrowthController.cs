@@ -10,10 +10,10 @@ namespace Citybuilder
         [Header("References")]
         [Tooltip("Сетка. Обязателен: даёт Grid и клетку под курсором.")] public GridVisualizer GridVisualizer;
         [Tooltip("Кисть зон. Обязательна: даёт ZoneSystem с жилыми клетками.")] public ZonePaintingController ZonePainter;
-        [Tooltip("Что выращивать. Обычно House 2x2 с AllowedZone Residential.")] public BuildingDefinition Definition;
         [Tooltip("Вид выросших домов. Пусто = создастся на этом же объекте.")] public SettlementView View;
         [Tooltip("Население. Опционален: при сносе выселяет жителей дома.")] public PopulationController PopulationSource;
         [Header("Growth")]
+        [Tooltip("Типы под зоны. Пусто = рост не работает.")] public List<BuildingDefinition> Definitions = new List<BuildingDefinition>();
         [Tooltip("Пауза между домами в секундах. Минимум 1.")] public float GrowthIntervalSec = 5f;
         [Tooltip("Потолок выросших домов. Минимум 1.")] public int MaxSettlements = 10;
         [Tooltip("Режим автовырастания. Выключите для ручной стройки.")] public bool placementActive = true;
@@ -49,9 +49,17 @@ namespace Citybuilder
         // Проверяет ссылки и чинит логику после перезагрузки домена. Выросшее при reload теряется (не V1).
         private bool EnsureReady()
         {
-            if (GridVisualizer == null || ZonePainter == null || Definition == null)
+            if (GridVisualizer == null || ZonePainter == null)
             {
-                Debug.LogError("SettlementGrowthController: задайте GridVisualizer, ZonePainter и Definition.");
+                Debug.LogError("SettlementGrowthController: задайте GridVisualizer и ZonePainter.");
+                enabled = false;
+                return false;
+            }
+            if (Definitions == null) Definitions = new List<BuildingDefinition>();
+            for (int i = Definitions.Count - 1; i >= 0; i--) if (Definitions[i] == null) Definitions.RemoveAt(i);
+            if (Definitions.Count == 0)
+            {
+                Debug.LogError("SettlementGrowthController: задайте Definitions.");
                 enabled = false;
                 return false;
             }
@@ -79,29 +87,43 @@ namespace Citybuilder
         }
         private void TryGrow()
         {
+            BuildingDefinition def;
             GridPosition origin;
-            if (!FindFreeOrigin(out origin)) return;
-            BuildingState state = settlement.Settle(Definition, origin);
+            if (!FindFreeOrigin(out def, out origin)) return;
+            BuildingState state = settlement.Settle(def, origin);
             if (state == null) return;
             states.Add(state);
-            View.AddBuilding(state, Definition, GridVisualizer.Grid.CellSize);
+            View.AddBuilding(state, def, GridVisualizer.Grid.CellSize);
             GridVisualizer.RefreshOccupied();
         }
-        // Первый Residential-кандидат, куда дом влезает целиком.
-        private bool FindFreeOrigin(out GridPosition origin)
+        // Первая зонная клетка и первый подходящий тип под её зону.
+        private bool FindFreeOrigin(out BuildingDefinition def, out GridPosition origin)
         {
             List<KeyValuePair<GridPosition, ZoneType>> zoned = ZonePainter.Zones.GetZonedCells();
             for (int i = 0; i < zoned.Count; i++)
             {
-                if (zoned[i].Value != ZoneType.Residential) continue;
-                if (settlement.CanSettle(Definition, zoned[i].Key))
+                GridPosition cell = zoned[i].Key;
+                ZoneType zone = zoned[i].Value;
+                for (int d = 0; d < Definitions.Count; d++)
                 {
-                    origin = zoned[i].Key;
-                    return true;
+                    BuildingDefinition candidate = Definitions[d];
+                    if (candidate == null) continue;
+                    if (!MatchesZone(candidate, zone)) continue;
+                    if (settlement.CanSettle(candidate, cell))
+                    {
+                        def = candidate;
+                        origin = cell;
+                        return true;
+                    }
                 }
             }
+            def = null;
             origin = default(GridPosition);
             return false;
+        }
+        private bool MatchesZone(BuildingDefinition def, ZoneType zone)
+        {
+            return def.AllowedZone == ZoneType.None || def.AllowedZone == zone;
         }
         private void HandleDemolishInput()
         {
