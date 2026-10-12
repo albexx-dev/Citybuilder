@@ -27,7 +27,7 @@
 - [x] Done 023-taxes + merged (Muse: TaxSystem Collect + EconomyTicker + геттер Settlement; E2E: 6×2=+12, Collect(0)=Fail, тикер на пустом тихо; объект Economy в сцене, Console чистый)
 - [x] Done 024-workplaces-growth + merged (Muse: Definitions + подбор по зоне, 167 строк — исключение из лимита; E2E: house+shop выросли, jobs 6, налог +4; Shop/Factory-ассеты в Unity, Definitions=[H,C,I] в сцене, Console чистый)
 - [x] Done 025-grid-lines-mesh + merged (Muse: меш Lines вместо LineRenderer; пользователь подтвердил — диагоналей нет)
-- [ ] InProgress 026-zone-brush-menu (Muse) + branch task/026-zone-brush-menu
+- [x] Done 026-zone-brush-menu + merged (Muse: SetBrush + ряд Жилая/Коммерция/Промзона в режиме Зоны, 148/150 строк; E2E: 3 типа + None-игнор, Console чистый)
 - NEXT: 017 (панель населения, автовъезд) — Этап 6 продолжается
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
