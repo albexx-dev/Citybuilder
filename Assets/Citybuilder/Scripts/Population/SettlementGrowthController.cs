@@ -11,6 +11,7 @@ namespace Citybuilder
         [Tooltip("Сетка. Обязателен: даёт Grid и клетку под курсором.")] public GridVisualizer GridVisualizer;
         [Tooltip("Кисть зон. Обязательна: даёт ZoneSystem с жилыми клетками.")] public ZonePaintingController ZonePainter;
         [Tooltip("Вид выросших домов. Пусто = создастся на этом же объекте.")] public SettlementView View;
+        [Tooltip("Казна для оплаты роста. Пусто = рост бесплатный.")] public TreasuryView Treasury;
         [Tooltip("Население. Опционален: при сносе выселяет жителей дома.")] public PopulationController PopulationSource;
         [Header("Growth")]
         [Tooltip("Типы под зоны. Пусто = рост не работает.")] public List<BuildingDefinition> Definitions = new List<BuildingDefinition>();
@@ -90,6 +91,11 @@ namespace Citybuilder
             BuildingDefinition def;
             GridPosition origin;
             if (!FindFreeOrigin(out def, out origin)) return;
+            if (Treasury != null && Treasury.Treasury != null)
+            {
+                var spent = Treasury.Treasury.TrySpend(def.ConstructionCost, def.Id);
+                if (!spent.Success) return;
+            }
             BuildingState state = settlement.Settle(def, origin);
             if (state == null) return;
             states.Add(state);
@@ -127,7 +133,7 @@ namespace Citybuilder
         }
         private void HandleDemolishInput()
         {
-            if (!Input.GetMouseButtonDown(1)) return;
+            if (!Input.GetMouseButtonDown(1) || UiClickGuard.IsOverMenu(Input.mousePosition)) return;
             GridPosition cell;
             if (!GridVisualizer.TryGetHoveredCell(out cell)) return;
             TryDemolish(cell);
