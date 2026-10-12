@@ -30,6 +30,7 @@
 - [x] Done 026-zone-brush-menu + merged (Muse: SetBrush + ряд Жилая/Коммерция/Промзона в режиме Зоны, 148/150 строк; E2E: 3 типа + None-игнор, Console чистый)
 - [x] Done 027-workplace-colors + merged (Muse: WallColor по зоне — дома бежевые, магазины синие, заводы серые; E2E: цвета точные, Console чистый)
 - [x] Done 028-clock-runner + merged (Muse: SimulationRunner 61 строка; E2E: Playing 3 тика, пауза 0, x4 12 тиков, Console чистый; объект Simulation в сцене)
+- [ ] InProgress 029-clock-view (Muse) + branch task/029-clock-view
 - NEXT: 017 (панель населения, автовъезд) — Этап 6 продолжается
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
