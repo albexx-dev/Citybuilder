@@ -31,6 +31,7 @@
 - [x] Done 027-workplace-colors + merged (Muse: WallColor по зоне — дома бежевые, магазины синие, заводы серые; E2E: цвета точные, Console чистый)
 - [x] Done 028-clock-runner + merged (Muse: SimulationRunner 61 строка; E2E: Playing 3 тика, пауза 0, x4 12 тиков, Console чистый; объект Simulation в сцене)
 - [x] Done 029-clock-view + merged (Muse: ClockView 30 строк, формат проверен в Unity: Day/Hour/Пауза/Игра/x4; компонент добавлен на Simulation в сцену после переоткрытия Unity)
+- [ ] InProgress 030-clock-speed (Muse) + branch task/030-clock-speed
 - NEXT: 017 (панель населения, автовъезд) — Этап 6 продолжается
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
