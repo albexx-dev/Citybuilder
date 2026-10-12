@@ -82,7 +82,7 @@ namespace Citybuilder
             cube.transform.localScale = new Vector3(w, h, d);
             cube.transform.localPosition = FootprintCenter(state.Origin, def, cellSize, h * 0.5f);
             Destroy(cube.GetComponent<Collider>());
-            cube.GetComponent<MeshRenderer>().material = BuildMaterial();
+            cube.GetComponent<MeshRenderer>().material = BuildMaterial(WallColor(def));
             BuildRoof(cube, h);
             return cube;
         }
@@ -110,11 +110,29 @@ namespace Citybuilder
             return new Vector3(centerX, height, centerZ);
         }
 
-        private Material BuildMaterial()
+        private Material BuildMaterial(Color color)
         {
             Material material = new Material(Shader.Find("Unlit/Color"));
-            material.color = FallbackColor;
+            material.color = color;
             return material;
+        }
+
+        // Цвет стен по зоне: жильё бежевое, коммерция синяя, промышленность серая.
+        private Color WallColor(BuildingDefinition def)
+        {
+            if (def == null)
+            {
+                return FallbackColor;
+            }
+            if (def.AllowedZone == ZoneType.Commercial)
+            {
+                return new Color(0.6f, 0.75f, 0.9f);
+            }
+            if (def.AllowedZone == ZoneType.Industrial)
+            {
+                return new Color(0.55f, 0.5f, 0.45f);
+            }
+            return FallbackColor;
         }
     }
 }
