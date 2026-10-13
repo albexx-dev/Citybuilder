@@ -35,6 +35,7 @@
 - [x] Done 031-clock-taxes + merged (Muse + 2 фикса оркестратора: placementActive-гейт, подписка в OnEnable; E2E: 3 тика +24, пауза тишина, дублей нет, Runner в сцене, Console чистый)
 - [x] Done 032-menu-click-guard + merged (3 коммита: UiClickGuard + регистрация rects + гарды 4 контроллеров; E2E: guard на месте, Console чистый)
 - [x] Done 033-growth-cost + merged (Muse: плата за рост spend→place + гард сноса; E2E: бедно-пропуск, богато −100/−150, казна привязана в сцене, Console чистый)
-- NEXT: 017 (панель населения, автовъезд) — Этап 6 продолжается
+- [x] InProgress 034-growth-clock (Muse) + branch task/034-growth-clock
+- NEXT: 034 (рост по тикам часов), далее хоткеи меню / потребности жителей
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
