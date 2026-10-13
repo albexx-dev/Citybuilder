@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Автовырастание домов на жилых зонах: таймер, first-fit, ПКМ-снос. Только старый Input.
-    // Настройка сцены: компонент на объекте с GridVisualizer, по умолчанию выключен.
+    // Автовырастание домов на жилых зонах: счётчик тиков часов, first-fit, ПКМ-снос. Только старый Input.
+    // Тики даёт SettlementGrowthTicker на том же объекте. Runner обязателен, по умолчанию выключен.
     public class SettlementGrowthController : MonoBehaviour
     {
         [Header("References")]
@@ -13,15 +13,16 @@ namespace Citybuilder
         [Tooltip("Вид выросших домов. Пусто = создастся на этом же объекте.")] public SettlementView View;
         [Tooltip("Казна для оплаты роста. Пусто = рост бесплатный.")] public TreasuryView Treasury;
         [Tooltip("Население. Опционален: при сносе выселяет жителей дома.")] public PopulationController PopulationSource;
+        [Tooltip("Драйвер часов. Обязателен: даёт тики часов для роста.")] public SimulationRunner Runner;
         [Header("Growth")]
         [Tooltip("Типы под зоны. Пусто = рост не работает.")] public List<BuildingDefinition> Definitions = new List<BuildingDefinition>();
-        [Tooltip("Пауза между домами в секундах. Минимум 1.")] public float GrowthIntervalSec = 5f;
+        [Tooltip("Тиков часов между домами. Минимум 1.")] public int TicksPerGrowth = 5;
         [Tooltip("Потолок выросших домов. Минимум 1.")] public int MaxSettlements = 10;
         [Tooltip("Режим автовырастания. Выключите для ручной стройки.")] public bool placementActive = true;
         private BuildingSystem buildings;
         private SettlementSystem settlement;
         private readonly List<BuildingState> states = new List<BuildingState>();
-        private float timer;
+        private int tickCount;
         // Копия выросших домов для заселения. Отдаём копию, а не сам список.
         public List<BuildingState> Homes
         {
@@ -43,6 +44,29 @@ namespace Citybuilder
             ClampLimits();
             EnsureReady();
         }
+        // Вход тиков от SettlementGrowthTicker. Параметр времени не нужен: сам факт тика = один игровой час.
+        public void OnClockTick(SimulationTime time)
+        {
+            if (!placementActive)
+            {
+                return;
+            }
+            if (!EnsureReady() || settlement == null)
+            {
+                return;
+            }
+            if (settlement.SettledCount >= MaxSettlements)
+            {
+                return;
+            }
+            tickCount++;
+            if (tickCount < TicksPerGrowth)
+            {
+                return;
+            }
+            tickCount = 0;
+            TryGrow();
+        }
         private void OnValidate()
         {
             ClampLimits();
@@ -50,9 +74,9 @@ namespace Citybuilder
         // Проверяет ссылки и чинит логику после перезагрузки домена. Выросшее при reload теряется (не V1).
         private bool EnsureReady()
         {
-            if (GridVisualizer == null || ZonePainter == null)
+            if (GridVisualizer == null || ZonePainter == null || Runner == null)
             {
-                Debug.LogError("SettlementGrowthController: задайте GridVisualizer и ZonePainter.");
+                Debug.LogError("SettlementGrowthController: задайте GridVisualizer, ZonePainter и Runner.");
                 enabled = false;
                 return false;
             }
@@ -75,16 +99,11 @@ namespace Citybuilder
             }
             return true;
         }
+        // Только ручной ввод: снос по ПКМ. Рост идёт по тикам часов, не по кадрам.
         private void Update()
         {
             if (!EnsureReady()) return;
             HandleDemolishInput();
-            if (!placementActive || settlement == null) return;
-            if (settlement.SettledCount >= MaxSettlements) return;
-            timer += Time.deltaTime;
-            if (timer < GrowthIntervalSec) return;
-            timer = 0f;
-            TryGrow();
         }
         private void TryGrow()
         {
@@ -166,7 +185,7 @@ namespace Citybuilder
         }
         private void ClampLimits()
         {
-            if (GrowthIntervalSec < 1f) GrowthIntervalSec = 1f;
+            if (TicksPerGrowth < 1) TicksPerGrowth = 1;
             if (MaxSettlements < 1) MaxSettlements = 1;
         }
     }
