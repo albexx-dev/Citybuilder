@@ -7,7 +7,7 @@ namespace Citybuilder
     public class TreasuryView : MonoBehaviour
     {
         [Tooltip("Стартовый баланс города.")]
-        public int StartingBalance = 1000;
+        public int StartingBalance = 1500;
 
         private Treasury treasury;
 
