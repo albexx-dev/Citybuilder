@@ -52,6 +52,7 @@ namespace Citybuilder
                 Debug.LogError("BuildModeHotkeys: задайте Menu в Inspector.");
                 enabled = false;
             }
+            Menu = found;
             return found;
         }
     }
