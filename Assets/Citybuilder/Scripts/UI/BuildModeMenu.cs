@@ -97,7 +97,7 @@ namespace Citybuilder
         {
             EnsureRefs();
             Mode[] modes = { Mode.Off, Mode.Houses, Mode.Roads, Mode.Zones, Mode.Growth };
-            string[] labels = { "Выкл", "Дома", "Дороги", "Зоны", "Рост" };
+            string[] labels = { "Выкл [Esc]", "Дома [1]", "Дороги [2]", "Зоны [3]", "Рост [4]" };
             float width = 90f;
             float height = 30f;
             float margin = 10f;
