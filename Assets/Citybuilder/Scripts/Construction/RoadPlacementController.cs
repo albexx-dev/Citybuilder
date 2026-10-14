@@ -27,6 +27,15 @@ namespace Citybuilder
         private GridPosition lastHover;
         private List<GridPosition> previewCells = new List<GridPosition>();
 
+        // Копия построенных дорог для сохранений. Отдаём копию, а не сам список.
+        public List<RoadState> Roads
+        {
+            get
+            {
+                return new List<RoadState>(states);
+            }
+        }
+
         private void Start()
         {
             EnsureReady();

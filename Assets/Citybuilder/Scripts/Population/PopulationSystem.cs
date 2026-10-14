@@ -11,6 +11,15 @@ namespace Citybuilder
         public int HouseholdCount { get; private set; }
         public int TotalResidents { get; private set; }
 
+        // Копия домохозяйств для сохранений. Отдаём копию, а не сам словарь.
+        public List<HouseholdState> Households
+        {
+            get
+            {
+                return new List<HouseholdState>(households.Values);
+            }
+        }
+
         public PopulationSystem()
         {
         }
