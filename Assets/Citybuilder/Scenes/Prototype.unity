@@ -366,6 +366,7 @@ GameObject:
   - component: {fileID: 1069481160}
   - component: {fileID: 1069481159}
   - component: {fileID: 1069481161}
+  - component: {fileID: 1069481162}
   m_Layer: 0
   m_Name: Population
   m_TagString: Untagged
@@ -420,6 +421,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.NeedsView
   Population: {fileID: 0}
   Growth: {fileID: 985593158}
+--- !u!114 &1069481162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1069481158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e84ce476ce0749ff8969812b862b9923, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.GoalView
+  Population: {fileID: 1069481159}
+  Simulation: {fileID: 1821543313}
 --- !u!1 &1432023085
 GameObject:
   m_ObjectHideFlags: 0
