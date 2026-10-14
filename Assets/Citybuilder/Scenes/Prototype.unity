@@ -389,6 +389,7 @@ MonoBehaviour:
   View: {fileID: 0}
   HouseholdSize: 2
   MoveInIntervalSec: 7
+  MinSatisfaction: 0.5
   placementActive: 1
 --- !u!4 &1069481160
 Transform:
