@@ -41,6 +41,7 @@
 - [x] Done 037-needs-panel + merged (Muse: NeedsView + фикс позиции y=114; E2E: лейбл виден, 21% = (62+0+0)/3 при 4 домах/6 жителях, скриншоты пусто/живо, Console чистый; компонент добавлен в сцену)
 - [x] Done 038-movein-gate + merged (Muse: гейт MinSatisfaction=0.5 в TryMoveIn; E2E: без работы стоп на 1 семье при 7 домах, с магазином 1→5 семей, панель 44%=(72+0+60)/3, Console чистый; сцена без изменений)
 - [x] Done 039-p0-lite-tests + merged (Muse: импорт Assets/Packages/ProjectSettings+.meta, asmdef Citybuilder/Tests, 3 тестовых файла; приёмка: переезд на корень репо, EditMode 42/42, smoke-Play 9 домов + гейт, Console чистый; ПЕРВЫЙ ПУШ в origin после 012)
-- NEXT: 040 (PR-процесс + чистка веток) → 041 (README/DECISIONS/ADR, первым ADR Jobs/Burst)
+- [x] Done 040-pr-process + merged (оркестратор: AGENTS.md под локальный процесс + чек-лист приёмки + пуш-обязательство; удалена 41 смерженная ветка локально и 13 в origin; пуш в origin)
+- NEXT: 041 (README/DECISIONS/ADR, первым ADR Jobs/Burst)
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
