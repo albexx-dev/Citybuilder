@@ -36,7 +36,7 @@
 - [x] Done 032-menu-click-guard + merged (3 коммита: UiClickGuard + регистрация rects + гарды 4 контроллеров; E2E: guard на месте, Console чистый)
 - [x] Done 033-growth-cost + merged (Muse: плата за рост spend→place + гард сноса; E2E: бедно-пропуск, богато −100/−150, казна привязана в сцене, Console чистый)
 - [x] Done 034-growth-clock + merged (Muse: рост по тикам через SettlementGrowthTicker, TicksPerGrowth=5; E2E: Off=0 домов за 19 тиков, Playing +3/−300, бедно-стоп, пауза frozen, x4 +9/−900 точно, Console чистый; Runner+Ticker привязаны в сцене)
-- [x] InProgress 035-menu-hotkeys (Muse) + branch task/035-menu-hotkeys
+- [x] Done 035-menu-hotkeys + merged (Muse: BuildModeHotkeys Esc/1-4 + подписи кнопок; E2E: компонент активен, меню резолвится, все 5 режимов + эксклюзивность, скриншот с подсказками, Console чистый; компонент добавлен в сцену)
 - NEXT: 035 (хоткеи меню), далее потребности жителей
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
