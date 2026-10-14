@@ -1,8 +1,10 @@
 # Unity MCP — запуск и чинка навсегда
 
-Источник правды для скриптов: **Unity-проект**
-`C:\Users\admin\UnityProjects\CityBuilder`.
-Git-репо `C:\Users\admin\Citybuilder` хранит те же скрипты и должен быть в синхроне.
+Источник правды — **корень репо**
+`C:\Users\admin\Citybuilder` (с задачи 039 репо само является
+Unity-проектом: Assets/Packages/ProjectSettings лежат в git).
+Старый путь `C:\Users\admin\UnityProjects\CityBuilder` — архивный,
+оркестратор удаляет его при переезде (бэкап-переименование).
 
 ## Правильный порядок запуска
 
@@ -25,7 +27,7 @@ powershell -ExecutionPolicy Bypass -File Tools\Check-UnityMcp.ps1
 | Порт 8080 не слушается | Подождать 30 сек; проверить окно MCP в Unity; перезапустить Unity |
 | Мост не отвечает | Unity перекомпилирует скрипты — подождать; иначе перезапустить Unity |
 | Конфиг не единый | Должен быть только `~/.config/opencode/opencode.json` с `mcp.servers.unityMCP` |
-| Скрипты расходятся | Скопировать из Unity-проекта в git (Unity — главный), закоммитить |
+| Не корень проекта | Запускать скрипт из корня репо `C:\Users\admin\Citybuilder` |
 
 ## Почему так было (корни проблемы, 2026-10-10)
 
@@ -34,8 +36,8 @@ powershell -ExecutionPolicy Bypass -File Tools\Check-UnityMcp.ps1
 2. Было два глобальных конфига (`opencode.json` + `opencode.jsonc`) с разным
    форматом — объединены в один `opencode.json` (формат V2 `mcp.servers`).
    Старый файл лежит в `opencode.jsonc.bak`.
-3. Git-репо не является Unity-проектом — скрипты дублируются.
-   Правило: править в одном месте, сверять скриптом, Unity-проект главный.
+3. Корень репо — сам Unity-проект (с 039). Дубля скриптов больше нет:
+   правило «править в одном месте» выполняется само, скрипт это не проверяет.
 
 ## Быстрая проверка связи
 

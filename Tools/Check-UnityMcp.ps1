@@ -17,9 +17,9 @@ function Check($name, [scriptblock]$test) {
     else { Write-Host "[FAIL] $name"; $script:failures++ }
 }
 
-$unityProject = 'C:\Users\admin\UnityProjects\CityBuilder'
-$gitScripts = 'C:\Users\admin\Citybuilder\Assets\Citybuilder\Scripts'
-$unityScripts = Join-Path $unityProject 'Assets\Citybuilder\Scripts'
+# Корень проекта — корень репо (с 039 репо само является Unity-проектом).
+$projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
+$unityProject = $projectRoot
 
 # 1. Unity открыт с нужным проектом
 Check 'Unity запущен с проектом CityBuilder' {
@@ -54,24 +54,9 @@ Check 'Единый конфиг opencode.json с unityMCP' {
     ((Get-Content $cfg -Raw) -match '"mcp"\s*:\s*\{\s*"servers"')
 }
 
-# 5. Скрипты git и Unity в синхроне (кроме .meta)
-Check 'Скрипты git = скриптам Unity-проекта' {
-    $ok = (Test-Path $gitScripts) -and (Test-Path $unityScripts)
-    if ($ok) {
-        Get-ChildItem $gitScripts -Recurse -File -Filter '*.cs' | ForEach-Object {
-            $rel = $_.FullName.Substring($gitScripts.Length)
-            $other = Join-Path $unityScripts $rel
-            if (-not (Test-Path $other)) { Write-Host "  нет в Unity: $rel"; $ok = $false }
-            elseif ((Get-FileHash $_.FullName).Hash -ne (Get-FileHash $other).Hash) {
-                Write-Host "  отличается: $rel"; $ok = $false
-            }
-        }
-        Get-ChildItem $unityScripts -Recurse -File -Filter '*.cs' | ForEach-Object {
-            $rel = $_.FullName.Substring($unityScripts.Length)
-            if (-not (Test-Path (Join-Path $gitScripts $rel))) { Write-Host "  нет в git: $rel"; $ok = $false }
-        }
-    }
-    $ok
+# 5. Запуск из корня проекта (дубля скриптов больше нет — сверять нечего)
+Check 'Текущая папка — корень проекта' {
+    [IO.Path]::GetFullPath((Get-Location).Path) -eq $projectRoot
 }
 
 if ($failures -gt 0) {
