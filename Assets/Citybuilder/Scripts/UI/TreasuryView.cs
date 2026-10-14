@@ -25,6 +25,12 @@ namespace Citybuilder
             }
         }
 
+        // Сброс баланса из сохранения: казна пересоздаётся как после reload.
+        public void ResetBalance(int balance)
+        {
+            treasury = new Treasury(balance);
+        }
+
         private void OnGUI()
         {
             if (Treasury == null)

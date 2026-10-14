@@ -45,6 +45,7 @@
 - [x] Done 041-docs-adr + merged (оркестратор: README-квикстарт, DECISIONS/ с ADR-001 Jobs/Burst-триггер, ADR-002 Persistence-деферрал, ADR-003 репо=проект; пуш в origin)
 - [x] Done 042-min-release + merged (оркестратор: хвосты 1–3, переименование FROZEN + smoke, ADR-004 рамка релиза + пересмотр ADR-002 + GAME_DESIGN §18; пуш в origin)
 - [x] Done 043-save-slot + merged (Muse: CitySnapshot/SaveSystem/SaveSlotStorage/SaveController + 2 микрогеттера; E2E: slot0.json сошёлся — 52 зоны/9 домов/1 семья/баланс/тик, дороги [] без мыши; тесты 47/47; объект Persistence добавлен в сцену; Console чистый)
-- NEXT: 044 (загрузка) → 045 (HUD + победа/поражение) → 046 (меню) → 047 (сборка + баланс)
+- [x] Done 044-load-slot + merged (Muse: 8 хуков + LoadSystem/LoadController + тесты; E2E: загрузка = файлу один в один incl. тики и ручные дороги, битый слот не трогает город, оверлеи зон на месте; тесты 52/52; LoadController добавлен в сцену; Console чистый)
+- NEXT: 045 (HUD + победа/поражение) → 046 (меню) → 047 (сборка + баланс)
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.

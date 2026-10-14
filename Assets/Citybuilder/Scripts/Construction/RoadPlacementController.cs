@@ -186,6 +186,29 @@ namespace Citybuilder
             }
         }
 
+        // Восстановить дорогу из сохранения: без оплаты, список и вид обновляются.
+        public RoadState RestoreRoad(GridPosition cell)
+        {
+            if (!EnsureReady() || system == null) return null;
+            if (IsOwnRoadCell(cell)) return null;
+            RoadState state = system.Place(cell);
+            if (state == null) return null;
+            states.Add(state);
+            RefreshView();
+            GridVisualizer.RefreshOccupied();
+            return state;
+        }
+
+        // Снести все дороги (первый шаг загрузки слота).
+        public void ClearRoads()
+        {
+            if (!EnsureReady() || system == null) return;
+            for (int i = states.Count - 1; i >= 0; i--) system.Demolish(states[i]);
+            states.Clear();
+            RefreshView();
+            GridVisualizer.RefreshOccupied();
+        }
+
         private bool CheckCells()
         {
             for (int i = 0; i < previewCells.Count; i++)

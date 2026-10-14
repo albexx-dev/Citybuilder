@@ -28,6 +28,17 @@ namespace Citybuilder
             Speed = speed;
         }
 
+        // Выставить часы из сохранения молча: без событий, иначе налоги/рост сработают заново.
+        public void RestoreTime(long ticks)
+        {
+            if (ticks < 0)
+            {
+                ticks = 0;
+            }
+            CurrentTime = new SimulationTime(ticks);
+            accumulatedSeconds = 0f;
+        }
+
         // Вызывать каждый кадр с реальным deltaTime. Остаток сохраняется.
         public void Update(float deltaTime)
         {
