@@ -17,7 +17,7 @@ namespace Citybuilder
         [Header("Growth")]
         [Tooltip("Типы под зоны. Пусто = рост не работает.")] public List<BuildingDefinition> Definitions = new List<BuildingDefinition>();
         [Tooltip("Тиков часов между домами. Минимум 1.")] public int TicksPerGrowth = 5;
-        [Tooltip("Потолок выросших домов. Минимум 1.")] public int MaxSettlements = 20;
+        [Tooltip("Потолок выросших домов. Минимум 1.")] public int MaxSettlements = 30;
         [Tooltip("Режим автовырастания. Выключите для ручной стройки.")] public bool placementActive = true;
         private BuildingSystem buildings;
         private SettlementSystem settlement;
