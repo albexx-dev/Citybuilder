@@ -1,6 +1,6 @@
 # ADR-002: Persistence deferred, state discipline locked
 
-Date: 2026-10-14. Status: accepted.
+Date: 2026-10-14. Status: amended by ADR-004 (single-slot save/load enters minimal-release scope; full persistence still deferred).
 
 Context: audit P1 — runtime state lives in MonoBehaviour memory and does not survive domain reload; full save/load is not V1.
 
