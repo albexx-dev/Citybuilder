@@ -37,7 +37,8 @@ namespace Citybuilder
             text += " (жильё " + ToPercent(housing) + "%";
             text += " • работа " + ToPercent(jobs) + "%";
             text += " • занятость " + ToPercent(employment) + "%)";
-            GUI.Label(new Rect(10, 50, 400, 30), text);
+            // y=114: ниже часов (y=50) и кнопок скорости (y=84-110), чтобы не налезать.
+            GUI.Label(new Rect(10, 114, 400, 30), text);
         }
 
         // Тихое создание поверх живых симуляций. Систем нет — тихо рисуем нули.
