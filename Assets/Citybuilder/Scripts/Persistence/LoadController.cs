@@ -44,6 +44,16 @@ namespace Citybuilder
             return true;
         }
 
+        // Новая игра: очистка города + стартовый баланс и нулевое время. В слот не пишет.
+        public void NewGame()
+        {
+            ResolveRefs();
+            ClearAll();
+            if (Treasury != null) Treasury.ResetBalance(Treasury.StartingBalance);
+            if (Runner != null && Runner.Clock != null) Runner.Clock.RestoreTime(0);
+            Debug.Log("LoadController: новая игра начата.");
+        }
+
         private void ResolveRefs()
         {
             if (Population == null) Population = GetComponent<PopulationController>();
