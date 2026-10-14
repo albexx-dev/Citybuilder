@@ -17,9 +17,12 @@ namespace Citybuilder
         public int HouseholdSize = 2;
         [Tooltip("Пауза между въездами в секундах. Минимум 1.")]
         public float MoveInIntervalSec = 7f;
+        [Tooltip("Минимальная удовлетворённость для въезда. Ниже — новые не въезжают.")]
+        public float MinSatisfaction = 0.5f;
         [Tooltip("Режим автовъезда. Выключите для ручного заселения.")]
         public bool placementActive = true;
         private PopulationSystem population;
+        private NeedSystem needs;
         private float timer;
         // Ленивый доступ для вида и выселения при сносе.
         // Заселённое при перезагрузке домена теряется (не V1).
@@ -92,6 +95,9 @@ namespace Citybuilder
         // Первое выросшее жильё, куда домохозяйство влезает целиком.
         private void TryMoveIn()
         {
+            EnsureNeeds();
+            // Гейт: низкая удовлетворённость — въезд закрыт. Систем нет — старое поведение.
+            if (needs != null && needs.AverageSatisfaction < MinSatisfaction) return;
             List<BuildingState> homes = Growth.Homes;
             if (homes == null) return;
             for (int i = 0; i < homes.Count; i++)
@@ -104,10 +110,20 @@ namespace Citybuilder
                 }
             }
         }
+        // Ленивая сборка гейта: поселения не готовы — старое поведение.
+        private void EnsureNeeds()
+        {
+            if (needs != null) return;
+            if (population == null) return;
+            if (Growth == null || Growth.Settlement == null) return;
+            needs = new NeedSystem(population, Growth.Settlement);
+        }
         private void ClampLimits()
         {
             if (HouseholdSize < 1) HouseholdSize = 1;
             if (MoveInIntervalSec < 1f) MoveInIntervalSec = 1f;
+            if (MinSatisfaction < 0f) MinSatisfaction = 0f;
+            if (MinSatisfaction > 1f) MinSatisfaction = 1f;
         }
     }
 }
