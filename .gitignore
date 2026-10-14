@@ -110,3 +110,4 @@ InitTestScene*.unity*
 
 # Citybuilder: E2E-скриншоты живут только локально, в git не брать.
 Assets/Screenshots/
+Assets/Screenshots.meta
