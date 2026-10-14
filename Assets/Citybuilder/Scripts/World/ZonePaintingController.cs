@@ -144,5 +144,30 @@ namespace Citybuilder
             }
             return groups;
         }
+
+        // Перерисовать вид по живым зонам (после загрузки слота).
+        public void RepaintAll()
+        {
+            if (!EnsureReady() || system == null)
+            {
+                return;
+            }
+            RefreshView();
+        }
+
+        // Снять все зоны и перерисовать (первый шаг загрузки слота).
+        public void ClearZones()
+        {
+            if (!EnsureReady() || system == null)
+            {
+                return;
+            }
+            List<KeyValuePair<GridPosition, ZoneType>> cells = system.GetZonedCells();
+            for (int i = 0; i < cells.Count; i++)
+            {
+                system.SetZone(cells[i].Key, ZoneType.None);
+            }
+            RefreshView();
+        }
     }
 }

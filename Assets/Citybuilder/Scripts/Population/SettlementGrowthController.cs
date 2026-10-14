@@ -171,6 +171,37 @@ namespace Citybuilder
             states.RemoveAt(index);
             GridVisualizer.RefreshOccupied();
         }
+
+        // Восстановить выросший дом из сохранения: без оплаты, вид и занятость обновляются.
+        public BuildingState RestoreGrown(string defId, GridPosition origin)
+        {
+            if (!EnsureReady() || settlement == null) return null;
+            BuildingDefinition def = null;
+            for (int i = 0; i < Definitions.Count; i++) if (Definitions[i] != null && Definitions[i].Id == defId) def = Definitions[i];
+            if (def == null) return null;
+            BuildingState state = settlement.Settle(def, origin);
+            if (state == null) return null;
+            states.Add(state);
+            View.AddBuilding(state, def, GridVisualizer.Grid.CellSize);
+            GridVisualizer.RefreshOccupied();
+            return state;
+        }
+
+        // Снести все выросшие дома: выселение, вид и занятость — порядком TryDemolish.
+        public void ClearGrown()
+        {
+            if (!EnsureReady() || settlement == null) return;
+            for (int i = states.Count - 1; i >= 0; i--)
+            {
+                BuildingState state = states[i];
+                settlement.Demolish(state);
+                if (PopulationSource != null && PopulationSource.Population != null) PopulationSource.Population.EvictHome(state);
+                View.RemoveBuilding(state);
+                states.RemoveAt(i);
+            }
+            GridVisualizer.RefreshOccupied();
+        }
+
         private int FindStateIndex(GridPosition cell)
         {
             for (int i = 0; i < states.Count; i++)
