@@ -107,3 +107,6 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Citybuilder: E2E-скриншоты живут только локально, в git не брать.
+Assets/Screenshots/
