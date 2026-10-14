@@ -48,7 +48,7 @@
 - [x] Done 044-load-slot + merged (Muse: 8 хуков + LoadSystem/LoadController + тесты; E2E: загрузка = файлу один в один incl. тики и ручные дороги, битый слот не трогает город, оверлеи зон на месте; тесты 52/52; LoadController добавлен в сцену; Console чистый)
 - [x] Done 045-goal-hud + merged (Muse: GoalSystem + GoalView + 13 тестов; E2E: HUD 50/50 + экран победы, поражение покрыто юнитами; тесты 65/65; GoalView добавлен в сцену; Console чистый)
 - [x] Done 046-main-menu + merged (Muse: MainMenu + NewGame; E2E: сохранить → новая (0/0/1000/0) → далее (9/1/100/47 точно), ряд кнопок на скрине, Console чистый; MainMenu добавлен в сцену)
-- [x] InProgress 047-build-balance (Muse) + branch task/047-build-balance
-- NEXT: 047 (сборка + баланс) — закрывает мин-релиз
+- [x] Done 047-build-balance + merged (баланс: гейт на занятость 0.4, чередование зон, потолок 30, казна 1500; E2E: 70 жителей на дефолтах, победа; сборка windows64 0 ошибок, exe чистый после Always Included Unlit/Color; тесты 65/65; Console чистый)
+- NEXT: мин-релиз закрыт; дальше вне заморозки — на твой выбор
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.

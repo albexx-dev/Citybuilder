@@ -4,6 +4,9 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Citybuilder/Scenes/Prototype.unity
+    guid: 54d36f4bee8646a42afe4751cfee55ff
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
