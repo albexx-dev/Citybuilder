@@ -25,9 +25,9 @@ New game → goal reached → save → load → goal still shown, all in the pla
 
 Transport/jams, separate resources (water/power/waste), fires and services, policies/progression, disasters, more than 4–5 building types, visual polish beyond readable primitives.
 
-## Task sketch (043+)
+## Task sketch (043+, as done)
 
-043 save/load slot → 044 goal HUD + win/lose → 045 minimal menu → 046 build pipeline + balance N=50 → release.
+043 save slot → 044 load slot → 045 goal HUD + win/lose → 046 minimal menu → 047 build pipeline + balance N=50 → release.
 
 ## ADR-002 review (separate item, resolved here)
 
