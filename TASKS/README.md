@@ -39,6 +39,7 @@
 - [x] Done 035-menu-hotkeys + merged (Muse: BuildModeHotkeys Esc/1-4 + подписи кнопок; E2E: компонент активен, меню резолвится, все 5 режимов + эксклюзивность, скриншот с подсказками, Console чистый; компонент добавлен в сцену)
 - [x] Done 036-needs-foundation + merged (Muse: NeedSystem housing/jobs/employment + average, TotalCapacity из SettlementSystem; dotnet-границы 8/8 PASS + компиляция в Unity чистая, сцены нет)
 - [x] Done 037-needs-panel + merged (Muse: NeedsView + фикс позиции y=114; E2E: лейбл виден, 21% = (62+0+0)/3 при 4 домах/6 жителях, скриншоты пусто/живо, Console чистый; компонент добавлен в сцену)
-- NEXT: 037 (панель) → 038 (гейт въезда)
+- [x] InProgress 038-movein-gate (Muse) + branch task/038-movein-gate
+- NEXT: 038 (гейт въезда) — закрывает потребности
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
