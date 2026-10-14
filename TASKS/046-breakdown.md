@@ -1,0 +1,11 @@
+# TASKS/046-breakdown
+
+Ввод: задача 046, UI + МИКРО-хак (исключение: NewGame переиспользует ClearAll; тронуть 1 метод LoadController + 1 новый файл). Минимальное меню: новая игра / продолжить / сохранить / выйти. Исполнитель: Engineer (Muse, субагент).
+Запрещено трогать: всё кроме UI/MainMenu.cs (+.meta), Persistence/LoadController.cs (только новый public NewGame) и TASKS/046-breakdown.md.
+Сдать: коммит в ветку task/046-main-menu + ручной план + commit message. НЕ пушить, НЕ мержить, Unity НЕ трогать.
+
+Контекст: ADR-004 — меню из 4 кнопок. SaveController.SaveNow()/LoadController.LoadNow() публичны (043/044). Хуки Clear (044): Zones.ClearZones, Roads.ClearRoads, Growth.ClearGrown (со сносом+выселением), TreasuryView.ResetBalance, SimulationClock.RestoreTime. TreasuryView.StartingBalance существует (1000).
+
+- [ ] Шаг 1: `Persistence/LoadController.cs` — новый public void NewGame(): ClearAll (существующий приватный путь) + Treasury.ResetBalance(TreasuryView.StartingBalance — ссылку на TreasuryView уже имеет? проверить поля LoadController: там TreasuryView Treasury — да) + Runner.Clock.RestoreTime(0). Без сохранения, без диалогов.
+- [ ] Шаг 2: новый `UI/MainMenu.cs` (~60 строк, паттерн BuildModeMenu/NeedsView): ссылки SaveController + LoadController (опциональные, добор GetComponent — но они на объекте Persistence, а меню будет на Grid: значит обе обязательные? сделать опциональные + ручная вязка в сцене; нет ссылок — кнопки молча не рисовать); OnGUI: ряд из 4 кнопок под HUD цели (y=182, ширина 90 как у меню режимов): "Новая", "Далее", "Сохранить", "Выйти" → NewGame / LoadNow / SaveNow / Application.Quit. Клик — через UiClickGuard? Кнопки OnGUI: гард нужен от сквозных кликов МИМО? Гарды 032 регистрируют rects меню; новый ряд добавить в UiClickGuard.Set("mainmenu", rect) по образцу BuildModeMenu/ClockView.
+- [ ] Шаг 3: .meta новому файлу. Самопроверка (лимиты; NewGame не пишет в слот; Выйти в Editor — no-op без ошибок; гард rect покрывает ряд) + отчёт + commit message. Ручной план: Refresh на стопе + MainMenu на Grid + ссылки на Persistence-контроллеры + Play: построить → Сохранить → Новая (нули+1000+тик 0) → Далее (всё вернулось) → скриншот + Stop + Console + run_tests.
