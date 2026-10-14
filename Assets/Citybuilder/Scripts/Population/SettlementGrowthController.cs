@@ -17,12 +17,13 @@ namespace Citybuilder
         [Header("Growth")]
         [Tooltip("Типы под зоны. Пусто = рост не работает.")] public List<BuildingDefinition> Definitions = new List<BuildingDefinition>();
         [Tooltip("Тиков часов между домами. Минимум 1.")] public int TicksPerGrowth = 5;
-        [Tooltip("Потолок выросших домов. Минимум 1.")] public int MaxSettlements = 10;
+        [Tooltip("Потолок выросших домов. Минимум 1.")] public int MaxSettlements = 30;
         [Tooltip("Режим автовырастания. Выключите для ручной стройки.")] public bool placementActive = true;
         private BuildingSystem buildings;
         private SettlementSystem settlement;
         private readonly List<BuildingState> states = new List<BuildingState>();
         private int tickCount;
+        private ZoneType lastGrownZone = ZoneType.None;
         // Копия выросших домов для заселения. Отдаём копию, а не сам список.
         public List<BuildingState> Homes
         {
@@ -118,17 +119,22 @@ namespace Citybuilder
             BuildingState state = settlement.Settle(def, origin);
             if (state == null) return;
             states.Add(state);
+            lastGrownZone = ZonePainter.Zones.GetZone(origin);
             View.AddBuilding(state, def, GridVisualizer.Grid.CellSize);
             GridVisualizer.RefreshOccupied();
         }
         // Первая зонная клетка и первый подходящий тип под её зону.
+        // Чередование: сначала чужие зоны (не как прошлый рост), потом все.
         private bool FindFreeOrigin(out BuildingDefinition def, out GridPosition origin)
         {
             List<KeyValuePair<GridPosition, ZoneType>> zoned = ZonePainter.Zones.GetZonedCells();
+            for (int pass = 0; pass < 2; pass++)
+            {
             for (int i = 0; i < zoned.Count; i++)
             {
                 GridPosition cell = zoned[i].Key;
                 ZoneType zone = zoned[i].Value;
+                if (pass == 0 && zone == lastGrownZone) continue;
                 for (int d = 0; d < Definitions.Count; d++)
                 {
                     BuildingDefinition candidate = Definitions[d];
@@ -141,6 +147,7 @@ namespace Citybuilder
                         return true;
                     }
                 }
+            }
             }
             def = null;
             origin = default(GridPosition);

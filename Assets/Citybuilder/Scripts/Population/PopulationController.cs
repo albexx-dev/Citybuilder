@@ -17,8 +17,8 @@ namespace Citybuilder
         public int HouseholdSize = 2;
         [Tooltip("Пауза между въездами в секундах. Минимум 1.")]
         public float MoveInIntervalSec = 7f;
-        [Tooltip("Минимальная удовлетворённость для въезда. Ниже — новые не въезжают.")]
-        public float MinSatisfaction = 0.5f;
+        [Tooltip("Минимальная занятость для въезда. Ниже — новые не въезжают.")]
+        public float MinEmployment = 0.4f;
         [Tooltip("Режим автовъезда. Выключите для ручного заселения.")]
         public bool placementActive = true;
         private PopulationSystem population;
@@ -96,8 +96,8 @@ namespace Citybuilder
         private void TryMoveIn()
         {
             EnsureNeeds();
-            // Гейт: низкая удовлетворённость — въезд закрыт. Систем нет — старое поведение.
-            if (needs != null && needs.AverageSatisfaction < MinSatisfaction) return;
+            // Гейт: низкая занятость — въезд закрыт. Систем нет — старое поведение.
+            if (needs != null && needs.EmploymentRate < MinEmployment) return;
             List<BuildingState> homes = Growth.Homes;
             if (homes == null) return;
             for (int i = 0; i < homes.Count; i++)
@@ -122,8 +122,8 @@ namespace Citybuilder
         {
             if (HouseholdSize < 1) HouseholdSize = 1;
             if (MoveInIntervalSec < 1f) MoveInIntervalSec = 1f;
-            if (MinSatisfaction < 0f) MinSatisfaction = 0f;
-            if (MinSatisfaction > 1f) MinSatisfaction = 1f;
+            if (MinEmployment < 0f) MinEmployment = 0f;
+            if (MinEmployment > 1f) MinEmployment = 1f;
         }
     }
 }

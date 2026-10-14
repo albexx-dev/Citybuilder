@@ -315,7 +315,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1ac62d4409b7fc94d96dd3fd38893a0e, type: 2}
   - {fileID: 11400000, guid: 6e8e1f61493484b45af48640f86a4863, type: 2}
   TicksPerGrowth: 5
-  MaxSettlements: 10
+  MaxSettlements: 30
   placementActive: 1
 --- !u!114 &985593159
 MonoBehaviour:
@@ -405,7 +405,7 @@ MonoBehaviour:
   View: {fileID: 0}
   HouseholdSize: 2
   MoveInIntervalSec: 7
-  MinSatisfaction: 0.5
+  MinEmployment: 0.4
   placementActive: 1
 --- !u!4 &1069481160
 Transform:
@@ -713,7 +713,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 000a6b430b7b6344891c769c74066192, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.TreasuryView
-  StartingBalance: 1000
+  StartingBalance: 1500
 --- !u!4 &2007715385
 Transform:
   m_ObjectHideFlags: 0
