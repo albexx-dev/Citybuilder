@@ -47,6 +47,7 @@
 - [x] Done 043-save-slot + merged (Muse: CitySnapshot/SaveSystem/SaveSlotStorage/SaveController + 2 микрогеттера; E2E: slot0.json сошёлся — 52 зоны/9 домов/1 семья/баланс/тик, дороги [] без мыши; тесты 47/47; объект Persistence добавлен в сцену; Console чистый)
 - [x] Done 044-load-slot + merged (Muse: 8 хуков + LoadSystem/LoadController + тесты; E2E: загрузка = файлу один в один incl. тики и ручные дороги, битый слот не трогает город, оверлеи зон на месте; тесты 52/52; LoadController добавлен в сцену; Console чистый)
 - [x] Done 045-goal-hud + merged (Muse: GoalSystem + GoalView + 13 тестов; E2E: HUD 50/50 + экран победы, поражение покрыто юнитами; тесты 65/65; GoalView добавлен в сцену; Console чистый)
-- NEXT: 046 (меню) → 047 (сборка + баланс)
+- [x] Done 046-main-menu + merged (Muse: MainMenu + NewGame; E2E: сохранить → новая (0/0/1000/0) → далее (9/1/100/47 точно), ряд кнопок на скрине, Console чистый; MainMenu добавлен в сцену)
+- NEXT: 047 (сборка + баланс)
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
