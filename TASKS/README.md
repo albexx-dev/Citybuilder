@@ -38,6 +38,7 @@
 - [x] Done 034-growth-clock + merged (Muse: рост по тикам через SettlementGrowthTicker, TicksPerGrowth=5; E2E: Off=0 домов за 19 тиков, Playing +3/−300, бедно-стоп, пауза frozen, x4 +9/−900 точно, Console чистый; Runner+Ticker привязаны в сцене)
 - [x] Done 035-menu-hotkeys + merged (Muse: BuildModeHotkeys Esc/1-4 + подписи кнопок; E2E: компонент активен, меню резолвится, все 5 режимов + эксклюзивность, скриншот с подсказками, Console чистый; компонент добавлен в сцену)
 - [x] Done 036-needs-foundation + merged (Muse: NeedSystem housing/jobs/employment + average, TotalCapacity из SettlementSystem; dotnet-границы 8/8 PASS + компиляция в Unity чистая, сцены нет)
-- NEXT: 036 (ядро потребностей) → 037 (панель) → 038 (гейт въезда)
+- [x] InProgress 037-needs-panel (Muse) + branch task/037-needs-panel
+- NEXT: 037 (панель) → 038 (гейт въезда)
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
