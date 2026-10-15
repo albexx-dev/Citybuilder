@@ -49,7 +49,7 @@
 - [x] Done 045-goal-hud + merged (Muse: GoalSystem + GoalView + 13 тестов; E2E: HUD 50/50 + экран победы, поражение покрыто юнитами; тесты 65/65; GoalView добавлен в сцену; Console чистый)
 - [x] Done 046-main-menu + merged (Muse: MainMenu + NewGame; E2E: сохранить → новая (0/0/1000/0) → далее (9/1/100/47 точно), ряд кнопок на скрине, Console чистый; MainMenu добавлен в сцену)
 - [x] Done 047-build-balance + merged (баланс: гейт на занятость 0.4, чередование зон, потолок 30, казна 1500; E2E: 70 жителей на дефолтах, победа; сборка windows64 0 ошибок, exe чистый после Always Included Unlit/Color; тесты 65/65; Console чистый)
-- [x] InProgress 048-split-growth (Muse) + branch task/048-split-growth
-- NEXT: 048 (сплит роста) — долг лимита; дальше RoadPlacementController 283 / GridVisualizer 241
+- [x] Done 048-split-growth + merged (Muse: снос уехал в SettlementDemolitionController 62 строки, рост 197; E2E: рост/сlear/перерост/save-load целы; тесты 65/65; компонент добавлен в сцену; Console чистый)
+- NEXT: RoadPlacementController 283 / GridVisualizer 241 — тот же приём
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
