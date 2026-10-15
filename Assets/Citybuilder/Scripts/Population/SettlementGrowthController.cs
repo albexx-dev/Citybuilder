@@ -3,7 +3,8 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Автовырастание домов на жилых зонах: счётчик тиков часов, first-fit, ПКМ-снос. Только старый Input.
+    // Автовырастание домов на жилых зонах: счётчик тиков часов, first-fit. Только старый Input.
+    // Снос выросших домов — в SettlementDemolitionController на том же объекте.
     // Тики даёт SettlementGrowthTicker на том же объекте. Runner обязателен, по умолчанию выключен.
     public class SettlementGrowthController : MonoBehaviour
     {
@@ -12,7 +13,6 @@ namespace Citybuilder
         [Tooltip("Кисть зон. Обязательна: даёт ZoneSystem с жилыми клетками.")] public ZonePaintingController ZonePainter;
         [Tooltip("Вид выросших домов. Пусто = создастся на этом же объекте.")] public SettlementView View;
         [Tooltip("Казна для оплаты роста. Пусто = рост бесплатный.")] public TreasuryView Treasury;
-        [Tooltip("Население. Опционален: при сносе выселяет жителей дома.")] public PopulationController PopulationSource;
         [Tooltip("Драйвер часов. Обязателен: даёт тики часов для роста.")] public SimulationRunner Runner;
         [Header("Growth")]
         [Tooltip("Типы под зоны. Пусто = рост не работает.")] public List<BuildingDefinition> Definitions = new List<BuildingDefinition>();
@@ -100,12 +100,6 @@ namespace Citybuilder
             }
             return true;
         }
-        // Только ручной ввод: снос по ПКМ. Рост идёт по тикам часов, не по кадрам.
-        private void Update()
-        {
-            if (!EnsureReady()) return;
-            HandleDemolishInput();
-        }
         private void TryGrow()
         {
             BuildingDefinition def;
@@ -157,28 +151,6 @@ namespace Citybuilder
         {
             return def.AllowedZone == ZoneType.None || def.AllowedZone == zone;
         }
-        private void HandleDemolishInput()
-        {
-            if (!Input.GetMouseButtonDown(1) || UiClickGuard.IsOverMenu(Input.mousePosition)) return;
-            GridPosition cell;
-            if (!GridVisualizer.TryGetHoveredCell(out cell)) return;
-            TryDemolish(cell);
-        }
-        private void TryDemolish(GridPosition cell)
-        {
-            int index = FindStateIndex(cell);
-            if (index < 0) return;
-            BuildingState state = states[index];
-            settlement.Demolish(state);
-            if (PopulationSource != null && PopulationSource.Population != null)
-            {
-                PopulationSource.Population.EvictHome(state);
-            }
-            View.RemoveBuilding(state);
-            states.RemoveAt(index);
-            GridVisualizer.RefreshOccupied();
-        }
-
         // Восстановить выросший дом из сохранения: без оплаты, вид и занятость обновляются.
         public BuildingState RestoreGrown(string defId, GridPosition origin)
         {
@@ -194,32 +166,27 @@ namespace Citybuilder
             return state;
         }
 
-        // Снести все выросшие дома: выселение, вид и занятость — порядком TryDemolish.
-        public void ClearGrown()
-        {
-            if (!EnsureReady() || settlement == null) return;
-            for (int i = states.Count - 1; i >= 0; i--)
-            {
-                BuildingState state = states[i];
-                settlement.Demolish(state);
-                if (PopulationSource != null && PopulationSource.Population != null) PopulationSource.Population.EvictHome(state);
-                View.RemoveBuilding(state);
-                states.RemoveAt(i);
-            }
-            GridVisualizer.RefreshOccupied();
-        }
-
-        private int FindStateIndex(GridPosition cell)
+        // Дом по клетке для сноса. Нет дома — null.
+        public BuildingState FindStateAt(GridPosition cell)
         {
             for (int i = 0; i < states.Count; i++)
             {
                 List<GridPosition> cells = states[i].Cells;
                 for (int c = 0; c < cells.Count; c++)
                 {
-                    if (cells[c] == cell) return i;
+                    if (cells[c] == cell) return states[i];
                 }
             }
-            return -1;
+            return null;
+        }
+        // Снос одного выросшего дома: занятость, вид, список, сетка. Выселение — в Demolition.
+        public void DemolishState(BuildingState state)
+        {
+            if (state == null || settlement == null) return;
+            settlement.Demolish(state);
+            View.RemoveBuilding(state);
+            states.Remove(state);
+            GridVisualizer.RefreshOccupied();
         }
         private void ClampLimits()
         {
