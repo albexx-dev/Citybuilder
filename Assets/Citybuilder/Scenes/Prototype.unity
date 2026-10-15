@@ -189,6 +189,8 @@ GameObject:
   - component: {fileID: 985593161}
   - component: {fileID: 985593162}
   - component: {fileID: 985593163}
+  - component: {fileID: 985593165}
+  - component: {fileID: 985593164}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -257,9 +259,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.RoadPlacementController
   GridVisualizer: {fileID: 985593152}
-  Definition: {fileID: 11400000, guid: 2422c8bf0f99f0047bceec9226a0266f, type: 2}
+  Store: {fileID: 985593164}
   TreasuryView: {fileID: 2007715384}
-  View: {fileID: 0}
+  View: {fileID: 985593165}
   placementActive: 1
 --- !u!114 &985593156
 MonoBehaviour:
@@ -386,6 +388,33 @@ MonoBehaviour:
   Growth: {fileID: 985593158}
   View: {fileID: 0}
   PopulationSource: {fileID: 1069481159}
+--- !u!114 &985593164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ae834533e8d4224926deb6f50b95167, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.RoadNetworkStore
+  GridVisualizer: {fileID: 985593152}
+  Definition: {fileID: 11400000, guid: 2422c8bf0f99f0047bceec9226a0266f, type: 2}
+  View: {fileID: 985593165}
+--- !u!114 &985593165
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f46713a5ddeaf5547b0c36cd2b987f9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.RoadView
 --- !u!1 &1069481158
 GameObject:
   m_ObjectHideFlags: 0
@@ -501,7 +530,7 @@ MonoBehaviour:
   Zones: {fileID: 985593156}
   Treasury: {fileID: 2007715384}
   Runner: {fileID: 1821543313}
-  Roads: {fileID: 985593155}
+  Roads: {fileID: 985593164}
 --- !u!4 &1432023087
 Transform:
   m_ObjectHideFlags: 0
@@ -535,7 +564,7 @@ MonoBehaviour:
   Zones: {fileID: 985593156}
   Treasury: {fileID: 2007715384}
   Runner: {fileID: 1821543313}
-  Roads: {fileID: 985593155}
+  Roads: {fileID: 985593164}
 --- !u!1 &1652839692
 GameObject:
   m_ObjectHideFlags: 0

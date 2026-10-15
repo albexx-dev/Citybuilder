@@ -50,7 +50,7 @@
 - [x] Done 046-main-menu + merged (Muse: MainMenu + NewGame; E2E: сохранить → новая (0/0/1000/0) → далее (9/1/100/47 точно), ряд кнопок на скрине, Console чистый; MainMenu добавлен в сцену)
 - [x] Done 047-build-balance + merged (баланс: гейт на занятость 0.4, чередование зон, потолок 30, казна 1500; E2E: 70 жителей на дефолтах, победа; сборка windows64 0 ошибок, exe чистый после Always Included Unlit/Color; тесты 65/65; Console чистый)
 - [x] Done 048-split-growth + merged (Muse: снос уехал в SettlementDemolitionController 62 строки, рост 197; E2E: рост/сlear/перерост/save-load целы; тесты 65/65; компонент добавлен в сцену; Console чистый)
-- [x] Done 049-remove-winlose (Muse: экраны вырезаны +1/−14, HUD цел; E2E: 50/50, попапа нет, Console чистый; тесты 65/65; ADR-004 п.3 отменён)
-- NEXT: сплиты RoadPlacementController 283 / GridVisualizer 241 — тем же приёмом
+- [x] Done 050-split-roads + merged (Muse: состояние уехало в RoadNetworkStore 149 строк, ввод 179; CommitDrag разрезан; E2E: стройка/снос/save-load целы; тесты 65/65; сцена перелинкована; Console чистый)
+- NEXT: GridVisualizer 241 — последний долг лимита
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
