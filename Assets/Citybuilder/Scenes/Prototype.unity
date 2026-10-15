@@ -188,6 +188,7 @@ GameObject:
   - component: {fileID: 985593160}
   - component: {fileID: 985593161}
   - component: {fileID: 985593162}
+  - component: {fileID: 985593163}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -308,7 +309,6 @@ MonoBehaviour:
   ZonePainter: {fileID: 985593156}
   View: {fileID: 0}
   Treasury: {fileID: 2007715384}
-  PopulationSource: {fileID: 1069481159}
   Runner: {fileID: 1821543313}
   Definitions:
   - {fileID: 11400000, guid: 0032c13ad3a6cf740b11da6edca1de61, type: 2}
@@ -370,6 +370,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Citybuilder::Citybuilder.MainMenu
   Save: {fileID: 1432023086}
   Load: {fileID: 1432023088}
+--- !u!114 &985593163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd9289a2f0954ab793efc6eb00659351, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.SettlementDemolitionController
+  GridVisualizer: {fileID: 985593152}
+  Growth: {fileID: 985593158}
+  View: {fileID: 0}
+  PopulationSource: {fileID: 1069481159}
 --- !u!1 &1069481158
 GameObject:
   m_ObjectHideFlags: 0
@@ -515,6 +531,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Citybuilder::Citybuilder.LoadController
   Population: {fileID: 1069481159}
   Growth: {fileID: 985593158}
+  Demolition: {fileID: 985593163}
   Zones: {fileID: 985593156}
   Treasury: {fileID: 2007715384}
   Runner: {fileID: 1821543313}
