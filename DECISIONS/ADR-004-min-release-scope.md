@@ -13,7 +13,7 @@ One scenario with a win and a loss: grow population to **N = 50 residents** whil
 
 1. Save/load, 1 slot (plain C# State serialization; see ADR-002 amendment below).
 2. Goal indicator + progress (HUD: residents N/50, treasury).
-3. Win/lose screens.
+3. ~~Win/lose screens.~~ Убраны решением от 15.10 (049): мешают игроку. Логика GoalSystem (Won/Lost) остаётся, экранов нет.
 4. Minimal menu (new game / continue / save / quit).
 5. First real player build (Windows): readiness is proven WITHOUT the Unity Editor.
 
