@@ -12,6 +12,8 @@ namespace Citybuilder
         public PopulationController Population;
         [Tooltip("Рост поселений. Опционален: иначе ищется на этом же объекте.")]
         public SettlementGrowthController Growth;
+        [Tooltip("Снос выросших домов. Опционален: иначе ищется на этом же объекте.")]
+        public SettlementDemolitionController Demolition;
         [Tooltip("Кисть зон. Опциональна: иначе ищется на этом же объекте.")]
         public ZonePaintingController Zones;
         [Tooltip("Казна. Опциональна: иначе ищется на этом же объекте.")]
@@ -58,6 +60,7 @@ namespace Citybuilder
         {
             if (Population == null) Population = GetComponent<PopulationController>();
             if (Growth == null) Growth = GetComponent<SettlementGrowthController>();
+            if (Demolition == null) Demolition = GetComponent<SettlementDemolitionController>();
             if (Zones == null) Zones = GetComponent<ZonePaintingController>();
             if (Treasury == null) Treasury = GetComponent<TreasuryView>();
             if (Runner == null) Runner = GetComponent<SimulationRunner>();
@@ -67,7 +70,7 @@ namespace Citybuilder
         private void ClearAll()
         {
             List<BuildingState> homes = Growth != null ? Growth.Homes : null;
-            if (Growth != null) Growth.ClearGrown();
+            if (Demolition != null) Demolition.ClearGrown();
             if (Zones != null) Zones.ClearZones();
             if (Roads != null) Roads.ClearRoads();
             EvictAll(homes);
