@@ -7,10 +7,10 @@ namespace Citybuilder
     public class RoadPlacementController : MonoBehaviour
     {
         [Header("References")]
-        [Tooltip("Сетка. Обязателен: даёт Grid и клетку под курсором.")]
+        [Tooltip("Сетка. Обязателен: даёт клетку под курсором.")]
         public GridVisualizer GridVisualizer;
-        [Tooltip("Тип дороги. Цена клетки берётся отсюда.")]
-        public RoadDefinition Definition;
+        [Tooltip("Хранилище дорог. Обязательно: иначе ищется на этом же объекте.")]
+        public RoadNetworkStore Store;
         [Tooltip("Казна. Пусто = строить бесплатно.")]
         public TreasuryView TreasuryView;
         [Tooltip("Вид дорог. Пусто = создастся на этом же объекте.")]
@@ -20,21 +20,10 @@ namespace Citybuilder
         [Tooltip("Режим стройки дорог. Выключите, когда строите дома.")]
         public bool placementActive = true;
 
-        private RoadSystem system;
-        private readonly List<RoadState> states = new List<RoadState>();
         private bool dragging;
         private GridPosition dragStart;
         private GridPosition lastHover;
         private List<GridPosition> previewCells = new List<GridPosition>();
-
-        // Копия построенных дорог для сохранений. Отдаём копию, а не сам список.
-        public List<RoadState> Roads
-        {
-            get
-            {
-                return new List<RoadState>(states);
-            }
-        }
 
         private void Start()
         {
@@ -46,18 +35,11 @@ namespace Citybuilder
         private void OnDisable()
         {
             dragging = false;
-            if (previewCells != null)
-            {
-                previewCells.Clear();
-            }
-            if (View != null)
-            {
-                View.HidePreview();
-            }
+            if (previewCells != null) previewCells.Clear();
+            if (View != null) View.HidePreview();
         }
 
-        // Восстанавливает систему после перезагрузки домена.
-        // Список построенного при перезагрузке теряется (чинятся сохранениями, не V1).
+        // Проверка ссылок и ленивый добор View/Store. Систему готовит стор.
         private bool EnsureReady()
         {
             if (GridVisualizer == null)
@@ -66,27 +48,16 @@ namespace Citybuilder
                 enabled = false;
                 return false;
             }
-            if (View == null)
-            {
-                View = GetComponent<RoadView>();
-                if (View == null)
-                {
-                    View = gameObject.AddComponent<RoadView>();
-                }
-            }
-            if (system == null)
-            {
-                system = new RoadSystem(GridVisualizer.Grid);
-            }
-            return true;
+            if (View == null) View = GetComponent<RoadView>();
+            if (View == null) View = gameObject.AddComponent<RoadView>();
+            if (Store == null) Store = GetComponent<RoadNetworkStore>();
+            if (Store == null) Store = gameObject.AddComponent<RoadNetworkStore>();
+            return Store != null;
         }
 
         private void Update()
         {
-            if (!EnsureReady())
-            {
-                return;
-            }
+            if (!EnsureReady()) return;
             if (!placementActive)
             {
                 CancelDrag();
@@ -100,10 +71,7 @@ namespace Citybuilder
             GridPosition cell;
             bool hovered = GridVisualizer.TryGetHoveredCell(out cell);
             HandleDrag(cell, hovered);
-            if (Input.GetMouseButtonDown(1) && hovered && !UiClickGuard.IsOverMenu(Input.mousePosition))
-            {
-                TryDemolish(cell);
-            }
+            if (Input.GetMouseButtonDown(1) && hovered && !UiClickGuard.IsOverMenu(Input.mousePosition)) TryDemolish(cell);
         }
 
         private void HandleDrag(GridPosition cell, bool hovered)
@@ -114,14 +82,8 @@ namespace Citybuilder
                 dragStart = cell;
                 UpdatePreview(cell);
             }
-            else if (dragging && Input.GetMouseButton(0) && hovered && cell != lastHover)
-            {
-                UpdatePreview(cell);
-            }
-            if (dragging && Input.GetMouseButtonUp(0))
-            {
-                CommitDrag();
-            }
+            else if (dragging && Input.GetMouseButton(0) && hovered && cell != lastHover) UpdatePreview(cell);
+            if (dragging && Input.GetMouseButtonUp(0)) CommitDrag();
         }
 
         private void UpdatePreview(GridPosition hover)
@@ -138,129 +100,63 @@ namespace Citybuilder
             View.HidePreview();
         }
 
+        // Коммит drag: проверка отрезка, оплата новых клеток, раскладка — отдельно.
         private void CommitDrag()
         {
             dragging = false;
             View.HidePreview();
-            if (!CheckCells())
-            {
-                return;
-            }
-            int total = NewCellsCount() * system.CellCost(Definition);
+            if (!CheckCells()) return;
+            int total = NewCellsCount() * Store.CellCost();
             if (total > 0 && TreasuryView != null && TreasuryView.Treasury != null)
             {
                 Treasury.TransactionResult spent = TreasuryView.Treasury.TrySpend(total, "Road");
-                if (!spent.Success)
-                {
-                    return;
-                }
+                if (!spent.Success) return;
             }
+            PlacePreviewed();
+        }
+
+        // Раскладка превью в стор: свои клетки — пропуск, вид и занятость обновляются.
+        private void PlacePreviewed()
+        {
             for (int i = 0; i < previewCells.Count; i++)
             {
-                if (IsOwnRoadCell(previewCells[i]))
-                {
-                    continue;
-                }
-                RoadState state = system.Place(previewCells[i]);
-                if (state != null)
-                {
-                    states.Add(state);
-                }
+                if (!Store.IsOwnRoadCell(previewCells[i])) Store.Place(previewCells[i]);
             }
-            RefreshView();
+            Store.RefreshView();
             GridVisualizer.RefreshOccupied();
         }
 
+        // Снос ПКМ: поиск в сторе, снос и обновление вида.
         private void TryDemolish(GridPosition cell)
         {
-            for (int i = 0; i < states.Count; i++)
-            {
-                if (states[i].Cell == cell)
-                {
-                    system.Demolish(states[i]);
-                    states.RemoveAt(i);
-                    RefreshView();
-                    GridVisualizer.RefreshOccupied();
-                    return;
-                }
-            }
-        }
-
-        // Восстановить дорогу из сохранения: без оплаты, список и вид обновляются.
-        public RoadState RestoreRoad(GridPosition cell)
-        {
-            if (!EnsureReady() || system == null) return null;
-            if (IsOwnRoadCell(cell)) return null;
-            RoadState state = system.Place(cell);
-            if (state == null) return null;
-            states.Add(state);
-            RefreshView();
-            GridVisualizer.RefreshOccupied();
-            return state;
-        }
-
-        // Снести все дороги (первый шаг загрузки слота).
-        public void ClearRoads()
-        {
-            if (!EnsureReady() || system == null) return;
-            for (int i = states.Count - 1; i >= 0; i--) system.Demolish(states[i]);
-            states.Clear();
-            RefreshView();
-            GridVisualizer.RefreshOccupied();
+            RoadState state = Store.FindStateAt(cell);
+            if (state == null) return;
+            if (Store.DemolishState(state)) Store.RefreshView();
         }
 
         private bool CheckCells()
         {
             for (int i = 0; i < previewCells.Count; i++)
             {
-                if (!system.CanPlace(previewCells[i]) && !IsOwnRoadCell(previewCells[i]))
-                {
-                    return false;
-                }
+                if (!Store.CanPlace(previewCells[i]) && !Store.IsOwnRoadCell(previewCells[i])) return false;
             }
             if (TreasuryView != null && TreasuryView.Treasury != null)
             {
-                int total = NewCellsCount() * system.CellCost(Definition);
+                int total = NewCellsCount() * Store.CellCost();
                 return TreasuryView.Treasury.CanAfford(total);
             }
             return true;
         }
 
-        // Своя клетка = уже есть в states (сравнение по Cell).
-        private bool IsOwnRoadCell(GridPosition cell)
-        {
-            for (int i = 0; i < states.Count; i++)
-            {
-                if (states[i].Cell == cell)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        // Число клеток превью, которых ещё нет в states.
+        // Число клеток превью, которых ещё нет в сторе.
         private int NewCellsCount()
         {
             int count = 0;
             for (int i = 0; i < previewCells.Count; i++)
             {
-                if (!IsOwnRoadCell(previewCells[i]))
-                {
-                    count++;
-                }
+                if (!Store.IsOwnRoadCell(previewCells[i])) count++;
             }
             return count;
-        }
-
-        private void RefreshView()
-        {
-            List<GridPosition> cells = new List<GridPosition>(states.Count);
-            for (int i = 0; i < states.Count; i++)
-            {
-                cells.Add(states[i].Cell);
-            }
-            View.Rebuild(cells, GridVisualizer.Grid.CellSize);
         }
 
         private List<GridPosition> GetLineCells(GridPosition from, GridPosition to)

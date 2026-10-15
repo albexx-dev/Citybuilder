@@ -19,7 +19,7 @@ namespace Citybuilder
         [Tooltip("Драйвер часов. Опционален: иначе ищется на этом же объекте.")]
         public SimulationRunner Runner;
         [Tooltip("Стройка дорог. Опциональна: иначе ищется на этом же объекте.")]
-        public RoadPlacementController Roads;
+        public RoadNetworkStore Roads;
 
         private void Update()
         {
@@ -64,7 +64,7 @@ namespace Citybuilder
             }
             if (Roads == null)
             {
-                Roads = GetComponent<RoadPlacementController>();
+                Roads = GetComponent<RoadNetworkStore>();
             }
         }
 
