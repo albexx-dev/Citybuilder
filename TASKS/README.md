@@ -53,8 +53,8 @@
 - [x] Done 049-remove-winlose + merged (экраны вырезаны +1/−14, HUD цел; E2E: 50/50, попапа нет; тесты 65/65; ADR-004 п.3 отменён)
 - [x] Done 050-split-roads + merged (состояние в RoadNetworkStore 149 строк, ввод 179; E2E: стройка/снос/save-load; тесты 65/65)
 - [x] Done 051-split-grid + merged (меши в GridMeshBuilder 191 строка, визуализатор 119; E2E скриншот; тесты 65/65)
-- [x] Done 053-transport + merged (Muse + ревью PASS: ConnectivitySystem 113 строк + 5 тестов; тесты 70/70; Console чистый; поведения ноль)
-- [x] InProgress 054-connview (Muse + reviewer) + branch task/054-connview
-- NEXT: 054 (индикатор связности в сцене); дальше по GAME_DESIGN §18
+- [x] Done 054-connview + merged (Muse + ревью PASS: контроллер 142 + вид 30; E2E: 0/36→1/36, фикс наложения на меню y=214; тесты 70/70; Console чистый)
+- [x] InProgress 055-conngate (Muse + reviewer) + branch task/055-conngate
+- NEXT: 055 (мягкий гейт: связность режет жилищную удовлетворённость + перепроверка баланса); дальше маршруты/пробки по §13
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
