@@ -17,8 +17,8 @@ namespace Citybuilder
             if (controller == null) return;
             string text = "Связано: " + controller.Connected + "/" + controller.Total;
             text += " (" + ToPercent(controller.Rate01) + "%)";
-            // y=182: ниже цели (y=148), чтобы не налезать на левую колонку.
-            GUI.Label(new Rect(10, 182, 400, 30), text);
+            // y=214: ниже меню (182+26+6 зазор), иначе налезает на кнопки.
+            GUI.Label(new Rect(10, 214, 400, 30), text);
         }
 
         // Округлённый процент из ставки ядра 0..1.
