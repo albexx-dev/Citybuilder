@@ -192,6 +192,8 @@ GameObject:
   - component: {fileID: 985593165}
   - component: {fileID: 985593164}
   - component: {fileID: 985593166}
+  - component: {fileID: 985593168}
+  - component: {fileID: 985593167}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -430,6 +432,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Citybuilder::Citybuilder.GridMeshBuilder
   Visualizer: {fileID: 985593152}
+--- !u!114 &985593167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df407ac27c534d3d885d9a833ede9665, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.ConnectivityView
+  Controller: {fileID: 985593168}
+--- !u!114 &985593168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 653fc640f686410aa7b4fa9fcb0b5f3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.ConnectivityController
+  Store: {fileID: 985593164}
+  Growth: {fileID: 985593158}
+  GridVisualizer: {fileID: 985593152}
+  RefreshIntervalSec: 2
 --- !u!1 &1069481158
 GameObject:
   m_ObjectHideFlags: 0
