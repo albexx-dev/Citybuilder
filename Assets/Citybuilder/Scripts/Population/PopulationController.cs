@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Citybuilder
 {
-    // Автовъезд домохозяйств в выросшие дома по таймеру, first-fit. Только таймер.
+    // Автовъезд домохозяйств в выросшие дома по таймеру. Связные раньше, внутри — first-fit. Только таймер.
     // Настройка сцены: отдельный объект, Growth обязателен, по умолчанию выключен.
     public class PopulationController : MonoBehaviour
     {
@@ -12,6 +13,9 @@ namespace Citybuilder
         public SettlementGrowthController Growth;
         [Tooltip("Вид населения. Пусто = создастся на этом же объекте.")]
         public PopulationView View;
+        [Header("Transport")]
+        [Tooltip("Связность дорог. Пусто = старое поведение first-fit.")]
+        public ConnectivityController Connectivity;
         [Header("Move-in")]
         [Tooltip("Размер въезжающего домохозяйства. Минимум 1.")]
         public int HouseholdSize = 2;
@@ -92,7 +96,7 @@ namespace Citybuilder
             timer = 0f;
             TryMoveIn();
         }
-        // Первое выросшее жильё, куда домохозяйство влезает целиком.
+        // Первое выросшее жильё, куда домохозяйство влезает целиком. Связные раньше.
         private void TryMoveIn()
         {
             EnsureNeeds();
@@ -100,15 +104,42 @@ namespace Citybuilder
             if (needs != null && needs.EmploymentRate < MinEmployment) return;
             List<BuildingState> homes = Growth.Homes;
             if (homes == null) return;
-            for (int i = 0; i < homes.Count; i++)
+            BuildingState home = FindMoveInHome(homes, population, HouseholdSize, IsHomeConnected);
+            if (home != null) population.MoveIn(home, HouseholdSize);
+        }
+        // Выбор дома для въезда: сначала связные со свободным местом, потом любые.
+        // Порядок внутри проходов не меняем. Предиката нет — старый first-fit один в один.
+        public static BuildingState FindMoveInHome(
+            List<BuildingState> homes,
+            PopulationSystem population,
+            int householdSize,
+            Func<BuildingState, bool> isConnected)
+        {
+            if (homes == null || population == null) return null;
+            if (isConnected != null)
             {
-                BuildingState home = homes[i];
-                if (population.ResidentsIn(home) + HouseholdSize <= population.CapacityOf(home))
+                for (int i = 0; i < homes.Count; i++)
                 {
-                    population.MoveIn(home, HouseholdSize);
-                    return;
+                    if (isConnected(homes[i]) && HasRoomFor(population, homes[i], householdSize)) return homes[i];
                 }
             }
+            for (int i = 0; i < homes.Count; i++)
+            {
+                if (HasRoomFor(population, homes[i], householdSize)) return homes[i];
+            }
+            return null;
+        }
+        private static bool HasRoomFor(PopulationSystem population, BuildingState home, int householdSize)
+        {
+            if (home == null || householdSize <= 0) return false;
+            return population.ResidentsIn(home) + householdSize <= population.CapacityOf(home);
+        }
+        // Связность дома через транспорт. Транспорта нет — false, дальше first-fit.
+        private bool IsHomeConnected(BuildingState home)
+        {
+            if (Connectivity == null) Connectivity = GetComponent<ConnectivityController>();
+            if (Connectivity == null) return false;
+            return Connectivity.IsHomeConnected(home);
         }
         // Ленивая сборка гейта: поселения не готовы — старое поведение.
         private void EnsureNeeds()
