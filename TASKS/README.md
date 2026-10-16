@@ -50,7 +50,10 @@
 - [x] Done 046-main-menu + merged (Muse: MainMenu + NewGame; E2E: сохранить → новая (0/0/1000/0) → далее (9/1/100/47 точно), ряд кнопок на скрине, Console чистый; MainMenu добавлен в сцену)
 - [x] Done 047-build-balance + merged (баланс: гейт на занятость 0.4, чередование зон, потолок 30, казна 1500; E2E: 70 жителей на дефолтах, победа; сборка windows64 0 ошибок, exe чистый после Always Included Unlit/Color; тесты 65/65; Console чистый)
 - [x] Done 048-split-growth + merged (Muse: снос уехал в SettlementDemolitionController 62 строки, рост 197; E2E: рост/сlear/перерост/save-load целы; тесты 65/65; компонент добавлен в сцену; Console чистый)
-- [x] Done 051-split-grid + merged (Muse: меши уехали в GridMeshBuilder 191 строка, визуализатор 119; 3 длинных метода разрезаны; API без изменений; E2E: скриншот — сетка/оверлей на месте; тесты 65/65; Console чистый)
-- NEXT: долг лимита закрыт — дальше на твой выбор
+- [x] Done 049-remove-winlose + merged (экраны вырезаны +1/−14, HUD цел; E2E: 50/50, попапа нет; тесты 65/65; ADR-004 п.3 отменён)
+- [x] Done 050-split-roads + merged (состояние в RoadNetworkStore 149 строк, ввод 179; E2E: стройка/снос/save-load; тесты 65/65)
+- [x] Done 051-split-grid + merged (меши в GridMeshBuilder 191 строка, визуализатор 119; E2E скриншот; тесты 65/65)
+- [x] InProgress 052-rebuild (оркестратор, без инженера) + branch task/052-rebuild
+- NEXT: 052 (пересборка windows-плеера после сплитов); дальше на твой выбор
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
