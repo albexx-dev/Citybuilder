@@ -53,7 +53,7 @@
 - [x] Done 049-remove-winlose + merged (экраны вырезаны +1/−14, HUD цел; E2E: 50/50, попапа нет; тесты 65/65; ADR-004 п.3 отменён)
 - [x] Done 050-split-roads + merged (состояние в RoadNetworkStore 149 строк, ввод 179; E2E: стройка/снос/save-load; тесты 65/65)
 - [x] Done 051-split-grid + merged (меши в GridMeshBuilder 191 строка, визуализатор 119; E2E скриншот; тесты 65/65)
-- [x] Done 052-rebuild + merged (оркестратор: windows64 0 ошибок/0 варнингов, exe запущен, player-лог чистый)
-- NEXT: дальше на твой выбор
+- [x] InProgress 053-transport (Muse + reviewer) + branch task/053-transport
+- NEXT: 053 (ConnectivitySystem + тесты, инфо-слой без гейтов); дальше T1-view, затем по GAME_DESIGN §18
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
