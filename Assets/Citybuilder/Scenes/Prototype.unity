@@ -494,6 +494,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.PopulationController
   Growth: {fileID: 985593158}
   View: {fileID: 0}
+  Connectivity: {fileID: 985593168}
   HouseholdSize: 2
   MoveInIntervalSec: 7
   MinEmployment: 0.4
