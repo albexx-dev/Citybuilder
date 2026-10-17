@@ -54,8 +54,8 @@
 - [x] Done 050-split-roads + merged (состояние в RoadNetworkStore 149 строк, ввод 179; E2E: стройка/снос/save-load; тесты 65/65)
 - [x] Done 051-split-grid + merged (меши в GridMeshBuilder 191 строка, визуализатор 119; E2E скриншот; тесты 65/65)
 - [x] Done 054-connview + merged (Muse + ревью PASS: контроллер 142 + вид 30; E2E: 0/36→1/36, фикс наложения на меню y=214; тесты 70/70; Console чистый)
-- [x] Done 055-conngate + merged (Muse + ревью PASS: предпочтение связных домов; E2E: связанный дом заселяется первым, без дорог — старый first-fit; тесты 78/78; Console чистый)
-- [x] InProgress 056-routes (Muse + reviewer) + branch task/056-routes
-- NEXT: 056 (маршруты: A* по дорогам + нагрузка, §13); дальше пробки/потоки
+- [x] Done 056-routes + merged (Muse + ревью PASS: RouteSystem 140 строк A* + нагрузка; тесты 85/85; Console чистый)
+- [x] InProgress 057-congestion (Muse + reviewer) + branch task/057-congestion
+- NEXT: 057 (пробки: нагрузка → множитель времени + замедление роста); дальше §13 завершён
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
