@@ -54,6 +54,19 @@ namespace Citybuilder
             }
         }
 
+        // Дом связан, если хотя бы одна его клетка связана. Снимка нет — false.
+        public bool IsHomeConnected(BuildingState home)
+        {
+            if (home == null || home.Cells == null) return false;
+            EnsureSystem();
+            if (connectivity == null) return false;
+            for (int i = 0; i < home.Cells.Count; i++)
+            {
+                if (connectivity.IsConnected(home.Cells[i])) return true;
+            }
+            return false;
+        }
+
         private void Start()
         {
             ClampInterval();
