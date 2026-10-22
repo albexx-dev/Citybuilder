@@ -56,7 +56,8 @@
 - [x] Done 054-connview + merged (Muse + ревью PASS: контроллер 142 + вид 30; E2E: 0/36→1/36, фикс наложения на меню y=214; тесты 70/70; Console чистый)
 - [x] Done 056-routes + merged (Muse + ревью PASS: RouteSystem 140 строк A* + нагрузка; тесты 85/85; Console чистый)
 - [x] Done 057-congestion + merged (Muse + ревью: CongestionSystem 153 строк + 5 тестов; MultiplierFor/IsCongested/WorstMultiplier/GrowthTickMultiplier; тесты 90/90; Console чистый)
-- [x] InProgress 059-electricity (Muse + reviewer) + branch task/059-electricity
-- NEXT: 059 (ElectricitySystem: спрос/генерация, пропорциональный brownout); дальше контроллер + HUD, затем гейт нужд
+- [x] Done 059-electricity + merged (Muse + ревью PASS: ElectricitySystem 106 строк + 9 тестов; пропорциональный brownout; тесты 99/99; Console чистый)
+- [x] InProgress 060-power-buildings (Muse + reviewer) + branch task/060-power-buildings
+- NEXT: 060 (питание зданий: поля потребления/генерации в Definition + контроллер + HUD)
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
