@@ -27,7 +27,8 @@ namespace Citybuilder
             EnsureNeeds(population, growth);
             string text = BuildText(needs);
             // y=114: ниже часов (y=50) и кнопок скорости (y=84-110), чтобы не налезать.
-            GUI.Label(new Rect(10, 114, 400, 30), text);
+            // Ширина 560: четыре показателя (с энергией) влезают в одну строку.
+            GUI.Label(new Rect(10, 114, 560, 30), text);
         }
 
         // Тихое создание поверх живых симуляций. Систем нет — тихо рисуем нули.
