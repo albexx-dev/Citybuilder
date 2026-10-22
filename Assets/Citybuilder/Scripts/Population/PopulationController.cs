@@ -13,6 +13,8 @@ namespace Citybuilder
         public SettlementGrowthController Growth;
         [Tooltip("Вид населения. Пусто = создастся на этом же объекте.")]
         public PopulationView View;
+        [Tooltip("Энергия города. Пусто = ищется на этом же объекте; нет — без учёта энергии.")]
+        public PowerController Power;
         [Header("Transport")]
         [Tooltip("Связность дорог. Пусто = старое поведение first-fit.")]
         public ConnectivityController Connectivity;
@@ -147,7 +149,9 @@ namespace Citybuilder
             if (needs != null) return;
             if (population == null) return;
             if (Growth == null || Growth.Settlement == null) return;
-            needs = new NeedSystem(population, Growth.Settlement);
+            if (Power == null) Power = GetComponent<PowerController>();
+            Func<float> rate = Power != null ? (Func<float>)(() => Power.Rate01) : null;
+            needs = new NeedSystem(population, Growth.Settlement, rate);
         }
         private void ClampLimits()
         {

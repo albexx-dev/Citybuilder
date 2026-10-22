@@ -58,7 +58,7 @@
 - [x] Done 057-congestion + merged (Muse + ревью: CongestionSystem 153 строк + 5 тестов; MultiplierFor/IsCongested/WorstMultiplier/GrowthTickMultiplier; тесты 90/90; Console чистый)
 - [x] Done 059-electricity + merged (Muse + ревью PASS: ElectricitySystem 106 строк + 9 тестов; пропорциональный brownout; тесты 99/99; Console чистый)
 - [x] Done 060-power-buildings + merged (Muse + ревью PASS: PowerDemand/PowerOutput в Definition, PowerController 139 + PowerView 30; E2E: 16 домов → «Энергия: 16/12 (75%)», дом без питания; тесты 102/102; Console чистый)
-- [x] InProgress 061-power-needs (Muse + reviewer) + branch task/061-power-needs
-- NEXT: 061 (энергия влияет на удовлетворённость жильём); дальше вода/мусор по §12
+- [x] Done 061-power-needs + merged (Muse + ревью PASS: энергия в NeedSystem (опциональный провайдер, старый /3 цел), HUD 4 показателя; E2E: 16/1 → 6% энергии, среднее 0.26; тесты 109/109; Console чистый)
+- NEXT: дальше вода/мусор по §12 или Политики §15 — на твой выбор
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
