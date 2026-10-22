@@ -31,6 +31,13 @@ namespace Citybuilder
         [Tooltip("Сколько рабочих мест даёт одно здание. Не может быть отрицательным.")]
         public int JobsProvided = 0;
 
+        [Header("Infrastructure")]
+        [Tooltip("Сколько энергии потребляет одно здание. Не может быть отрицательным.")]
+        public int PowerDemand = 1;
+
+        [Tooltip("Сколько энергии производит одно здание. Не может быть отрицательным.")]
+        public int PowerOutput = 0;
+
         [Header("Presentation")]
         [Tooltip("Префаб здания. Может быть пустым до готовности арта.")]
         public GameObject Prefab;
@@ -66,6 +73,18 @@ namespace Citybuilder
             {
                 Debug.LogWarning("BuildingDefinition: jobs fixed to 0.", this);
                 JobsProvided = 0;
+            }
+
+            if (PowerDemand < 0)
+            {
+                Debug.LogWarning("BuildingDefinition: power demand fixed to 0.", this);
+                PowerDemand = 0;
+            }
+
+            if (PowerOutput < 0)
+            {
+                Debug.LogWarning("BuildingDefinition: power output fixed to 0.", this);
+                PowerOutput = 0;
             }
         }
 
