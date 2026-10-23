@@ -18,7 +18,7 @@
 
 Модель V1: при нехватке все потребители получают одинаковую долю 0..1 (честный «недолив»), а не «первым повезло». Стиль: чистый C#, конструктор без зависимостей, без LINQ-цепочек >2, без generics, без событий. Комментарии — краткие, по-русски, как в `ElectricitySystem`.
 
-- [ ] Шаг 1: прочитать ЦЕЛИКОМ до правок: `Scripts/Infrastructure/ElectricitySystem.cs`, `Scripts/Core/EntityId.cs`, `Tests/Infrastructure/ElectricityTests.cs`, `Tests/Citybuilder.Tests.asmdef`, `TASKS/059-breakdown.md`.
+- [ ] Шаг 1: прочитать ЦЕЛИКОМ до правок: `Scripts/Infrastructure/ElectricitySystem.cs`, `Scripts/Core/EntityId.cs`, `Tests/Infrastructure/ElectricityTests.cs`, `Tests/Tests.asmdef` (asmdef `Tests`), `TASKS/059-breakdown.md`.
 - [ ] Шаг 2: `Assets/Citybuilder/Scripts/Infrastructure/WaterSystem.cs` (~110 строк, 1 класс, namespace `Citybuilder`):
   - поля: `Dictionary<EntityId, float> consumerDemand`, `Dictionary<EntityId, float> sourceCapacity`;
   - `TotalDemand`, `TotalSupply` — суммы (отрицательные уже обнулены);
