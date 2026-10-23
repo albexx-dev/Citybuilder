@@ -38,6 +38,12 @@ namespace Citybuilder
         [Tooltip("Сколько энергии производит одно здание. Не может быть отрицательным.")]
         public int PowerOutput = 0;
 
+        [Tooltip("Сколько воды потребляет одно здание. Не может быть отрицательным.")]
+        public int WaterDemand = 1;
+
+        [Tooltip("Сколько воды производит одно здание. Не может быть отрицательным.")]
+        public int WaterOutput = 0;
+
         [Header("Presentation")]
         [Tooltip("Префаб здания. Может быть пустым до готовности арта.")]
         public GameObject Prefab;
@@ -85,6 +91,18 @@ namespace Citybuilder
             {
                 Debug.LogWarning("BuildingDefinition: power output fixed to 0.", this);
                 PowerOutput = 0;
+            }
+
+            if (WaterDemand < 0)
+            {
+                Debug.LogWarning("BuildingDefinition: water demand fixed to 0.", this);
+                WaterDemand = 0;
+            }
+
+            if (WaterOutput < 0)
+            {
+                Debug.LogWarning("BuildingDefinition: water output fixed to 0.", this);
+                WaterOutput = 0;
             }
         }
 
