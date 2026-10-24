@@ -64,6 +64,7 @@
 - [x] Done 060-power-buildings + merged (Muse + ревью PASS: PowerDemand/PowerOutput в Definition, PowerController 139 + PowerView 30; E2E: 16 домов → «Энергия: 16/12 (75%)», дом без питания; тесты 102/102; Console чистый)
 - [x] Done 061-power-needs + merged (Muse + ревью PASS: энергия в NeedSystem (опциональный провайдер, старый /3 цел), HUD 4 показателя; E2E: 16/1 → 6% энергии, среднее 0.26; тесты 109/109; Console чистый)
 - [x] Done 063-water-core + merged (Muse + ревью PASS: WaterSystem 106 строк, 9 тестов; тесты 118/118; Console чистый; поведения ноль)
-- NEXT: 064 — вода в городе (WaterDemand/WaterOutput в Definition, WaterController BaseSupply, WaterView), затем 065 — вода в нуждах
+- [x] Done 064-water-city + merged (Muse + ревью PASS: WaterDemand/WaterOutput в Definition, WaterController 139 + WaterView 30, сцена +2 компонента; E2E: 0/12 → 16/12 (75%) → снос 15/12 (80%), HUD y=278 без наложений; тесты 121/121; Console чистый)
+- NEXT: 065 — вода в нуждах (WaterController как провайдер NeedSystem, 5-й показатель HUD), затем 066 — CongestionSystem мягким множителем в рост
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
