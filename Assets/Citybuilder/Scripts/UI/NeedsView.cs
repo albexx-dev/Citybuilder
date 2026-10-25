@@ -16,6 +16,8 @@ namespace Citybuilder
         public PowerController Power;
         [Tooltip("Вода города. Опционален: иначе ищется на этом же объекте.")]
         public WaterController Water;
+        [Tooltip("Мусор города. Опционален: иначе ищется на этом же объекте.")]
+        public WasteController Waste;
 
         private NeedSystem needs;
 
@@ -29,8 +31,8 @@ namespace Citybuilder
             EnsureNeeds(population, growth);
             string text = BuildText(needs);
             // y=114: ниже часов (y=50) и кнопок скорости (y=84-110), чтобы не налезать.
-            // Ширина 760: пять показателей (с энергией и водой) влезают в одну строку.
-            GUI.Label(new Rect(10, 114, 760, 30), text);
+            // Ширина 820: шесть показателей (энергия, вода, мусор) влезают в одну строку.
+            GUI.Label(new Rect(10, 114, 820, 30), text);
         }
 
         // Тихое создание поверх живых симуляций. Систем нет — тихо рисуем нули.
@@ -42,40 +44,36 @@ namespace Citybuilder
             if (growth.Settlement == null) return;
             if (Power == null) Power = GetComponent<PowerController>();
             if (Water == null) Water = GetComponent<WaterController>();
+            if (Waste == null) Waste = GetComponent<WasteController>();
             Func<float> power = Power != null ? (Func<float>)(() => Power.Rate01) : null;
             Func<float> water = Water != null ? (Func<float>)(() => Water.Rate01) : null;
-            needs = new NeedSystem(population.Population, growth.Settlement, power, water);
+            Func<float> waste = Waste != null ? (Func<float>)(() => Waste.Rate01) : null;
+            needs = new NeedSystem(population.Population, growth.Settlement, power, water, waste);
         }
 
-        // Строка потребностей. Энергия и вода добавляются только при наличии провайдера.
+        // Строка потребностей. Провайдеры добавляются только при наличии.
         private static string BuildText(NeedSystem model)
         {
-            float housing = 0f;
-            float jobs = 0f;
-            float employment = 0f;
-            float average = 0f;
-            bool hasPower = false;
-            float power = 1f;
-            bool hasWater = false;
-            float water = 1f;
-            if (model != null)
-            {
-                housing = model.HousingRoomRate;
-                jobs = model.JobsRoomRate;
-                employment = model.EmploymentRate;
-                average = model.AverageSatisfaction;
-                hasPower = model.HasPower;
-                power = model.PowerRate;
-                hasWater = model.HasWater;
-                water = model.WaterRate;
-            }
+            float housing = model != null ? model.HousingRoomRate : 0f;
+            float jobs = model != null ? model.JobsRoomRate : 0f;
+            float employment = model != null ? model.EmploymentRate : 0f;
+            float average = model != null ? model.AverageSatisfaction : 0f;
             string text = "Потребности: " + ToPercent(average) + "%";
             text += " (жильё " + ToPercent(housing) + "%";
             text += " • работа " + ToPercent(jobs) + "%";
             text += " • занятость " + ToPercent(employment) + "%";
-            if (hasPower) text += " • энергия " + ToPercent(power) + "%";
-            if (hasWater) text += " • вода " + ToPercent(water) + "%";
+            text = AppendProviders(text, model);
             return text + ")";
+        }
+
+        // Подключённые показатели после базовых трёх: энергия, вода, мусор.
+        private static string AppendProviders(string text, NeedSystem model)
+        {
+            if (model == null) return text;
+            if (model.HasPower) text += " • энергия " + ToPercent(model.PowerRate) + "%";
+            if (model.HasWater) text += " • вода " + ToPercent(model.WaterRate) + "%";
+            if (model.HasWaste) text += " • мусор " + ToPercent(model.WasteRate) + "%";
+            return text;
         }
 
         // Округлённый процент из ставки ядра 0..1.
