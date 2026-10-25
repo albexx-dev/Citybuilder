@@ -67,6 +67,6 @@
 - [x] Done 064-water-city + merged (Muse + ревью PASS: WaterDemand/WaterOutput в Definition, WaterController 139 + WaterView 30, сцена +2 компонента; E2E: 0/12 → 16/12 (75%) → снос 15/12 (80%), HUD y=278 без наложений; тесты 121/121; Console чистый)
 - [x] Done 062-handoff + merged (оркестратор: HANDOFF переписан под новое состояние, восстановлены потерянные строки очереди 052/053/055/058)
 - [x] Done 066-chat-roles + merged (оркестратор: роли разнесены по чатам — инженер и ревьюер теперь отдельные одноразовые чаты, не субагенты; AGENTS.md + HANDOFF.md)
-- NEXT: 065 — вода в нуждах (ветка task/065-water-needs, ждёт ревью и приёмки), затем 067 — CongestionSystem мягким множителем в рост
+- NEXT: 065 — вода в нуждах (ветка task/065-water-needs, ждёт ревью и приёмки); 067 — пробки в росте (ветка task/067-congestion-growth, бриф у инженера)
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
