@@ -152,6 +152,7 @@ MonoBehaviour:
   Growth: {fileID: 985593158}
   Treasury: {fileID: 2007715384}
   Runner: {fileID: 1821543313}
+  Policy: {fileID: 985593176}
   TaxPerWorker: 2
   placementActive: 1
 --- !u!4 &594737065
@@ -201,6 +202,7 @@ GameObject:
   - component: {fileID: 985593173}
   - component: {fileID: 985593175}
   - component: {fileID: 985593174}
+  - component: {fileID: 985593176}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -569,6 +571,18 @@ MonoBehaviour:
   Growth: {fileID: 985593158}
   BaseCapacity: 12
   RefreshIntervalSec: 2
+--- !u!114 &985593176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fbd1273952a0bf5b3834b6a0b0d2f66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.TaxPolicyView
 --- !u!1 &1069481158
 GameObject:
   m_ObjectHideFlags: 0
