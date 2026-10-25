@@ -71,6 +71,7 @@
 - [x] Done 069-quality-gate + merged (оркестратор: мерж только после зелёного шлюза — Unity-компиляция + EditMode + Play-E2E; инженер прогоняет чистый C# через dotnet до коммита)
 - [x] Done 065-water-needs + merged (Muse + ревью PASS: NeedSystem 4-арг (3..5 показателей), NeedsView 5-й пункт, 8 тестов; E2E: вода 16/1 → 6%, потребности 36%; тесты 129/129; Console чистый)
 - [x] Done 067-congestion-growth + merged (Muse + ревью PASS: CongestionController 131, RequiredTicks+7 тестов; E2E: 25 поездок → множитель 3, рост 2 дома/25с против 9 без пробок; тесты 136/136; Console чистый)
-- NEXT: 070 — мусор или службы (§12) — на твой выбор
+- [x] Done 070-supply-balance + merged (Muse + ревью PASS: SupplyBalance 105 (Core), обёртки Electricity/Water по 61, API без изменений, 9 тестов; E2E: энергия и вода 16/12 → 75%, потребности 49%; тесты 145/145; Console чистый)
+- NEXT: 071 — мусор (§12) на общем SupplyBalance
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.

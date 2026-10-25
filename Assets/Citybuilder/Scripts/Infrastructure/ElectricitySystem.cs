@@ -1,106 +1,61 @@
-using System.Collections.Generic;
-
 namespace Citybuilder
 {
-    // Баланс электроэнергии (V1, этап 059). Чистый C#, без Unity.
-    // Нехватка делится поровну: все потребители получают одну и ту же долю 0..1.
+    // Баланс электроэнергии (V1, этап 059). Тонкая обёртка над SupplyBalance.
+    // Публичный API сохранён: логика и числа живут в SupplyBalance.
     // Ничем не используется: поведение игры не меняет.
     public class ElectricitySystem
     {
-        private const float SatisfiedThreshold = 0.999f;
+        private readonly SupplyBalance balance = new SupplyBalance();
 
-        private readonly Dictionary<EntityId, float> consumerDemand = new Dictionary<EntityId, float>();
-        private readonly Dictionary<EntityId, float> plantCapacity = new Dictionary<EntityId, float>();
-
-        // Суммарный спрос потребителей. Отрицательные значения уже обнулены.
+        // Суммарный спрос потребителей.
         public float TotalDemand
         {
-            get { return Sum(consumerDemand); }
+            get { return balance.TotalDemand; }
         }
 
         // Суммарная мощность генераторов.
         public float TotalSupply
         {
-            get { return Sum(plantCapacity); }
+            get { return balance.TotalSupply; }
         }
 
-        // Доля покрытия города: 0..1. Спрос 0 — 1, покрытие полное — 1.
+        // Доля покрытия города: 0..1.
         public float SatisfactionRate01
         {
-            get
-            {
-                float demand = TotalDemand;
-                if (demand <= 0f)
-                {
-                    return 1f;
-                }
-                float supply = TotalSupply;
-                if (supply >= demand)
-                {
-                    return 1f;
-                }
-                return supply / demand;
-            }
+            get { return balance.Rate01; }
         }
 
-        // Дубликат id перезаписывает значение. Отрицательный спрос — 0.
+        // Дубликат id перезаписывает значение.
         public void AddConsumer(EntityId id, float demand)
         {
-            consumerDemand[id] = ClampNonNegative(demand);
+            balance.SetDemand(id, demand);
         }
 
-        // Дубликат id перезаписывает значение. Отрицательная мощность — 0.
+        // Дубликат id перезаписывает значение.
         public void AddPlant(EntityId id, float capacity)
         {
-            plantCapacity[id] = ClampNonNegative(capacity);
+            balance.SetSupply(id, capacity);
         }
 
-        // Убирает id из потребителей и генераторов. Не найден — ничего.
         public void Remove(EntityId id)
         {
-            consumerDemand.Remove(id);
-            plantCapacity.Remove(id);
+            balance.Remove(id);
         }
 
         public void Clear()
         {
-            consumerDemand.Clear();
-            plantCapacity.Clear();
+            balance.Clear();
         }
 
-        // Доля конкретного потребителя. Не найден — 0; спрос 0 — 1.
+        // Доля конкретного потребителя. Не найден — 0.
         public float SatisfactionOf(EntityId id)
         {
-            float demand;
-            if (!consumerDemand.TryGetValue(id, out demand))
-            {
-                return 0f;
-            }
-            if (demand <= 0f)
-            {
-                return 1f;
-            }
-            return SatisfactionRate01;
+            return balance.RateOf(id);
         }
 
         public bool IsSatisfied(EntityId id)
         {
-            return SatisfactionOf(id) >= SatisfiedThreshold;
-        }
-
-        private static float ClampNonNegative(float value)
-        {
-            return value > 0f ? value : 0f;
-        }
-
-        private static float Sum(Dictionary<EntityId, float> values)
-        {
-            float total = 0f;
-            foreach (KeyValuePair<EntityId, float> pair in values)
-            {
-                total = total + pair.Value;
-            }
-            return total;
+            return balance.IsSatisfied(id);
         }
     }
 }
