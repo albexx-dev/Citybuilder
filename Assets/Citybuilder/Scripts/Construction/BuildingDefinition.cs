@@ -44,6 +44,12 @@ namespace Citybuilder
         [Tooltip("Сколько воды производит одно здание. Не может быть отрицательным.")]
         public int WaterOutput = 0;
 
+        [Tooltip("Сколько мусора производит одно здание. Не может быть отрицательным.")]
+        public int WasteOutput = 1;
+
+        [Tooltip("Сколько мусора утилизирует одно здание. Не может быть отрицательным.")]
+        public int WasteCapacity = 0;
+
         [Header("Presentation")]
         [Tooltip("Префаб здания. Может быть пустым до готовности арта.")]
         public GameObject Prefab;
@@ -55,55 +61,43 @@ namespace Citybuilder
                 Debug.LogWarning("BuildingDefinition: id is empty.", this);
             }
 
+            ClampFootprint();
+            ConstructionCost = Clamp(ConstructionCost, "cost");
+            ResidentCapacity = Clamp(ResidentCapacity, "capacity");
+            JobsProvided = Clamp(JobsProvided, "jobs");
+            PowerDemand = Clamp(PowerDemand, "power demand");
+            PowerOutput = Clamp(PowerOutput, "power output");
+            WaterDemand = Clamp(WaterDemand, "water demand");
+            WaterOutput = Clamp(WaterOutput, "water output");
+            WasteOutput = Clamp(WasteOutput, "waste output");
+            WasteCapacity = Clamp(WasteCapacity, "waste capacity");
+        }
+
+        // Чистая часть клампа без логирования: отрицательное становится нулём.
+        public static int ClampNonNegative(int value)
+        {
+            return value < 0 ? 0 : value;
+        }
+
+        // Поле в 0 и одно предупреждение с его именем.
+        private int Clamp(int value, string field)
+        {
+            int fixedValue = ClampNonNegative(value);
+            if (fixedValue != value)
+            {
+                Debug.LogWarning("BuildingDefinition: " + field + " fixed to 0.", this);
+            }
+            return fixedValue;
+        }
+
+        // Сторона меньше 1 ломает покрытие клеток: поднимаем до 1x1.
+        private void ClampFootprint()
+        {
             int fixedX = Mathf.Max(1, Footprint.x);
             int fixedY = Mathf.Max(1, Footprint.y);
-            if (fixedX != Footprint.x || fixedY != Footprint.y)
-            {
-                Debug.LogWarning("BuildingDefinition: footprint fixed to minimum 1x1.", this);
-                Footprint = new Vector2Int(fixedX, fixedY);
-            }
-
-            if (ConstructionCost < 0)
-            {
-                Debug.LogWarning("BuildingDefinition: cost fixed to 0.", this);
-                ConstructionCost = 0;
-            }
-
-            if (ResidentCapacity < 0)
-            {
-                Debug.LogWarning("BuildingDefinition: capacity fixed to 0.", this);
-                ResidentCapacity = 0;
-            }
-
-            if (JobsProvided < 0)
-            {
-                Debug.LogWarning("BuildingDefinition: jobs fixed to 0.", this);
-                JobsProvided = 0;
-            }
-
-            if (PowerDemand < 0)
-            {
-                Debug.LogWarning("BuildingDefinition: power demand fixed to 0.", this);
-                PowerDemand = 0;
-            }
-
-            if (PowerOutput < 0)
-            {
-                Debug.LogWarning("BuildingDefinition: power output fixed to 0.", this);
-                PowerOutput = 0;
-            }
-
-            if (WaterDemand < 0)
-            {
-                Debug.LogWarning("BuildingDefinition: water demand fixed to 0.", this);
-                WaterDemand = 0;
-            }
-
-            if (WaterOutput < 0)
-            {
-                Debug.LogWarning("BuildingDefinition: water output fixed to 0.", this);
-                WaterOutput = 0;
-            }
+            if (fixedX == Footprint.x && fixedY == Footprint.y) return;
+            Debug.LogWarning("BuildingDefinition: footprint fixed to minimum 1x1.", this);
+            Footprint = new Vector2Int(fixedX, fixedY);
         }
 
         // Все клетки прямоугольника от origin (включительно).
