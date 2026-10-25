@@ -590,6 +590,7 @@ MonoBehaviour:
   Population: {fileID: 0}
   Growth: {fileID: 985593158}
   Power: {fileID: 985593170}
+  Water: {fileID: 985593172}
 --- !u!114 &1069481162
 MonoBehaviour:
   m_ObjectHideFlags: 0
