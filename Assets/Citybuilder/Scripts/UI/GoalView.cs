@@ -24,10 +24,11 @@ namespace Citybuilder
             EnsureGoals(population, simulation);
             if (goals == null) return;
             // y=148: ниже потребностей (y=114), чтобы не налезать на левую колонку.
-            GUI.Label(new Rect(10, 148, 400, 30), HudText());
+            HudText.Draw(10, 148, BuildText());
         }
 
-        private string HudText()
+        // Имя метода не HudText: оно скрывало бы одноимённый статический хелпер.
+        private string BuildText()
         {
             return "Цель: " + goals.Residents + "/" + GoalSystem.GoalResidents + " жителей";
         }
