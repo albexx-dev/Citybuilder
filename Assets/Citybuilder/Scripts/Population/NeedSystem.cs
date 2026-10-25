@@ -2,33 +2,32 @@ using System;
 
 namespace Citybuilder
 {
-    // Удовлетворённость жителей жильём, работой и энергией. Своего состояния нет, чистый C#.
+    // Удовлетворённость жителей жильём, работой, энергией и водой. Своего состояния нет, чистый C#.
     public class NeedSystem
     {
         private readonly PopulationSystem population;
         private readonly SettlementSystem settlement;
         private readonly Func<float> powerRate;
+        private readonly Func<float> waterRate;
 
-        // Старый конструктор: без провайдера энергии, среднее по трём потребностям.
+        // Старый конструктор: ни энергии, ни воды, среднее по трём потребностям.
         public NeedSystem(PopulationSystem population, SettlementSystem settlement)
-            : this(population, settlement, null)
-        {
-        }
+            : this(population, settlement, null, null) { }
 
-        // Провайдер энергии необязателен: null — энергия не участвует в среднем.
+        // Только энергия: вода в среднем не участвует.
         public NeedSystem(PopulationSystem population, SettlementSystem settlement, Func<float> powerRate)
+            : this(population, settlement, powerRate, null) { }
+
+        // Провайдеры необязательны: null — показатель не входит в среднее.
+        public NeedSystem(PopulationSystem population, SettlementSystem settlement,
+            Func<float> powerRate, Func<float> waterRate)
         {
-            if (population == null)
-            {
-                throw new ArgumentNullException("population");
-            }
-            if (settlement == null)
-            {
-                throw new ArgumentNullException("settlement");
-            }
+            if (population == null) throw new ArgumentNullException("population");
+            if (settlement == null) throw new ArgumentNullException("settlement");
             this.population = population;
             this.settlement = settlement;
             this.powerRate = powerRate;
+            this.waterRate = waterRate;
         }
 
         // Трудоустроено: жителей не больше, чем рабочих мест.
@@ -37,23 +36,22 @@ namespace Citybuilder
             get { return Math.Min(population.TotalResidents, settlement.TotalJobs); }
         }
 
-        // Есть ли источник энергии: без провайдера энергия в среднее не входит.
+        // Флаг провайдера: не подключён — показателя нет в среднем.
         public bool HasPower
         {
             get { return powerRate != null; }
         }
-
-        // Покрытие энергией 0..1. Провайдера нет — 1: энергии не бывает мало.
+        public bool HasWater
+        {
+            get { return waterRate != null; }
+        }
         public float PowerRate
         {
-            get
-            {
-                if (powerRate == null)
-                {
-                    return 1f;
-                }
-                return Clamp01(powerRate());
-            }
+            get { return Rate01(powerRate); }
+        }
+        public float WaterRate
+        {
+            get { return Rate01(waterRate); }
         }
 
         // Доля свободного жилья. Домов нет — 0, пустой город — 1.
@@ -104,18 +102,35 @@ namespace Citybuilder
             }
         }
 
-        // Среднее потребностей: 4 с энергией, 3 без неё (совместимость с 036).
+        // Среднее по 3 базовым потребностям плюс подключённые энергия и вода (3..5 слагаемых).
         public float AverageSatisfaction
         {
             get
             {
                 float sum = HousingRoomRate + JobsRoomRate + EmploymentRate;
-                if (!HasPower)
+                int count = 3;
+                if (HasPower)
                 {
-                    return sum / 3f;
+                    sum += PowerRate;
+                    count++;
                 }
-                return (sum + PowerRate) / 4f;
+                if (HasWater)
+                {
+                    sum += WaterRate;
+                    count++;
+                }
+                return sum / count;
             }
+        }
+
+        // Ставка провайдера 0..1. Провайдера нет — 1: потребность не ограничивает.
+        private static float Rate01(Func<float> provider)
+        {
+            if (provider == null)
+            {
+                return 1f;
+            }
+            return Clamp01(provider());
         }
 
         private static float Clamp01(float value)
