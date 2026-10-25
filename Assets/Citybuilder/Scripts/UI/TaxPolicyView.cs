@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Кнопка налоговой политики в левом HUD, ниже строки мусора. Только OnGUI.
+    // Кнопка налоговой политики в левом HUD, ниже строк пожарных. Только OnGUI.
     // Вешать на объект HUD (Grid). Ссылок не требует: политика живёт в памяти.
     public class TaxPolicyView : MonoBehaviour
     {
@@ -22,10 +22,10 @@ namespace Citybuilder
             }
         }
 
-        // Левая колонка HUD: y=342 — ниже мусора (310 + 26 + зазор 6).
+        // Левая колонка HUD: y=374 — ниже пожарных (342 + 30 + зазор 2).
         private void OnGUI()
         {
-            Rect rect = new Rect(10f, 342f, 240f, 26f);
+            Rect rect = new Rect(10f, 374f, 240f, 26f);
             UiClickGuard.Set("tax", rect);
             if (GUI.Button(rect, Policy.Label))
             {
