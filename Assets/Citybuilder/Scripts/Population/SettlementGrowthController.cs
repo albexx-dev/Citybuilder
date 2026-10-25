@@ -14,6 +14,8 @@ namespace Citybuilder
         [Tooltip("Вид выросших домов. Пусто = создастся на этом же объекте.")] public SettlementView View;
         [Tooltip("Казна для оплаты роста. Пусто = рост бесплатный.")] public TreasuryView Treasury;
         [Tooltip("Драйвер часов. Обязателен: даёт тики часов для роста.")] public SimulationRunner Runner;
+        [Header("Transport")]
+        [Tooltip("Пробки. Пусто = рост без пробок.")] public CongestionController Congestion;
         [Header("Growth")]
         [Tooltip("Типы под зоны. Пусто = рост не работает.")] public List<BuildingDefinition> Definitions = new List<BuildingDefinition>();
         [Tooltip("Тиков часов между домами. Минимум 1.")] public int TicksPerGrowth = 5;
@@ -22,6 +24,7 @@ namespace Citybuilder
         private BuildingSystem buildings;
         private SettlementSystem settlement;
         private readonly List<BuildingState> states = new List<BuildingState>();
+        private const int MaxRequiredTicks = 1000;
         private int tickCount;
         private ZoneType lastGrownZone = ZoneType.None;
         // Копия выросших домов для заселения. Отдаём копию, а не сам список.
@@ -48,30 +51,16 @@ namespace Citybuilder
         // Вход тиков от SettlementGrowthTicker. Параметр времени не нужен: сам факт тика = один игровой час.
         public void OnClockTick(SimulationTime time)
         {
-            if (!placementActive)
-            {
-                return;
-            }
-            if (!EnsureReady() || settlement == null)
-            {
-                return;
-            }
-            if (settlement.SettledCount >= MaxSettlements)
-            {
-                return;
-            }
+            if (!placementActive) return;
+            if (!EnsureReady() || settlement == null) return;
+            if (settlement.SettledCount >= MaxSettlements) return;
             tickCount++;
-            if (tickCount < TicksPerGrowth)
-            {
-                return;
-            }
+            int neededTicks = RequiredTicks(TicksPerGrowth, Congestion != null ? Congestion.GrowthTickMultiplier : 1);
+            if (tickCount < neededTicks) return;
             tickCount = 0;
             TryGrow();
         }
-        private void OnValidate()
-        {
-            ClampLimits();
-        }
+        private void OnValidate() { ClampLimits(); }
         // Проверяет ссылки и чинит логику после перезагрузки домена. Выросшее при reload теряется (не V1).
         private bool EnsureReady()
         {
@@ -192,6 +181,15 @@ namespace Citybuilder
         {
             if (TicksPerGrowth < 1) TicksPerGrowth = 1;
             if (MaxSettlements < 1) MaxSettlements = 1;
+        }
+
+        // Тиков на дом с учётом пробок. Чистая функция: клампы снизу 1, сверху 1000.
+        public static int RequiredTicks(int baseTicks, int multiplier)
+        {
+            if (baseTicks <= 0) return 1;
+            if (multiplier <= 0) multiplier = 1;
+            long ticks = (long)baseTicks * multiplier;
+            return ticks > MaxRequiredTicks ? MaxRequiredTicks : (int)ticks;
         }
     }
 }
