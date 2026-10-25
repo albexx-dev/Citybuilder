@@ -14,8 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.BuildingDefinition
   Id: fire_station
   DisplayName: Fire Station
+  Footprint: {x: 2, y: 2}
   ConstructionCost: 300
-  ResidentCapacity: 0
+  UnlockBuildings: 0
   AllowedZone: 2
+  ResidentCapacity: 0
   JobsProvided: 2
   ServiceRadius: 6
+  PowerDemand: 1
+  PowerOutput: 0
+  WaterDemand: 1
+  WaterOutput: 0
+  WasteOutput: 1
+  WasteCapacity: 0
+  Prefab: {fileID: 0}

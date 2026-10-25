@@ -21,6 +21,10 @@ namespace Citybuilder
         [Tooltip("Стоимость постройки. Не может быть отрицательной.")]
         public int ConstructionCost = 100;
 
+        [Header("Progression")]
+        [Tooltip("Нужно выросших зданий в городе. 0 — доступно сразу")]
+        public int UnlockBuildings = 0;
+
         [Header("Settlement")]
         [Tooltip("На какой зоне может стоять тип здания.")]
         public ZoneType AllowedZone = ZoneType.Residential;
@@ -67,6 +71,7 @@ namespace Citybuilder
 
             ClampFootprint();
             ConstructionCost = Clamp(ConstructionCost, "cost");
+            UnlockBuildings = Clamp(UnlockBuildings, "unlock buildings");
             ResidentCapacity = Clamp(ResidentCapacity, "capacity");
             JobsProvided = Clamp(JobsProvided, "jobs");
             ServiceRadius = Clamp(ServiceRadius, "service radius");

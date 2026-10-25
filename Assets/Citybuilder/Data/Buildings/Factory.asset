@@ -16,8 +16,15 @@ MonoBehaviour:
   DisplayName: Factory
   Footprint: {x: 2, y: 2}
   ConstructionCost: 200
+  UnlockBuildings: 8
   AllowedZone: 3
   ResidentCapacity: 0
   JobsProvided: 8
+  ServiceRadius: 0
+  PowerDemand: 1
+  PowerOutput: 0
+  WaterDemand: 1
+  WaterOutput: 0
   WasteOutput: 3
+  WasteCapacity: 0
   Prefab: {fileID: 0}

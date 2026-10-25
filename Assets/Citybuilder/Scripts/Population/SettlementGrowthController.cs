@@ -30,18 +30,17 @@ namespace Citybuilder
         // Копия выросших домов для заселения. Отдаём копию, а не сам список.
         public List<BuildingState> Homes
         {
-            get
-            {
-                return new List<BuildingState>(states);
-            }
+            get { return new List<BuildingState>(states); }
         }
         // Доступ к системе поселений для занятости. Может быть null до EnsureReady.
         public SettlementSystem Settlement
         {
-            get
-            {
-                return settlement;
-            }
+            get { return settlement; }
+        }
+        // Сколько зданий выросло: метрика открытия новых типов.
+        public int GrownCount
+        {
+            get { return states.Count; }
         }
         private void Start()
         {
@@ -122,6 +121,7 @@ namespace Citybuilder
                 {
                     BuildingDefinition candidate = Definitions[d];
                     if (candidate == null) continue;
+                    if (!UnlockPolicy.IsUnlocked(candidate, GrownCount)) continue;
                     if (!MatchesZone(candidate, zone)) continue;
                     if (settlement.CanSettle(candidate, cell))
                     {
