@@ -13,8 +13,8 @@ namespace Citybuilder
         public BuildModeMenu Menu;
         [Tooltip("Типы зданий для палитры. Пустой список = палитра не рисуется.")]
         public List<BuildingDefinition> Definitions = new List<BuildingDefinition>();
-        [Tooltip("Население для разблокировки типов. Пусто = все доступны.")]
-        public PopulationController Population;
+        [Tooltip("Рост для разблокировки типов. Пусто = все доступны.")]
+        public SettlementGrowthController Growth;
 
         private const float Width = 130f;
         private const float Height = 30f;
@@ -47,10 +47,10 @@ namespace Citybuilder
         {
             if (def == null) return;
             Rect rect = new Rect(x, y, Width, Height);
-            int residents = Residents;
-            if (!UnlockPolicy.IsUnlocked(def, residents))
+            int buildings = Buildings;
+            if (!UnlockPolicy.IsUnlocked(def, buildings))
             {
-                DrawLocked(rect, def.DisplayName + " — " + UnlockPolicy.Remaining(def, residents) + " жит.");
+                DrawLocked(rect, def.DisplayName + " — " + UnlockPolicy.Remaining(def, buildings) + " зд.");
                 return;
             }
             string label = def.DisplayName + " " + def.ConstructionCost;
@@ -60,13 +60,13 @@ namespace Citybuilder
             }
         }
 
-        // Нет населения в сцене — разблокировки нет (старое поведение).
-        private int Residents
+        // Роста нет в сцене — разблокировки нет (старое поведение).
+        private int Buildings
         {
-            get { return Population == null ? int.MaxValue : Population.Population.TotalResidents; }
+            get { return Growth == null ? int.MaxValue : Growth.GrownCount; }
         }
 
-        // Заблокированная кнопка серая: клик не проходит, вместо цены — нехватка жителей.
+        // Заблокированная кнопка серая: клик не проходит, вместо цены — нехватка зданий.
         private void DrawLocked(Rect rect, string label)
         {
             bool saved = GUI.enabled;

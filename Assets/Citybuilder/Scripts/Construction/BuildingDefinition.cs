@@ -22,8 +22,8 @@ namespace Citybuilder
         public int ConstructionCost = 100;
 
         [Header("Progression")]
-        [Tooltip("Нужно жителей в городе. 0 — доступно сразу")]
-        public int UnlockResidents = 0;
+        [Tooltip("Нужно выросших зданий в городе. 0 — доступно сразу")]
+        public int UnlockBuildings = 0;
 
         [Header("Settlement")]
         [Tooltip("На какой зоне может стоять тип здания.")]
@@ -71,7 +71,7 @@ namespace Citybuilder
 
             ClampFootprint();
             ConstructionCost = Clamp(ConstructionCost, "cost");
-            UnlockResidents = Clamp(UnlockResidents, "unlock residents");
+            UnlockBuildings = Clamp(UnlockBuildings, "unlock buildings");
             ResidentCapacity = Clamp(ResidentCapacity, "capacity");
             JobsProvided = Clamp(JobsProvided, "jobs");
             ServiceRadius = Clamp(ServiceRadius, "service radius");

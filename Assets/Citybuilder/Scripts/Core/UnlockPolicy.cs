@@ -1,27 +1,27 @@
 namespace Citybuilder
 {
-    // Правило разблокировки типов зданий по числу жителей. Чистый C#, без Unity.
-    // Порог берётся из BuildingDefinition.UnlockResidents: 0 — доступно сразу.
+    // Правило разблокировки типов зданий по числу выросших зданий. Чистый C#, без Unity.
+    // Порог берётся из BuildingDefinition.UnlockBuildings: 0 — доступно сразу.
     public static class UnlockPolicy
     {
-        // Открыт ли тип. Нет описания — закрыт; отрицательное население считаем нулём.
-        public static bool IsUnlocked(BuildingDefinition definition, int residents)
+        // Открыт ли тип. Нет описания — закрыт; отрицательное число зданий считаем нулём.
+        public static bool IsUnlocked(BuildingDefinition definition, int buildings)
         {
             if (definition == null) return false;
-            return Normalize(residents) >= definition.UnlockResidents;
+            return Normalize(buildings) >= definition.UnlockBuildings;
         }
 
-        // Сколько жителей не хватает до открытия. Открыто или нет описания — 0.
-        public static int Remaining(BuildingDefinition definition, int residents)
+        // Сколько зданий не хватает до открытия. Открыто или нет описания — 0.
+        public static int Remaining(BuildingDefinition definition, int buildings)
         {
             if (definition == null) return 0;
-            int missing = definition.UnlockResidents - Normalize(residents);
+            int missing = definition.UnlockBuildings - Normalize(buildings);
             return missing > 0 ? missing : 0;
         }
 
-        private static int Normalize(int residents)
+        private static int Normalize(int buildings)
         {
-            return residents < 0 ? 0 : residents;
+            return buildings < 0 ? 0 : buildings;
         }
     }
 }
