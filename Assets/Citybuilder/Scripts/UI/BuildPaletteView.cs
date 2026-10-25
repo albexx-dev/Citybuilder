@@ -14,7 +14,7 @@ namespace Citybuilder
         [Tooltip("Типы зданий для палитры. Пустой список = палитра не рисуется.")]
         public List<BuildingDefinition> Definitions = new List<BuildingDefinition>();
 
-        private const float Width = 90f;
+        private const float Width = 130f;
         private const float Height = 30f;
         private const float Step = 34f;
         private const float Top = 188f;
