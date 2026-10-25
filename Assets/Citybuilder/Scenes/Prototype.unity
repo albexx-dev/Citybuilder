@@ -198,6 +198,7 @@ GameObject:
   - component: {fileID: 985593169}
   - component: {fileID: 985593172}
   - component: {fileID: 985593171}
+  - component: {fileID: 985593173}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -320,6 +321,7 @@ MonoBehaviour:
   View: {fileID: 0}
   Treasury: {fileID: 2007715384}
   Runner: {fileID: 1821543313}
+  Congestion: {fileID: 985593173}
   Definitions:
   - {fileID: 11400000, guid: 0032c13ad3a6cf740b11da6edca1de61, type: 2}
   - {fileID: 11400000, guid: 1ac62d4409b7fc94d96dd3fd38893a0e, type: 2}
@@ -521,6 +523,22 @@ MonoBehaviour:
   Growth: {fileID: 985593158}
   BaseSupply: 12
   RefreshIntervalSec: 2
+--- !u!114 &985593173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e76f5deed044aa9910ebab6e6af2ac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.CongestionController
+  GridVisualizer: {fileID: 985593152}
+  Threshold: 4
+  Factor: 0.25
+  MaxMultiplier: 3
 --- !u!1 &1069481158
 GameObject:
   m_ObjectHideFlags: 0
