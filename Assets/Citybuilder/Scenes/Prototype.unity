@@ -199,6 +199,8 @@ GameObject:
   - component: {fileID: 985593172}
   - component: {fileID: 985593171}
   - component: {fileID: 985593173}
+  - component: {fileID: 985593175}
+  - component: {fileID: 985593174}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -539,6 +541,34 @@ MonoBehaviour:
   Threshold: 4
   Factor: 0.25
   MaxMultiplier: 3
+--- !u!114 &985593174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 699d4f919afc41a69af36ac14b6aba10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.WasteView
+  Controller: {fileID: 985593175}
+--- !u!114 &985593175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d63683b8d9774286b5e7dd083c70e966, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.WasteController
+  Growth: {fileID: 985593158}
+  BaseCapacity: 12
+  RefreshIntervalSec: 2
 --- !u!1 &1069481158
 GameObject:
   m_ObjectHideFlags: 0

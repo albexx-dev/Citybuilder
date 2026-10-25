@@ -72,6 +72,6 @@
 - [x] Done 065-water-needs + merged (Muse + ревью PASS: NeedSystem 4-арг (3..5 показателей), NeedsView 5-й пункт, 8 тестов; E2E: вода 16/1 → 6%, потребности 36%; тесты 129/129; Console чистый)
 - [x] Done 067-congestion-growth + merged (Muse + ревью PASS: CongestionController 131, RequiredTicks+7 тестов; E2E: 25 поездок → множитель 3, рост 2 дома/25с против 9 без пробок; тесты 136/136; Console чистый)
 - [x] Done 070-supply-balance + merged (Muse + ревью PASS: SupplyBalance 105 (Core), обёртки Electricity/Water по 61, API без изменений, 9 тестов; E2E: энергия и вода 16/12 → 75%, потребности 49%; тесты 145/145; Console чистый)
-- NEXT: 071 — мусор (§12) на общем SupplyBalance
+- [x] Done 071-waste + merged (Muse + ревью PASS: WasteController 118 на SupplyBalance, WasteView y=310, поля WasteOutput/WasteCapacity, OnValidate 16 строк; E2E: 16 домов 16/12 (75%), +2 магазина и +2 фабрики → 26/12 (46%); тесты 150/150; Console чистый)\n- NEXT: службы (§12) или политики (§15) — на выбор; мусор в потребности требует выноса провайдеров из NeedSystem
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
