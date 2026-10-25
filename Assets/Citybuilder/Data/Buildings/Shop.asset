@@ -16,6 +16,7 @@ MonoBehaviour:
   DisplayName: Shop
   Footprint: {x: 2, y: 2}
   ConstructionCost: 150
+  UnlockResidents: 10
   AllowedZone: 2
   ResidentCapacity: 0
   JobsProvided: 6
