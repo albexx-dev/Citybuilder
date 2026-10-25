@@ -18,6 +18,8 @@ namespace Citybuilder
         public WaterController Water;
         [Tooltip("Мусор города. Опционален: иначе ищется на этом же объекте.")]
         public WasteController Waste;
+        [Tooltip("Пожарные города. Опционален: иначе ищется на этом же объекте.")]
+        public FireCoverageController Fire;
 
         private NeedSystem needs;
 
@@ -31,7 +33,7 @@ namespace Citybuilder
             EnsureNeeds(population, growth);
             string text = BuildText(needs);
             // y=114: ниже часов (y=50) и кнопок скорости (y=84-110), чтобы не налезать.
-            // Ширина подложки теперь по тексту: шесть показателей остаются в одной строке.
+            // Ширина подложки теперь по тексту: семь показателей остаются в одной строке.
             HudText.Draw(10, 114, text);
         }
 
@@ -45,10 +47,12 @@ namespace Citybuilder
             if (Power == null) Power = GetComponent<PowerController>();
             if (Water == null) Water = GetComponent<WaterController>();
             if (Waste == null) Waste = GetComponent<WasteController>();
+            if (Fire == null) Fire = GetComponent<FireCoverageController>();
             Func<float> power = Power != null ? (Func<float>)(() => Power.Rate01) : null;
             Func<float> water = Water != null ? (Func<float>)(() => Water.Rate01) : null;
             Func<float> waste = Waste != null ? (Func<float>)(() => Waste.Rate01) : null;
-            needs = new NeedSystem(population.Population, growth.Settlement, power, water, waste);
+            Func<float> fire = Fire != null ? (Func<float>)(() => Fire.Rate01) : null;
+            needs = new NeedSystem(population.Population, growth.Settlement, power, water, waste, fire);
         }
 
         // Строка потребностей. Провайдеры добавляются только при наличии.
@@ -66,13 +70,14 @@ namespace Citybuilder
             return text + ")";
         }
 
-        // Подключённые показатели после базовых трёх: энергия, вода, мусор.
+        // Подключённые показатели после базовых трёх: энергия, вода, мусор, пожарные.
         private static string AppendProviders(string text, NeedSystem model)
         {
             if (model == null) return text;
             if (model.HasPower) text += " • энергия " + ToPercent(model.PowerRate) + "%";
             if (model.HasWater) text += " • вода " + ToPercent(model.WaterRate) + "%";
             if (model.HasWaste) text += " • мусор " + ToPercent(model.WasteRate) + "%";
+            if (model.HasFire) text += " • пожарные " + ToPercent(model.FireRate) + "%";
             return text;
         }
 

@@ -2,26 +2,32 @@ using System;
 
 namespace Citybuilder
 {
-    // Провайдеры потребностей: энергия, вода, мусор. Чистый C#, без Unity.
+    // Провайдеры потребностей: энергия, вода, мусор, пожарные. Чистый C#, без Unity.
     // null — провайдер не подключён: его нет ни в сумме, ни в счётчике.
     public class NeedProviders
     {
         private readonly Func<float> powerRate;
         private readonly Func<float> waterRate;
         private readonly Func<float> wasteRate;
+        private readonly Func<float> fireRate;
 
         // Ни одного провайдера: все ставки 1, сумма 0, счётчик 0.
         public NeedProviders()
-            : this(null, null, null) { }
+            : this(null, null, null, null) { }
 
         public NeedProviders(Func<float> powerRate, Func<float> waterRate)
-            : this(powerRate, waterRate, null) { }
+            : this(powerRate, waterRate, null, null) { }
 
         public NeedProviders(Func<float> powerRate, Func<float> waterRate, Func<float> wasteRate)
+            : this(powerRate, waterRate, wasteRate, null) { }
+
+        public NeedProviders(Func<float> powerRate, Func<float> waterRate,
+            Func<float> wasteRate, Func<float> fireRate)
         {
             this.powerRate = powerRate;
             this.waterRate = waterRate;
             this.wasteRate = wasteRate;
+            this.fireRate = fireRate;
         }
 
         // Флаг провайдера: не подключён — показателя нет в среднем.
@@ -37,6 +43,10 @@ namespace Citybuilder
         {
             get { return wasteRate != null; }
         }
+        public bool HasFire
+        {
+            get { return fireRate != null; }
+        }
 
         public float PowerRate
         {
@@ -50,6 +60,10 @@ namespace Citybuilder
         {
             get { return Rate01(wasteRate); }
         }
+        public float FireRate
+        {
+            get { return Rate01(fireRate); }
+        }
 
         // Сумма только подключённых показателей.
         public float Sum
@@ -60,11 +74,12 @@ namespace Citybuilder
                 if (HasPower) total += PowerRate;
                 if (HasWater) total += WaterRate;
                 if (HasWaste) total += WasteRate;
+                if (HasFire) total += FireRate;
                 return total;
             }
         }
 
-        // Число подключённых провайдеров 0..3.
+        // Число подключённых провайдеров 0..4.
         public int Count
         {
             get
@@ -73,6 +88,7 @@ namespace Citybuilder
                 if (HasPower) count++;
                 if (HasWater) count++;
                 if (HasWaste) count++;
+                if (HasFire) count++;
                 return count;
             }
         }
