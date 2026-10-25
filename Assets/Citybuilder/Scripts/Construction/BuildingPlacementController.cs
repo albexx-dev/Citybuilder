@@ -22,6 +22,12 @@ namespace Citybuilder
         private readonly List<BuildingState> states = new List<BuildingState>();
         private readonly List<GameObject> views = new List<GameObject>();
 
+        // Копия построенного: нужна покрытию и будущим сохранениям.
+        public List<BuildingState> Placed
+        {
+            get { return new List<BuildingState>(states); }
+        }
+
         private void Start()
         {
             EnsureReady();
@@ -30,10 +36,15 @@ namespace Citybuilder
         // Прячем призрак при выключении: иначе висящий куб.
         private void OnDisable()
         {
-            if (ghost != null)
-            {
-                ghost.SetActive(false);
-            }
+            if (ghost != null) ghost.SetActive(false);
+        }
+
+        // Сменить тип и пересоздать призрак: иначе останется старый габарит.
+        public void SetDefinition(BuildingDefinition def)
+        {
+            if (def == null || def == Definition) return;
+            Definition = def;
+            RebuildGhost();
         }
 
         // Проверяет ссылки и восстанавливает систему после перезагрузки домена.
@@ -46,33 +57,31 @@ namespace Citybuilder
                 enabled = false;
                 return false;
             }
-            if (system == null)
-            {
-                system = new BuildingSystem(GridVisualizer.Grid);
-            }
+            if (system == null) system = new BuildingSystem(GridVisualizer.Grid);
             if (validMaterial == null || invalidMaterial == null)
             {
-                validMaterial = BuildGhostMaterial(new Color(0f, 1f, 0f, 0.4f));
-                invalidMaterial = BuildGhostMaterial(new Color(1f, 0f, 0f, 0.4f));
+                validMaterial = BuildingViewFactory.CreateGhostMaterial(new Color(0f, 1f, 0f, 0.4f));
+                invalidMaterial = BuildingViewFactory.CreateGhostMaterial(new Color(1f, 0f, 0f, 0.4f));
             }
-            if (ghost == null)
-            {
-                ghost = transform.Find("Ghost") != null ? transform.Find("Ghost").gameObject : BuildGhost();
-                ghost.SetActive(false);
-            }
+            if (ghost == null) RebuildGhost();
             return true;
+        }
+
+        private void RebuildGhost()
+        {
+            if (ghost != null)
+            {
+                ghost.SetActive(false);
+                Destroy(ghost);
+            }
+            ghost = BuildingViewFactory.CreateGhost(Definition, GridVisualizer, transform);
+            if (ghost != null) ghost.SetActive(false);
         }
 
         private void Update()
         {
-            if (!EnsureReady())
-            {
-                return;
-            }
-            if (system == null || !placementActive)
-            {
-                return;
-            }
+            if (!EnsureReady()) return;
+            if (system == null || !placementActive) return;
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 placementActive = false;
@@ -88,7 +97,7 @@ namespace Citybuilder
             ShowGhost(cell);
             if (Input.GetMouseButtonDown(0) && !UiClickGuard.IsOverMenu(Input.mousePosition))
             {
-                TryPlace(cell);
+                TryPlaceAt(cell);
             }
             if (Input.GetMouseButtonDown(1) && !UiClickGuard.IsOverMenu(Input.mousePosition))
             {
@@ -98,25 +107,30 @@ namespace Citybuilder
 
         private void ShowGhost(GridPosition cell)
         {
-            ghost.transform.position = FootprintCenter(cell, 0.5f);
+            ghost.transform.position = FootprintCenter(Definition, cell, 0.5f);
             MeshRenderer renderer = ghost.GetComponent<MeshRenderer>();
-            renderer.sharedMaterial = system.CanPlace(Definition, cell) ? validMaterial : invalidMaterial;
+            if (renderer != null)
+            {
+                renderer.sharedMaterial = system.CanPlace(Definition, cell) ? validMaterial : invalidMaterial;
+            }
             ghost.SetActive(true);
         }
 
-        private void TryPlace(GridPosition cell)
+        // Публичная обёртка над постройкой: для E2E и будущих сохранений.
+        public bool TryPlaceAt(GridPosition cell)
         {
+            if (system == null || Definition == null || !system.CanPlace(Definition, cell)) return false;
             if (TreasuryView != null)
             {
-                if (!system.CanPlace(Definition, cell)) return;
                 Treasury.TransactionResult spent = TreasuryView.Treasury.TrySpend(Definition.ConstructionCost, Definition.Id);
-                if (!spent.Success) return;
+                if (!spent.Success) return false;
             }
             BuildingState state = system.Place(Definition, cell);
-            if (state == null) return;
+            if (state == null) return false;
             states.Add(state);
             views.Add(SpawnView(state));
             GridVisualizer.RefreshOccupied();
+            return true;
         }
 
         private void TryDemolish(GridPosition cell)
@@ -137,54 +151,20 @@ namespace Citybuilder
                 List<GridPosition> cells = states[i].Cells;
                 for (int c = 0; c < cells.Count; c++)
                 {
-                    if (cells[c] == cell)
-                    {
-                        return i;
-                    }
+                    if (cells[c] == cell) return i;
                 }
             }
             return -1;
         }
 
-        private Vector3 FootprintCenter(GridPosition origin, float height)
+        private Vector3 FootprintCenter(BuildingDefinition def, GridPosition origin, float height)
         {
-            float worldX, worldZ, cellSize = GridVisualizer.Grid.CellSize;
-            GridVisualizer.Grid.GridToWorld(origin, out worldX, out worldZ);
-            float centerX = worldX + (Definition.Footprint.x - 1) * cellSize * 0.5f;
-            float centerZ = worldZ + (Definition.Footprint.y - 1) * cellSize * 0.5f;
-            return new Vector3(centerX, height, centerZ);
+            return BuildingViewFactory.FootprintCenter(def, origin, height, GridVisualizer);
         }
 
         private GameObject SpawnView(BuildingState state)
         {
-            Vector3 position = FootprintCenter(state.Origin, 0f);
-            if (Definition.Prefab != null)
-            {
-                return Instantiate(Definition.Prefab, position, Quaternion.identity);
-            }
-            float cellSize = GridVisualizer.Grid.CellSize;
-            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.transform.localScale = new Vector3(Definition.Footprint.x * cellSize, 1f, Definition.Footprint.y * cellSize);
-            cube.transform.position = FootprintCenter(state.Origin, 0.5f);
-            return cube;
-        }
-
-        private GameObject BuildGhost()
-        {
-            float cellSize = GridVisualizer.Grid.CellSize;
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            go.name = "Ghost";
-            go.transform.SetParent(transform, false);
-            Destroy(go.GetComponent<Collider>());
-            go.transform.localScale = new Vector3(Definition.Footprint.x * cellSize, 1f, Definition.Footprint.y * cellSize);
-            return go;
-        }
-
-        private Material BuildGhostMaterial(Color color)
-        {
-            Material material = new Material(Shader.Find("Unlit/Color"));
-            material.color = color;
-            return material;
+            return BuildingViewFactory.CreateView(state, GridVisualizer);
         }
     }
 }
