@@ -18,7 +18,7 @@ namespace Citybuilder
             string text = "Пожарные: " + controller.Covered + "/" + controller.Homes;
             text += " (" + ToPercent(controller.Rate01) + "%)";
             // y=342: ниже мусора (310+30+2), иначе налезает на лейблы.
-            GUI.Label(new Rect(10, 342, 400, 30), text);
+            HudText.Draw(10, 342, text);
         }
 
         // Округлённый процент из ставки ядра 0..1.

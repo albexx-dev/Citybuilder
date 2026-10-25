@@ -37,7 +37,7 @@ namespace Citybuilder
             {
                 return;
             }
-            GUI.Label(new Rect(10, 10, 300, 30), "$ " + Treasury.Balance);
+            HudText.Draw(10, 10, "$ " + Treasury.Balance);
         }
     }
 }

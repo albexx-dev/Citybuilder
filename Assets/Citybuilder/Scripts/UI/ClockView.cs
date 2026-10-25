@@ -16,7 +16,7 @@ namespace Citybuilder
             if (runner == null) runner = GetComponent<SimulationRunner>();
             if (runner == null) return;
             if (runner.Clock == null) return;
-            GUI.Label(new Rect(10, 50, 300, 30), Format(runner.Clock.CurrentTime, runner.Speed));
+            HudText.Draw(10, 50, Format(runner.Clock.CurrentTime, runner.Speed));
             DrawSpeedRow(runner);
         }
 

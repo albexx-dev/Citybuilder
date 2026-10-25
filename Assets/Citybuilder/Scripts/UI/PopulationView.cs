@@ -24,7 +24,7 @@ namespace Citybuilder
             }
             string text = "Pop: " + residents + " / " + controller.GrownCapacity;
             text += " — " + households + " households";
-            GUI.Label(new Rect(10, 30, 300, 30), text);
+            HudText.Draw(10, 30, text);
         }
     }
 }
