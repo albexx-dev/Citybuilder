@@ -204,6 +204,8 @@ GameObject:
   - component: {fileID: 985593174}
   - component: {fileID: 985593176}
   - component: {fileID: 985593177}
+  - component: {fileID: 985593179}
+  - component: {fileID: 985593178}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -601,6 +603,34 @@ MonoBehaviour:
   Definitions:
   - {fileID: 11400000, guid: 0032c13ad3a6cf740b11da6edca1de61, type: 2}
   - {fileID: 11400000, guid: 1f5aafc8622b4046a7fe81a24595546f, type: 2}
+--- !u!114 &985593178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea776b04ae19467fa552cdd7744c59f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.FireCoverageView
+  Controller: {fileID: 985593179}
+--- !u!114 &985593179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d9dcd404d44f029f7fb3d6dfb42dd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.FireCoverageController
+  Growth: {fileID: 985593158}
+  Placement: {fileID: 985593154}
+  RefreshIntervalSec: 2
 --- !u!1 &1069481158
 GameObject:
   m_ObjectHideFlags: 0
