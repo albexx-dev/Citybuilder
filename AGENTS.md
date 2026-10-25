@@ -23,21 +23,33 @@ The game focuses on connected systems:
 
 ## Roles
 
-Architect (Orchestrator Muse Spark 1.3):
+Роли разделены по ЧАТАМ (не субагенты):
+
+Architect / Orchestrator (постоянный чат №1):
 - plans architecture;
 - analyzes dependencies;
 - creates small tasks;
 - updates documentation;
-- does not implement large gameplay systems without approval.
+- does not implement large gameplay systems without approval;
+- пишет готовый бриф и передаёт его в отдельные одноразовые чаты;
+- принимает работу в Unity через мост, мержит и пушит;
+- ведёт TASKS/README.md и HANDOFF.md.
 
-Engineer (Muse Spark 1.3 — обычные задачи / Kimi K3 — сложный кодинг):
+Engineer (одноразовый чат №2, по одной задаче):
 - implements one concrete task;
 - studies existing code;
 - writes tests when appropriate;
 - explains changed files;
 - provides Unity verification instructions;
 - creates a Git commit after a successful implementation.
-- 1 задача = 1 инженер. Kimi только сложный кодинг и эталонное качество.
+- 1 задача = 1 инженер = 1 новый чат. Не субагент: оркестратор не может его запустить, только выдать бриф и ждать результат.
+- Не пушит, не мержит, Unity не трогает.
+
+Reviewer (одноразовый чат №3, только чтение):
+- проверяет коммит инженера против AGENTS.md и breakdown;
+- выносит PASS/FAIL по пунктам с файл:строка;
+- не меняет код, не коммитит, не пушит, Unity не трогает.
+- Обязателен после КАЖДОЙ задачи инженера.
 
 ## Code rules
 
@@ -86,7 +98,19 @@ Create a playable first vertical slice where the player can:
 
 Scope lock V1: жителей нет, дорог нет, только дом 2x2. Population / Transport / Infrastructure / Roads запрещены до закрытия среза.
 
-## Workflow
+## Workflow (чат-конвейер)
+
+Роли живут в разных чатах. Оркестратор не запускает инженера и ревьюера сам — он готовит брифы, а владелец проекта открывает отдельные чаты.
+
+Цикл одной задачи:
+1. Оркестратор пишет `TASKS/XXX-breakdown.md` + бриф, коммитит в `task/XXX`.
+2. Владелец открывает НОВЫЙ чат «Инженер», вставляет бриф → инженер коммитит в ту же ветку.
+3. Владелец открывает НОВЫЙ чат «Ревьюер», вставляет бриф ревью → PASS/FAIL.
+4. Оркестратор читает дифф, принимает в Unity (Refresh, Play-E2E, тесты), мержит и пушит.
+5. Ветка удаляется, очередь обновляется.
+
+Бриф инженера обязан содержать: путь и ветку, ссылку на breakdown, список запрещённых файлов, лимиты, требование «не пушить/не мержить/Unity не трогать», формат отчёта.
+Бриф ревьюера обязан содержать: ветку, хеши коммитов, пункты проверки, требование «только чтение».
 
 Before editing multiple files:
 1. Explain the plan.
