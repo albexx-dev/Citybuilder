@@ -3,42 +3,49 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Проверки порогов разблокировки: границы, отрицательное население, null, дефолт поля.
+    // Проверки порогов разблокировки по выросшим зданиям: границы, отрицательное число, null, дефолт.
     public class UnlockPolicyTests
     {
-        private static BuildingDefinition Definition(int unlockResidents)
+        private static BuildingDefinition Definition(int unlockBuildings)
         {
             BuildingDefinition definition = ScriptableObject.CreateInstance<BuildingDefinition>();
-            definition.UnlockResidents = unlockResidents;
+            definition.UnlockBuildings = unlockBuildings;
             return definition;
         }
 
         [Test]
-        public void ZeroThreshold_IsUnlockedWithoutResidents()
+        public void ZeroThreshold_IsUnlockedWithoutBuildings()
         {
             Assert.IsTrue(UnlockPolicy.IsUnlocked(Definition(0), 0));
         }
 
         [Test]
-        public void ThresholdTen_LockedAtNine()
+        public void ThresholdFour_LockedAtThree()
         {
-            Assert.IsFalse(UnlockPolicy.IsUnlocked(Definition(10), 9));
+            Assert.IsFalse(UnlockPolicy.IsUnlocked(Definition(4), 3));
         }
 
         [Test]
-        public void ThresholdTen_UnlockedAtTen()
+        public void ThresholdFour_UnlockedAtFour()
         {
-            Assert.IsTrue(UnlockPolicy.IsUnlocked(Definition(10), 10));
+            Assert.IsTrue(UnlockPolicy.IsUnlocked(Definition(4), 4));
         }
 
         [Test]
-        public void ThresholdTen_UnlockedAbove()
+        public void ThresholdFour_UnlockedAbove()
         {
-            Assert.IsTrue(UnlockPolicy.IsUnlocked(Definition(10), 11));
+            Assert.IsTrue(UnlockPolicy.IsUnlocked(Definition(4), 5));
         }
 
         [Test]
-        public void NegativeResidents_TreatedAsZero()
+        public void ThresholdEight_LockedAtSevenUnlockedAtEight()
+        {
+            Assert.IsFalse(UnlockPolicy.IsUnlocked(Definition(8), 7));
+            Assert.IsTrue(UnlockPolicy.IsUnlocked(Definition(8), 8));
+        }
+
+        [Test]
+        public void NegativeBuildings_TreatedAsZero()
         {
             Assert.IsTrue(UnlockPolicy.IsUnlocked(Definition(0), -5));
             Assert.IsFalse(UnlockPolicy.IsUnlocked(Definition(1), -5));
@@ -52,19 +59,19 @@ namespace Citybuilder
         }
 
         [Test]
-        public void Remaining_CountsMissingResidents()
+        public void Remaining_CountsMissingBuildings()
         {
-            BuildingDefinition definition = Definition(10);
-            Assert.AreEqual(1, UnlockPolicy.Remaining(definition, 9));
-            Assert.AreEqual(7, UnlockPolicy.Remaining(definition, 3));
-            Assert.AreEqual(0, UnlockPolicy.Remaining(definition, 10));
+            BuildingDefinition definition = Definition(4);
+            Assert.AreEqual(1, UnlockPolicy.Remaining(definition, 3));
+            Assert.AreEqual(3, UnlockPolicy.Remaining(definition, 1));
+            Assert.AreEqual(0, UnlockPolicy.Remaining(definition, 4));
         }
 
         [Test]
-        public void NewDefinition_UnlockResidentsIsZero()
+        public void NewDefinition_UnlockBuildingsIsZero()
         {
             BuildingDefinition definition = ScriptableObject.CreateInstance<BuildingDefinition>();
-            Assert.AreEqual(0, definition.UnlockResidents);
+            Assert.AreEqual(0, definition.UnlockBuildings);
         }
     }
 }

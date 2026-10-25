@@ -16,7 +16,7 @@ MonoBehaviour:
   DisplayName: Factory
   Footprint: {x: 2, y: 2}
   ConstructionCost: 200
-  UnlockResidents: 20
+  UnlockBuildings: 8
   AllowedZone: 3
   ResidentCapacity: 0
   JobsProvided: 8
