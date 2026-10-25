@@ -19,4 +19,5 @@ MonoBehaviour:
   AllowedZone: 2
   ResidentCapacity: 0
   JobsProvided: 6
+  WasteOutput: 2
   Prefab: {fileID: 0}
