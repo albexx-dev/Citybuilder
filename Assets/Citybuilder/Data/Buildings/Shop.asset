@@ -20,5 +20,11 @@ MonoBehaviour:
   AllowedZone: 2
   ResidentCapacity: 0
   JobsProvided: 6
+  ServiceRadius: 0
+  PowerDemand: 1
+  PowerOutput: 0
+  WaterDemand: 1
+  WaterOutput: 0
   WasteOutput: 2
+  WasteCapacity: 0
   Prefab: {fileID: 0}
