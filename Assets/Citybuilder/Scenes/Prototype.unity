@@ -639,6 +639,7 @@ MonoBehaviour:
   Growth: {fileID: 985593158}
   Power: {fileID: 985593170}
   Water: {fileID: 985593172}
+  Waste: {fileID: 985593175}
 --- !u!114 &1069481162
 MonoBehaviour:
   m_ObjectHideFlags: 0
