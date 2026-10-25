@@ -31,6 +31,10 @@ namespace Citybuilder
         [Tooltip("Сколько рабочих мест даёт одно здание. Не может быть отрицательным.")]
         public int JobsProvided = 0;
 
+        [Header("Service")]
+        [Tooltip("Радиус службы в клетках. 0 — не служба")]
+        public int ServiceRadius = 0;
+
         [Header("Infrastructure")]
         [Tooltip("Сколько энергии потребляет одно здание. Не может быть отрицательным.")]
         public int PowerDemand = 1;
@@ -65,6 +69,7 @@ namespace Citybuilder
             ConstructionCost = Clamp(ConstructionCost, "cost");
             ResidentCapacity = Clamp(ResidentCapacity, "capacity");
             JobsProvided = Clamp(JobsProvided, "jobs");
+            ServiceRadius = Clamp(ServiceRadius, "service radius");
             PowerDemand = Clamp(PowerDemand, "power demand");
             PowerOutput = Clamp(PowerOutput, "power output");
             WaterDemand = Clamp(WaterDemand, "water demand");
