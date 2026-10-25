@@ -18,7 +18,7 @@ namespace Citybuilder
             string text = "Вода: " + controller.Demand + "/" + controller.Supply;
             text += " (" + ToPercent(controller.Rate01) + "%)";
             // y=278: ниже энергии (246+26+6 зазор), иначе налезает на лейблы.
-            GUI.Label(new Rect(10, 278, 400, 30), text);
+            HudText.Draw(10, 278, text);
         }
 
         // Округлённый процент из ставки ядра 0..1.

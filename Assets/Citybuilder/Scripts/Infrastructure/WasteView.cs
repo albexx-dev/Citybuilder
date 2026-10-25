@@ -18,7 +18,7 @@ namespace Citybuilder
             string text = "Мусор: " + controller.Demand + "/" + controller.Supply;
             text += " (" + ToPercent(controller.Rate01) + "%)";
             // y=310: ниже воды (278+30+2), иначе налезает на лейблы.
-            GUI.Label(new Rect(10, 310, 400, 30), text);
+            HudText.Draw(10, 310, text);
         }
 
         // Округлённый процент из ставки ядра 0..1.

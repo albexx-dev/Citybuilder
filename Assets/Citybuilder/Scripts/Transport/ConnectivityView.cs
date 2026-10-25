@@ -18,7 +18,7 @@ namespace Citybuilder
             string text = "Связано: " + controller.Connected + "/" + controller.Total;
             text += " (" + ToPercent(controller.Rate01) + "%)";
             // y=214: ниже меню (182+26+6 зазор), иначе налезает на кнопки.
-            GUI.Label(new Rect(10, 214, 400, 30), text);
+            HudText.Draw(10, 214, text);
         }
 
         // Округлённый процент из ставки ядра 0..1.
