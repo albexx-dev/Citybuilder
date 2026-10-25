@@ -13,6 +13,8 @@ namespace Citybuilder
         public BuildModeMenu Menu;
         [Tooltip("Типы зданий для палитры. Пустой список = палитра не рисуется.")]
         public List<BuildingDefinition> Definitions = new List<BuildingDefinition>();
+        [Tooltip("Население для разблокировки типов. Пусто = все доступны.")]
+        public PopulationController Population;
 
         private const float Width = 130f;
         private const float Height = 30f;
@@ -45,11 +47,32 @@ namespace Citybuilder
         {
             if (def == null) return;
             Rect rect = new Rect(x, y, Width, Height);
+            int residents = Residents;
+            if (!UnlockPolicy.IsUnlocked(def, residents))
+            {
+                DrawLocked(rect, def.DisplayName + " — " + UnlockPolicy.Remaining(def, residents) + " жит.");
+                return;
+            }
             string label = def.DisplayName + " " + def.ConstructionCost;
             if (DrawButton(rect, label, Placement.Definition == def))
             {
                 Placement.SetDefinition(def);
             }
+        }
+
+        // Нет населения в сцене — разблокировки нет (старое поведение).
+        private int Residents
+        {
+            get { return Population == null ? int.MaxValue : Population.Population.TotalResidents; }
+        }
+
+        // Заблокированная кнопка серая: клик не проходит, вместо цены — нехватка жителей.
+        private void DrawLocked(Rect rect, string label)
+        {
+            bool saved = GUI.enabled;
+            GUI.enabled = false;
+            GUI.Button(rect, label);
+            GUI.enabled = saved;
         }
 
         // Одна кнопка: активный тип подсвечен жёлтым, цвет восстанавливается.

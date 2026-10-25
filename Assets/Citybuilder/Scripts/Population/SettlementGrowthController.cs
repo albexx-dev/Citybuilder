@@ -16,6 +16,8 @@ namespace Citybuilder
         [Tooltip("Драйвер часов. Обязателен: даёт тики часов для роста.")] public SimulationRunner Runner;
         [Header("Transport")]
         [Tooltip("Пробки. Пусто = рост без пробок.")] public CongestionController Congestion;
+        [Header("Progression")]
+        [Tooltip("Население для разблокировки типов. Пусто = без разблокировки.")] public PopulationController Population;
         [Header("Growth")]
         [Tooltip("Типы под зоны. Пусто = рост не работает.")] public List<BuildingDefinition> Definitions = new List<BuildingDefinition>();
         [Tooltip("Тиков часов между домами. Минимум 1.")] public int TicksPerGrowth = 5;
@@ -30,18 +32,17 @@ namespace Citybuilder
         // Копия выросших домов для заселения. Отдаём копию, а не сам список.
         public List<BuildingState> Homes
         {
-            get
-            {
-                return new List<BuildingState>(states);
-            }
+            get { return new List<BuildingState>(states); }
         }
         // Доступ к системе поселений для занятости. Может быть null до EnsureReady.
         public SettlementSystem Settlement
         {
-            get
-            {
-                return settlement;
-            }
+            get { return settlement; }
+        }
+        // Население города для порогов. Population не задан — без разблокировки.
+        private int Residents
+        {
+            get { return Population == null ? int.MaxValue : Population.Population.TotalResidents; }
         }
         private void Start()
         {
@@ -122,6 +123,7 @@ namespace Citybuilder
                 {
                     BuildingDefinition candidate = Definitions[d];
                     if (candidate == null) continue;
+                    if (!UnlockPolicy.IsUnlocked(candidate, Residents)) continue;
                     if (!MatchesZone(candidate, zone)) continue;
                     if (settlement.CanSettle(candidate, cell))
                     {
