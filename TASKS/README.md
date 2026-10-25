@@ -69,6 +69,7 @@
 - [x] Done 066-chat-roles + merged (оркестратор: роли разнесены по чатам — инженер и ревьюер теперь отдельные одноразовые чаты, не субагенты; AGENTS.md + HANDOFF.md)
 - [x] Done 068-subagent-roles + merged (оркестратор: возвращены субагенты — инженер и ревьюер запускаются через subagent, 066 отменён; AGENTS.md + HANDOFF.md)
 - [x] Done 069-quality-gate + merged (оркестратор: мерж только после зелёного шлюза — Unity-компиляция + EditMode + Play-E2E; инженер прогоняет чистый C# через dotnet до коммита)
-- NEXT: 065 — вода в нуждах (ветка task/065-water-needs, ждёт ревью и приёмки), затем 067 — CongestionSystem мягким множителем в рост
+- [x] Done 065-water-needs + merged (Muse + ревью PASS: NeedSystem 4-арг (3..5 показателей), NeedsView 5-й пункт, 8 тестов; E2E: вода 16/1 → 6%, потребности 36%; тесты 129/129; Console чистый)
+- NEXT: 067 — пробки в росте (план d1a39f5, ветка task/067-congestion-growth); дальше мусор/службы (§12)
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка, 1 PR, 1 модуль. Две задачи параллельно запрещены.
