@@ -119,7 +119,8 @@ namespace Citybuilder
         // Публичная обёртка над постройкой: для E2E и будущих сохранений.
         public bool TryPlaceAt(GridPosition cell)
         {
-            if (system == null || Definition == null || !system.CanPlace(Definition, cell)) return false;
+            if (!EnsureReady()) return false;
+            if (!system.CanPlace(Definition, cell)) return false;
             if (TreasuryView != null)
             {
                 Treasury.TransactionResult spent = TreasuryView.Treasury.TrySpend(Definition.ConstructionCost, Definition.Id);

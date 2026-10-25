@@ -15,6 +15,7 @@ MonoBehaviour:
   Id: fire_station
   DisplayName: Fire Station
   ConstructionCost: 300
+  ResidentCapacity: 0
   AllowedZone: 2
   JobsProvided: 2
   ServiceRadius: 6
