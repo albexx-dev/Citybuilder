@@ -16,6 +16,8 @@ namespace Citybuilder
         [Tooltip("Драйвер часов. Обязателен: даёт тики часов для сбора налогов.")]
         public SimulationRunner Runner;
         [Header("Taxes")]
+        [Tooltip("Налоговая политика из HUD. Пусто = фиксированная ставка TaxPerWorker.")]
+        public TaxPolicyView Policy;
         [Tooltip("Налог с одного работающего за тик. 0 выключает сбор. Минимум 0.")]
         public int TaxPerWorker = 2;
         [Tooltip("Режим автосбора. Выключите для ручного сбора.")]
@@ -29,6 +31,18 @@ namespace Citybuilder
             {
                 EnsureSystems();
                 return tax;
+            }
+        }
+        // Ставка за работающего: из политики, если она подключена, иначе TaxPerWorker.
+        public int PerWorker
+        {
+            get
+            {
+                if (Policy != null)
+                {
+                    return Policy.Policy.PerWorker;
+                }
+                return TaxPerWorker;
             }
         }
         private void Start()
@@ -117,7 +131,7 @@ namespace Citybuilder
             {
                 return;
             }
-            tax.Collect(TaxPerWorker);
+            tax.Collect(PerWorker);
         }
         private void ClampLimits()
         {
