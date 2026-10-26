@@ -11,6 +11,10 @@ namespace Citybuilder
         [Tooltip("Рост поселений. Обязателен: даёт Homes для спроса и утилизации.")]
         public SettlementGrowthController Growth;
 
+        [Header("Manual buildings")]
+        [Tooltip("Ручная стройка. Пусто = только выросшие дома.")]
+        public BuildingPlacementController Placement;
+
         [Header("City Grid")]
         [Tooltip("Городская база утилизации до появления перерабатывающих зданий.")]
         public int BaseCapacity = 12;
@@ -69,7 +73,14 @@ namespace Citybuilder
             current.Clear();
             if (Growth == null) return;
             RegisterCityGrid(current);
-            List<BuildingState> homes = Growth.Homes;
+            AddStates(current, Growth.Homes);
+            if (Placement == null) return;
+            AddStates(current, Placement.Placed);
+        }
+
+        // Один проход по списку: null-список и null-элементы пропускаются.
+        private void AddStates(SupplyBalance current, List<BuildingState> homes)
+        {
             if (homes == null) return;
             for (int i = 0; i < homes.Count; i++) AddHome(current, homes[i]);
         }

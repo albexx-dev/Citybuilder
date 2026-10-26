@@ -501,6 +501,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Citybuilder::Citybuilder.PowerController
   Growth: {fileID: 985593158}
+  Placement: {fileID: 985593154}
   BaseSupply: 12
   RefreshIntervalSec: 2
 --- !u!114 &985593171
@@ -529,6 +530,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Citybuilder::Citybuilder.WaterController
   Growth: {fileID: 985593158}
+  Placement: {fileID: 985593154}
   BaseSupply: 12
   RefreshIntervalSec: 2
 --- !u!114 &985593173
@@ -573,6 +575,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Citybuilder::Citybuilder.WasteController
   Growth: {fileID: 985593158}
+  Placement: {fileID: 985593154}
   BaseCapacity: 12
   RefreshIntervalSec: 2
 --- !u!114 &985593176
