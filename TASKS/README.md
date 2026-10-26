@@ -98,6 +98,6 @@
 - [x] Done 094-source-buildings + merged (ревью PASS: PowerStation 300/+12, WaterTower 250/+12, WasteDepot 200/+12 ёмкости, все 2x2, потребление 0 (deadlock), тесты 250/250; сцена — палитра + Placement.Definitions)
 - [x] Done 095-supply-growth + merged (ревью PASS: GrowthPace 35 — сплит, контроллер 195→185; SupplyGrowthPolicy 29 — глубина ×1/×2/×3, NaN=1; SupplyGrowthController 31 на Grid с Power/Water/Waste; гейт Max(пробки, дефицит); 20 тестов, EditMode 270/270; сцена подключена)
 - [x] Done 096-save-households + merged (баг F9: привязка по индексу теряла жителей при пропущенном доме; HouseholdBinder 56 — координаты + fallback на индекс, SnapshotHouseholds 37, SaveSystem 150→134, LoadSystem 130→114; 4 теста, EditMode 274/274)
-- NEXT: пересобранный windows64 + плейтест 095/096 (отчёт TASKS/095-playtest-report.md), затем оставшиеся пункты чек-листа 093: 1, 2, 5, 6; долги: груз до `Settle`, налог в `NewGame`, GridMeshBuilder 190, RoadPlacementController 179, ZonePaintingController 173
+- NEXT: пункт 1 чек-листа 093 (понятность старта), затем 2 (рост), 5 (HUD поверх сетки), 6 (налоги); билд 096 собран и проверен, плейтест 095/096 — `TASKS/095-playtest-report.md`; долги: деньги до `Settle`, налог в `NewGame`, GridMeshBuilder 190, RoadPlacementController 179, ZonePaintingController 173
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка task/XXX, 1 модуль. Мержит только оркестратор (`merge --no-ff`) после зелёного шлюза. Две задачи параллельно запрещены.
