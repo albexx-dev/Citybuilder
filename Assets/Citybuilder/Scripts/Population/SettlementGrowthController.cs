@@ -16,6 +16,7 @@ namespace Citybuilder
         [Tooltip("Драйвер часов. Обязателен: даёт тики часов для роста.")] public SimulationRunner Runner;
         [Header("Transport")]
         [Tooltip("Пробки. Пусто = рост без пробок.")] public CongestionController Congestion;
+        [Tooltip("Дефицит энергии/воды/мусора. Пусто = рост без штрафа.")] public SupplyGrowthController SupplyGrowth;
         [Header("Growth")]
         [Tooltip("Типы под зоны. Пусто = рост не работает.")] public List<BuildingDefinition> Definitions = new List<BuildingDefinition>();
         [Tooltip("Тиков часов между домами. Минимум 1.")] public int TicksPerGrowth = 5;
@@ -24,14 +25,10 @@ namespace Citybuilder
         private BuildingSystem buildings;
         private SettlementSystem settlement;
         private readonly List<BuildingState> states = new List<BuildingState>();
-        private const int MaxRequiredTicks = 1000;
         private int tickCount;
         private ZoneType lastGrownZone = ZoneType.None;
         // Копия выросших домов для заселения. Отдаём копию, а не сам список.
-        public List<BuildingState> Homes
-        {
-            get { return new List<BuildingState>(states); }
-        }
+        public List<BuildingState> Homes { get { return new List<BuildingState>(states); } }
         // Доступ к системе поселений для занятости. Может быть null до EnsureReady.
         public SettlementSystem Settlement
         {
@@ -54,7 +51,9 @@ namespace Citybuilder
             if (!EnsureReady() || settlement == null) return;
             if (settlement.SettledCount >= MaxSettlements) return;
             tickCount++;
-            int neededTicks = RequiredTicks(TicksPerGrowth, Congestion != null ? Congestion.GrowthTickMultiplier : 1);
+            int neededTicks = GrowthPace.RequiredTicks(TicksPerGrowth,
+                Congestion != null ? Congestion.GrowthTickMultiplier : 1,
+                SupplyGrowth != null ? SupplyGrowth.GrowthTickMultiplier : 1);
             if (tickCount < neededTicks) return;
             tickCount = 0;
             TryGrow();
@@ -181,15 +180,6 @@ namespace Citybuilder
         {
             if (TicksPerGrowth < 1) TicksPerGrowth = 1;
             if (MaxSettlements < 1) MaxSettlements = 1;
-        }
-
-        // Тиков на дом с учётом пробок. Чистая функция: клампы снизу 1, сверху 1000.
-        public static int RequiredTicks(int baseTicks, int multiplier)
-        {
-            if (baseTicks <= 0) return 1;
-            if (multiplier <= 0) multiplier = 1;
-            long ticks = (long)baseTicks * multiplier;
-            return ticks > MaxRequiredTicks ? MaxRequiredTicks : (int)ticks;
         }
     }
 }

@@ -8,43 +8,43 @@ namespace Citybuilder
         [Test]
         public void BaseOnly_FiveTicks()
         {
-            Assert.AreEqual(5, SettlementGrowthController.RequiredTicks(5, 1));
+            Assert.AreEqual(5, GrowthPace.RequiredTicks(5, 1));
         }
 
         [Test]
         public void DoubleMultiplier_TenTicks()
         {
-            Assert.AreEqual(10, SettlementGrowthController.RequiredTicks(5, 2));
+            Assert.AreEqual(10, GrowthPace.RequiredTicks(5, 2));
         }
 
         [Test]
         public void TripleMultiplier_FifteenTicks()
         {
-            Assert.AreEqual(15, SettlementGrowthController.RequiredTicks(5, 3));
+            Assert.AreEqual(15, GrowthPace.RequiredTicks(5, 3));
         }
 
         [Test]
         public void ZeroBase_ClampsToOne()
         {
-            Assert.AreEqual(1, SettlementGrowthController.RequiredTicks(0, 2));
+            Assert.AreEqual(1, GrowthPace.RequiredTicks(0, 2));
         }
 
         [Test]
         public void ZeroMultiplier_KeepsBase()
         {
-            Assert.AreEqual(5, SettlementGrowthController.RequiredTicks(5, 0));
+            Assert.AreEqual(5, GrowthPace.RequiredTicks(5, 0));
         }
 
         [Test]
         public void NegativeMultiplier_KeepsBase()
         {
-            Assert.AreEqual(5, SettlementGrowthController.RequiredTicks(5, -1));
+            Assert.AreEqual(5, GrowthPace.RequiredTicks(5, -1));
         }
 
         [Test]
         public void HugeProduct_ClampsToOneThousand()
         {
-            Assert.AreEqual(1000, SettlementGrowthController.RequiredTicks(500, 10));
+            Assert.AreEqual(1000, GrowthPace.RequiredTicks(500, 10));
         }
     }
 }
