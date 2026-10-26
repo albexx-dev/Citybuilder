@@ -51,14 +51,16 @@ namespace Citybuilder
             {
                 return false;
             }
+            // Ручные здания (v3): поле может отсутствовать в слотах v1/v2 — это не ошибка.
+            if (snapshot.ManualBuildings != null && !ValidateBuildings(snapshot.ManualBuildings)) return false;
             return ValidateZones(snapshot.Zones) && ValidateBuildings(snapshot.Buildings)
                 && ValidateHouseholds(snapshot.Households, snapshot.Buildings.Count)
                 && ValidateRoads(snapshot.Roads);
         }
-        // Слоты v1 (без TaxLevel) читаются как обычный налог; v2 несёт TaxLevel.
+        // Версии 1..3: v1 без TaxLevel, v2 с TaxLevel, v3 с ручными зданиями.
         private static bool IsSupportedVersion(int version)
         {
-            return version == 1 || version == SaveSystem.CurrentVersion;
+            return version >= 1 && version <= SaveSystem.CurrentVersion;
         }
         public static bool WriteSlot(string path, CitySnapshot snapshot)
         {

@@ -6,28 +6,27 @@ namespace Citybuilder
     // Строит снапшот города из живых систем. Чистый C#, без Unity.
     public static class SaveSystem
     {
-        public const int CurrentVersion = 2;
+        public const int CurrentVersion = 3;
 
         // Слот без налога (старая сигнатура): TaxLevel = 0, при чтении это «обычный».
-        public static CitySnapshot BuildSnapshot(
-            List<BuildingState> homes,
-            List<HouseholdState> households,
-            List<KeyValuePair<GridPosition, ZoneType>> zones,
-            int balance,
-            long tickCount,
-            List<RoadState> roads)
+        public static CitySnapshot BuildSnapshot(List<BuildingState> homes, List<HouseholdState> households,
+            List<KeyValuePair<GridPosition, ZoneType>> zones, int balance, long tickCount, List<RoadState> roads)
         {
             return BuildSnapshot(homes, households, zones, balance, tickCount, roads, 0);
         }
 
-        public static CitySnapshot BuildSnapshot(
-            List<BuildingState> homes,
-            List<HouseholdState> households,
-            List<KeyValuePair<GridPosition, ZoneType>> zones,
-            int balance,
-            long tickCount,
-            List<RoadState> roads,
+        // Слот с налогом, без ручных зданий: ручных ноль, версия всё равно 3.
+        public static CitySnapshot BuildSnapshot(List<BuildingState> homes, List<HouseholdState> households,
+            List<KeyValuePair<GridPosition, ZoneType>> zones, int balance, long tickCount, List<RoadState> roads,
             int taxLevel)
+        {
+            return BuildSnapshot(homes, households, zones, balance, tickCount, roads, taxLevel, null);
+        }
+
+        // Полная сигнатура (v3): последним аргументом идут ручные здания.
+        public static CitySnapshot BuildSnapshot(List<BuildingState> homes, List<HouseholdState> households,
+            List<KeyValuePair<GridPosition, ZoneType>> zones, int balance, long tickCount, List<RoadState> roads,
+            int taxLevel, List<BuildingState> manualBuildings)
         {
             CitySnapshot snapshot = new CitySnapshot();
             snapshot.Version = CurrentVersion;
@@ -39,6 +38,7 @@ namespace Citybuilder
             Dictionary<BuildingState, int> indexByHome = AddBuildings(snapshot, homes);
             AddHouseholds(snapshot, households, indexByHome);
             AddRoads(snapshot, roads);
+            AddManual(snapshot, manualBuildings);
             return snapshot;
         }
 
@@ -58,10 +58,7 @@ namespace Citybuilder
 
         private static void AddZones(CitySnapshot snapshot, List<KeyValuePair<GridPosition, ZoneType>> zones)
         {
-            if (zones == null)
-            {
-                return;
-            }
+            if (zones == null) return;
             for (int i = 0; i < zones.Count; i++)
             {
                 CitySnapshot.ZoneEntry entry = new CitySnapshot.ZoneEntry();
@@ -75,25 +72,13 @@ namespace Citybuilder
         private static Dictionary<BuildingState, int> AddBuildings(CitySnapshot snapshot, List<BuildingState> homes)
         {
             Dictionary<BuildingState, int> indexByHome = new Dictionary<BuildingState, int>();
-            if (homes == null)
-            {
-                return indexByHome;
-            }
+            if (homes == null) return indexByHome;
             for (int i = 0; i < homes.Count; i++)
             {
                 BuildingState home = homes[i];
-                if (home == null || home.Definition == null || indexByHome.ContainsKey(home))
-                {
-                    continue;
-                }
-                if (string.IsNullOrEmpty(home.Definition.Id))
-                {
-                    continue;
-                }
-                CitySnapshot.BuildingEntry entry = new CitySnapshot.BuildingEntry();
-                entry.DefId = home.Definition.Id;
-                entry.X = home.Origin.X;
-                entry.Y = home.Origin.Y;
+                if (home == null || indexByHome.ContainsKey(home)) continue;
+                CitySnapshot.BuildingEntry entry = CreateEntry(home);
+                if (entry == null) continue;
                 indexByHome.Add(home, snapshot.Buildings.Count);
                 snapshot.Buildings.Add(entry);
             }
@@ -102,22 +87,13 @@ namespace Citybuilder
 
         private static void AddHouseholds(CitySnapshot snapshot, List<HouseholdState> households, Dictionary<BuildingState, int> indexByHome)
         {
-            if (households == null || indexByHome == null)
-            {
-                return;
-            }
+            if (households == null || indexByHome == null) return;
             for (int i = 0; i < households.Count; i++)
             {
                 HouseholdState household = households[i];
-                if (household == null || household.Home == null || household.Size <= 0)
-                {
-                    continue;
-                }
+                if (household == null || household.Home == null || household.Size <= 0) continue;
                 int index;
-                if (!indexByHome.TryGetValue(household.Home, out index))
-                {
-                    continue;
-                }
+                if (!indexByHome.TryGetValue(household.Home, out index)) continue;
                 CitySnapshot.HouseholdEntry entry = new CitySnapshot.HouseholdEntry();
                 entry.BuildingIndex = index;
                 entry.Size = household.Size;
@@ -127,21 +103,38 @@ namespace Citybuilder
 
         private static void AddRoads(CitySnapshot snapshot, List<RoadState> roads)
         {
-            if (roads == null)
-            {
-                return;
-            }
+            if (roads == null) return;
             for (int i = 0; i < roads.Count; i++)
             {
-                if (roads[i] == null)
-                {
-                    continue;
-                }
+                if (roads[i] == null) continue;
                 CitySnapshot.RoadEntry entry = new CitySnapshot.RoadEntry();
                 entry.X = roads[i].Cell.X;
                 entry.Y = roads[i].Cell.Y;
                 snapshot.Roads.Add(entry);
             }
+        }
+
+        // Ручные здания: null-элементы и пустые Id отбрасываются, слот остаётся валидным.
+        private static void AddManual(CitySnapshot snapshot, List<BuildingState> manual)
+        {
+            if (manual == null) return;
+            for (int i = 0; i < manual.Count; i++)
+            {
+                CitySnapshot.BuildingEntry entry = CreateEntry(manual[i]);
+                if (entry != null) snapshot.ManualBuildings.Add(entry);
+            }
+        }
+
+        // Общая запись здания: без типа или Id писать нечего.
+        private static CitySnapshot.BuildingEntry CreateEntry(BuildingState state)
+        {
+            if (state == null || state.Definition == null) return null;
+            if (string.IsNullOrEmpty(state.Definition.Id)) return null;
+            CitySnapshot.BuildingEntry entry = new CitySnapshot.BuildingEntry();
+            entry.DefId = state.Definition.Id;
+            entry.X = state.Origin.X;
+            entry.Y = state.Origin.Y;
+            return entry;
         }
     }
 }

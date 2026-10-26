@@ -24,6 +24,8 @@ namespace Citybuilder
         public RoadNetworkStore Roads;
         [Tooltip("Налоговая политика. Пусто = обычный налог после загрузки.")]
         public TaxPolicyView Policy;
+        [Tooltip("Ручные здания. Пусто = ищется в сцене.")]
+        public BuildingPlacementController Placement;
 
         private void Update()
         {
@@ -43,8 +45,9 @@ namespace Citybuilder
             }
             ClearAll();
             List<BuildingState> homes = ApplyCity(snapshot);
+            int manual = ApplyManual(snapshot);
             ApplyMeta(snapshot);
-            LogResult(path, snapshot, homes);
+            LogResult(path, snapshot, homes, manual);
             return true;
         }
 
@@ -68,6 +71,7 @@ namespace Citybuilder
             if (Runner == null) Runner = GetComponent<SimulationRunner>();
             if (Roads == null) Roads = GetComponent<RoadNetworkStore>();
             if (Policy == null) Policy = FindFirstObjectByType<TaxPolicyView>();
+            if (Placement == null) Placement = FindFirstObjectByType<BuildingPlacementController>();
         }
 
         private void ClearAll()
@@ -76,11 +80,7 @@ namespace Citybuilder
             if (Demolition != null) Demolition.ClearGrown();
             if (Zones != null) Zones.ClearZones();
             if (Roads != null) Roads.ClearRoads();
-            EvictAll(homes);
-        }
-
-        private void EvictAll(List<BuildingState> homes)
-        {
+            if (Placement != null) Placement.ClearPlaced();
             if (Population == null || Population.Population == null || homes == null) return;
             for (int i = 0; i < homes.Count; i++) Population.Population.EvictHome(homes[i]);
         }
@@ -92,20 +92,16 @@ namespace Citybuilder
                 LoadSystem.ApplyZones(snapshot, Zones.Zones);
                 Zones.RepaintAll();
             }
-            ApplyRoads(snapshot);
+            if (Roads != null && snapshot.Roads != null)
+            {
+                for (int i = 0; i < snapshot.Roads.Count; i++)
+                {
+                    if (snapshot.Roads[i] != null) Roads.RestoreRoad(new GridPosition(snapshot.Roads[i].X, snapshot.Roads[i].Y));
+                }
+            }
             List<BuildingState> homes = ApplyBuildings(snapshot);
             if (Population != null && Population.Population != null) LoadSystem.ApplyHouseholds(snapshot, Population.Population, homes);
             return homes;
-        }
-
-        private void ApplyRoads(CitySnapshot snapshot)
-        {
-            if (Roads == null || snapshot.Roads == null) return;
-            for (int i = 0; i < snapshot.Roads.Count; i++)
-            {
-                if (snapshot.Roads[i] == null) continue;
-                Roads.RestoreRoad(new GridPosition(snapshot.Roads[i].X, snapshot.Roads[i].Y));
-            }
         }
 
         private List<BuildingState> ApplyBuildings(CitySnapshot snapshot)
@@ -121,6 +117,19 @@ namespace Citybuilder
             return homes;
         }
 
+        // Ручные здания: неизвестные Id и null-элементы пропускаются.
+        private int ApplyManual(CitySnapshot snapshot)
+        {
+            if (Placement == null || snapshot.ManualBuildings == null) return 0;
+            int restored = 0;
+            for (int i = 0; i < snapshot.ManualBuildings.Count; i++)
+            {
+                CitySnapshot.BuildingEntry entry = snapshot.ManualBuildings[i];
+                if (entry != null && Placement.RestoreManual(entry.DefId, new GridPosition(entry.X, entry.Y))) restored++;
+            }
+            return restored;
+        }
+
         private void ApplyMeta(CitySnapshot snapshot)
         {
             if (Treasury != null) Treasury.ResetBalance(snapshot.Balance);
@@ -128,17 +137,13 @@ namespace Citybuilder
             if (Policy != null) Policy.Policy.Set(SaveSystem.DecodeTaxLevel(snapshot.TaxLevel));
         }
 
-        private static void LogResult(string path, CitySnapshot snapshot, List<BuildingState> homes)
+        private static void LogResult(string path, CitySnapshot snapshot, List<BuildingState> homes, int manual)
         {
             int restored = homes == null ? 0 : homes.Count;
-            Debug.Log("LoadController: слот загружен: домов=" + restored
-                + ", домохозяйств=" + snapshot.Households.Count
-                + ", зон=" + snapshot.Zones.Count
-                + ", дорог=" + snapshot.Roads.Count
-                + ", баланс=" + snapshot.Balance
-                + ", налог=" + snapshot.TaxLevel
-                + ", тик=" + snapshot.TickCount
-                + ", файл=" + path);
+            Debug.Log("LoadController: слот загружен: домов=" + restored + ", ручных=" + manual
+                + ", домохозяйств=" + snapshot.Households.Count + ", зон=" + snapshot.Zones.Count
+                + ", дорог=" + snapshot.Roads.Count + ", баланс=" + snapshot.Balance
+                + ", налог=" + snapshot.TaxLevel + ", тик=" + snapshot.TickCount + ", файл=" + path);
         }
     }
 }

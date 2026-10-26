@@ -22,6 +22,8 @@ namespace Citybuilder
         public RoadNetworkStore Roads;
         [Tooltip("Налоговая политика. Пусто = обычный налог в слот.")]
         public TaxPolicyView Policy;
+        [Tooltip("Ручные здания. Пусто = ищется в сцене.")]
+        public BuildingPlacementController Placement;
 
         private void Update()
         {
@@ -35,7 +37,7 @@ namespace Citybuilder
         public bool SaveNow()
         {
             ResolveRefs();
-            CitySnapshot snapshot = SaveSystem.BuildSnapshot(CollectHomes(), CollectHouseholds(), CollectZones(), ReadBalance(), ReadTicks(), CollectRoads(), ReadTaxLevel());
+            CitySnapshot snapshot = SaveSystem.BuildSnapshot(CollectHomes(), CollectHouseholds(), CollectZones(), ReadBalance(), ReadTicks(), CollectRoads(), ReadTaxLevel(), CollectManual());
             string path = Path.Combine(Application.persistentDataPath, SaveSlotStorage.SlotFileName);
             bool written = SaveSlotStorage.WriteSlot(path, snapshot);
             LogResult(written, path, snapshot);
@@ -51,6 +53,7 @@ namespace Citybuilder
             if (Runner == null) Runner = GetComponent<SimulationRunner>();
             if (Roads == null) Roads = GetComponent<RoadNetworkStore>();
             if (Policy == null) Policy = FindFirstObjectByType<TaxPolicyView>();
+            if (Placement == null) Placement = FindFirstObjectByType<BuildingPlacementController>();
         }
 
         private List<BuildingState> CollectHomes()
@@ -61,6 +64,14 @@ namespace Citybuilder
             }
             List<BuildingState> homes = Growth.Homes;
             return homes == null ? new List<BuildingState>() : homes;
+        }
+
+        // Ручные здания игрока: без ссылки на контроллер строится пустой список.
+        private List<BuildingState> CollectManual()
+        {
+            if (Placement == null) return new List<BuildingState>();
+            List<BuildingState> placed = Placement.Placed;
+            return placed == null ? new List<BuildingState>() : placed;
         }
 
         private List<HouseholdState> CollectHouseholds()
@@ -126,6 +137,7 @@ namespace Citybuilder
                 return;
             }
             Debug.Log("SaveController: слот записан: домов=" + snapshot.Buildings.Count
+                + ", ручных=" + snapshot.ManualBuildings.Count
                 + ", домохозяйств=" + snapshot.Households.Count
                 + ", зон=" + snapshot.Zones.Count
                 + ", дорог=" + snapshot.Roads.Count

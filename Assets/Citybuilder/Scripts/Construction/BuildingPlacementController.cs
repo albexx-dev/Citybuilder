@@ -11,22 +11,18 @@ namespace Citybuilder
         public GridVisualizer GridVisualizer;
         [Tooltip("Что строить. Обычно House 2x2.")]
         public BuildingDefinition Definition;
+        [Tooltip("Типы для восстановления из слота и палитры.")]
+        public List<BuildingDefinition> Definitions = new List<BuildingDefinition>();
         [Tooltip("Казна для списания стоимости. Пусто = строить бесплатно.")]
         public TreasuryView TreasuryView;
 
+        private readonly ManualBuildingsStore store = new ManualBuildingsStore();
+        private readonly PlacementGhostView ghostView = new PlacementGhostView();
         private BuildingSystem system;
-        private GameObject ghost;
-        private Material validMaterial;
-        private Material invalidMaterial;
         private bool placementActive = true;
-        private readonly List<BuildingState> states = new List<BuildingState>();
-        private readonly List<GameObject> views = new List<GameObject>();
 
-        // Копия построенного: нужна покрытию и будущим сохранениям.
-        public List<BuildingState> Placed
-        {
-            get { return new List<BuildingState>(states); }
-        }
+        // Копия построенного: нужна покрытию, инфраструктуре и сохранениям.
+        public List<BuildingState> Placed { get { return store.Placed; } }
 
         private void Start()
         {
@@ -36,7 +32,7 @@ namespace Citybuilder
         // Прячем призрак при выключении: иначе висящий куб.
         private void OnDisable()
         {
-            if (ghost != null) ghost.SetActive(false);
+            ghostView.Hide();
         }
 
         // Сменить тип и пересоздать призрак: иначе останется старый габарит.
@@ -44,11 +40,10 @@ namespace Citybuilder
         {
             if (def == null || def == Definition) return;
             Definition = def;
-            RebuildGhost();
+            ghostView.SetDefinition(def);
         }
 
         // Проверяет ссылки и восстанавливает систему после перезагрузки домена.
-        // Список построенного при перезагрузке теряется: снос старых зданий чинится сохранениями (не V1).
         private bool EnsureReady()
         {
             if (GridVisualizer == null || Definition == null)
@@ -57,66 +52,41 @@ namespace Citybuilder
                 enabled = false;
                 return false;
             }
-            if (system == null) system = new BuildingSystem(GridVisualizer.Grid);
-            if (validMaterial == null || invalidMaterial == null)
-            {
-                validMaterial = BuildingViewFactory.CreateGhostMaterial(new Color(0f, 1f, 0f, 0.4f));
-                invalidMaterial = BuildingViewFactory.CreateGhostMaterial(new Color(1f, 0f, 0f, 0.4f));
-            }
-            if (ghost == null) RebuildGhost();
+            if (!EnsureSystem()) return false;
+            ghostView.Ensure(Definition, GridVisualizer, transform);
             return true;
         }
 
-        private void RebuildGhost()
+        // Система стройки нужна и восстановлению из слота, где Definition не обязателен.
+        private bool EnsureSystem()
         {
-            if (ghost != null)
-            {
-                ghost.SetActive(false);
-                Destroy(ghost);
-            }
-            ghost = BuildingViewFactory.CreateGhost(Definition, GridVisualizer, transform);
-            if (ghost != null) ghost.SetActive(false);
+            if (GridVisualizer == null) return false;
+            if (system == null) system = new BuildingSystem(GridVisualizer.Grid);
+            return system != null;
         }
 
         private void Update()
         {
-            if (!EnsureReady()) return;
-            if (system == null || !placementActive) return;
+            if (!EnsureReady() || system == null || !placementActive) return;
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 placementActive = false;
-                ghost.SetActive(false);
+                ghostView.Hide();
                 return;
             }
             GridPosition cell;
             if (!GridVisualizer.TryGetHoveredCell(out cell))
             {
-                ghost.SetActive(false);
+                ghostView.Hide();
                 return;
             }
-            ShowGhost(cell);
-            if (Input.GetMouseButtonDown(0) && !UiClickGuard.IsOverMenu(Input.mousePosition))
-            {
-                TryPlaceAt(cell);
-            }
-            if (Input.GetMouseButtonDown(1) && !UiClickGuard.IsOverMenu(Input.mousePosition))
-            {
-                TryDemolish(cell);
-            }
+            ghostView.Show(cell, system.CanPlace(Definition, cell));
+            if (UiClickGuard.IsOverMenu(Input.mousePosition)) return;
+            if (Input.GetMouseButtonDown(0)) TryPlaceAt(cell);
+            if (Input.GetMouseButtonDown(1)) TryDemolish(cell);
         }
 
-        private void ShowGhost(GridPosition cell)
-        {
-            ghost.transform.position = FootprintCenter(Definition, cell, 0.5f);
-            MeshRenderer renderer = ghost.GetComponent<MeshRenderer>();
-            if (renderer != null)
-            {
-                renderer.sharedMaterial = system.CanPlace(Definition, cell) ? validMaterial : invalidMaterial;
-            }
-            ghost.SetActive(true);
-        }
-
-        // Публичная обёртка над постройкой: для E2E и будущих сохранений.
+        // Публичная обёртка над постройкой: для E2E и сохранений.
         public bool TryPlaceAt(GridPosition cell)
         {
             if (!EnsureReady()) return false;
@@ -128,44 +98,51 @@ namespace Citybuilder
             }
             BuildingState state = system.Place(Definition, cell);
             if (state == null) return false;
-            states.Add(state);
-            views.Add(SpawnView(state));
+            store.Add(state, BuildingViewFactory.CreateView(state, GridVisualizer));
             GridVisualizer.RefreshOccupied();
             return true;
         }
 
+        // Восстановление из слота: без списания денег. Неизвестный тип — false.
+        public bool RestoreManual(string defId, GridPosition origin)
+        {
+            if (string.IsNullOrEmpty(defId) || !EnsureSystem()) return false;
+            BuildingDefinition def = FindDefinition(defId);
+            if (def == null) return false;
+            BuildingState state = system.Place(def, origin);
+            if (state == null) return false;
+            store.Add(state, BuildingViewFactory.CreateView(state, GridVisualizer));
+            GridVisualizer.RefreshOccupied();
+            return true;
+        }
+
+        // Новая игра и загрузка: ручные сносятся без выселения (V1 их не заселяет).
+        public void ClearPlaced()
+        {
+            store.Clear(system, GridVisualizer);
+        }
+
         private void TryDemolish(GridPosition cell)
         {
-            int index = FindStateIndex(cell);
-            if (index < 0) return;
-            system.Demolish(states[index]);
-            Destroy(views[index]);
-            states.RemoveAt(index);
-            views.RemoveAt(index);
+            BuildingState state = store.FindAt(cell);
+            if (state == null) return;
+            system.Demolish(state);
+            store.Demolish(state);
             GridVisualizer.RefreshOccupied();
         }
 
-        private int FindStateIndex(GridPosition cell)
+        private BuildingDefinition FindDefinition(string defId)
         {
-            for (int i = 0; i < states.Count; i++)
+            if (Definitions != null)
             {
-                List<GridPosition> cells = states[i].Cells;
-                for (int c = 0; c < cells.Count; c++)
+                for (int i = 0; i < Definitions.Count; i++)
                 {
-                    if (cells[c] == cell) return i;
+                    BuildingDefinition def = Definitions[i];
+                    if (def != null && def.Id == defId) return def;
                 }
             }
-            return -1;
-        }
-
-        private Vector3 FootprintCenter(BuildingDefinition def, GridPosition origin, float height)
-        {
-            return BuildingViewFactory.FootprintCenter(def, origin, height, GridVisualizer);
-        }
-
-        private GameObject SpawnView(BuildingState state)
-        {
-            return BuildingViewFactory.CreateView(state, GridVisualizer);
+            if (Definition != null && Definition.Id == defId) return Definition;
+            return null;
         }
     }
 }
