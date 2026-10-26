@@ -11,8 +11,11 @@ namespace Citybuilder
         public PopulationController Population;
         [Tooltip("Драйвер игровых часов. Опционален: иначе ищется на этом же объекте.")]
         public SimulationRunner Simulation;
+        [Tooltip("Казна для наград за ступени. Опционален: иначе ищется на этом же объекте.")]
+        public TreasuryView Treasury;
 
         private GoalSystem goals;
+        private readonly GoalStages stages = new GoalStages();
 
         private void OnGUI()
         {
@@ -23,6 +26,10 @@ namespace Citybuilder
             if (population == null || simulation == null) return;
             EnsureGoals(population, simulation);
             if (goals == null) return;
+            TreasuryView treasury = Treasury;
+            if (treasury == null) treasury = GetComponent<TreasuryView>();
+            int reward = stages.Claim(goals.Residents);
+            if (reward > 0 && treasury != null) treasury.Treasury.Earn(reward);
             // y=148: ниже потребностей (y=114), чтобы не налезать на левую колонку.
             HudText.Draw(10, 148, BuildText());
         }
@@ -30,7 +37,13 @@ namespace Citybuilder
         // Имя метода не HudText: оно скрывало бы одноимённый статический хелпер.
         private string BuildText()
         {
-            return "Цель: " + goals.Residents + "/" + GoalSystem.GoalResidents + " жителей";
+            if (stages.AllDone)
+            {
+                return "Цель выполнена: " + goals.Residents + " жителей";
+            }
+            int step = stages.Stage + 1;
+            return "Цель: " + goals.Residents + "/" + stages.Target + " жителей (ступень "
+                + step + "/" + GoalStages.StageCount + ")";
         }
 
         // Тихое создание поверх живых симуляций. Систем нет — рисуем только HUD.
