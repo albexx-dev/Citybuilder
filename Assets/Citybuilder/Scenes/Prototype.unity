@@ -210,6 +210,7 @@ GameObject:
   - component: {fileID: 985593181}
   - component: {fileID: 985593182}
   - component: {fileID: 985593183}
+  - component: {fileID: 985593184}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -718,6 +719,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Citybuilder::Citybuilder.StartHintView
   Zones: {fileID: 0}
+  Growth: {fileID: 0}
+  Menu: {fileID: 0}
+--- !u!114 &985593184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 586a5d4f0ed9eed43b6b75c75af764de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.GrowthStatusView
   Growth: {fileID: 0}
   Menu: {fileID: 0}
 --- !u!1 &1069481158
