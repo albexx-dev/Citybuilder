@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Citybuilder
 {
     // Правило разблокировки типов зданий по числу выросших зданий. Чистый C#, без Unity.
@@ -22,6 +24,23 @@ namespace Citybuilder
         private static int Normalize(int buildings)
         {
             return buildings < 0 ? 0 : buildings;
+        }
+
+        // Ближайший закрытый тип: минимальный порог, при равенстве — первый по списку.
+        // Пусто, все открыты или только null-элементы — null. Без LINQ.
+        public static BuildingDefinition NextLocked(List<BuildingDefinition> definitions, int buildings)
+        {
+            if (definitions == null) return null;
+            int grown = Normalize(buildings);
+            BuildingDefinition next = null;
+            for (int i = 0; i < definitions.Count; i++)
+            {
+                BuildingDefinition candidate = definitions[i];
+                if (candidate == null) continue;
+                if (candidate.UnlockBuildings <= grown) continue;
+                if (next == null || candidate.UnlockBuildings < next.UnlockBuildings) next = candidate;
+            }
+            return next;
         }
     }
 }
