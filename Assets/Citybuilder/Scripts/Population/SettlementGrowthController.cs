@@ -103,13 +103,16 @@ namespace Citybuilder
             BuildingDefinition def;
             GridPosition origin;
             if (!FindFreeOrigin(out def, out origin)) return;
-            if (Treasury != null && Treasury.Treasury != null)
-            {
-                var spent = Treasury.Treasury.TrySpend(def.ConstructionCost, def.Id);
-                if (!spent.Success) return;
-            }
+            Treasury treasury = Treasury != null ? Treasury.Treasury : null;
+            if (treasury != null && !treasury.CanAfford(def.ConstructionCost)) return;
             BuildingState state = settlement.Settle(def, origin);
             if (state == null) return;
+            if (treasury != null && !treasury.TrySpend(def.ConstructionCost, def.Id).Success)
+            {
+                settlement.Demolish(state);
+                GridVisualizer.RefreshOccupied();
+                return;
+            }
             states.Add(state);
             lastGrownZone = ZonePainter.Zones.GetZone(origin);
             View.AddBuilding(state, def, GridVisualizer.Grid.CellSize);
