@@ -22,6 +22,12 @@ namespace Citybuilder
             this.treasury = treasury;
         }
 
+        // Сколько работающих платит. Для строки дохода в HUD.
+        public int Employed
+        {
+            get { return employment.Employed; }
+        }
+
         // Налог за тик: Employed × ставка. Ставка 0 и ниже — сбор выключен.
         public int ComputeTax(int perWorker)
         {

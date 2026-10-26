@@ -44,6 +44,13 @@ namespace Citybuilder
             get { return "Налог: " + NameOf(current) + " (" + PerWorker + ")"; }
         }
 
+        // Сбор за час при таком числе работающих. Работающих нет — 0.
+        public int Income(int employed)
+        {
+            if (employed <= 0) return 0;
+            return employed * PerWorker;
+        }
+
         // Следующий уровень по кругу: низкий → обычный → высокий → низкий.
         public Level Next()
         {
