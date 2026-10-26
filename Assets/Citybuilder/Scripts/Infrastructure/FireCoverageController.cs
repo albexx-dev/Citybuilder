@@ -3,8 +3,9 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Покрытие пожарных служб: источники — поставленные здания с радиусом службы,
-    // точки спроса — выросшие дома. Считаем на ServiceCoverage. Настройка: объект Grid.
+    // Покрытие одной службы: тип задаёт Kind. Источники — поставленные здания
+    // с радиусом службы и тем же типом, точки спроса — выросшие дома.
+    // Считаем на ServiceCoverage. Настройка: объект Grid.
     public class FireCoverageController : MonoBehaviour
     {
         [Header("References")]
@@ -12,6 +13,10 @@ namespace Citybuilder
         public SettlementGrowthController Growth;
         [Tooltip("Ручная стройка. Обязательна: даёт поставленные станции.")]
         public BuildingPlacementController Placement;
+
+        [Header("Service")]
+        [Tooltip("Какую службу считает этот контроллер")]
+        public ServiceKind Kind = ServiceKind.Fire;
 
         [Header("Refresh")]
         [Tooltip("Пауза между пересчётами в секундах. Минимум 0.5.")]
@@ -88,9 +93,10 @@ namespace Citybuilder
         private void AddStation(BuildingState state)
         {
             if (state == null || state.Definition == null) return;
-            int radius = state.Definition.ServiceRadius;
-            if (radius <= 0) return;
-            coverage.SetSource(state.Id, state.Origin, radius);
+            BuildingDefinition definition = state.Definition;
+            if (definition.ServiceRadius <= 0) return;
+            if (definition.ServiceKind != Kind) return;
+            coverage.SetSource(state.Id, state.Origin, definition.ServiceRadius);
         }
 
         private void AddHomes()

@@ -39,6 +39,9 @@ namespace Citybuilder
         [Tooltip("Радиус службы в клетках. 0 — не служба")]
         public int ServiceRadius = 0;
 
+        [Tooltip("Тип службы. None — не служба")]
+        public ServiceKind ServiceKind = ServiceKind.None;
+
         [Header("Infrastructure")]
         [Tooltip("Сколько энергии потребляет одно здание. Не может быть отрицательным.")]
         public int PowerDemand = 1;
@@ -75,6 +78,7 @@ namespace Citybuilder
             ResidentCapacity = Clamp(ResidentCapacity, "capacity");
             JobsProvided = Clamp(JobsProvided, "jobs");
             ServiceRadius = Clamp(ServiceRadius, "service radius");
+            ClampServiceKind();
             PowerDemand = Clamp(PowerDemand, "power demand");
             PowerOutput = Clamp(PowerOutput, "power output");
             WaterDemand = Clamp(WaterDemand, "water demand");
@@ -87,6 +91,20 @@ namespace Citybuilder
         public static int ClampNonNegative(int value)
         {
             return value < 0 ? 0 : value;
+        }
+
+        // Неизвестное значение типа службы (вне 0..2) гаснет в None.
+        public static ServiceKind SanitizeServiceKind(ServiceKind kind)
+        {
+            return kind == ServiceKind.Fire || kind == ServiceKind.Police ? kind : ServiceKind.None;
+        }
+
+        private void ClampServiceKind()
+        {
+            ServiceKind fixedKind = SanitizeServiceKind(ServiceKind);
+            if (fixedKind == ServiceKind) return;
+            Debug.LogWarning("BuildingDefinition: service kind fixed to None.", this);
+            ServiceKind = fixedKind;
         }
 
         // Поле в 0 и одно предупреждение с его именем.
