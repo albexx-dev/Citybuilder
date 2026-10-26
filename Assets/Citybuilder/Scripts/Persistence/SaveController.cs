@@ -24,20 +24,21 @@ namespace Citybuilder
         public TaxPolicyView Policy;
         [Tooltip("Ручные здания. Пусто = ищется в сцене.")]
         public BuildingPlacementController Placement;
+        [Tooltip("Ступень цели. Пусто = ищется в сцене.")]
+        public GoalView Goal;
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.F5))
-            {
-                SaveNow();
-            }
+            if (Input.GetKeyDown(KeyCode.F5)) SaveNow();
         }
 
         // Мост для E2E: собирает снапшот из живых систем и пишет slot0.json. Пустых ссылок не боится.
         public bool SaveNow()
         {
             ResolveRefs();
-            CitySnapshot snapshot = SaveSystem.BuildSnapshot(CollectHomes(), CollectHouseholds(), CollectZones(), ReadBalance(), ReadTicks(), CollectRoads(), ReadTaxLevel(), CollectManual());
+            int goalStage = Goal == null ? 0 : Goal.Stage;
+            CitySnapshot snapshot = SaveSystem.BuildSnapshot(CollectHomes(), CollectHouseholds(), CollectZones(),
+                ReadBalance(), ReadTicks(), CollectRoads(), ReadTaxLevel(), CollectManual(), goalStage);
             string path = Path.Combine(Application.persistentDataPath, SaveSlotStorage.SlotFileName);
             bool written = SaveSlotStorage.WriteSlot(path, snapshot);
             LogResult(written, path, snapshot);
@@ -54,6 +55,7 @@ namespace Citybuilder
             if (Roads == null) Roads = GetComponent<RoadNetworkStore>();
             if (Policy == null) Policy = FindFirstObjectByType<TaxPolicyView>();
             if (Placement == null) Placement = FindFirstObjectByType<BuildingPlacementController>();
+            if (Goal == null) Goal = FindFirstObjectByType<GoalView>();
         }
 
         private List<BuildingState> CollectHomes()
@@ -66,7 +68,6 @@ namespace Citybuilder
             return homes == null ? new List<BuildingState>() : homes;
         }
 
-        // Ручные здания игрока: без ссылки на контроллер строится пустой список.
         private List<BuildingState> CollectManual()
         {
             if (Placement == null) return new List<BuildingState>();
@@ -122,7 +123,6 @@ namespace Citybuilder
             return Runner.Clock.CurrentTime.TickCount;
         }
 
-        // Уровень для слота: 1/2/3, без политики — 0 («не задано»).
         private int ReadTaxLevel()
         {
             if (Policy == null) return 0;
@@ -142,7 +142,7 @@ namespace Citybuilder
                 + ", зон=" + snapshot.Zones.Count
                 + ", дорог=" + snapshot.Roads.Count
                 + ", баланс=" + snapshot.Balance
-                + ", налог=" + snapshot.TaxLevel
+                + ", налог=" + snapshot.TaxLevel + ", цель=" + snapshot.GoalStage
                 + ", тик=" + snapshot.TickCount
                 + ", файл=" + path);
         }

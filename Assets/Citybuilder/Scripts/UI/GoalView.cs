@@ -15,9 +15,21 @@ namespace Citybuilder
         public TreasuryView Treasury;
 
         private GoalSystem goals;
+        // Ступень цели, которая пишется в слот v4 и восстанавливается при загрузке.
         private readonly GoalStages stages = new GoalStages();
         private TreasuryView treasuryCache;
         private bool treasurySearched;
+
+        // Ступень для слота: 0..3.
+        public int Stage
+        {
+            get { return stages.Stage; }
+        }
+
+        public void RestoreStage(int stage)
+        {
+            stages.Restore(stage);
+        }
 
         private void OnGUI()
         {
@@ -35,8 +47,7 @@ namespace Citybuilder
                 HudText.Draw(10, 148, BuildText());
                 return;
             }
-            // Ступени не сохраняются в слот — после загрузки награда за уже
-            // пройденные ступени может начислиться повторно (долг).
+            // Ступень хранится в слоте v4: после загрузки награда повторно не начисляется.
             int reward = stages.Claim(goals.Residents);
             if (reward > 0) treasury.Treasury.Earn(reward);
             // y=148: ниже потребностей (y=114), чтобы не налезать на левую колонку.
