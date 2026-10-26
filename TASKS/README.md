@@ -96,7 +96,7 @@
 - [x] Done 092-docs-truth + merged (оркестратор: AGENTS.md — «Текущее состояние (на 091)» вместо устаревшего среза 2x2 + «Правило видимости системы»; ARCHITECTURE.md §5/§8/§11/§12/§13/§15/§16 приведены к факту; HANDOFF.md переписан на 091, 246 тестов; кода нет)
 - [x] Done 093-playtest + merged (оркестратор: плейтест билда; найдено: нет зданий-источников энергии/воды/мусора; GridVisualizer был выключен в сохранённой сцене — починено, ff0229f)
 - [x] Done 094-source-buildings + merged (ревью PASS: PowerStation 300/+12, WaterTower 250/+12, WasteDepot 200/+12 ёмкости, все 2x2, потребление 0 (deadlock), тесты 250/250; сцена — палитра + Placement.Definitions)
-- [ ] ToDo 095-supply-growth — план обновлён (dc07a66): сплит SettlementGrowthController → GrowthPace, штраф Max(пробки, дефицит) по глубине: >=0.99 → x1, 0.5..0.98 → x2, <0.5 → x3; инженер запущен
-- NEXT: закрыть 095, затем пересборка windows64 после 094 и оставшиеся пункты чек-листа 1, 2, 5, 6, 7; долги: GridMeshBuilder 190, RoadPlacementController 179, ZonePaintingController 173
+- [x] Done 095-supply-growth + merged (ревью PASS: GrowthPace 35 — сплит, контроллер 195→185; SupplyGrowthPolicy 29 — глубина ×1/×2/×3, NaN=1; SupplyGrowthController 31 на Grid с Power/Water/Waste; гейт Max(пробки, дефицит); 20 тестов, EditMode 270/270; сцена подключена)
+- NEXT: пересборка windows64 после 094 и 095, затем оставшиеся пункты чек-листа 093: 1, 2, 5, 6, 7; долги: GridMeshBuilder 190, RoadPlacementController 179, ZonePaintingController 173
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка task/XXX, 1 модуль. Мержит только оркестратор (`merge --no-ff`) после зелёного шлюза. Две задачи параллельно запрещены.

@@ -208,6 +208,7 @@ GameObject:
   - component: {fileID: 985593178}
   - component: {fileID: 985593180}
   - component: {fileID: 985593181}
+  - component: {fileID: 985593182}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -340,6 +341,7 @@ MonoBehaviour:
   Treasury: {fileID: 2007715384}
   Runner: {fileID: 1821543313}
   Congestion: {fileID: 985593173}
+  SupplyGrowth: {fileID: 985593182}
   Definitions:
   - {fileID: 11400000, guid: 0032c13ad3a6cf740b11da6edca1de61, type: 2}
   - {fileID: 11400000, guid: 1ac62d4409b7fc94d96dd3fd38893a0e, type: 2}
@@ -687,6 +689,21 @@ MonoBehaviour:
   Placement: {fileID: 985593154}
   Kind: 2
   RefreshIntervalSec: 2
+--- !u!114 &985593182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4778b6bf7fbd448e9dad75f245c26680, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.SupplyGrowthController
+  Power: {fileID: 985593170}
+  Water: {fileID: 985593172}
+  Waste: {fileID: 985593175}
 --- !u!1 &1069481158
 GameObject:
   m_ObjectHideFlags: 0
