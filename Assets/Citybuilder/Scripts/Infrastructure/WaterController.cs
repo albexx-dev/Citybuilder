@@ -1,9 +1,8 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Citybuilder
 {
-    // Проводка воды к выросшим домам для HUD. Только чтение Homes, поведения не меняет.
+    // Проводка воды к выросшим и ручным домам для HUD. Поведения не меняет.
     // Настройка: объект Grid, Growth обязателен. RefreshNow — для загрузок и мостов.
     public class WaterController : MonoBehaviour
     {
@@ -23,47 +22,25 @@ namespace Citybuilder
         [Tooltip("Пауза между пересчётами в секундах. Минимум 0.5.")]
         public float RefreshIntervalSec = 2f;
 
-        private WaterSystem water;
-        private EntityId cityGridId;
+        private SupplyFeed feed;
         private float timer;
 
-        // Суммарный спрос домов из последнего снимка. Системы нет — 0.
-        public int Demand
-        {
-            get
-            {
-                EnsureSystem();
-                return Mathf.RoundToInt(water.TotalDemand);
-            }
-        }
+        // Суммарный спрос домов из последнего снимка. Снимка нет — 0.
+        public int Demand { get { EnsureFeed(); return Mathf.RoundToInt(feed.TotalDemand); } }
 
-        // Суммарная мощность сети и генерации домов. Системы нет — 0.
-        public int Supply
-        {
-            get
-            {
-                EnsureSystem();
-                return Mathf.RoundToInt(water.TotalSupply);
-            }
-        }
+        // Суммарная мощность сети и генерации домов. Снимка нет — 0.
+        public int Supply { get { EnsureFeed(); return Mathf.RoundToInt(feed.TotalSupply); } }
 
-        // Доля покрытия 0..1 из последнего снимка. Системы нет — 0.
-        public float Rate01
-        {
-            get
-            {
-                EnsureSystem();
-                return water.SatisfactionRate01;
-            }
-        }
+        // Доля покрытия 0..1 из последнего снимка. Снимка нет — 0.
+        public float Rate01 { get { EnsureFeed(); return feed.Rate01; } }
 
         // Дом без спроса считается снабжённым. Нет снимка — false.
         public bool IsHomeSupplied(BuildingState home)
         {
             if (home == null || home.Definition == null) return false;
             if (home.Definition.WaterDemand <= 0) return true;
-            EnsureSystem();
-            return water.IsSatisfied(home.Id);
+            EnsureFeed();
+            return feed.IsSatisfied(home.Id);
         }
 
         private void Start()
@@ -76,6 +53,8 @@ namespace Citybuilder
         private void OnValidate()
         {
             ClampInterval();
+            EnsureFeed();
+            feed.BaseSupply = BaseSupply;
         }
 
         private void Update()
@@ -90,36 +69,10 @@ namespace Citybuilder
         // Пересчитать снимок сейчас. Clear каждый раз: снос домов исчезает сам.
         public void RefreshNow()
         {
-            EnsureSystem();
-            water.Clear();
-            if (Growth == null) return;
-            RegisterCityGrid();
-            AddStates(Growth.Homes);
-            if (Placement == null) return;
-            AddStates(Placement.Placed);
-        }
-
-        // Один проход по списку: null-список и null-элементы пропускаются.
-        private void AddStates(List<BuildingState> homes)
-        {
-            if (homes == null) return;
-            for (int i = 0; i < homes.Count; i++) AddHome(homes[i]);
-        }
-
-        // Один дом в баланс: спрос и генерация только при значениях больше нуля.
-        private void AddHome(BuildingState home)
-        {
-            if (home == null || home.Definition == null) return;
-            BuildingDefinition def = home.Definition;
-            if (def.WaterDemand > 0) water.AddConsumer(home.Id, def.WaterDemand);
-            if (def.WaterOutput > 0) water.AddSource(home.Id, def.WaterOutput);
-        }
-
-        // Городская сеть — ленивый id, создаётся один раз на сессию.
-        private void RegisterCityGrid()
-        {
-            if (!cityGridId.IsValid) cityGridId = EntityId.New();
-            water.AddSource(cityGridId, BaseSupply);
+            EnsureFeed();
+            if (Growth == null) { feed.Clear(); return; }
+            feed.BaseSupply = BaseSupply;
+            feed.Refresh(Growth.Homes, Placement != null ? Placement.Placed : null);
         }
 
         // Чинит ссылки после перезагрузки домена. Без Growth гаснет с ошибкой.
@@ -135,10 +88,10 @@ namespace Citybuilder
         }
 
         // Тихое создание: вид опрашивает каждый кадр.
-        private void EnsureSystem()
+        private void EnsureFeed()
         {
-            if (water != null) return;
-            water = new WaterSystem();
+            if (feed != null) return;
+            feed = new SupplyFeed(new SupplyBalance(), BaseSupply, def => def.WaterDemand, def => def.WaterOutput);
         }
 
         private void ClampInterval()
