@@ -46,7 +46,7 @@ namespace Citybuilder
             List<BuildingState> homes = ApplyCity(snapshot);
             int manual = ApplyManual(snapshot);
             ApplyMeta(snapshot);
-            LogResult(path, snapshot, homes, manual);
+            LoadLog.Report(path, snapshot, homes, manual);
             return true;
         }
 
@@ -56,6 +56,7 @@ namespace Citybuilder
             ClearAll();
             if (Treasury != null) Treasury.ResetBalance(Treasury.StartingBalance);
             if (Runner != null && Runner.Clock != null) Runner.Clock.RestoreTime(0);
+            if (Policy != null) Policy.Policy.Set(TaxPolicy.Level.Normal);
             Debug.Log("LoadController: новая игра начата.");
         }
 
@@ -136,15 +137,6 @@ namespace Citybuilder
             if (Policy != null) Policy.Policy.Set(SaveSystem.DecodeTaxLevel(snapshot.TaxLevel));
             GoalView goal = FindFirstObjectByType<GoalView>();
             if (goal != null) goal.RestoreStage(snapshot.GoalStage);
-        }
-
-        private static void LogResult(string path, CitySnapshot snapshot, List<BuildingState> homes, int manual)
-        {
-            int restored = homes == null ? 0 : homes.Count;
-            Debug.Log("LoadController: слот загружен: домов=" + restored + ", ручных=" + manual
-                + ", домохозяйств=" + snapshot.Households.Count + ", зон=" + snapshot.Zones.Count
-                + ", дорог=" + snapshot.Roads.Count + ", баланс=" + snapshot.Balance
-                + ", налог=" + snapshot.TaxLevel + ", цель=" + snapshot.GoalStage + ", тик=" + snapshot.TickCount + ", файл=" + path);
         }
     }
 }
