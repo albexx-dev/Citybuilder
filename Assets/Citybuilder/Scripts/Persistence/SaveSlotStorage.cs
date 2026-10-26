@@ -35,7 +35,7 @@ namespace Citybuilder
         }
         public static bool Validate(CitySnapshot snapshot)
         {
-            if (snapshot == null || snapshot.Version != SaveSystem.CurrentVersion)
+            if (snapshot == null || !IsSupportedVersion(snapshot.Version))
             {
                 return false;
             }
@@ -54,6 +54,11 @@ namespace Citybuilder
             return ValidateZones(snapshot.Zones) && ValidateBuildings(snapshot.Buildings)
                 && ValidateHouseholds(snapshot.Households, snapshot.Buildings.Count)
                 && ValidateRoads(snapshot.Roads);
+        }
+        // Слоты v1 (без TaxLevel) читаются как обычный налог; v2 несёт TaxLevel.
+        private static bool IsSupportedVersion(int version)
+        {
+            return version == 1 || version == SaveSystem.CurrentVersion;
         }
         public static bool WriteSlot(string path, CitySnapshot snapshot)
         {
