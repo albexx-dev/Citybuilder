@@ -262,6 +262,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.BuildingPlacementController
   GridVisualizer: {fileID: 985593152}
   Definition: {fileID: 11400000, guid: 0032c13ad3a6cf740b11da6edca1de61, type: 2}
+  Definitions:
+  - {fileID: 11400000, guid: 0032c13ad3a6cf740b11da6edca1de61, type: 2}
+  - {fileID: 11400000, guid: 1f5aafc8622b4046a7fe81a24595546f, type: 2}
+  - {fileID: 11400000, guid: 1ac62d4409b7fc94d96dd3fd38893a0e, type: 2}
+  - {fileID: 11400000, guid: 6e8e1f61493484b45af48640f86a4863, type: 2}
   TreasuryView: {fileID: 2007715384}
 --- !u!114 &985593155
 MonoBehaviour:
@@ -778,6 +783,7 @@ MonoBehaviour:
   Runner: {fileID: 1821543313}
   Roads: {fileID: 985593164}
   Policy: {fileID: 0}
+  Placement: {fileID: 0}
 --- !u!4 &1432023087
 Transform:
   m_ObjectHideFlags: 0
@@ -813,6 +819,7 @@ MonoBehaviour:
   Runner: {fileID: 1821543313}
   Roads: {fileID: 985593164}
   Policy: {fileID: 0}
+  Placement: {fileID: 0}
 --- !u!1 &1652839692
 GameObject:
   m_ObjectHideFlags: 0
