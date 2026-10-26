@@ -37,7 +37,8 @@ namespace Citybuilder
             public int Y;
         }
 
-        public int Version = 2;
+        // v1 — без TaxLevel, v2 — с TaxLevel, v3 — плюс ручные здания.
+        public int Version = 3;
         public long TickCount;
         public int Balance;
         // Налоговая политика: 0 = не задано (слот v1) → обычный, 1/2/3 = низкий/обычный/высокий.
@@ -46,5 +47,7 @@ namespace Citybuilder
         public List<BuildingEntry> Buildings = new List<BuildingEntry>();
         public List<HouseholdEntry> Households = new List<HouseholdEntry>();
         public List<RoadEntry> Roads = new List<RoadEntry>();
+        // Ручные здания игрока (v3): те, что поставлены мышью, а не выросли.
+        public List<BuildingEntry> ManualBuildings = new List<BuildingEntry>();
     }
 }
