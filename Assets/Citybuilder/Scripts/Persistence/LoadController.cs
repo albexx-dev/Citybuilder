@@ -32,7 +32,6 @@ namespace Citybuilder
             if (Input.GetKeyDown(KeyCode.F9)) LoadNow();
         }
 
-        // Мост для E2E: читает slot0.json и перестраивает город. Битый файл — город не трогаем.
         public bool LoadNow()
         {
             ResolveRefs();
@@ -51,7 +50,6 @@ namespace Citybuilder
             return true;
         }
 
-        // Новая игра: очистка города + стартовый баланс и нулевое время. В слот не пишет.
         public void NewGame()
         {
             ResolveRefs();
@@ -81,6 +79,8 @@ namespace Citybuilder
             if (Zones != null) Zones.ClearZones();
             if (Roads != null) Roads.ClearRoads();
             if (Placement != null) Placement.ClearPlaced();
+            GoalView goal = FindFirstObjectByType<GoalView>();
+            if (goal != null) goal.RestoreStage(0);
             if (Population == null || Population.Population == null || homes == null) return;
             for (int i = 0; i < homes.Count; i++) Population.Population.EvictHome(homes[i]);
         }
@@ -117,7 +117,6 @@ namespace Citybuilder
             return homes;
         }
 
-        // Ручные здания: неизвестные Id и null-элементы пропускаются.
         private int ApplyManual(CitySnapshot snapshot)
         {
             if (Placement == null || snapshot.ManualBuildings == null) return 0;
@@ -135,6 +134,8 @@ namespace Citybuilder
             if (Treasury != null) Treasury.ResetBalance(snapshot.Balance);
             if (Runner != null && Runner.Clock != null) Runner.Clock.RestoreTime(snapshot.TickCount);
             if (Policy != null) Policy.Policy.Set(SaveSystem.DecodeTaxLevel(snapshot.TaxLevel));
+            GoalView goal = FindFirstObjectByType<GoalView>();
+            if (goal != null) goal.RestoreStage(snapshot.GoalStage);
         }
 
         private static void LogResult(string path, CitySnapshot snapshot, List<BuildingState> homes, int manual)
@@ -143,7 +144,7 @@ namespace Citybuilder
             Debug.Log("LoadController: слот загружен: домов=" + restored + ", ручных=" + manual
                 + ", домохозяйств=" + snapshot.Households.Count + ", зон=" + snapshot.Zones.Count
                 + ", дорог=" + snapshot.Roads.Count + ", баланс=" + snapshot.Balance
-                + ", налог=" + snapshot.TaxLevel + ", тик=" + snapshot.TickCount + ", файл=" + path);
+                + ", налог=" + snapshot.TaxLevel + ", цель=" + snapshot.GoalStage + ", тик=" + snapshot.TickCount + ", файл=" + path);
         }
     }
 }
