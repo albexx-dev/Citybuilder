@@ -28,6 +28,10 @@ namespace Citybuilder
         {
             public int BuildingIndex;
             public int Size;
+            // v4: координаты дома. HasHome = false — старый слот, дом ищется по индексу.
+            public bool HasHome;
+            public int HomeX;
+            public int HomeY;
         }
 
         [Serializable]

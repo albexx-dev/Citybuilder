@@ -46,7 +46,7 @@ namespace Citybuilder
             snapshot.GoalStage = goalStage >= 0 && goalStage <= GoalStages.StageCount ? goalStage : 0;
             AddZones(snapshot, zones);
             Dictionary<BuildingState, int> indexByHome = AddBuildings(snapshot, homes);
-            AddHouseholds(snapshot, households, indexByHome);
+            SnapshotHouseholds.Write(snapshot, households, indexByHome);
             AddRoads(snapshot, roads);
             AddManual(snapshot, manualBuildings);
             return snapshot;
@@ -93,22 +93,6 @@ namespace Citybuilder
                 snapshot.Buildings.Add(entry);
             }
             return indexByHome;
-        }
-
-        private static void AddHouseholds(CitySnapshot snapshot, List<HouseholdState> households, Dictionary<BuildingState, int> indexByHome)
-        {
-            if (households == null || indexByHome == null) return;
-            for (int i = 0; i < households.Count; i++)
-            {
-                HouseholdState household = households[i];
-                if (household == null || household.Home == null || household.Size <= 0) continue;
-                int index;
-                if (!indexByHome.TryGetValue(household.Home, out index)) continue;
-                CitySnapshot.HouseholdEntry entry = new CitySnapshot.HouseholdEntry();
-                entry.BuildingIndex = index;
-                entry.Size = household.Size;
-                snapshot.Households.Add(entry);
-            }
         }
 
         private static void AddRoads(CitySnapshot snapshot, List<RoadState> roads)

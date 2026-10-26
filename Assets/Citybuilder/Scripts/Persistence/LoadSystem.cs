@@ -92,23 +92,7 @@ namespace Citybuilder
 
         public static void ApplyHouseholds(CitySnapshot snapshot, PopulationSystem population, List<BuildingState> homes)
         {
-            if (snapshot == null || snapshot.Households == null || population == null || homes == null)
-            {
-                return;
-            }
-            for (int i = 0; i < snapshot.Households.Count; i++)
-            {
-                CitySnapshot.HouseholdEntry entry = snapshot.Households[i];
-                if (entry == null || entry.Size <= 0)
-                {
-                    continue;
-                }
-                if (entry.BuildingIndex < 0 || entry.BuildingIndex >= homes.Count)
-                {
-                    continue;
-                }
-                population.MoveIn(homes[entry.BuildingIndex], entry.Size);
-            }
+            HouseholdBinder.Apply(snapshot, population, homes);
         }
 
         private static BuildingDefinition FindDefinition(List<BuildingDefinition> definitions, string defId)
