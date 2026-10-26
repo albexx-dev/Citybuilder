@@ -84,22 +84,38 @@ Reviewer (субагент, только чтение):
 - Do not assume that a GameObject, prefab or reference already exists.
 - Clearly list required Inspector references. Каждый MonoBehaviour: [Header], Tooltip на неочевидных, проверка null.
 - Keep Unity-specific code at the presentation or adapter layer when possible.
-- Стандарт V1: Unity 6 LTS, 2 сцены (Bootstrap.unity, Prototype.unity), URP или Built-in выбирается 1 раз.
+- Стандарт: Unity 6 LTS **6000.3.25f1** (не обновлять), Built-in Render Pipeline, одна игровая сцена `Assets/Citybuilder/Scenes/Prototype.unity`.
 
-## Current milestone
+## Правило видимости системы
 
-Create a playable first vertical slice where the player can:
-1. See a ground grid.
-2. Select a building.
-3. Preview the building.
-4. Place it on the grid.
-5. Prevent overlapping buildings.
-6. Spend money when placing a building.
-7. See current money in the UI.
-8. Cancel placement mode.
-9. Remove a building.
+Новая система не начинается, пока предыдущая не видна игроку.
 
-Scope lock V1: жителей нет, дорог нет, только дом 2x2. Population / Transport / Infrastructure / Roads запрещены до закрытия среза.
+«Готово» — это когда игрок это чувствует: HUD, поведение зданий, деньги, время. Не «класс есть, тесты зелёные, система где-то подключена».
+
+Перед стартом задачи сформулируй **одно действие игрока**, после которого изменение заметно.
+Не формулируется — задача не начинается.
+
+## Текущее состояние (на 091)
+
+Играбельно в редакторе и в билде windows64 (86 МБ):
+
+- сетка 50×50, зоны: жилая / коммерция / промзона;
+- рост домов, магазинов и заводов по тикам, плата за рост из казны;
+- налоговая политика 1/2/3, автовъезд с гейтом занятости 0.4;
+- снос зданий и дорог, ручная установка станций;
+- энергия, вода, мусор — общий `SupplyBalance`; пожарные и полиция — радиус покрытия;
+- связность дорог (доля связанных домов) и пробки (A* + нагрузка клеток, влияют на скорость роста);
+- HUD: часы, население, потребности (7 показателей), цель со ступенями 50/100/200, связность, энергия, вода, мусор, пожарные, полиция, «Дальше: …»;
+- сохранение и загрузка, снапшот v4 (совместим с v1–v3);
+- разблокировка типов зданий по числу выросших зданий.
+
+246 EditMode-тестов в 34 файлах.
+
+## Scope lock
+
+Разрешено: здания-службы по образцу пожарной и полиции (парк, больница), баланс, читаемость HUD, багфиксы, тесты, документация.
+
+Запрещено без ADR: транспорт с машинами, многоуровневость, облачные сейвы, Jobs/Burst, DI-контейнеры, async/await, новые сторонние пакеты.
 
 ## Workflow (субагенты)
 
