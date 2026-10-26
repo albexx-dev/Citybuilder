@@ -90,13 +90,13 @@
 - [x] Done 086-build + merged (оркестратор: билд windows64 Succeeded, 86 МБ, 15 с; smoke — окно «CityBuilder», 20 с без исключений; отчёт TASKS/086-build-report.md)
 - [x] Done 087-goal-stages + merged (Muse + ревью PASS после фикса: GoalStages 50/100/200 с наградами 1000/2000/4000, GoalView не клеймит без казны, 11 тестов; E2E: 50 жителей → цель 100, ступень 2/3, казна +1000; тесты 232/232; долг: ступени не сохраняются в слот)
 - [x] Done 088-power-water-split + merged (Muse + ревью PASS: SupplyFeed 75, Power/Water 150→103 без изменения API/поведения; E2E: база 12, станция +1 к энергии/воде как раньше; тесты 232/232)
-- [x] Done 089-police + merged (Muse + ревью PASS: ServiceKind None/Fire/Police, FireCoverageController.Kind и фильтр источников, PoliceStation 250/радиус 5, вторая строка «• Полиция»; E2E: пожарные 5/16 при 2 станциях, полиция 4/16 при 2 участках — службы не смешиваются; тесты 236/236)\
-- [x] Done 090-goal-save + merged (ревью PASS: снапшот v4 с GoalStage, GoalStages.Restore, сброс в ClearAll, восстановление в ApplyMeta; E2E: 50 жителей → ступень 1, сейв, новая игра (0), загрузка → ступень 1 и баланс 900 без повторной +1000; тесты 246/246)\
+- [x] Done 089-police + merged (Muse + ревью PASS: ServiceKind None/Fire/Police, FireCoverageController.Kind и фильтр источников, PoliceStation 250/радиус 5, вторая строка «• Полиция»; E2E: пожарные 5/16 при 2 станциях, полиция 4/16 при 2 участках — службы не смешиваются; тесты 236/236)
+- [x] Done 090-goal-save + merged (ревью PASS: снапшот v4 с GoalStage, GoalStages.Restore, сброс в ClearAll, восстановление в ApplyMeta; E2E: 50 жителей → ступень 1, сейв, новая игра (0), загрузка → ступень 1 и баланс 900 без повторной +1000; тесты 246/246)
 - [x] Done 091-build + merged (оркестратор: билд windows64 Succeeded, 86 МБ, 12 с; smoke — окно «CityBuilder», 20 с без исключений; отчёт TASKS/091-build-report.md)
 - [x] Done 092-docs-truth + merged (оркестратор: AGENTS.md — «Текущее состояние (на 091)» вместо устаревшего среза 2x2 + «Правило видимости системы»; ARCHITECTURE.md §5/§8/§11/§12/§13/§15/§16 приведены к факту; HANDOFF.md переписан на 091, 246 тестов; кода нет)
 - [x] Done 093-playtest + merged (оркестратор: плейтест билда; найдено: нет зданий-источников энергии/воды/мусора; GridVisualizer был выключен в сохранённой сцене — починено, ff0229f)
 - [x] Done 094-source-buildings + merged (ревью PASS: PowerStation 300/+12, WaterTower 250/+12, WasteDepot 200/+12 ёмкости, все 2x2, потребление 0 (deadlock), тесты 250/250; сцена — палитра + Placement.Definitions)
-- [ ] ToDo 095-supply-growth — план готов (dc07a66), инженер не запускался. Сплит SettlementGrowthController → GrowthPace, штраф Max(пробки, дефицит) по глубине: >=0.99 → x1, 0.5..0.98 → x2, <0.5 → x3
-- NEXT: запустить инженера 095, затем пересборка билда и оставшиеся пункты чек-листа 1, 2, 5, 6, 7; долги: GridMeshBuilder 190, RoadPlacementController 179, ZonePaintingController 173
+- [ ] ToDo 095-supply-growth — план обновлён (dc07a66): сплит SettlementGrowthController → GrowthPace, штраф Max(пробки, дефицит) по глубине: >=0.99 → x1, 0.5..0.98 → x2, <0.5 → x3; инженер запущен
+- NEXT: закрыть 095, затем пересборка windows64 после 094 и оставшиеся пункты чек-листа 1, 2, 5, 6, 7; долги: GridMeshBuilder 190, RoadPlacementController 179, ZonePaintingController 173
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка task/XXX, 1 модуль. Мержит только оркестратор (`merge --no-ff`) после зелёного шлюза. Две задачи параллельно запрещены.
