@@ -105,6 +105,11 @@ namespace Citybuilder
 
         private static float Clamp01(float value)
         {
+            // NaN не сравним ни с чем: считаем его «нет ограничения» — как отсутствующий провайдер.
+            if (float.IsNaN(value))
+            {
+                return 1f;
+            }
             if (value < 0f)
             {
                 return 0f;
