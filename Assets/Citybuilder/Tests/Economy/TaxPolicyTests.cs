@@ -61,6 +61,27 @@ namespace Citybuilder
         }
 
         [Test]
+        public void Income_ScalesWithLevelAndWorkers()
+        {
+            TaxPolicy policy = new TaxPolicy();
+            policy.Set(TaxPolicy.Level.Low);
+            Assert.AreEqual(4, policy.Income(4));
+            policy.Set(TaxPolicy.Level.Normal);
+            Assert.AreEqual(8, policy.Income(4));
+            policy.Set(TaxPolicy.Level.High);
+            Assert.AreEqual(12, policy.Income(4));
+        }
+
+        [Test]
+        public void Income_WithoutWorkers_IsZero()
+        {
+            TaxPolicy policy = new TaxPolicy();
+            policy.Set(TaxPolicy.Level.High);
+            Assert.AreEqual(0, policy.Income(0));
+            Assert.AreEqual(0, policy.Income(-3));
+        }
+
+        [Test]
         public void Label_ContainsRate()
         {
             TaxPolicy policy = new TaxPolicy();
