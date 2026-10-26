@@ -98,6 +98,12 @@
 - [x] Done 094-source-buildings + merged (ревью PASS: PowerStation 300/+12, WaterTower 250/+12, WasteDepot 200/+12 ёмкости, все 2x2, потребление 0 (deadlock), тесты 250/250; сцена — палитра + Placement.Definitions)
 - [x] Done 095-supply-growth + merged (ревью PASS: GrowthPace 35 — сплит, контроллер 195→185; SupplyGrowthPolicy 29 — глубина ×1/×2/×3, NaN=1; SupplyGrowthController 31 на Grid с Power/Water/Waste; гейт Max(пробки, дефицит); 20 тестов, EditMode 270/270; сцена подключена)
 - [x] Done 096-save-households + merged (баг F9: привязка по индексу теряла жителей при пропущенном доме; HouseholdBinder 56 — координаты + fallback на индекс, SnapshotHouseholds 37, SaveSystem 150→134, LoadSystem 130→114; 4 теста, EditMode 274/274)
-- NEXT: пункт 1 чек-листа 093 (понятность старта), затем 2 (рост), 5 (HUD поверх сетки), 6 (налоги); билд 096 собран и проверен, плейтест 095/096 — `TASKS/095-playtest-report.md`; долги: деньги до `Settle`, налог в `NewGame`, GridMeshBuilder 190, RoadPlacementController 179, ZonePaintingController 173
+- [x] Done 097-start-clarity + merged (подсказка первых шагов: `StartHintPolicy` 24 → PaintZones/EnableGrowth/WaitForHouse/Done, `StartHintView` 82 на y=430, 5 тестов; E2E: старт → 4×4 зоны → «Рост» → после первого дома подсказка гаснет; EditMode 279/279)
+- [x] Done 098-growth-status + merged (`GrowthStatusPolicy` 40 — причина остановки и склонение, `GrowthStatusView` 117 на y=454, `TicksToNextGrowth` 196→199, 7 тестов; E2E: «2 дома, следующий через 5 ч», «выключен, нажми [4]», «нет денег: дом стоит $100»; EditMode 286/286)
+- [x] Done 099-hud-check + merged (проверка без кода: строки 406/430/454 не пересекаются, подложка `HudText` читается поверх сетки, правая колонка не задета; скриншоты в `Screenshots/`)
+- [x] Done 100-tax-income + merged (`TaxPolicy.Income`, `TaxSystem.Employed`, подпись кнопки «+N $/ч», 2 теста; E2E: 4 работающих → +4/+8/+12 по уровням; EditMode 288/288)
+- [x] Done 101-growth-payment + merged (плата после `Settle`, откат при провале; E2E: дом $100 при казне 105 → 5, при 99 дом не растёт и казна цела)
+- [x] Done 102-newgame-tax + merged («Новая» сбрасывает налог; `LoadLog` 18, `LoadController` 150→142; E2E: высокий → новая → обычный, баланс 1500)
+- NEXT: чек-лист 093 закрыт (`TASKS/093-playtest-report.md`); билд 102 собран и прогнан smoke, EditMode 288/288. Свободно: службы по образцу (медицина, парк), читаемость HUD на низких окнах, сплиты `SettlementGrowthController` 199 / `GridMeshBuilder` 190 / `RoadPlacementController` 179
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка task/XXX, 1 модуль. Мержит только оркестратор (`merge --no-ff`) после зелёного шлюза. Две задачи параллельно запрещены.

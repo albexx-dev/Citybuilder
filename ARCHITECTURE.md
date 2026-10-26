@@ -58,8 +58,8 @@ Locked V1: квадратная сетка, клетка 1x1 м, начало (0
 - Infrastructure: SupplyBalance (энергия / вода / мусор), SupplyGrowthPolicy + SupplyGrowthController (дефицит замедляет рост), ServiceCoverage, пожарные и полиция, NeedProviders, NeedSystem.
 - Transport: ConnectivitySystem, RouteSystem (A* по дорогам), CongestionSystem + CongestionController.
 - Simulation: Runner, порядок систем, статистика.
-- Presentation / UI: только отображение и команды, строки HUD через `HudText`.
-- Persistence: CitySnapshot (v1–v4), SaveSystem, SnapshotHouseholds, HouseholdBinder, SaveSlotStorage, SaveController, LoadController.
+- Presentation / UI: только отображение и команды, строки HUD через `HudText`; подсказки — чистая `StartHintPolicy` + `StartHintView`, статус роста — `GrowthStatusPolicy` + `GrowthStatusView`.
+- Persistence: CitySnapshot (v1–v4), SaveSystem, SnapshotHouseholds, HouseholdBinder, SaveSlotStorage, SaveController, LoadController, LoadLog.
 
 ## 9. Dependencies
 
@@ -87,7 +87,7 @@ World не знает про деньги и жителей. Construction зна
 
 ## 13. Testing strategy
 
-- EditMode-тесты на всю чистую логику: 274 теста в 37 файлах (`Assets/Citybuilder/Tests/`), прогон в редакторе — оркестратор.
+- EditMode-тесты на всю чистую логику: 288 тестов в 39 файлах (`Assets/Citybuilder/Tests/`), прогон в редакторе — оркестратор.
 - Перед коммитом инженер гоняет чистый C# через `dotnet`/`csc` во временной папке, без Unity, и прикладывает результат.
 - Unity-специфика (компиляция сборок проекта, EditMode в редакторе, Play-E2E) — только оркестратор: редактор один на машину.
 - PlayMode-автотестов нет: игровой сценарий проверяется руками по чек-листу задачи.
@@ -98,9 +98,9 @@ World не знает про деньги и жителей. Construction зна
 
 ## 15. Current implementation scope
 
-Задачи 001–096 смержены и запушены. Играбельно в редакторе и в билде windows64 096 (86 МиБ): сетка 50×50, зоны, рост по тикам, налоги, энергия / вода / мусор со станциями-источниками, дефицит снабжения замедляет рост, пожарные и полиция, связность дорог и пробки, цель со ступенями, сейв и лоад v4 с привязкой жителей к домам по координатам.
+Задачи 001–102 смержены и запушены. Играбельно в редакторе и в билде windows64 102 (90 МиБ): сетка 50×50, зоны, рост по тикам, налоги с видимым сбором, энергия / вода / мусор со станциями-источниками, дефицит снабжения замедляет рост, пожарные и полиция, связность дорог и пробки, цель со ступенями, стартовая подсказка и статус роста, сейв и лоад v4 с привязкой жителей к домам по координатам.
 
-Дальше: связка существующих систем с игроком (правило видимости в `AGENTS.md`), новые здания-службы по готовому образцу, читаемость HUD, ручной прогон билда.
+Дальше: связка существующих систем с игроком (правило видимости в `AGENTS.md`), новые здания-службы по готовому образцу, читаемость HUD на низких окнах, сплиты крупных файлов.
 
 ## 16. Future decisions
 
