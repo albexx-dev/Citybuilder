@@ -16,6 +16,8 @@ namespace Citybuilder
 
         private GoalSystem goals;
         private readonly GoalStages stages = new GoalStages();
+        private TreasuryView treasuryCache;
+        private bool treasurySearched;
 
         private void OnGUI()
         {
@@ -26,12 +28,31 @@ namespace Citybuilder
             if (population == null || simulation == null) return;
             EnsureGoals(population, simulation);
             if (goals == null) return;
-            TreasuryView treasury = Treasury;
-            if (treasury == null) treasury = GetComponent<TreasuryView>();
+            TreasuryView treasury = ResolveTreasury();
+            if (treasury == null)
+            {
+                // Если казна не найдена, ступени не двигаем, награда не теряется.
+                HudText.Draw(10, 148, BuildText());
+                return;
+            }
+            // Ступени не сохраняются в слот — после загрузки награда за уже
+            // пройденные ступени может начислиться повторно (долг).
             int reward = stages.Claim(goals.Residents);
-            if (reward > 0 && treasury != null) treasury.Treasury.Earn(reward);
+            if (reward > 0) treasury.Treasury.Earn(reward);
             // y=148: ниже потребностей (y=114), чтобы не налезать на левую колонку.
             HudText.Draw(10, 148, BuildText());
+        }
+
+        // Ленивый кеш: казна может жить на отдельном объекте, а поле в сцене пустое.
+        // Повторный поиск по сцене каждый OnGUI-эвент не нужен.
+        private TreasuryView ResolveTreasury()
+        {
+            if (Treasury != null) return Treasury;
+            if (treasuryCache != null) return treasuryCache;
+            if (treasurySearched) return null;
+            treasuryCache = FindFirstObjectByType<TreasuryView>();
+            treasurySearched = true;
+            return treasuryCache;
         }
 
         // Имя метода не HudText: оно скрывало бы одноимённый статический хелпер.
