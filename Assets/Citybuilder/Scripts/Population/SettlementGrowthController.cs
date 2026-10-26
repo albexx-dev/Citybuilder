@@ -39,6 +39,17 @@ namespace Citybuilder
         {
             get { return states.Count; }
         }
+        // Часов до следующего дома с учётом пробок и дефицита. Для HUD, не для логики.
+        public int TicksToNextGrowth
+        {
+            get
+            {
+                int needed = GrowthPace.RequiredTicks(TicksPerGrowth,
+                    Congestion != null ? Congestion.GrowthTickMultiplier : 1,
+                    SupplyGrowth != null ? SupplyGrowth.GrowthTickMultiplier : 1);
+                return tickCount >= needed ? 0 : needed - tickCount;
+            }
+        }
         private void Start()
         {
             ClampLimits();
