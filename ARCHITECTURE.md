@@ -31,7 +31,7 @@
 Frame Update каждый кадр: камера, ввод, анимации, предпросмотр, UI.
 Simulation Tick периодически: экономика, производство, жители, сети, статистика.
 
-Locked V1: Tick 1 сек = 1 игровой час, день = 24 тика, FastForward x4. Пауза останавливает тики. В V1 к тику подключены только часы и казна.
+Locked V1: Tick 1 сек = 1 игровой час, день = 24 тика, FastForward x4. Пауза останавливает тики. К тику подключены: часы, казна (`EconomyTicker`), рост поселения (`SettlementGrowthTicker`, учитывает пробки через `CongestionController.GrowthTickMultiplier`).
 Режимы: Paused / Playing / FastForward. События: SimulationTickStarted / SimulationTickCompleted.
 
 ## 6. Commands, queries and events
@@ -51,12 +51,15 @@ Locked V1: квадратная сетка, клетка 1x1 м, начало (0
 ## 8. Core systems
 
 - Core: GameBootstrap, GameState, EntityId, SimulationClock, Command, Event.
-- World: Map, Grid, Terrain, Districts, WorldBounds.
-- Construction: BuildingDefinition/State/System, PlacementController, View, DemolitionSystem.
-- Economy: Treasury, MoneyWallet, Transaction, Budget.
-- Resources / Infrastructure / Transport / Population: только после среза, по порядку этапов.
-- Simulation: Runner, TickScheduler, порядок систем, статистика.
-- Presentation: только отображение. UI: BuildMenu, MoneyView, панели. Persistence: позже, но State уже сейчас отдельно от GameObject.
+- World: Map, Grid, ZonePainting, снимок клеток.
+- Construction: BuildingDefinition/State, PlacementController, RoadPlacementController, Demolition, View.
+- Economy: Treasury, TaxSystem, TaxPolicy, EconomyTicker.
+- Population: SettlementSystem, SettlementGrowthController, PopulationController, HouseholdState, GoalStages.
+- Infrastructure: SupplyBalance (энергия / вода / мусор), ServiceCoverage, пожарные и полиция, NeedProviders, NeedSystem.
+- Transport: ConnectivitySystem, RouteSystem (A* по дорогам), CongestionSystem + CongestionController.
+- Simulation: Runner, порядок систем, статистика.
+- Presentation / UI: только отображение и команды, строки HUD через `HudText`.
+- Persistence: CitySnapshot (v1–v4), SaveSystem, SaveSlotStorage, SaveController, LoadController.
 
 ## 9. Dependencies
 
@@ -74,15 +77,20 @@ World не знает про деньги и жителей. Construction зна
 
 ## 11. Unity integration
 
-Тонкие MonoBehaviour-адаптеры: ссылка на логику + вызов 1-2 методов. Сцены: Bootstrap.unity (запуск), Prototype.unity (срез). Папки растут только с кодом: Scripts/Core, World, Construction, Economy, UI + Prefabs, Data/Buildings, Scenes.
+Тонкие MonoBehaviour-адаптеры: ссылка на логику + вызов 1-2 методов. Сцена: `Prototype.unity` (единственная игровая). Папки растут только с кодом: Scripts/Core, World, Construction, Economy, Population, Infrastructure, Transport, Persistence, Simulation, UI, Presentation + Prefabs, Data/Buildings, Scenes.
 
 ## 12. Data persistence
 
-Полное сохранение откладывается. Требование V1: весь State — plain C# классы с EntityId, отдельно от GameObject/View, чтобы позже добавить сериализацию без рефакторинга.
+Реализовано: снапшот v4 (`CitySnapshot`) — версия, тики, баланс, налоговая ставка, ступень цели, зоны, выросшие здания, домохозяйства, дороги, ручные здания. Версии 1–4 читаются совместимо: `SaveSlotStorage.Validate` принимает `1..CurrentVersion`, отсутствующие в старом слоте поля трактуются как значение по умолчанию (v1 → налог «обычный», ступень 0).
+
+Отложено: облачные сейвы, автосейв по таймеру, несколько слотов на диске.
 
 ## 13. Testing strategy
 
-Минимум V1: 1 проверка логики в Unity (шаги) + 1 проверка границ (что запрещено) на задачу. Юнит-тесты только для чистой логики Grid и Treasury без Unity-зависимостей.
+- EditMode-тесты на всю чистую логику: 246 тестов в 34 файлах (`Assets/Citybuilder/Tests/`), прогон в редакторе — оркестратор.
+- Перед коммитом инженер гоняет чистый C# через `dotnet`/`csc` во временной папке, без Unity, и прикладывает результат.
+- Unity-специфика (компиляция сборок проекта, EditMode в редакторе, Play-E2E) — только оркестратор: редактор один на машину.
+- PlayMode-автотестов нет: игровой сценарий проверяется руками по чек-листу задачи.
 
 ## 14. Performance strategy
 
@@ -90,8 +98,10 @@ World не знает про деньги и жителей. Construction зна
 
 ## 15. Current implementation scope
 
-Этап 0 (этот документ + TASKS/001). Далее: primitives → clock → grid → visualization → building definition → placement → treasury. V1: 1 дом 2x2, кубы-примитивы, начальный бюджет, UI баланса, отмена и удаление.
+Задачи 001–091 смержены и запушены. Играбельно в редакторе и в билде windows64 (86 МБ): сетка 50×50, зоны, рост по тикам, налоги, энергия / вода / мусор, пожарные и полиция, связность дорог и пробки, цель со ступенями, сейв и лоад v4.
+
+Дальше: связка существующих систем с игроком (правило видимости в `AGENTS.md`), новые здания-службы по готовому образцу, читаемость HUD, ручной прогон билда.
 
 ## 16. Future decisions
 
-Дороги (Этап 4), районы (Этап 5), население через домохозяйства (Этап 6), коммуналка по одной службе (Этап 7), транспорт и пробки (Этап 8). Спорные изменения — только через DECISIONS/ADR после рабочего среза.
+Транспорт с машинами, многоуровневость, облачные сейвы, Jobs/Burst — только через ADR в `DECISIONS/`, после того как текущий срез проверен на живом билде. Спорные изменения архитектуры без ADR не начинаются.
