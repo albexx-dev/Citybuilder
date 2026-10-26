@@ -1,0 +1,29 @@
+# TASKS/094-breakdown
+
+Ввод: задача 094, модуль Data/Buildings (находка 093). В игре нет зданий-источников энергии, воды и мусора: в `Data/Buildings/` только House, Shop, Factory, FireStation, PoliceStation, AsphaltRoad, а в сцене пять записей `Definitions`. Игрок не может улучшить ни одну из строк «Энергия / Вода / Мусор». Добавляем три ассета по образцу FireStation. **Код не меняется.** Исполнитель: Engineer (субагент). После — Reviewer (только чтение).
+
+Запрещено: любые `.cs` (кроме нового теста), сцена (`Prototype.unity`), ProjectSettings, `SettlementGrowthController.Definitions`, старые тесты, существующие ассеты.
+Сдать: коммиты в ветку task/094-source-buildings + отчёт. НЕ пушить, НЕ мержить, Unity НЕ трогать.
+
+Контекст: `BuildingDefinition` (145) уже содержит `PowerOutput`, `WaterOutput`, `WasteCapacity`, `JobsProvided`, `UnlockBuildings`, `ServiceRadius`, `ServiceKind`. Контроллеры читают: энергия `PowerDemand/PowerOutput`, вода `WaterDemand/WaterOutput`, мусор `WasteOutput/WasteCapacity`. База города: 12 энергии, 12 воды, 12 ёмкости мусора.
+
+- [ ] Шаг 1: прочитать ЦЕЛИКОМ: Data/Buildings/FireStation.asset, FireStation.asset.meta, PoliceStation.asset, House.asset, Scripts/Construction/BuildingDefinition.cs, Tests/Construction/ServiceRadiusDefinitionTests.cs, Tests/Tests.asmdef.
+- [ ] Шаг 2: создать `Data/Buildings/PowerStation.asset` + `.meta` (свежий GUID): `m_Name: PowerStation`, `Id: power_station`, `DisplayName: Power Station`, `Footprint 2x2`, `ConstructionCost 300`, `UnlockBuildings 0`, `AllowedZone 3`, `ResidentCapacity 0`, `JobsProvided 2`, `ServiceRadius 0`, `ServiceKind 0`, `PowerDemand 0`, `PowerOutput 12`, `WaterDemand 0`, `WaterOutput 0`, `WasteOutput 0`, `WasteCapacity 0`, `Prefab 0`.
+- [ ] Шаг 3: `Data/Buildings/WaterTower.asset` + `.meta` (свежий GUID): `m_Name: WaterTower`, `Id: water_tower`, `DisplayName: Water Tower`, `Footprint 2x2`, `ConstructionCost 250`, `UnlockBuildings 0`, `AllowedZone 3`, `ResidentCapacity 0`, `JobsProvided 1`, `ServiceRadius 0`, `ServiceKind 0`, `PowerDemand 0`, `PowerOutput 0`, `WaterDemand 0`, `WaterOutput 12`, `WasteOutput 0`, `WasteCapacity 0`, `Prefab 0`.
+- [ ] Шаг 4: `Data/Buildings/WasteDepot.asset` + `.meta` (свежий GUID): `m_Name: WasteDepot`, `Id: waste_depot`, `DisplayName: Waste Depot`, `Footprint 2x2`, `ConstructionCost 200`, `UnlockBuildings 0`, `AllowedZone 3`, `ResidentCapacity 0`, `JobsProvided 2`, `ServiceRadius 0`, `ServiceKind 0`, `PowerDemand 0`, `PowerOutput 0`, `WaterDemand 0`, `WaterOutput 0`, `WasteOutput 0`, `WasteCapacity 12`, `Prefab 0`.
+- [ ] Шаг 4a: в каждом из трёх ассетов перед строкой `Id:` добавить YAML-комментарий (Unity такой комментарий принимает — проверено загрузкой через `AssetDatabase`):
+  ```
+  # Станции не потребляют энергию и воду намеренно: иначе при полном блэкауте
+  # нельзя построить станцию, которая его лечит (deadlock).
+  ```
+  Это осознанное отличие от FireStation/PoliceStation (`PowerDemand: 1`): источники должны быть доступны при нуле снабжения, иначе станция-лекарство требует того, что лечит.
+- [ ] Шаг 5: YAML писать в формате существующих ассетов (`%YAML 1.1`, `--- !u!114 &11400000`, `m_Script` с guid `6806e511684bf264e962078ccaf5f775`, `m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.BuildingDefinition`), с полным набором полей как у FireStation. `.meta`: `fileFormatVersion: 2`, уникальный `guid`, `NativeFormatImporter`, `mainObjectFileID: 11400000`.
+- [ ] Шаг 6: тест `Tests/Construction/SupplyStationAssetTests.cs` (~70, + `.meta`): через `UnityEditor.AssetDatabase.LoadAssetAtPath` загрузить три ассета и проверить: не null; `Id` и `DisplayName` совпадают; `ConstructionCost > 0`; `UnlockBuildings == 0`; `ResidentCapacity == 0`; `JobsProvided > 0`; `ServiceRadius == 0` и `ServiceKind == None`; у PowerStation `PowerOutput == 12` и `PowerDemand == 0`; у WaterTower `WaterOutput == 12` и `WaterDemand == 0`; у WasteDepot `WasteCapacity == 12` и `WasteOutput == 0`; все три `Id` уникальны.
+- [ ] Шаг 7: проверить уникальность GUID во всём `Assets/` (grep по `guid:`), приложить результат. Прогон теста делает оркестратор в Unity (AssetDatabase вне Unity недоступен); инженер прикладывает только `git diff --check` и перечень файлов.
+
+Сцена (делает оркестратор, НЕ инженер): добавить три ассета в `BuildPaletteView.Definitions` и `BuildingPlacementController.Definitions`, сохранить сцену на Stop. В `SettlementGrowthController.Definitions` НЕ добавлять — это источники для ручной установки, а не автозастройки.
+
+ЛИМИТЫ: файл ≤150, метод ≤30, 1 файл = 1 класс; без LINQ>2/generics/reflection/async. Коммиты ≤5 файлов/≤250 строк. Шесть файлов ассетов разбить на два коммита (например, Power+Water с метами, затем Waste с метой), тест — отдельным.
+ЧУЖОЕ: Tools/Check-UnityMcp.ps1 и UNITY_MCP_SETUP.md — не трогать.
+
+Приёмка: Refresh → тест SupplyStationAssetTests зелёный → сцена: три кнопки в палитре → Play: поставить электростанцию → «Энергия» +12, вода/мусор без изменений; водонапорная башня → «Вода» +12; мусорный депо → «Мусор» +12; снос возвращает значения; деньги списываются; Console чистый; тесты 246 + новые → мерж после подтверждения.
