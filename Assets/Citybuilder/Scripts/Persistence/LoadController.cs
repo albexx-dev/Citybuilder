@@ -22,6 +22,8 @@ namespace Citybuilder
         public SimulationRunner Runner;
         [Tooltip("Стройка дорог. Опциональна: иначе ищется на этом же объекте.")]
         public RoadNetworkStore Roads;
+        [Tooltip("Налоговая политика. Пусто = обычный налог после загрузки.")]
+        public TaxPolicyView Policy;
 
         private void Update()
         {
@@ -65,6 +67,7 @@ namespace Citybuilder
             if (Treasury == null) Treasury = GetComponent<TreasuryView>();
             if (Runner == null) Runner = GetComponent<SimulationRunner>();
             if (Roads == null) Roads = GetComponent<RoadNetworkStore>();
+            if (Policy == null) Policy = FindFirstObjectByType<TaxPolicyView>();
         }
 
         private void ClearAll()
@@ -122,6 +125,7 @@ namespace Citybuilder
         {
             if (Treasury != null) Treasury.ResetBalance(snapshot.Balance);
             if (Runner != null && Runner.Clock != null) Runner.Clock.RestoreTime(snapshot.TickCount);
+            if (Policy != null) Policy.Policy.Set(SaveSystem.DecodeTaxLevel(snapshot.TaxLevel));
         }
 
         private static void LogResult(string path, CitySnapshot snapshot, List<BuildingState> homes)
@@ -132,6 +136,7 @@ namespace Citybuilder
                 + ", зон=" + snapshot.Zones.Count
                 + ", дорог=" + snapshot.Roads.Count
                 + ", баланс=" + snapshot.Balance
+                + ", налог=" + snapshot.TaxLevel
                 + ", тик=" + snapshot.TickCount
                 + ", файл=" + path);
         }

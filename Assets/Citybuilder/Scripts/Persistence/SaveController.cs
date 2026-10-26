@@ -20,6 +20,8 @@ namespace Citybuilder
         public SimulationRunner Runner;
         [Tooltip("Стройка дорог. Опциональна: иначе ищется на этом же объекте.")]
         public RoadNetworkStore Roads;
+        [Tooltip("Налоговая политика. Пусто = обычный налог в слот.")]
+        public TaxPolicyView Policy;
 
         private void Update()
         {
@@ -33,7 +35,7 @@ namespace Citybuilder
         public bool SaveNow()
         {
             ResolveRefs();
-            CitySnapshot snapshot = SaveSystem.BuildSnapshot(CollectHomes(), CollectHouseholds(), CollectZones(), ReadBalance(), ReadTicks(), CollectRoads());
+            CitySnapshot snapshot = SaveSystem.BuildSnapshot(CollectHomes(), CollectHouseholds(), CollectZones(), ReadBalance(), ReadTicks(), CollectRoads(), ReadTaxLevel());
             string path = Path.Combine(Application.persistentDataPath, SaveSlotStorage.SlotFileName);
             bool written = SaveSlotStorage.WriteSlot(path, snapshot);
             LogResult(written, path, snapshot);
@@ -42,30 +44,13 @@ namespace Citybuilder
 
         private void ResolveRefs()
         {
-            if (Population == null)
-            {
-                Population = GetComponent<PopulationController>();
-            }
-            if (Growth == null)
-            {
-                Growth = GetComponent<SettlementGrowthController>();
-            }
-            if (Zones == null)
-            {
-                Zones = GetComponent<ZonePaintingController>();
-            }
-            if (Treasury == null)
-            {
-                Treasury = GetComponent<TreasuryView>();
-            }
-            if (Runner == null)
-            {
-                Runner = GetComponent<SimulationRunner>();
-            }
-            if (Roads == null)
-            {
-                Roads = GetComponent<RoadNetworkStore>();
-            }
+            if (Population == null) Population = GetComponent<PopulationController>();
+            if (Growth == null) Growth = GetComponent<SettlementGrowthController>();
+            if (Zones == null) Zones = GetComponent<ZonePaintingController>();
+            if (Treasury == null) Treasury = GetComponent<TreasuryView>();
+            if (Runner == null) Runner = GetComponent<SimulationRunner>();
+            if (Roads == null) Roads = GetComponent<RoadNetworkStore>();
+            if (Policy == null) Policy = FindFirstObjectByType<TaxPolicyView>();
         }
 
         private List<BuildingState> CollectHomes()
@@ -126,6 +111,13 @@ namespace Citybuilder
             return Runner.Clock.CurrentTime.TickCount;
         }
 
+        // Уровень для слота: 1/2/3, без политики — 0 («не задано»).
+        private int ReadTaxLevel()
+        {
+            if (Policy == null) return 0;
+            return SaveSystem.EncodeTaxLevel(Policy.Policy.Current);
+        }
+
         private static void LogResult(bool written, string path, CitySnapshot snapshot)
         {
             if (!written)
@@ -138,6 +130,7 @@ namespace Citybuilder
                 + ", зон=" + snapshot.Zones.Count
                 + ", дорог=" + snapshot.Roads.Count
                 + ", баланс=" + snapshot.Balance
+                + ", налог=" + snapshot.TaxLevel
                 + ", тик=" + snapshot.TickCount
                 + ", файл=" + path);
         }
