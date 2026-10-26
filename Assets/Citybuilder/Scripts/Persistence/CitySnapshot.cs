@@ -37,9 +37,11 @@ namespace Citybuilder
             public int Y;
         }
 
-        public int Version = 1;
+        public int Version = 2;
         public long TickCount;
         public int Balance;
+        // Налоговая политика: 0 = не задано (слот v1) → обычный, 1/2/3 = низкий/обычный/высокий.
+        public int TaxLevel;
         public List<ZoneEntry> Zones = new List<ZoneEntry>();
         public List<BuildingEntry> Buildings = new List<BuildingEntry>();
         public List<HouseholdEntry> Households = new List<HouseholdEntry>();

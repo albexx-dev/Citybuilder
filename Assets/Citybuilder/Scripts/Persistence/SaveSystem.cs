@@ -6,8 +6,9 @@ namespace Citybuilder
     // Строит снапшот города из живых систем. Чистый C#, без Unity.
     public static class SaveSystem
     {
-        public const int CurrentVersion = 1;
+        public const int CurrentVersion = 2;
 
+        // Слот без налога (старая сигнатура): TaxLevel = 0, при чтении это «обычный».
         public static CitySnapshot BuildSnapshot(
             List<BuildingState> homes,
             List<HouseholdState> households,
@@ -16,15 +17,43 @@ namespace Citybuilder
             long tickCount,
             List<RoadState> roads)
         {
+            return BuildSnapshot(homes, households, zones, balance, tickCount, roads, 0);
+        }
+
+        public static CitySnapshot BuildSnapshot(
+            List<BuildingState> homes,
+            List<HouseholdState> households,
+            List<KeyValuePair<GridPosition, ZoneType>> zones,
+            int balance,
+            long tickCount,
+            List<RoadState> roads,
+            int taxLevel)
+        {
             CitySnapshot snapshot = new CitySnapshot();
             snapshot.Version = CurrentVersion;
             snapshot.Balance = Math.Max(0, balance);
             snapshot.TickCount = Math.Max(0, tickCount);
+            // Допустимы только 1..3; всё прочее пишется как «не задано».
+            snapshot.TaxLevel = taxLevel >= 1 && taxLevel <= 3 ? taxLevel : 0;
             AddZones(snapshot, zones);
             Dictionary<BuildingState, int> indexByHome = AddBuildings(snapshot, homes);
             AddHouseholds(snapshot, households, indexByHome);
             AddRoads(snapshot, roads);
             return snapshot;
+        }
+
+        // Кодирование уровня в слот: низкий → 1, обычный → 2, высокий → 3.
+        public static int EncodeTaxLevel(TaxPolicy.Level level)
+        {
+            return (int)level + 1;
+        }
+
+        // Чтение уровня из слота: 0 (слот v1) и неизвестное → обычный.
+        public static TaxPolicy.Level DecodeTaxLevel(int taxLevel)
+        {
+            if (taxLevel == 1) return TaxPolicy.Level.Low;
+            if (taxLevel == 3) return TaxPolicy.Level.High;
+            return TaxPolicy.Level.Normal;
         }
 
         private static void AddZones(CitySnapshot snapshot, List<KeyValuePair<GridPosition, ZoneType>> zones)
