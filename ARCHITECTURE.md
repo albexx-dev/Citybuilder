@@ -31,7 +31,7 @@
 Frame Update каждый кадр: камера, ввод, анимации, предпросмотр, UI.
 Simulation Tick периодически: экономика, производство, жители, сети, статистика.
 
-Locked V1: Tick 1 сек = 1 игровой час, день = 24 тика, FastForward x4. Пауза останавливает тики. К тику подключены: часы, казна (`EconomyTicker`), рост поселения (`SettlementGrowthTicker`, учитывает пробки через `CongestionController.GrowthTickMultiplier`).
+Locked V1: Tick 1 сек = 1 игровой час, день = 24 тика, FastForward x4. Пауза останавливает тики. К тику подключены: часы, казна (`EconomyTicker`), рост поселения (`SettlementGrowthController` → `GrowthPace`: берётся худший из множителей — пробки `CongestionController.GrowthTickMultiplier` и дефицит снабжения `SupplyGrowthController.GrowthTickMultiplier`, ×1/×2/×3).
 Режимы: Paused / Playing / FastForward. События: SimulationTickStarted / SimulationTickCompleted.
 
 ## 6. Commands, queries and events
@@ -54,8 +54,8 @@ Locked V1: квадратная сетка, клетка 1x1 м, начало (0
 - World: Map, Grid, ZonePainting, снимок клеток.
 - Construction: BuildingDefinition/State, PlacementController, RoadPlacementController, Demolition, View.
 - Economy: Treasury, TaxSystem, TaxPolicy, EconomyTicker.
-- Population: SettlementSystem, SettlementGrowthController, PopulationController, HouseholdState, GoalStages.
-- Infrastructure: SupplyBalance (энергия / вода / мусор), ServiceCoverage, пожарные и полиция, NeedProviders, NeedSystem.
+- Population: SettlementSystem, SettlementGrowthController, GrowthPace, PopulationController, HouseholdState, GoalStages.
+- Infrastructure: SupplyBalance (энергия / вода / мусор), SupplyGrowthPolicy + SupplyGrowthController (дефицит замедляет рост), ServiceCoverage, пожарные и полиция, NeedProviders, NeedSystem.
 - Transport: ConnectivitySystem, RouteSystem (A* по дорогам), CongestionSystem + CongestionController.
 - Simulation: Runner, порядок систем, статистика.
 - Presentation / UI: только отображение и команды, строки HUD через `HudText`.
@@ -87,7 +87,7 @@ World не знает про деньги и жителей. Construction зна
 
 ## 13. Testing strategy
 
-- EditMode-тесты на всю чистую логику: 246 тестов в 34 файлах (`Assets/Citybuilder/Tests/`), прогон в редакторе — оркестратор.
+- EditMode-тесты на всю чистую логику: 270 тестов в 36 файлах (`Assets/Citybuilder/Tests/`), прогон в редакторе — оркестратор.
 - Перед коммитом инженер гоняет чистый C# через `dotnet`/`csc` во временной папке, без Unity, и прикладывает результат.
 - Unity-специфика (компиляция сборок проекта, EditMode в редакторе, Play-E2E) — только оркестратор: редактор один на машину.
 - PlayMode-автотестов нет: игровой сценарий проверяется руками по чек-листу задачи.
@@ -98,7 +98,7 @@ World не знает про деньги и жителей. Construction зна
 
 ## 15. Current implementation scope
 
-Задачи 001–091 смержены и запушены. Играбельно в редакторе и в билде windows64 (86 МБ): сетка 50×50, зоны, рост по тикам, налоги, энергия / вода / мусор, пожарные и полиция, связность дорог и пробки, цель со ступенями, сейв и лоад v4.
+Задачи 001–095 смержены и запушены. Играбельно в редакторе (билд windows64 с 091 устарел): сетка 50×50, зоны, рост по тикам, налоги, энергия / вода / мусор со станциями-источниками, дефицит снабжения замедляет рост, пожарные и полиция, связность дорог и пробки, цель со ступенями, сейв и лоад v4.
 
 Дальше: связка существующих систем с игроком (правило видимости в `AGENTS.md`), новые здания-службы по готовому образцу, читаемость HUD, ручной прогон билда.
 
