@@ -37,12 +37,15 @@ namespace Citybuilder
             public int Y;
         }
 
-        // v1 — без TaxLevel, v2 — с TaxLevel, v3 — плюс ручные здания.
-        public int Version = 3;
+        // v1 — без TaxLevel, v2 — с TaxLevel, v3 — плюс ручные здания,
+        // v4 — плюс ступень цели (GoalStage).
+        public int Version = 4;
         public long TickCount;
         public int Balance;
         // Налоговая политика: 0 = не задано (слот v1) → обычный, 1/2/3 = низкий/обычный/высокий.
         public int TaxLevel;
+        // Ступень цели (v4): 0..3, где 0 — первая ступень ещё не пройдена.
+        public int GoalStage;
         public List<ZoneEntry> Zones = new List<ZoneEntry>();
         public List<BuildingEntry> Buildings = new List<BuildingEntry>();
         public List<HouseholdEntry> Households = new List<HouseholdEntry>();

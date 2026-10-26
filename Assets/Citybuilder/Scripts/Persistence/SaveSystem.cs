@@ -6,7 +6,7 @@ namespace Citybuilder
     // Строит снапшот города из живых систем. Чистый C#, без Unity.
     public static class SaveSystem
     {
-        public const int CurrentVersion = 3;
+        public const int CurrentVersion = 4;
 
         // Слот без налога (старая сигнатура): TaxLevel = 0, при чтении это «обычный».
         public static CitySnapshot BuildSnapshot(List<BuildingState> homes, List<HouseholdState> households,
@@ -15,7 +15,7 @@ namespace Citybuilder
             return BuildSnapshot(homes, households, zones, balance, tickCount, roads, 0);
         }
 
-        // Слот с налогом, без ручных зданий: ручных ноль, версия всё равно 3.
+        // Слот с налогом, без ручных зданий: ручных ноль, версия всё равно 4.
         public static CitySnapshot BuildSnapshot(List<BuildingState> homes, List<HouseholdState> households,
             List<KeyValuePair<GridPosition, ZoneType>> zones, int balance, long tickCount, List<RoadState> roads,
             int taxLevel)
@@ -23,10 +23,18 @@ namespace Citybuilder
             return BuildSnapshot(homes, households, zones, balance, tickCount, roads, taxLevel, null);
         }
 
-        // Полная сигнатура (v3): последним аргументом идут ручные здания.
+        // Слот с налогом и ручными зданиями, без ступени цели: GoalStage = 0.
         public static CitySnapshot BuildSnapshot(List<BuildingState> homes, List<HouseholdState> households,
             List<KeyValuePair<GridPosition, ZoneType>> zones, int balance, long tickCount, List<RoadState> roads,
             int taxLevel, List<BuildingState> manualBuildings)
+        {
+            return BuildSnapshot(homes, households, zones, balance, tickCount, roads, taxLevel, manualBuildings, 0);
+        }
+
+        // Полная сигнатура (v4): последним аргументом идёт ступень цели.
+        public static CitySnapshot BuildSnapshot(List<BuildingState> homes, List<HouseholdState> households,
+            List<KeyValuePair<GridPosition, ZoneType>> zones, int balance, long tickCount, List<RoadState> roads,
+            int taxLevel, List<BuildingState> manualBuildings, int goalStage)
         {
             CitySnapshot snapshot = new CitySnapshot();
             snapshot.Version = CurrentVersion;
@@ -34,6 +42,8 @@ namespace Citybuilder
             snapshot.TickCount = Math.Max(0, tickCount);
             // Допустимы только 1..3; всё прочее пишется как «не задано».
             snapshot.TaxLevel = taxLevel >= 1 && taxLevel <= 3 ? taxLevel : 0;
+            // Ступень цели: 0..StageCount, иначе 0 (слот не врёт о прогрессе).
+            snapshot.GoalStage = goalStage >= 0 && goalStage <= GoalStages.StageCount ? goalStage : 0;
             AddZones(snapshot, zones);
             Dictionary<BuildingState, int> indexByHome = AddBuildings(snapshot, homes);
             AddHouseholds(snapshot, households, indexByHome);

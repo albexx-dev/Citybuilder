@@ -57,7 +57,7 @@ namespace Citybuilder
                 && ValidateHouseholds(snapshot.Households, snapshot.Buildings.Count)
                 && ValidateRoads(snapshot.Roads);
         }
-        // Версии 1..3: v1 без TaxLevel, v2 с TaxLevel, v3 с ручными зданиями.
+        // Версии 1..4: v1 без TaxLevel, v2 с TaxLevel, v3 с ручными зданиями, v4 — ступень цели.
         private static bool IsSupportedVersion(int version)
         {
             return version >= 1 && version <= SaveSystem.CurrentVersion;

@@ -57,5 +57,14 @@ namespace Citybuilder
             }
             return reward;
         }
+
+        // Восстановление ступени из слота: 0..3, всё прочее режется.
+        // Награды и уже взятые ступени не трогает.
+        public void Restore(int value)
+        {
+            if (value < 0) value = 0;
+            if (value > StageCount) value = StageCount;
+            stage = value;
+        }
     }
 }
