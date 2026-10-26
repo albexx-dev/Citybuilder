@@ -21,6 +21,7 @@ MonoBehaviour:
   ResidentCapacity: 0
   JobsProvided: 2
   ServiceRadius: 6
+  ServiceKind: 1
   PowerDemand: 1
   PowerOutput: 0
   WaterDemand: 1
