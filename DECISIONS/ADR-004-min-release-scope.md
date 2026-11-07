@@ -32,3 +32,18 @@ Transport/jams, separate resources (water/power/waste), fires and services, poli
 ## ADR-002 review (separate item, resolved here)
 
 Single-slot save/load ENTERS scope via this ADR and directly conflicts with ADR-002 "Persistence deferred". Resolution: ADR-002 amended — one manual slot with plain-C#-State serialization is part of the minimal release; full persistence (autosaves, slots, versioning, migration) stays deferred. No other part of ADR-002 changes.
+
+## Post-release amendment (2026-11-07, status note)
+
+The minimal release shipped with 047 (windows64 build + smoke), so the "Frozen until release"
+clause is no longer in force. "Frozen" in the title describes the state at acceptance (2026-10-14),
+not the current scope. Work listed there has since been implemented in tasks 053–102: transport
+connectivity and congestion, energy/water/waste, fire and police services, tax policy and goal
+stages. Win/lose screens were removed by 049; saves are at snapshot v4.
+
+Current authoritative boundaries are `AGENTS.md` → **Scope lock**: allowed are service buildings
+following the fire/police pattern (park, hospital), balance, HUD readability, bugfixes, tests and
+documentation; still forbidden without a new ADR are vehicles, multi-level construction, cloud
+saves, Jobs/Burst, DI containers, async/await and new third-party packages.
+
+This note does not rewrite the original decision — it records when the freeze ended.
