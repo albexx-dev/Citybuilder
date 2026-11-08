@@ -31,4 +31,4 @@ Connected systems: construction, roads, zones, tick-based growth, population, em
 - `CHANGELOG.md` — version history.
 - `AGENTS.md` — working rules for the orchestrator/engineer/reviewer roles.
 - `ARCHITECTURE.md`, `GAME_DESIGN.md`, `DECISIONS/` — design and ADRs.
-- `TASKS/README.md` — task queue. Historical `TASKS/*-breakdown.md` files are archives.
+- `TASKS/README.md` — очередь эпиков v1.1; детальные планы — `TASKS/EPIC-XX-*.md`, трекинг — GitHub Issues #1–#21.
