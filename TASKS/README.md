@@ -106,8 +106,15 @@
 - [x] Done 102-newgame-tax + merged («Новая» сбрасывает налог; `LoadLog` 18, `LoadController` 150→142; E2E: высокий → новая → обычный, баланс 1500)
 - [x] Done 103-workbuddy-migration + merged (MCP-инфраструктура переведена с OpenCode на WorkBuddy AI: `Tools/Check-UnityMcp.ps1` проверяет `~/.workbuddy-ai/mcp.json` и 4 сервера, TCP-зонд вместо CIM; `UNITY_MCP_SETUP.md` с шагом Trust и разделом по серверам; `Tools/Start-WorkBuddyStack.ps1/.bat` поднимают Unity + Blender и ждут 8080/9876. Ревью PASS, диагностика 6/6 `exit 0`, Unity initialize 200, Blender `get_scene_info` success; C# и сцена не тронуты)
 - [x] Done 104-docs-truth + merged (`HANDOFF.md` / `AGENTS.md` переведены под WorkBuddy AI и на состояние 103; `ADR-004` получил post-release amendment — заморозка снята после 047; зафиксировано расхождение подписи `avexx-dev` и аккаунта `albexx-dev`; legacy-watcher отключён. Ревью PASS, шлюз упрощён: C# и сцена не тронуты, диагностика 6/6, Unity console чист, Blender отвечает)
-- [ ] 105-v11-roadmap (Orchestrator): ветка task/105 — правила эпиков в AGENTS.md, ADR-006/007/008, доктрина «партия без конца» (GAME_DESIGN §19), очередь эпиков v1.1 в GitHub Issues
+- [x] Done 105-v11-roadmap (Orchestrator) + merged — правила эпиков в AGENTS.md, ADR-006/007/008, доктрина «партия без конца» (GAME_DESIGN §19), лист из 21 эпика в Issues #1–#21
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка task/XXX, 1 модуль. Мержит только оркестратор (`merge --no-ff`) после зелёного шлюза. Две задачи параллельно запрещены.
 
-Очередь эпиков v1.1 ведётся в GitHub Issues (ярлыки mechanics/architecture/ux/content/release); номера добавляются сюда после создания листа. Крупные изменения фиксируются ADR-006 (службы v2), ADR-007 (событийная лента), ADR-008 (сейвы v2) до первого шага с кодом. Ближайшие шаги после листа: UI v2 (нижняя панель действий + информационное меню), службы v2, сплиты `SettlementGrowthController` 200 / `GridMeshBuilder` 190 / `RoadPlacementController` 179.
+Очередь эпиков v1.1 — [GitHub Issues](https://github.com/albexx-dev/Citybuilder/issues) (ярлыки mechanics/architecture/ux/content/release):
+
+- Механика: #1 службы v2 (ADR-006) · #2 больница+парк · #3 нужды v2 · #4 содержание зданий · #5 привлекательность · #6 баланс · #7 пожары (кандидат v1.2)
+- Архитектура: #8 чистка Won/Lost · #9 лента событий (ADR-007) · #10 сплиты · #11 сейвы v2 (ADR-008) · #12 инфопанель здания
+- UX: #13 нижняя панель действий · #14 информационное меню · #15 пробки видно · #16 главное меню/пауза · #17 стадии роста · #18 туториал v2 · #19 звук (опц.)
+- Контент/релиз: #20 Blender-конвейер · #21 релиз v1.1.0
+
+Крупные изменения фиксируются ADR-006 (службы v2), ADR-007 (событийная лента), ADR-008 (сейвы v2) до первого шага с кодом. Первый шаг: #10 сплиты (`SettlementGrowthController` 200 / `GridMeshBuilder` 190 / `RoadPlacementController` 179), далее #13/#14 UI v2 и #1 службы v2.
