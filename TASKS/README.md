@@ -32,7 +32,7 @@
 | #7 | [Пожары как событие](EPIC-07-fires.md) | mechanics | on hold (v1.2?) |
 | #8 | [Чистка Won/Lost](EPIC-08-remove-won-lost.md) | architecture | not started |
 | #9 | [Событийная лента](EPIC-09-event-log.md) | architecture | not started |
-| #10 | [Сплиты крупных файлов](EPIC-10-splits.md) | architecture | not started |
+| #10 | [Сплиты крупных файлов](EPIC-10-splits.md) | architecture | **in progress** — шаги 1-2 из 4 готовы |
 | #11 | [Сейвы v2](EPIC-11-saves-v2.md) | architecture | not started |
 | #12 | [Инфопанель здания](EPIC-12-info-panel.md) | architecture | not started |
 | #13 | [Нижняя панель действий](EPIC-13-bottom-bar.md) | ux | not started |
