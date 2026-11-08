@@ -15,7 +15,7 @@ namespace Citybuilder
         public TreasuryView Treasury;
         [Tooltip("Драйвер часов. Обязателен: даёт тики часов для сбора налогов.")]
         public SimulationRunner Runner;
-        [Tooltip("Ручная стройка. Пусто = содержание только по выросшим домам.")]
+        [Tooltip("Ручная стройка. Пусто = ищется в сцене, без неё содержание только по выросшим домам.")]
         public BuildingPlacementController Placement;
         [Header("Taxes")]
         [Tooltip("Налоговая политика из HUD. Пусто = фиксированная ставка TaxPerWorker.")]
@@ -95,6 +95,7 @@ namespace Citybuilder
                 enabled = false;
                 return false;
             }
+            if (Placement == null) Placement = FindFirstObjectByType<BuildingPlacementController>();
             EnsureSystems();
             return true;
         }
