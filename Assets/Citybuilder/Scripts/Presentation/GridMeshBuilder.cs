@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Строит меши сетки: линии, ховер-квад, красный оверлей занятых клеток. Только показ.
+    // Строит меши сетки: линии, ховер-квад, красный оверлей занятых клеток (геометрия — OccupiedOverlayBuilder). Только показ.
     // Настройка сцены: компонент на том же объекте, что и GridVisualizer.
     public class GridMeshBuilder : MonoBehaviour
     {
@@ -39,12 +39,12 @@ namespace Citybuilder
             hoverQuad.SetActive(false);
         }
 
-        // Перестроить красный оверлей по занятым клеткам сетки.
+        // Перестроить красный оверлей по занятым клеткам сетки. Геометрию квадов строит OccupiedOverlayBuilder.
         public void RebuildOccupied()
         {
             if (!Ready()) return;
-            EnsureOccupiedObject();
-            FillOccupiedMesh();
+            if (occupiedMesh == null) occupiedMesh = OccupiedOverlayBuilder.BuildOverlay(transform, Visualizer.OccupiedColor);
+            OccupiedOverlayBuilder.Fill(occupiedMesh, Visualizer.Grid.GetOccupiedCells(), Visualizer.CellSize);
         }
 
         // Резолв Visualizer через свой объект. Нет — ошибка.
@@ -138,53 +138,6 @@ namespace Citybuilder
             Material material = new Material(shader);
             material.color = color;
             return material;
-        }
-
-        private void EnsureOccupiedObject()
-        {
-            if (occupiedMesh != null) return;
-            occupiedMesh = new Mesh();
-            GameObject go = new GameObject("OccupiedOverlay");
-            go.transform.SetParent(transform, false);
-            MeshFilter filter = go.AddComponent<MeshFilter>();
-            filter.mesh = occupiedMesh;
-            MeshRenderer renderer = go.AddComponent<MeshRenderer>();
-            renderer.material = BuildMaterial(Visualizer.OccupiedColor);
-        }
-
-        private void FillOccupiedMesh()
-        {
-            occupiedMesh.Clear();
-            System.Collections.Generic.List<GridPosition> cells = Visualizer.Grid.GetOccupiedCells();
-            if (cells.Count == 0) return;
-            Vector3[] vertices = new Vector3[cells.Count * 4];
-            int[] triangles = new int[cells.Count * 6];
-            for (int c = 0; c < cells.Count; c++) FillCellQuad(vertices, triangles, c, cells[c]);
-            occupiedMesh.vertices = vertices;
-            occupiedMesh.triangles = triangles;
-            occupiedMesh.RecalculateNormals();
-        }
-
-        // Вершины и треугольники одной занятой клетки.
-        private void FillCellQuad(Vector3[] vertices, int[] triangles, int c, GridPosition cell)
-        {
-            float cellSize = Visualizer.CellSize;
-            float x0 = cell.X * cellSize;
-            float z0 = cell.Y * cellSize;
-            float x1 = x0 + cellSize;
-            float z1 = z0 + cellSize;
-            int v = c * 4;
-            vertices[v] = new Vector3(x0, 0.01f, z0);
-            vertices[v + 1] = new Vector3(x1, 0.01f, z0);
-            vertices[v + 2] = new Vector3(x1, 0.01f, z1);
-            vertices[v + 3] = new Vector3(x0, 0.01f, z1);
-            int t = c * 6;
-            triangles[t] = v;
-            triangles[t + 1] = v + 2;
-            triangles[t + 2] = v + 1;
-            triangles[t + 3] = v;
-            triangles[t + 4] = v + 3;
-            triangles[t + 5] = v + 2;
         }
     }
 }
