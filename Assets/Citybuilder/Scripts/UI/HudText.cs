@@ -9,6 +9,13 @@ namespace Citybuilder
         // Рисует строку с подложкой. Пустой текст молча пропускается.
         public static void Draw(float x, float y, string text)
         {
+            Draw(x, y, text, Color.white);
+        }
+
+        // Тот же рисунок с цветом текста: нужен, чтобы дефицитная строка отличалась,
+        // не меняя подложку и все существующие вызовы.
+        public static void Draw(float x, float y, string text, Color textColor)
+        {
             if (string.IsNullOrEmpty(text))
             {
                 return;
@@ -20,7 +27,7 @@ namespace Citybuilder
             GUI.color = new Color(0f, 0f, 0f, 0.55f);
             GUI.DrawTexture(new Rect(x - 4f, y - 2f, size.x + 8f, size.y + 4f), Texture2D.whiteTexture);
             GUI.color = savedColor;
-            GUI.contentColor = Color.white;
+            GUI.contentColor = textColor;
             GUI.Label(new Rect(x, y, size.x, size.y), text);
             GUI.color = savedColor;
             GUI.contentColor = savedContentColor;
