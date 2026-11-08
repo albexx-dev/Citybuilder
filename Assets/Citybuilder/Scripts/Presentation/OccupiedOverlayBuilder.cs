@@ -5,7 +5,7 @@ namespace Citybuilder
 {
     // Меш-заливка занятых клеток (красный оверлей): создание слоя, чистая геометрия квадов, заполнение меша.
     // Вынесено из GridMeshBuilder (EPIC-10, шаг 2); линии сетки и ховер остались там. Только показ.
-    public static class ZoneMeshBuilder
+    public static class OccupiedOverlayBuilder
     {
         // Новый слой OccupiedOverlay: пустой меш и материал Unlit/Color заданного цвета.
         public static Mesh BuildOverlay(Transform parent, Color color)

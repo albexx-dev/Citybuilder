@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Строит меши сетки: линии, ховер-квад, красный оверлей занятых клеток (геометрия — ZoneMeshBuilder). Только показ.
+    // Строит меши сетки: линии, ховер-квад, красный оверлей занятых клеток (геометрия — OccupiedOverlayBuilder). Только показ.
     // Настройка сцены: компонент на том же объекте, что и GridVisualizer.
     public class GridMeshBuilder : MonoBehaviour
     {
@@ -39,12 +39,12 @@ namespace Citybuilder
             hoverQuad.SetActive(false);
         }
 
-        // Перестроить красный оверлей по занятым клеткам сетки. Геометрию квадов строит ZoneMeshBuilder.
+        // Перестроить красный оверлей по занятым клеткам сетки. Геометрию квадов строит OccupiedOverlayBuilder.
         public void RebuildOccupied()
         {
             if (!Ready()) return;
-            if (occupiedMesh == null) occupiedMesh = ZoneMeshBuilder.BuildOverlay(transform, Visualizer.OccupiedColor);
-            ZoneMeshBuilder.Fill(occupiedMesh, Visualizer.Grid.GetOccupiedCells(), Visualizer.CellSize);
+            if (occupiedMesh == null) occupiedMesh = OccupiedOverlayBuilder.BuildOverlay(transform, Visualizer.OccupiedColor);
+            OccupiedOverlayBuilder.Fill(occupiedMesh, Visualizer.Grid.GetOccupiedCells(), Visualizer.CellSize);
         }
 
         // Резолв Visualizer через свой объект. Нет — ошибка.
