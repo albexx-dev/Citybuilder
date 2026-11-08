@@ -3,9 +3,8 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Автовырастание домов на жилых зонах: счётчик тиков часов, first-fit. Только старый Input.
-    // Снос выросших домов — в SettlementDemolitionController на том же объекте.
-    // Тики даёт SettlementGrowthTicker на том же объекте. Runner обязателен, по умолчанию выключен.
+    // Автовырастание домов: тонкий адаптер тик → policy → действие, правило — в GrowthEligibilityPolicy.
+    // Снос — в SettlementDemolitionController, тики — SettlementGrowthTicker. Runner обязателен, по умолчанию выключен.
     public class SettlementGrowthController : MonoBehaviour
     {
         [Header("References")]
@@ -24,21 +23,16 @@ namespace Citybuilder
         [Tooltip("Режим автовырастания. Выключите для ручной стройки.")] public bool placementActive = true;
         private BuildingSystem buildings;
         private SettlementSystem settlement;
+        private readonly GrowthEligibilityPolicy eligibility = new GrowthEligibilityPolicy();
         private readonly List<BuildingState> states = new List<BuildingState>();
         private int tickCount;
         private ZoneType lastGrownZone = ZoneType.None;
         // Копия выросших домов для заселения. Отдаём копию, а не сам список.
         public List<BuildingState> Homes { get { return new List<BuildingState>(states); } }
         // Доступ к системе поселений для занятости. Может быть null до EnsureReady.
-        public SettlementSystem Settlement
-        {
-            get { return settlement; }
-        }
+        public SettlementSystem Settlement { get { return settlement; } }
         // Сколько зданий выросло: метрика открытия новых типов.
-        public int GrownCount
-        {
-            get { return states.Count; }
-        }
+        public int GrownCount { get { return states.Count; } }
         // Часов до следующего дома с учётом пробок и дефицита. Для HUD, не для логики.
         public int TicksToNextGrowth
         {
@@ -50,17 +44,12 @@ namespace Citybuilder
                 return tickCount >= needed ? 0 : needed - tickCount;
             }
         }
-        private void Start()
-        {
-            ClampLimits();
-            EnsureReady();
-        }
+        private void Start() { ClampLimits(); EnsureReady(); }
         // Вход тиков от SettlementGrowthTicker. Параметр времени не нужен: сам факт тика = один игровой час.
         public void OnClockTick(SimulationTime time)
         {
-            if (!placementActive) return;
             if (!EnsureReady() || settlement == null) return;
-            if (settlement.SettledCount >= MaxSettlements) return;
+            if (!eligibility.CanProgress(placementActive, settlement.SettledCount, MaxSettlements)) return;
             tickCount++;
             int neededTicks = GrowthPace.RequiredTicks(TicksPerGrowth,
                 Congestion != null ? Congestion.GrowthTickMultiplier : 1,
@@ -98,60 +87,26 @@ namespace Citybuilder
             }
             return true;
         }
+        // Рост по тику: policy решает, контроллер заселяет и платит.
         private void TryGrow()
         {
-            BuildingDefinition def;
-            GridPosition origin;
-            if (!FindFreeOrigin(out def, out origin)) return;
             Treasury treasury = Treasury != null ? Treasury.Treasury : null;
-            if (treasury != null && !treasury.CanAfford(def.ConstructionCost)) return;
-            BuildingState state = settlement.Settle(def, origin);
+            GrowthEligibilityPolicy.Verdict verdict = eligibility.Evaluate(placementActive, settlement,
+                MaxSettlements, ZonePainter.Zones.GetZonedCells(), lastGrownZone, states.Count,
+                Definitions, treasury);
+            if (!verdict.Allowed) return;
+            BuildingState state = settlement.Settle(verdict.Definition, verdict.Origin);
             if (state == null) return;
-            if (treasury != null && !treasury.TrySpend(def.ConstructionCost, def.Id).Success)
+            if (treasury != null && !treasury.TrySpend(verdict.Definition.ConstructionCost, verdict.Definition.Id).Success)
             {
                 settlement.Demolish(state);
                 GridVisualizer.RefreshOccupied();
                 return;
             }
             states.Add(state);
-            lastGrownZone = ZonePainter.Zones.GetZone(origin);
-            View.AddBuilding(state, def, GridVisualizer.Grid.CellSize);
+            lastGrownZone = ZonePainter.Zones.GetZone(verdict.Origin);
+            View.AddBuilding(state, verdict.Definition, GridVisualizer.Grid.CellSize);
             GridVisualizer.RefreshOccupied();
-        }
-        // Первая зонная клетка и первый подходящий тип под её зону.
-        // Чередование: сначала чужие зоны (не как прошлый рост), потом все.
-        private bool FindFreeOrigin(out BuildingDefinition def, out GridPosition origin)
-        {
-            List<KeyValuePair<GridPosition, ZoneType>> zoned = ZonePainter.Zones.GetZonedCells();
-            for (int pass = 0; pass < 2; pass++)
-            {
-            for (int i = 0; i < zoned.Count; i++)
-            {
-                GridPosition cell = zoned[i].Key;
-                ZoneType zone = zoned[i].Value;
-                if (pass == 0 && zone == lastGrownZone) continue;
-                for (int d = 0; d < Definitions.Count; d++)
-                {
-                    BuildingDefinition candidate = Definitions[d];
-                    if (candidate == null) continue;
-                    if (!UnlockPolicy.IsUnlocked(candidate, GrownCount)) continue;
-                    if (!MatchesZone(candidate, zone)) continue;
-                    if (settlement.CanSettle(candidate, cell))
-                    {
-                        def = candidate;
-                        origin = cell;
-                        return true;
-                    }
-                }
-            }
-            }
-            def = null;
-            origin = default(GridPosition);
-            return false;
-        }
-        private bool MatchesZone(BuildingDefinition def, ZoneType zone)
-        {
-            return def.AllowedZone == ZoneType.None || def.AllowedZone == zone;
         }
         // Восстановить выросший дом из сохранения: без оплаты, вид и занятость обновляются.
         public BuildingState RestoreGrown(string defId, GridPosition origin)
@@ -167,17 +122,13 @@ namespace Citybuilder
             GridVisualizer.RefreshOccupied();
             return state;
         }
-
         // Дом по клетке для сноса. Нет дома — null.
         public BuildingState FindStateAt(GridPosition cell)
         {
             for (int i = 0; i < states.Count; i++)
             {
                 List<GridPosition> cells = states[i].Cells;
-                for (int c = 0; c < cells.Count; c++)
-                {
-                    if (cells[c] == cell) return states[i];
-                }
+                for (int c = 0; c < cells.Count; c++) if (cells[c] == cell) return states[i];
             }
             return null;
         }
