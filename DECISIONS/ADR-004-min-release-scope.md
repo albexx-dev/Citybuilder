@@ -1,4 +1,4 @@
-# ADR-004: Minimal release scope (frozen)
+# ADR-004: Minimal release scope (historical; superseded by v1.1)
 
 Date: 2026-10-14. Status: accepted. Freezes all out-of-scope work until the first playable release.
 
@@ -47,3 +47,7 @@ documentation; still forbidden without a new ADR are vehicles, multi-level const
 saves, Jobs/Burst, DI containers, async/await and new third-party packages.
 
 This note does not rewrite the original decision — it records when the freeze ended.
+
+## Superseded by v1.1 (2026-11-08)
+
+The v1.1 line starts from task 104. Current scope and boundaries live in `ADR-005-v1.1-scope.md`, `GAME_DESIGN.md §18` and `AGENTS.md` → Scope lock. This ADR remains as the historical record of the first minimal release.

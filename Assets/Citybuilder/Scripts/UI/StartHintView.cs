@@ -31,8 +31,8 @@ namespace Citybuilder
         {
             string text = CurrentText;
             if (string.IsNullOrEmpty(text)) return;
-            // y=430: ниже «Дальше» (406) и выше нижней кромки при 720p.
-            HudText.Draw(10, 430, text);
+            // y=430: ниже «Дальше» (406); на низких окнах строка поджимается к низу.
+            HudText.Draw(10, HudLayout.FixedOrBottom(430f, 1), text);
         }
 
         private StartHintPolicy.Step PickStep()

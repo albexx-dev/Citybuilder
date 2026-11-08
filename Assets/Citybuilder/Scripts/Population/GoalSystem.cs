@@ -3,6 +3,7 @@ using System;
 namespace Citybuilder
 {
     // Чистая логика цели: победа и поражение опросом систем, своего состояния нет.
+    // Won/Lost сохранены осознанно: в v1.1 экранов исходов нет, это протестированная основа для v1.2.
     public class GoalSystem
     {
         public const int GoalResidents = 50;

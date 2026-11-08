@@ -17,6 +17,7 @@ namespace Citybuilder
         private GoalSystem goals;
         // Ступень цели, которая пишется в слот v4 и восстанавливается при загрузке.
         private readonly GoalStages stages = new GoalStages();
+        private readonly GoalRewardController rewards = new GoalRewardController();
         private TreasuryView treasuryCache;
         private bool treasurySearched;
 
@@ -31,6 +32,21 @@ namespace Citybuilder
             stages.Restore(stage);
         }
 
+        // Награды начисляются в Update: OnGUI больше не меняет состояние города.
+        private void Update()
+        {
+            PopulationController population = Population;
+            if (population == null) population = GetComponent<PopulationController>();
+            SimulationRunner simulation = Simulation;
+            if (simulation == null) simulation = GetComponent<SimulationRunner>();
+            if (population == null || simulation == null) return;
+            EnsureGoals(population, simulation);
+            TreasuryView treasury = ResolveTreasury();
+            if (goals == null || treasury == null) return;
+            // Ступень хранится в слоте v4: после загрузки награда повторно не начисляется.
+            rewards.Claim(goals, stages, treasury.Treasury);
+        }
+
         private void OnGUI()
         {
             PopulationController population = Population;
@@ -40,16 +56,6 @@ namespace Citybuilder
             if (population == null || simulation == null) return;
             EnsureGoals(population, simulation);
             if (goals == null) return;
-            TreasuryView treasury = ResolveTreasury();
-            if (treasury == null)
-            {
-                // Если казна не найдена, ступени не двигаем, награда не теряется.
-                HudText.Draw(10, 148, BuildText());
-                return;
-            }
-            // Ступень хранится в слоте v4: после загрузки награда повторно не начисляется.
-            int reward = stages.Claim(goals.Residents);
-            if (reward > 0) treasury.Treasury.Earn(reward);
             // y=148: ниже потребностей (y=114), чтобы не налезать на левую колонку.
             HudText.Draw(10, 148, BuildText());
         }

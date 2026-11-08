@@ -53,7 +53,7 @@ Check 'Мост отвечает на http://127.0.0.1:8080/mcp' {
 
 # 4. Конфиг WorkBuddy AI — unityMCP на месте
 Check 'Конфиг WorkBuddy AI: ~/.workbuddy-ai/mcp.json с unityMCP' {
-    $cfg = Join-Path $env:USERPROFILE '.workbuddy-ai\mcp.json'
+    $cfg = if ($env:WORKBUDDY_MCP_CONFIG) { $env:WORKBUDDY_MCP_CONFIG } else { Join-Path $env:USERPROFILE '.workbuddy-ai\mcp.json' }
     if (-not (Test-Path $cfg)) { return $false }
     try {
         $j = Get-Content $cfg -Raw | ConvertFrom-Json
@@ -69,13 +69,14 @@ Check 'Текущая папка — корень проекта' {
 # 6. Все нужные MCP-серверы прописаны в конфиге
 Check 'MCP-серверы прописаны: unityMCP / context7 / playwright / blender' {
     try {
-        $cfg = Join-Path $env:USERPROFILE '.workbuddy-ai\mcp.json'
+        $cfg = if ($env:WORKBUDDY_MCP_CONFIG) { $env:WORKBUDDY_MCP_CONFIG } else { Join-Path $env:USERPROFILE '.workbuddy-ai\mcp.json' }
         $j = Get-Content $cfg -Raw | ConvertFrom-Json
         $names = @($j.mcpServers.PSObject.Properties.Name)
         $missing = @('unityMCP', 'context7', 'playwright', 'blender') | Where-Object { $names -notcontains $_ }
         $missing.Count -eq 0
     } catch { return $false }
 }
+Write-Host ("[i] Шаблон конфига: {0}" -f (Join-Path $projectRoot 'Tools\mcp.example.json'))
 # Connected-статус самого WorkBuddy извне не виден: Trust нажимается в UI коннекторов.
 Write-Host '[i] Порт зелёный, а unityMCP красный? Нажми Trust в Custom Connector.'
 if ($failures -gt 0) {

@@ -28,8 +28,8 @@ namespace Citybuilder
         {
             string text = CurrentText;
             if (string.IsNullOrEmpty(text)) return;
-            // y=454: под стартовой подсказкой (430), влезает в 720p.
-            HudText.Draw(10, 454, text);
+            // y=454: под стартовой подсказкой (430); на низких окнах строка поджимается к низу.
+            HudText.Draw(10, HudLayout.FixedOrBottom(454f, 0), text);
         }
 
         private GrowthStatusPolicy.Kind PickKind()

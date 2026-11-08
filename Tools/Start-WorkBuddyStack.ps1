@@ -3,9 +3,8 @@
 .SYNOPSIS
   Start the Citybuilder MCP stack for WorkBuddy AI (Unity bridge + Blender socket).
 .DESCRIPTION
-  Launches Unity Editor with the project, waits for the HTTP bridge on 8080,
-  launches Blender GUI, waits for the MCP socket on 9876, prints a summary.
-  Does NOT touch scenes, code or git. Safe to run repeatedly.
+  Paths are derived from the repository root or from CITYBUILDER_UNITY_EXE /
+  CITYBUILDER_BLENDER_EXE. Does NOT touch scenes, code or git. Safe to run repeatedly.
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File Tools\Start-WorkBuddyStack.ps1
 #>
@@ -16,11 +15,44 @@ param(
 
 $ErrorActionPreference = 'SilentlyContinue'
 
-$project     = 'C:\Users\admin\Citybuilder'
-$unityExe    = 'C:\Program Files\Unity\Hub\Editor\6000.3.25f1-x86_64\Editor\Unity.exe'
-$blenderExe  = 'C:\Program Files\Blender Foundation\Blender 4.5\blender.exe'
-$configPath  = Join-Path $env:USERPROFILE '.workbuddy-ai\mcp.json'
-$bridgeUrl   = 'http://127.0.0.1:8080/mcp'
+$projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
+$configPath = if ($env:WORKBUDDY_MCP_CONFIG) { $env:WORKBUDDY_MCP_CONFIG } else { Join-Path $env:USERPROFILE '.workbuddy-ai\mcp.json' }
+$bridgeUrl = 'http://127.0.0.1:8080/mcp'
+
+function Get-UnityVersion {
+    $versionFile = Join-Path $projectRoot 'ProjectSettings\ProjectVersion.txt'
+    $line = Select-String -Path $versionFile -Pattern '^m_EditorVersion:\s*(\S+)' | Select-Object -First 1
+    if ($line) { return $line.Matches.Groups[1].Value }
+    return '6000.3.25f1'
+}
+
+function Resolve-UnityExe {
+    if ($env:CITYBUILDER_UNITY_EXE) { return $env:CITYBUILDER_UNITY_EXE }
+    $version = Get-UnityVersion
+    $relative = "Unity\Hub\Editor\$version-x86_64\Editor\Unity.exe"
+    $roots = @($env:ProgramFiles, ${env:ProgramFiles(x86)}, $env:LOCALAPPDATA, $env:ProgramData)
+    foreach ($root in $roots) {
+        if (-not $root) { continue }
+        $candidate = Join-Path $root $relative
+        if (Test-Path $candidate) { return $candidate }
+    }
+    $onPath = Get-Command Unity.exe -ErrorAction SilentlyContinue
+    if ($onPath) { return $onPath.Source }
+    return $null
+}
+
+function Resolve-BlenderExe {
+    if ($env:CITYBUILDER_BLENDER_EXE) { return $env:CITYBUILDER_BLENDER_EXE }
+    $roots = @($env:ProgramFiles, ${env:ProgramFiles(x86)}, $env:LOCALAPPDATA)
+    foreach ($root in $roots) {
+        if (-not $root) { continue }
+        $candidate = Join-Path $root 'Blender Foundation\Blender 4.5\blender.exe'
+        if (Test-Path $candidate) { return $candidate }
+    }
+    $onPath = Get-Command blender.exe -ErrorAction SilentlyContinue
+    if ($onPath) { return $onPath.Source }
+    return $null
+}
 
 function Test-Port {
     param([int]$Port)
@@ -48,12 +80,16 @@ function Wait-Port {
 function Get-UnityWithProject {
     $procs = Get-CimInstance Win32_Process -Filter "Name='Unity.exe'"
     foreach ($p in $procs) {
-        if ($p.CommandLine -like "*$project*") { return $p }
+        if ($p.CommandLine -like "*$projectRoot*") { return $p }
     }
     return $null
 }
 
+$unityExe = Resolve-UnityExe
+$blenderExe = Resolve-BlenderExe
+
 Write-Host '=== Citybuilder MCP stack ===' -ForegroundColor Cyan
+Write-Host ("[i] Project root: {0}" -f $projectRoot)
 
 # 1. WorkBuddy MCP config
 $configOk = $false
@@ -62,15 +98,18 @@ try {
     $configOk = ($cfg.mcpServers.unityMCP.url -eq $bridgeUrl)
 } catch { $configOk = $false }
 Write-Host ("[{0}] WorkBuddy config: {1}" -f $(if ($configOk) {'OK'} else {'FAIL'}), $configPath)
+if (-not $configOk) {
+    Write-Host ("[i] Template: {0}" -f (Join-Path $projectRoot 'Tools\mcp.example.json')) -ForegroundColor Yellow
+}
 
 # 2. Unity Editor
 $unityProc = Get-UnityWithProject
 if (-not $unityProc) {
-    if (-not (Test-Path $unityExe)) {
-        Write-Host '[FAIL] Unity Editor not found' -ForegroundColor Red
+    if (-not $unityExe -or -not (Test-Path $unityExe)) {
+        Write-Host '[FAIL] Unity Editor not found. Set CITYBUILDER_UNITY_EXE.' -ForegroundColor Red
     } else {
         Write-Host '[..] Starting Unity Editor (project import may take a minute)...'
-        Start-Process -FilePath $unityExe -ArgumentList '-projectPath', $project | Out-Null
+        Start-Process -FilePath $unityExe -ArgumentList '-projectPath', $projectRoot | Out-Null
     }
 } else {
     Write-Host ("[OK] Unity already running (pid {0})" -f $unityProc.ProcessId)
@@ -94,8 +133,8 @@ Write-Host ("[{0}] Unity MCP bridge {1}" -f $(if ($unityOk) {'OK'} else {'FAIL'}
 # 4. Blender GUI + socket on 9876
 $blenderProc = Get-Process blender -ErrorAction SilentlyContinue | Select-Object -First 1
 if (-not $blenderProc) {
-    if (-not (Test-Path $blenderExe)) {
-        Write-Host '[FAIL] Blender not found' -ForegroundColor Red
+    if (-not $blenderExe -or -not (Test-Path $blenderExe)) {
+        Write-Host '[FAIL] Blender not found. Set CITYBUILDER_BLENDER_EXE.' -ForegroundColor Red
     } else {
         Write-Host '[..] Starting Blender GUI ...'
         Start-Process -FilePath $blenderExe | Out-Null
@@ -113,7 +152,7 @@ if (-not $blenderOk) {
     Write-Host '[i] Blender socket starts only in GUI mode (not in -b). In Blender: 3D View -> N -> MCP for Blender -> Start MCP Server.' -ForegroundColor Yellow
 }
 Write-Host '[i] If a connector is red in WorkBuddy while the port is green: Connectors -> Custom Connector -> Trust.' -ForegroundColor Yellow
-Write-Host ("[i] Run diagnostics anytime: powershell -ExecutionPolicy Bypass -File {0}\Tools\Check-UnityMcp.ps1" -f $project) -ForegroundColor Yellow
+Write-Host ("[i] Run diagnostics anytime: powershell -ExecutionPolicy Bypass -File {0}\Tools\Check-UnityMcp.ps1" -f $projectRoot) -ForegroundColor Yellow
 
 if ($configOk -and $unityOk -and $blenderOk) {
     Write-Host '=== STACK READY ===' -ForegroundColor Green

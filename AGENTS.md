@@ -32,7 +32,7 @@ Architect / Orchestrator (постоянный чат):
 - updates documentation;
 - does not implement large gameplay systems without approval;
 - принимает работу в Unity через мост, мержит и пушит;
-- ведёт TASKS/README.md и HANDOFF.md.
+- ведёт TASKS/README.md и CHANGELOG.md.
 
 Engineer (субагент, одна задача):
 - implements one concrete task;
@@ -95,7 +95,9 @@ Reviewer (субагент, только чтение):
 Перед стартом задачи сформулируй **одно действие игрока**, после которого изменение заметно.
 Не формулируется — задача не начинается.
 
-## Текущее состояние (на 103)
+## Текущее состояние (v1.1, после задачи 104)
+
+`HANDOFF.md` удалён в v1.1. Актуальные точки входа: `README.md`, `CHANGELOG.md`, `TASKS/README.md`, `DECISIONS/`. Исторические breakdown-файлы в `TASKS/` — архив.
 
 Играбельно в редакторе и в билде windows64 (90 МиБ, пересобран на 102, smoke пройден):
 
@@ -113,9 +115,9 @@ Reviewer (субагент, только чтение):
 - сохранение и загрузка, снапшот v4 (совместим с v1–v3), домохозяйства привязаны к дому по координатам;
 - разблокировка типов зданий по числу выросших зданий.
 
-288 EditMode-тестов в 39 файлах.
+288 EditMode-тестов в 39 файлах на момент задачи 104; новые тесты валидации сейвов добавляются в v1.1.
 
-С 103 инфраструктура MCP переведена с OpenCode на WorkBuddy AI: конфиг `~/.workbuddy-ai/mcp.json` (Unity 8080, context7, Playwright, Blender 9876), диагностика `Tools/Check-UnityMcp.ps1`, запуск стека `Tools/Start-WorkBuddyStack.bat`. Код игры и сцена задачей 103 не тронуты.
+С v1.1 инфраструктура MCP работает на WorkBuddy AI: шаблон конфига `Tools/mcp.example.json`, диагностика `Tools/Check-UnityMcp.ps1`, запуск стека `Tools/Start-WorkBuddyStack.bat`. Абсолютные пути заменены переменными окружения `CITYBUILDER_UNITY_EXE` / `CITYBUILDER_BLENDER_EXE` и автоопределением от корня репо. OpenCode-watcher более не используется.
 
 ## Scope lock
 
@@ -155,7 +157,7 @@ After implementation:
 
 ## Git rules
 
-- 1 задача = 1 ветка task/XXX-name = 1 локальный мерж. PR на GitHub не создаются (gh CLI нет): мержит только оркестратор через `git merge --no-ff`.
+- 1 задача = 1 ветка task/XXX-name = 1 локальный мерж. PR не обязательны, но CI `.github/workflows/ci.yml` должен быть зелёным; мержит только оркестратор через `git merge --no-ff`.
 - Каждая задача заканчивается пушем main в origin (бэкап!). Без пуша задача не закрыта.
 - Смерженные task-ветки удаляются (локально и в origin) — сразу после мержа или следующей задачей-процесса.
 - 1 коммит max 5 файлов и max 250 строк diff (инфра-импорты — зафиксированное исключение).

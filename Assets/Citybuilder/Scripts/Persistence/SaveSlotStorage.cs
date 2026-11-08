@@ -9,6 +9,8 @@ namespace Citybuilder
     public static class SaveSlotStorage
     {
         public const string SlotFileName = "slot0.json";
+        // V1: карта 50x50, координаты клеток 0..49.
+        private const int MapCells = 50;
 
         public static string ToJson(CitySnapshot snapshot)
         {
@@ -40,6 +42,14 @@ namespace Citybuilder
                 return false;
             }
             if (snapshot.TickCount < 0 || snapshot.Balance < 0)
+            {
+                return false;
+            }
+            if (snapshot.TaxLevel < 0 || snapshot.TaxLevel > 3)
+            {
+                return false;
+            }
+            if (snapshot.GoalStage < 0 || snapshot.GoalStage > GoalStages.StageCount)
             {
                 return false;
             }
@@ -101,6 +111,10 @@ namespace Citybuilder
                 {
                     return false;
                 }
+                if (!InMap(zones[i].X, zones[i].Y))
+                {
+                    return false;
+                }
                 if (zones[i].Type < (int)ZoneType.Residential || zones[i].Type > (int)ZoneType.Industrial)
                 {
                     return false;
@@ -116,8 +130,16 @@ namespace Citybuilder
                 {
                     return false;
                 }
+                if (!InMap(buildings[i].X, buildings[i].Y))
+                {
+                    return false;
+                }
             }
             return true;
+        }
+        private static bool InMap(int x, int y)
+        {
+            return x >= 0 && y >= 0 && x < MapCells && y < MapCells;
         }
         private static bool ValidateHouseholds(List<CitySnapshot.HouseholdEntry> households, int buildingCount)
         {
@@ -131,6 +153,10 @@ namespace Citybuilder
                 {
                     return false;
                 }
+                if (households[i].HasHome && !InMap(households[i].HomeX, households[i].HomeY))
+                {
+                    return false;
+                }
             }
             return true;
         }
@@ -138,7 +164,7 @@ namespace Citybuilder
         {
             for (int i = 0; i < roads.Count; i++)
             {
-                if (roads[i] == null)
+                if (roads[i] == null || !InMap(roads[i].X, roads[i].Y))
                 {
                     return false;
                 }

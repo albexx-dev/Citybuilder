@@ -10,7 +10,7 @@ namespace Citybuilder
         [Tooltip("Экономика: даёт число работающих для строки дохода. Пусто = ищется в сцене.")]
         public EconomyTicker Economy;
 
-        // Не сериализуется: после загрузки снова обычный налог (долг на сохранения).
+        // Создаётся лениво; уровень сохраняется в CitySnapshot.TaxLevel и восстанавливается LoadController.
         private TaxPolicy policy;
         private bool economySearched;
 

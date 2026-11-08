@@ -32,7 +32,7 @@ Frame Update каждый кадр: камера, ввод, анимации, п
 Simulation Tick периодически: экономика, производство, жители, сети, статистика.
 
 Locked V1: Tick 1 сек = 1 игровой час, день = 24 тика, FastForward x4. Пауза останавливает тики. К тику подключены: часы, казна (`EconomyTicker`), рост поселения (`SettlementGrowthController` → `GrowthPace`: берётся худший из множителей — пробки `CongestionController.GrowthTickMultiplier` и дефицит снабжения `SupplyGrowthController.GrowthTickMultiplier`, ×1/×2/×3).
-Режимы: Paused / Playing / FastForward. События: SimulationTickStarted / SimulationTickCompleted.
+Режимы: Paused / Playing / FastForward. События: `SimulationClock.TickStarted` / `TickCompleted` и `Treasury.BalanceChanged`; отдельных классов Command/Event и глобальной шины нет.
 
 ## 6. Commands, queries and events
 
@@ -50,7 +50,7 @@ Locked V1: квадратная сетка, клетка 1x1 м, начало (0
 
 ## 8. Core systems
 
-- Core: GameBootstrap, GameState, EntityId, SimulationClock, Command, Event.
+- Core: EntityId, GridPosition, GridSize, SimulationTime, NeedProviders, SupplyBalance, UnlockPolicy.
 - World: Map, Grid, ZonePainting, снимок клеток.
 - Construction: BuildingDefinition/State, PlacementController, RoadPlacementController, Demolition, View.
 - Economy: Treasury, TaxSystem, TaxPolicy, EconomyTicker.
@@ -87,7 +87,7 @@ World не знает про деньги и жителей. Construction зна
 
 ## 13. Testing strategy
 
-- EditMode-тесты на всю чистую логику: 288 тестов в 39 файлах (`Assets/Citybuilder/Tests/`), прогон в редакторе — оркестратор.
+- EditMode-тесты на всю чистую логику: 288+ тестов в 39+ файлах (`Assets/Citybuilder/Tests/`), прогон в редакторе — оркестратор; статическая валидация — `Tools/ValidateRepo.py` в CI.
 - Перед коммитом инженер гоняет чистый C# через `dotnet`/`csc` во временной папке, без Unity, и прикладывает результат.
 - Unity-специфика (компиляция сборок проекта, EditMode в редакторе, Play-E2E) — только оркестратор: редактор один на машину.
 - PlayMode-автотестов нет: игровой сценарий проверяется руками по чек-листу задачи.
@@ -98,9 +98,9 @@ World не знает про деньги и жителей. Construction зна
 
 ## 15. Current implementation scope
 
-Задачи 001–102 смержены и запушены. Играбельно в редакторе и в билде windows64 102 (90 МиБ): сетка 50×50, зоны, рост по тикам, налоги с видимым сбором, энергия / вода / мусор со станциями-источниками, дефицит снабжения замедляет рост, пожарные и полиция, связность дорог и пробки, цель со ступенями, стартовая подсказка и статус роста, сейв и лоад v4 с привязкой жителей к домам по координатам.
+Задачи 001–104 смержены и запушены; на этом состоянии начинается **v1.1** (`DECISIONS/ADR-005-v1.1-scope.md`). Играбельно в редакторе и в билде windows64 102 (90 МиБ): сетка 50×50, зоны, рост по тикам, налоги с видимым сбором, энергия / вода / мусор со станциями-источниками, дефицит снабжения замедляет рост, пожарные и полиция, связность дорог и пробки, цель со ступенями, стартовая подсказка и статус роста, сейв и лоад v4 с налогом, ступенью цели и привязкой жителей к домам по координатам.
 
-Дальше: связка существующих систем с игроком (правило видимости в `AGENTS.md`), новые здания-службы по готовому образцу, читаемость HUD на низких окнах, сплиты крупных файлов.
+Дальше: CI и автоматическая валидация, читаемость HUD на низких окнах, сплиты крупных файлов, службы по готовому образцу. Экраны победы/поражения в v1.1 не возвращаются; `GoalSystem.Won/Lost` сохранён как протестированная доменная логика для следующей версии.
 
 ## 16. Future decisions
 

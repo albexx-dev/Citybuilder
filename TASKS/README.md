@@ -1,6 +1,6 @@
 # TASKS — очередь
 
-Формат: `- [ ] ToDo / - [x] Done + инженер + ветка`. PR не создаются: мержит оркестратор через `merge --no-ff`.
+Формат: `- [ ] ToDo / - [x] Done + инженер + ветка`. PR не обязательны: мержит оркестратор через `merge --no-ff`. Архивные `*-breakdown.md` могут упоминать удалённый `HANDOFF.md` и старые абсолютные пути — это история, не инструкция для v1.1.
 
 - [x] Done 001-project-foundation (Orchestrator) + branch task/001-project-foundation
 - [x] Done 002-domain-primitives + merged
@@ -106,6 +106,6 @@
 - [x] Done 102-newgame-tax + merged («Новая» сбрасывает налог; `LoadLog` 18, `LoadController` 150→142; E2E: высокий → новая → обычный, баланс 1500)
 - [x] Done 103-workbuddy-migration + merged (MCP-инфраструктура переведена с OpenCode на WorkBuddy AI: `Tools/Check-UnityMcp.ps1` проверяет `~/.workbuddy-ai/mcp.json` и 4 сервера, TCP-зонд вместо CIM; `UNITY_MCP_SETUP.md` с шагом Trust и разделом по серверам; `Tools/Start-WorkBuddyStack.ps1/.bat` поднимают Unity + Blender и ждут 8080/9876. Ревью PASS, диагностика 6/6 `exit 0`, Unity initialize 200, Blender `get_scene_info` success; C# и сцена не тронуты)
 - [x] Done 104-docs-truth + merged (`HANDOFF.md` / `AGENTS.md` переведены под WorkBuddy AI и на состояние 103; `ADR-004` получил post-release amendment — заморозка снята после 047; зафиксировано расхождение подписи `avexx-dev` и аккаунта `albexx-dev`; legacy-watcher отключён. Ревью PASS, шлюз упрощён: C# и сцена не тронуты, диагностика 6/6, Unity console чист, Blender отвечает)
-- NEXT: чек-лист 093 закрыт (`TASKS/093-playtest-report.md`); билд 102 собран и прогнан smoke, EditMode 288/288. Свободно: службы по образцу (медицина, парк), читаемость HUD на низких окнах, сплиты `SettlementGrowthController` 199 / `GridMeshBuilder` 190 / `RoadPlacementController` 179; мелочи — аддон Blender под `addon.py` для `blender_bridge`, косметика лаунчера, решение по `git config user.name`
+- NEXT (v1.1): зафиксирован старт версии в `DECISIONS/ADR-005-v1.1-scope.md` и `CHANGELOG.md`; `HANDOFF.md` удалён, добавлены CI, `CONTRIBUTING.md`, `SECURITY.md`, переносимые пути и валидация сейвов. Ближайшая работа: читаемость HUD на низких окнах, сплиты `SettlementGrowthController` 199 / `GridMeshBuilder` 190 / `RoadPlacementController` 179, службы по образцу (медицина, парк), аддон Blender под `addon.py` для `blender_bridge`, решение по `git config user.name`.
 
 Правила: 1 задача = 1 breakdown-файл TASKS/00X-breakdown.md, 1 ветка task/XXX, 1 модуль. Мержит только оркестратор (`merge --no-ff`) после зелёного шлюза. Две задачи параллельно запрещены.

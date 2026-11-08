@@ -1,27 +1,24 @@
-# Unity MCP — запуск и чинка навсегда
+# Unity MCP — запуск и диагностика
 
-Источник правды — **корень репо**
-`C:\Users\admin\Citybuilder` (с задачи 039 репо само является
-Unity-проектом: Assets/Packages/ProjectSettings лежат в git).
-Старый путь `C:\Users\admin\UnityProjects\CityBuilder` — архивный,
-оркестратор удаляет его при переезде (бэкап-переименование).
+Источник правды — **корень репозитория**. Именно его нужно открывать в Unity: `Assets/`, `Packages/` и `ProjectSettings/` лежат в git вместе с `.meta`. Никаких абсолютных путей к проекту в конфигурации быть не должно.
 
-С **06.11.2026** работа ведётся из **WorkBuddy AI**: конфиг MCP —
-`C:\Users\admin\.workbuddy-ai\mcp.json`, раздел `mcpServers`. OpenCode больше
-не используется; упоминания ниже оставлены как история и для watcher'а.
+## Конфигурация
 
-## Правильный порядок запуска
+1. Скопируйте `Tools/mcp.example.json` в конфиг WorkBuddy AI (обычно `~/.workbuddy-ai/mcp.json`), раздел `mcpServers`.
+2. При необходимости задайте переменные окружения:
+   - `CITYBUILDER_UNITY_EXE` — полный путь к `Unity.exe`;
+   - `CITYBUILDER_BLENDER_EXE` — полный путь к `blender.exe`.
+   Если переменные не заданы, `Tools/Start-WorkBuddyStack.ps1` ищет редактор в стандартных каталогах, используя версию из `ProjectSettings/ProjectVersion.txt`.
+3. Один раз в WorkBuddy AI: **Connectors → Custom Connector → Trust** для новых серверов. Без Trust прописанные серверы не активируются.
 
-1. Открыть Unity Hub → проект **CityBuilder**.
-   Мост `mcp-for-unity` стартует сам вместе с редактором (порт `127.0.0.1:8080`).
-2. Дождаться открытия проекта (мост появляется через ~10–30 сек после запуска).
-3. Один раз в WorkBuddy AI: Коннекторы → **Custom Connector** (справа вверху) → **Trust**
-   на новых серверах. Без Trust прописанные в конфиге серверы не активируются.
-4. Мост живёт только пока открыт Unity. Если редактор перезапустить — подождать 10–30 сек.
+## Порядок запуска
 
-## Если снова красный
+1. Открыть Unity Hub → проект из корня репозитория. Мост `mcp-for-unity` стартует вместе с редактором на `127.0.0.1:8080`.
+2. Подождать 10–30 секунд после загрузки проекта.
+3. Для Blender запустить GUI (не `-b`) и включить аддон «Interface: MCP for Blender»; сокет `127.0.0.1:9876` поднимется сам.
+4. Либо один раз запустить `Tools\Start-WorkBuddyStack.bat` — он поднимет Unity и Blender и дождётся обоих портов.
 
-Запустить проверку из корня репо:
+## Диагностика
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File Tools\Check-UnityMcp.ps1
@@ -29,66 +26,27 @@ powershell -ExecutionPolicy Bypass -File Tools\Check-UnityMcp.ps1
 
 | Проверка не прошла | Что делать |
 |---|---|
-| Unity не запущен | Открыть проект CityBuilder в Unity Hub |
-| Порт 8080 не слушается | Подождать 30 сек; проверить окно MCP в Unity; перезапустить Unity |
-| Мост не отвечает | Unity перекомпилирует скрипты — подождать; иначе перезапустить Unity |
-| Конфиг WorkBuddy не найден | `~/.workbuddy-ai/mcp.json`, `mcpServers.unityMCP.url = http://127.0.0.1:8080/mcp` |
-| unityMCP красный при зелёном порте | Нажать **Trust** в Custom Connector (новые серверы не включаются сами) |
-| Не корень проекта | Запускать скрипт из корня репо `C:\Users\admin\Citybuilder` |
+| Unity не запущен | Открыть корень репозитория в Unity Hub |
+| Порт 8080 не слушается | Подождать 30 секунд; проверить окно MCP в Unity; перезапустить Unity |
+| Мост не отвечает | Дождаться перекомпиляции скриптов; иначе перезапустить Unity |
+| Конфиг не найден | Скопировать `Tools/mcp.example.json` в `~/.workbuddy-ai/mcp.json` |
+| `unityMCP` красный при зелёном порте | Нажать **Trust** в Custom Connector |
+| Не корень проекта | Запускать скрипт из корня репозитория |
+| Blender socket 9876 недоступен | В Blender: 3D View → `N` → **MCP for Blender** → **Start MCP Server** |
+| Unity не найден лаунчером | Задать `CITYBUILDER_UNITY_EXE` |
+| Blender не найден лаунчером | Задать `CITYBUILDER_BLENDER_EXE` |
 
-## Почему так было (корни проблемы, 2026-10-10)
+Скрипт проверяет процесс Unity, порт 8080, HTTP-ответ моста, конфиг и наличие `unityMCP` / `context7` / `playwright` / `blender`. Статус `connected` внутри WorkBuddy извне не виден — он виден только в UI коннекторов.
 
-1. Мост жив только пока открыт Unity. Сервис OpenCode пробовал подключиться,
-   когда Unity был закрыт, и запоминал провал — лечится рестартом сервиса.
-2. Было два глобальных конфига (`opencode.json` + `opencode.jsonc`) с разным
-   форматом — объединены в один `opencode.json` (формат V2 `mcp.servers`).
-   Старый файл лежит в `opencode.jsonc.bak`.
-3. Корень репо — сам Unity-проект (с 039). Дубля скриптов больше нет:
-   правило «править в одном месте» выполняется само, скрипт это не проверяет.
+## Серверы
 
-## Быстрая проверка связи
-
-```powershell
-powershell -ExecutionPolicy Bypass -File Tools\Check-UnityMcp.ps1
-```
-
-Скрипт проверяет процесс Unity, порт 8080, HTTP-ответ моста и конфиг WorkBuddy AI
-(в т.ч. наличие `unityMCP` / `context7` / `playwright` / `blender`). Статус
-`connected` внутри WorkBuddy извне не виден — его видно только в UI коннекторов.
-
-## Автовосстановление (watcher) — legacy OpenCode
-
-> ⚠️ Этот watcher дёргает `opencode reload` и для WorkBuddy AI **не нужен**.
-> Если OpenCode окончательно не используется, задачу можно удалить командой ниже.
-
-OpenCode подключает MCP-серверы только при старте, поэтому если Unity поднимается позже,
-`unityMCP` остаётся `failed` до ручного `opencode reload`.
-
-С 2026-10-25 это лечится автоматически:
-
-- скрипт: `C:\Users\admin\.config\opencode\unity-mcp-watch.ps1`
-- задача планировщика: **OpenCode Unity MCP Watcher** (триггер — вход в систему)
-- лог: `C:\Users\admin\.config\opencode\unity-mcp-watch.log`
-
-Watcher раз в 5 секунд смотрит порт 8080. Когда мост появляется (Unity запустили или
-перезапустили), он проверяет статус `unityMCP` и при `failed` сам вызывает `opencode reload`.
-
-Управление:
-
-```powershell
-Get-ScheduledTask -TaskName "OpenCode Unity MCP Watcher" | Select-Object TaskName,State
-Start-ScheduledTask -TaskName "OpenCode Unity MCP Watcher"
-Stop-ScheduledTask  -TaskName "OpenCode Unity MCP Watcher"
-Unregister-ScheduledTask -TaskName "OpenCode Unity MCP Watcher" -Confirm:$false   # отключить навсегда
-```
-
-## Остальные MCP-серверы (в `~/.workbuddy-ai/mcp.json`)
-
-| Сервер | Что нужно для работы |
+| Сервер | Что нужно |
 |---|---|
-| `context7` | Ничего, удалённый `https://mcp.context7.com/mcp`. Для повышенных лимитов — API-ключ с `context7.com/dashboard` в заголовке `Authorization: Bearer ...` (не обязательно). |
-| `playwright` | Node 18+ и пакет `@playwright/mcp` (подтягивается `npx` сам); браузеры Chromium уже установлены. |
-| `blender` | Запущенный **GUI** Blender 4.5 LTS с включённым аддоном «Interface: MCP for Blender». Сокет-сервер на `127.0.0.1:9876` стартует сам, в `-b` (background) — нет. Команда сервера: `uvx mcp-for-blender` (полный путь к `uvx.exe` прописан в конфиге). |
+| `unityMCP` | Открытый Unity-редактор с пакетом `com.coplaydev.unity-mcp` (закреплён на `v10.3.0`). |
+| `context7` | Удалённый `https://mcp.context7.com/mcp`; API-ключ необязателен. |
+| `playwright` | Node 18+ и `@playwright/mcp` через `npx`. |
+| `blender` | GUI Blender 4.5 LTS с включённым аддоном; команда `uvx mcp-for-blender`. |
 
-Проверка панели в Blender: навести на 3D-вьюпорт → `N` → вкладка **MCP for Blender**
-→ статус `Server Running` / кнопка `Start MCP Server`.
+## История
+
+Ранее использовался OpenCode и отдельный watcher в планировщике задач. С v1.1 эта инфраструктура не применяется: конфиг один, лаунчер один, watcher удалён из актуального процесса. Архивные задачи в `TASKS/` могут упоминать старые пути — это история, а не инструкция.
