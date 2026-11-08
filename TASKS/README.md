@@ -1,0 +1,48 @@
+# TASKS — очередь эпиков v1.1
+
+Каждый эпик = GitHub issue (трекинг и обсуждение) + детальный план здесь (`EPIC-XX-*.md` — источник истины по шагам).
+Шаг эпика выполняется по циклу AGENTS.md: 1 шаг = 1 ветка `task/XXX-step` = инженер → ревьюер → зелёный шлюз → мерж оркестратором.
+Лимиты строк/файлов действуют на шаг. Новый архитектурный паттерн — через ADR до первого шага с кодом.
+
+Доктрина: **партия не имеет конца** (GAME_DESIGN §19). Экранов победы/поражения нет, `GoalSystem.Won/Lost` удаляется (EPIC-08).
+
+## Фазы выполнения
+
+| Фаза | Эпики | Смысл |
+|------|-------|-------|
+| 1. Фундамент | #10 сплиты → #13 нижняя панель → #14 инфоменю | разгрузить файлы, новый UI-каркас — всё дальше строится на нём |
+| 2. Службы | #1 службы v2 → #2 больница+парк → #3 нужды v2 | ядро механики версии |
+| 3. Экономика | #4 содержание → #5 привлекательность → #6 баланс | двусторонняя экономика и играбельность |
+| 4. Видимость | #9 лента → #12 инфопанель → #15 пробки → #8 чистка Won/Lost | игрок видит причины |
+| 5. Обёртка | #11 сейвы v2 → #16 меню → #17 стадии роста → #18 туториал | продукт, а не прототип |
+| 6. Финал | #20 Blender → #19 звук (опц.) → #21 релиз v1.1.0 | контент и закрытие версии |
+
+#7 пожары — по решению владельца: в фазу 4 или в v1.2 (перед стартом нужен малый ADR-009).
+
+## Статус
+
+| Issue | Эпик | Блок | Статус |
+|-------|------|------|--------|
+| #1 | [Службы v2](EPIC-01-services-v2.md) | mechanics | not started |
+| #2 | [Больница и парк](EPIC-02-hospital-park.md) | mechanics | not started |
+| #3 | [Нужды v2](EPIC-03-needs-v2.md) | mechanics | not started |
+| #4 | [Содержание зданий](EPIC-04-upkeep.md) | mechanics | not started |
+| #5 | [Привлекательность города](EPIC-05-attractiveness.md) | mechanics | not started |
+| #6 | [Баланс-проход](EPIC-06-balance.md) | mechanics | not started |
+| #7 | [Пожары как событие](EPIC-07-fires.md) | mechanics | on hold (v1.2?) |
+| #8 | [Чистка Won/Lost](EPIC-08-remove-won-lost.md) | architecture | not started |
+| #9 | [Событийная лента](EPIC-09-event-log.md) | architecture | not started |
+| #10 | [Сплиты крупных файлов](EPIC-10-splits.md) | architecture | not started |
+| #11 | [Сейвы v2](EPIC-11-saves-v2.md) | architecture | not started |
+| #12 | [Инфопанель здания](EPIC-12-info-panel.md) | architecture | not started |
+| #13 | [Нижняя панель действий](EPIC-13-bottom-bar.md) | ux | not started |
+| #14 | [Информационное меню](EPIC-14-info-menu.md) | ux | not started |
+| #15 | [Пробки глазами игрока](EPIC-15-congestion-view.md) | ux | not started |
+| #16 | [Главное меню + пауза](EPIC-16-menus.md) | ux | not started |
+| #17 | [Стадии роста зданий](EPIC-17-growth-stages.md) | ux | not started |
+| #18 | [Туториал v2](EPIC-18-tutorial.md) | ux | not started |
+| #19 | [Звук](EPIC-19-sound.md) | ux | optional |
+| #20 | [Blender-конвейер](EPIC-20-blender.md) | content | not started |
+| #21 | [Релиз v1.1.0](EPIC-21-release.md) | release | not started |
+
+Прогресс отмечается здесь и чек-боксами в issue. Две задачи параллельно запрещены.
