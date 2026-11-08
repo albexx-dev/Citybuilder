@@ -65,6 +65,10 @@ namespace Citybuilder
         [Tooltip("Сколько мусора утилизирует одно здание. Не может быть отрицательным.")]
         public int WasteCapacity = 0;
 
+        [Header("Economy")]
+        [Tooltip("Содержание здания в час. Не может быть отрицательным.")]
+        public int upkeepPerHour = 0;
+
         [Header("Presentation")]
         [Tooltip("Префаб здания. Может быть пустым до готовности арта.")]
         public GameObject Prefab;
@@ -89,6 +93,7 @@ namespace Citybuilder
             WaterOutput = Clamp(WaterOutput, "water output");
             WasteOutput = Clamp(WasteOutput, "waste output");
             WasteCapacity = Clamp(WasteCapacity, "waste capacity");
+            upkeepPerHour = Clamp(upkeepPerHour, "upkeep");
         }
 
         // Чистая часть клампа без логирования: отрицательное становится нулём.
