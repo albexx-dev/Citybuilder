@@ -10,11 +10,13 @@ namespace Citybuilder
             NoZones,
             AtCapacity,
             NoMoney,
+            Deficit,
             Growing
         }
 
         // None — подсказку роста не рисуем: до первого дома её заменяет стартовая.
         // Порядок важен: сначала то, что игрок чинит одной кнопкой.
+        // Balance<0 — это Treasury.IsInDeficit: содержание больше дохода, рост стоит.
         public static Kind Pick(int grown, int residentialCells, bool growthMode,
             int maxSettlements, int cheapestCost, int balance)
         {
@@ -22,6 +24,7 @@ namespace Citybuilder
             if (!growthMode) return Kind.GrowthOff;
             if (residentialCells <= 0) return Kind.NoZones;
             if (grown >= maxSettlements) return Kind.AtCapacity;
+            if (balance < 0) return Kind.Deficit;
             if (balance < cheapestCost) return Kind.NoMoney;
             return Kind.Growing;
         }
