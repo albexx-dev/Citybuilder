@@ -12,7 +12,7 @@ namespace Citybuilder
         [Test]
         public void NewDefinition_UpkeepDefaultsToZero()
         {
-            Assert.AreEqual(0, ScriptableObject.CreateInstance<BuildingDefinition>().upkeepPerHour);
+            Assert.AreEqual(0, ScriptableObject.CreateInstance<BuildingDefinition>().UpkeepPerHour);
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace Citybuilder
         private static BuildingDefinition MakeDefinition(int upkeep)
         {
             BuildingDefinition definition = ScriptableObject.CreateInstance<BuildingDefinition>();
-            definition.upkeepPerHour = upkeep;
+            definition.UpkeepPerHour = upkeep;
             return definition;
         }
 

@@ -19,7 +19,7 @@ namespace Citybuilder
                 {
                     continue;
                 }
-                total += BuildingDefinition.ClampNonNegative(definition.upkeepPerHour);
+                total += BuildingDefinition.ClampNonNegative(definition.UpkeepPerHour);
             }
             return total;
         }
@@ -45,7 +45,7 @@ namespace Citybuilder
                 {
                     continue;
                 }
-                total += BuildingDefinition.ClampNonNegative(state.Definition.upkeepPerHour);
+                total += BuildingDefinition.ClampNonNegative(state.Definition.UpkeepPerHour);
             }
             return total;
         }
