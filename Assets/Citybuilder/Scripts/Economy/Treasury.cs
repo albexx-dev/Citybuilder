@@ -23,6 +23,12 @@ namespace Citybuilder
 
         public int Balance { get; private set; }
 
+        // Казна в минусе: содержание превысило доход. Само решение о штрафе — не здесь.
+        public bool IsInDeficit
+        {
+            get { return Balance < 0; }
+        }
+
         public Treasury(int startingBalance)
         {
             Balance = startingBalance < 0 ? 0 : startingBalance;
@@ -46,6 +52,19 @@ namespace Citybuilder
             if (Balance < amount)
             {
                 return TransactionResult.Fail("Not enough funds.");
+            }
+            Balance -= amount;
+            Notify();
+            return TransactionResult.Ok();
+        }
+
+        // Регулярное списание (содержание): проходит всегда, баланс уходит в минус.
+        // TrySpend за стройку при нехватке по-прежнему отказывает — правило 008.
+        public TransactionResult Charge(int amount)
+        {
+            if (amount <= 0)
+            {
+                return TransactionResult.Fail("Amount must be positive.");
             }
             Balance -= amount;
             Notify();

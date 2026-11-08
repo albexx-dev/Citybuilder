@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Сбор налогов по тикам часов: Employed × ставка в казну. Только подписка на часы.
-    // Настройка сцены: отдельный объект, Population/Growth/Treasury/Runner обязательны, по умолчанию включён.
+    // Экономика часов: сбор налога в казну и списание содержания зданий. Только подписка на часы.
+    // Настройка сцены: отдельный объект, Population/Growth/Treasury/Runner обязательны, Placement желателен.
     public class EconomyTicker : MonoBehaviour
     {
         [Header("References")]
@@ -15,6 +15,8 @@ namespace Citybuilder
         public TreasuryView Treasury;
         [Tooltip("Драйвер часов. Обязателен: даёт тики часов для сбора налогов.")]
         public SimulationRunner Runner;
+        [Tooltip("Ручная стройка. Пусто = содержание только по выросшим домам.")]
+        public BuildingPlacementController Placement;
         [Header("Taxes")]
         [Tooltip("Налоговая политика из HUD. Пусто = фиксированная ставка TaxPerWorker.")]
         public TaxPolicyView Policy;
@@ -122,8 +124,9 @@ namespace Citybuilder
             employment = new EmploymentSystem(Population.Population, Growth.Settlement);
             tax = new TaxSystem(employment, Treasury.Treasury);
         }
-        // Один шаг сбора для тиков часов. Системы пересобираются: поселения
-        // могли появиться позже подписки (рост включается меню уже в игре).
+        // Один шаг экономики за час: налог в казну, содержание из неё же, баланс
+        // может уйти в минус. Системы пересобираются: поселения могли появиться
+        // позже подписки (рост включается меню уже в игре).
         private void Tick()
         {
             EnsureSystems();
@@ -132,6 +135,8 @@ namespace Citybuilder
                 return;
             }
             tax.Collect(PerWorker);
+            Treasury.Treasury.Charge(UpkeepPolicy.UpkeepPerHour(Growth.Homes,
+                Placement != null ? Placement.Placed : null));
         }
         private void ClampLimits()
         {
