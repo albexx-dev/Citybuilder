@@ -31,5 +31,13 @@ namespace Citybuilder
         {
             return RequiredTicks(baseTicks, Combine(congestionMultiplier, supplyMultiplier));
         }
+
+        // Дефицит казны — не множитель, а стоп ДО выбора худшего множителя (EPIC-04 шаг 2):
+        // требуемых тиков сразу больше потолка, час следующего дома недостижим.
+        public static int RequiredTicks(int baseTicks, int congestionMultiplier, int supplyMultiplier, bool inDeficit)
+        {
+            if (inDeficit) return MaxRequiredTicks;
+            return RequiredTicks(baseTicks, congestionMultiplier, supplyMultiplier);
+        }
     }
 }

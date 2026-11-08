@@ -6,8 +6,9 @@ namespace Citybuilder
     // Чистый C#, без Unity. Контроллер — тонкий адаптер: тик → policy → действие.
     public class GrowthEligibilityPolicy
     {
-        // Причина запрета роста. None — расти можно.
-        public enum Reason { None, GrowthOff, Ceiling, NoSpot, NoMoney }
+        // Причина запрета роста. None — расти можно. NoMoney — нечем платить за рост,
+        // Deficit — казна ушла в минус от содержания зданий.
+        public enum Reason { None, GrowthOff, Ceiling, NoSpot, NoMoney, Deficit }
 
         // Итог проверки: запрет с причиной или разрешение с парой «тип + клетка».
         public struct Verdict
@@ -38,6 +39,7 @@ namespace Citybuilder
             GridPosition origin;
             if (!FindSpot(zonedCells, lastGrownZone, grownCount, definitions, settlement, out definition, out origin))
                 return Block(Reason.NoSpot);
+            if (treasury != null && treasury.IsInDeficit) return Block(Reason.Deficit);
             if (treasury != null && !treasury.CanAfford(definition.ConstructionCost))
                 return Block(Reason.NoMoney);
             return new Verdict { Allowed = true, Definition = definition, Origin = origin };
