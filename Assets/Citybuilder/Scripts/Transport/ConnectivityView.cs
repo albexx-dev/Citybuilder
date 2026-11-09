@@ -10,14 +10,20 @@ namespace Citybuilder
         [Tooltip("Контроллер связности. Опционален: иначе ищется на этом же объекте.")]
         public ConnectivityController Controller;
 
+        public string CurrentText
+        {
+            get
+            {
+                ConnectivityController controller = Controller != null ? Controller : GetComponent<ConnectivityController>();
+                if (controller == null) return string.Empty;
+                return "Связано: " + controller.Connected + "/" + controller.Total + " (" + ToPercent(controller.Rate01) + "%)";
+            }
+        }
+
         private void OnGUI()
         {
-            ConnectivityController controller = Controller;
-            if (controller == null) controller = GetComponent<ConnectivityController>();
-            if (controller == null) return;
-            string text = "Связано: " + controller.Connected + "/" + controller.Total;
-            text += " (" + ToPercent(controller.Rate01) + "%)";
-            // y=214: ниже меню (182+26+6 зазор), иначе налезает на кнопки.
+            string text = CurrentText;
+            if (string.IsNullOrEmpty(text)) return;
             HudText.Draw(10, 214, text);
         }
 

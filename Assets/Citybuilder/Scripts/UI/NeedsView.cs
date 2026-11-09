@@ -23,17 +23,23 @@ namespace Citybuilder
 
         private NeedSystem needs;
 
+        // Строка потребностей для информационного меню (EPIC-14) и проверок.
+        public string CurrentText
+        {
+            get
+            {
+                PopulationController population = Population != null ? Population : GetComponent<PopulationController>();
+                SettlementGrowthController growth = Growth != null ? Growth : GetComponent<SettlementGrowthController>();
+                if (population == null || growth == null) return string.Empty;
+                EnsureNeeds(population, growth);
+                return BuildText(needs);
+            }
+        }
+
         private void OnGUI()
         {
-            PopulationController population = Population;
-            if (population == null) population = GetComponent<PopulationController>();
-            SettlementGrowthController growth = Growth;
-            if (growth == null) growth = GetComponent<SettlementGrowthController>();
-            if (population == null || growth == null) return;
-            EnsureNeeds(population, growth);
-            string text = BuildText(needs);
-            // y=114: ниже часов (y=50) и кнопок скорости (y=84-110), чтобы не налезать.
-            // Ширина подложки теперь по тексту: семь показателей остаются в одной строке.
+            string text = CurrentText;
+            if (string.IsNullOrEmpty(text)) return;
             HudText.Draw(10, 114, text);
         }
 

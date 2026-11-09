@@ -10,14 +10,20 @@ namespace Citybuilder
         [Tooltip("Контроллер энергии. Опционален: иначе ищется на этом же объекте.")]
         public PowerController Controller;
 
+        public string CurrentText
+        {
+            get
+            {
+                PowerController controller = Controller != null ? Controller : GetComponent<PowerController>();
+                if (controller == null) return string.Empty;
+                return "Энергия: " + controller.Demand + "/" + controller.Supply + " (" + ToPercent(controller.Rate01) + "%)";
+            }
+        }
+
         private void OnGUI()
         {
-            PowerController controller = Controller;
-            if (controller == null) controller = GetComponent<PowerController>();
-            if (controller == null) return;
-            string text = "Энергия: " + controller.Demand + "/" + controller.Supply;
-            text += " (" + ToPercent(controller.Rate01) + "%)";
-            // y=246: ниже связности (214+26+6 зазор), иначе налезает на лейблы.
+            string text = CurrentText;
+            if (string.IsNullOrEmpty(text)) return;
             HudText.Draw(10, 246, text);
         }
 
