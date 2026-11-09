@@ -213,6 +213,7 @@ GameObject:
   - component: {fileID: 985593183}
   - component: {fileID: 985593184}
   - component: {fileID: 985593185}
+  - component: {fileID: 985593186}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -752,6 +753,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Citybuilder::Citybuilder.UpkeepView
   Growth: {fileID: 0}
   Placement: {fileID: 0}
+--- !u!114 &985593186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d253f6e789254374bcfe6af22caae65f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.BottomBarView
+  Runner: {fileID: 0}
+  Menu: {fileID: 0}
+  Palette: {fileID: 0}
+  StatsEnabled: 0
+  EventLogEnabled: 0
 --- !u!1 &1069481158
 GameObject:
   m_ObjectHideFlags: 0

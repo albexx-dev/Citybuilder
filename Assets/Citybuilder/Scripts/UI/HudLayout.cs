@@ -19,6 +19,7 @@ namespace Citybuilder
 
         private const float BottomMargin = 72f;
         private const float LineStep = 24f;
+        private const float MinHudRowY = 404f;
 
         // Адаптивные координаты нижних строк HUD: не наезжают на нижнюю панель.
         public static float FixedOrBottom(float preferredY, int linesFromBottom)
@@ -41,7 +42,8 @@ namespace Citybuilder
         public static bool IsHudRowVisible(float preferredY, int linesFromBottom, float screenHeight)
         {
             float y = FixedOrBottom(preferredY, linesFromBottom, screenHeight);
-            return y + LineStep <= BottomBarRect(1024f, screenHeight).y;
+            float barTop = BottomBarRect(1024f, screenHeight).y - SubRowOffset;
+            return y >= MinHudRowY && y + LineStep <= barTop;
         }
 
         public static Rect BottomBarRect(float screenWidth, float screenHeight)
