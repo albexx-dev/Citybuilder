@@ -733,7 +733,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 240a309cb3882d14babee4b39b0b2341, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Citybuilder::Citybuilder.StartHintView
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.TutorialView
   Zones: {fileID: 0}
   Growth: {fileID: 0}
   Menu: {fileID: 0}
