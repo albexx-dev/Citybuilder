@@ -1,3 +1,5 @@
+using System;
+
 namespace Citybuilder
 {
     // Почему город растёт или стоит. Чистая логика без Unity.
@@ -27,6 +29,14 @@ namespace Citybuilder
             if (balance < 0) return Kind.Deficit;
             if (balance < cheapestCost) return Kind.NoMoney;
             return Kind.Growing;
+        }
+
+        // Причина низкой привлекательности (< 1.0) для строки статуса роста (EPIC-05 шаг 2).
+        public static string LowAttractivenessSuffix(float multiplier)
+        {
+            if (float.IsNaN(multiplier) || multiplier >= 0.995f) return string.Empty;
+            int pct = (int)Math.Round(multiplier * 100f);
+            return " • низкая привлекательность (" + pct + "%)";
         }
 
         // Русское склонение: 1 дом, 2 дома, 5 домов, 11 домов, 21 дом.

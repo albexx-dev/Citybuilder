@@ -5,36 +5,24 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Автовъезд домохозяйств в выросшие дома по таймеру. Связные раньше, внутри — first-fit.
-    // В EPIC-03 шаг 3 проверяет гейты занятости и среднего удовлетворения по 9 показателям.
+    // Гейты занятости и удовлетворения (EPIC-03) + множитель привлекательности города (EPIC-05).
     public class PopulationController : MonoBehaviour
     {
         [Header("References")]
-        [Tooltip("Рост поселений. Обязателен: даёт выросшие дома для заселения.")]
-        public SettlementGrowthController Growth;
-        [Tooltip("Вид населения. Пусто = создастся на этом же объекте.")]
-        public PopulationView View;
-        [Tooltip("Энергия города. Пусто = ищется на объекте Growth; нет — без учёта энергии.")]
-        public PowerController Power;
-        [Tooltip("Вода города. Пусто = ищется на объекте Growth.")]
-        public WaterController Water;
-        [Tooltip("Мусор города. Пусто = ищется на объекте Growth.")]
-        public WasteController Waste;
-        [Tooltip("Службы города (пожарные, здоровье, досуг). Пусто = ищется на объекте Growth.")]
-        public ServiceCoverageController Services;
+        [Tooltip("Рост поселений. Обязателен: даёт выросшие дома для заселения.")] public SettlementGrowthController Growth;
+        [Tooltip("Вид населения. Пусто = создастся на этом же объекте.")] public PopulationView View;
+        [Tooltip("Энергия города. Пусто = ищется на объекте Growth.")] public PowerController Power;
+        [Tooltip("Вода города. Пусто = ищется на объекте Growth.")] public WaterController Water;
+        [Tooltip("Мусор города. Пусто = ищется на объекте Growth.")] public WasteController Waste;
+        [Tooltip("Службы города (пожарные, здоровье, досуг). Пусто = ищется на объекте Growth.")] public ServiceCoverageController Services;
         [Header("Transport")]
-        [Tooltip("Связность дорог. Пусто = старое поведение first-fit.")]
-        public ConnectivityController Connectivity;
+        [Tooltip("Связность дорог. Пусто = старое поведение first-fit.")] public ConnectivityController Connectivity;
         [Header("Move-in")]
-        [Tooltip("Размер въезжающего домохозяйства. Минимум 1.")]
-        public int HouseholdSize = 2;
-        [Tooltip("Пауза между въездами в секундах. Минимум 1.")]
-        public float MoveInIntervalSec = 7f;
-        [Tooltip("Минимальная занятость для въезда. Ниже — новые не въезжают.")]
-        public float MinEmployment = 0.4f;
-        [Tooltip("Минимальное среднее удовлетворение потребностей (EPIC-03).")]
-        public float MinSatisfaction = 0.5f;
-        [Tooltip("Режим автовъезда. Выключите для ручного заселения.")]
-        public bool placementActive = true;
+        [Tooltip("Размер въезжающего домохозяйства. Минимум 1.")] public int HouseholdSize = 2;
+        [Tooltip("Пауза между въездами в секундах. Минимум 1.")] public float MoveInIntervalSec = 7f;
+        [Tooltip("Минимальная занятость для въезда. Ниже — новые не въезжают.")] public float MinEmployment = 0.4f;
+        [Tooltip("Минимальное среднее удовлетворение потребностей (EPIC-03).")] public float MinSatisfaction = 0.5f;
+        [Tooltip("Режим автовъезда. Выключите для ручного заселения.")] public bool placementActive = true;
 
         private PopulationSystem population;
         private NeedSystem needs;
@@ -42,10 +30,22 @@ namespace Citybuilder
 
         public PopulationSystem Population
         {
+            get { EnsurePopulation(); return population; }
+        }
+
+        public float CurrentAttractiveness
+        {
             get
             {
-                EnsurePopulation();
-                return population;
+                ResolveCityRefs();
+                float leisure = Services != null ? Services.RateOf(ServiceKind.Leisure) : 0f;
+                float health = Services != null ? Services.RateOf(ServiceKind.Health) : 0f;
+                float power = Power != null ? Power.Rate01 : 1f;
+                float water = Water != null ? Water.Rate01 : 1f;
+                float waste = Waste != null ? Waste.Rate01 : 1f;
+                float jams = Growth != null && Growth.Congestion != null ? Growth.Congestion.Multiplier : 1f;
+                bool deficit = Growth != null && Growth.Treasury != null && Growth.Treasury.Treasury != null && Growth.Treasury.Treasury.IsInDeficit;
+                return AttractivenessPolicy.Evaluate(leisure, health, power, water, waste, jams, deficit);
             }
         }
 
@@ -99,9 +99,18 @@ namespace Citybuilder
         {
             if (!EnsureReady() || !placementActive || population == null) return;
             timer += Time.deltaTime;
-            if (timer < MoveInIntervalSec) return;
+            if (timer < EffectiveInterval(MoveInIntervalSec, CurrentAttractiveness)) return;
             timer = 0f;
             TryMoveIn();
+        }
+
+        // Делит базовый интервал на множитель привлекательности 0.5..1.5 (EPIC-05 шаг 2).
+        public static float EffectiveInterval(float baseIntervalSec, float attractivenessMultiplier)
+        {
+            float baseSec = baseIntervalSec < 1f ? 1f : baseIntervalSec;
+            float mult = float.IsNaN(attractivenessMultiplier) ? 1f
+                : Mathf.Clamp(attractivenessMultiplier, AttractivenessPolicy.MinMultiplier, AttractivenessPolicy.MaxMultiplier);
+            return baseSec / mult;
         }
 
         // Проходят ли гейты занятости и 9-компонентного удовлетворения (EPIC-03 шаг 3).
@@ -153,13 +162,19 @@ namespace Citybuilder
             return Connectivity.IsHomeConnected(home);
         }
 
-        private void EnsureNeeds()
+        private void ResolveCityRefs()
         {
-            if (needs != null || population == null || Growth == null || Growth.Settlement == null) return;
+            if (Growth == null) return;
             if (Power == null) Power = Growth.GetComponent<PowerController>();
             if (Water == null) Water = Growth.GetComponent<WaterController>();
             if (Waste == null) Waste = Growth.GetComponent<WasteController>();
             if (Services == null) Services = Growth.GetComponent<ServiceCoverageController>();
+        }
+
+        private void EnsureNeeds()
+        {
+            if (needs != null || population == null || Growth == null || Growth.Settlement == null) return;
+            ResolveCityRefs();
             Func<float> power = Power != null ? (Func<float>)(() => Power.Rate01) : null;
             Func<float> water = Water != null ? (Func<float>)(() => Water.Rate01) : null;
             Func<float> waste = Waste != null ? (Func<float>)(() => Waste.Rate01) : null;
