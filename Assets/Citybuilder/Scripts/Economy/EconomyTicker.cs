@@ -79,7 +79,7 @@ namespace Citybuilder
         {
             EnsureSystems();
             if (tax == null) return;
-            if (tax.Collect(PerWorker) > 0) AudioController.PlayCoinGlobal();
+            if (tax.Collect(PerWorker).Success) AudioController.PlayCoinGlobal();
             Treasury.Treasury.Charge(UpkeepPolicy.UpkeepPerHour(Growth.Homes,
                 Placement != null ? Placement.Placed : null));
             ReportCityEvents(tickCount);

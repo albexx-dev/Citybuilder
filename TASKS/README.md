@@ -43,6 +43,6 @@
 | #18 | [Туториал v2](EPIC-18-tutorial.md) | ux | **done** — шаги 1-2 из 2 готовы |
 | #19 | [Звук](EPIC-19-sound.md) | ux | **done** — шаги 1-2 из 2 готовы |
 | #20 | [Blender-конвейер](EPIC-20-blender.md) | content | **done** — шаги 1-3 из 3 готовы |
-| #21 | [Релиз v1.1.0](EPIC-21-release.md) | release | not started |
+| #21 | [Релиз v1.1.0](EPIC-21-release.md) | release | **done** — шаги 1-3 из 3 готовы |
 
 Прогресс отмечается здесь и чек-боксами в issue. Две задачи параллельно запрещены.
