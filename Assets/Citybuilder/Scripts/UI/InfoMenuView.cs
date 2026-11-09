@@ -2,14 +2,14 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Информационное меню по кнопке «Статистика» или Tab (EPIC-14, EPIC-05).
-    // В закрытом состоянии ничего не рисует и не аллоцирует; строки кешируются при открытии/по интервалу.
+    // Информационное меню по кнопке «Статистика» или Tab (EPIC-14, EPIC-05, EPIC-15).
     public class InfoMenuView : MonoBehaviour
     {
         [Header("References")]
         [Tooltip("Потребности города. Пусто = ищется в сцене.")] public NeedsView Needs;
         [Tooltip("Цель города. Пусто = ищется в сцене.")] public GoalView Goal;
         [Tooltip("Связность дорог. Пусто = ищется на этом же объекте.")] public ConnectivityView Connectivity;
+        [Tooltip("Пробки на дорогах (EPIC-15). Пусто = ищется на этом же объекте.")] public CongestionController Congestion;
         [Tooltip("Энергия. Пусто = ищется на этом же объекте.")] public PowerView Power;
         [Tooltip("Вода. Пусто = ищется на этом же объекте.")] public WaterView Water;
         [Tooltip("Мусор. Пусто = ищется на этом же объекте.")] public WasteView Waste;
@@ -20,12 +20,12 @@ namespace Citybuilder
         [Tooltip("Население города (для привлекательности). Пусто = ищется в сцене.")] public PopulationController Population;
 
         private const float RefreshIntervalSec = 0.5f;
-        private const float ContentHeight = 480f;
+        private const float ContentHeight = 510f;
 
         private bool isOpen;
         private Vector2 scroll;
         private float nextRefreshTime;
-        private readonly string[] cachedLines = new string[10];
+        private readonly string[] cachedLines = new string[11];
 
         public bool IsOpen { get { return isOpen; } }
 
@@ -67,6 +67,7 @@ namespace Citybuilder
         private void ResolveRefs()
         {
             if (Connectivity == null) Connectivity = GetComponent<ConnectivityView>();
+            if (Congestion == null) Congestion = GetComponent<CongestionController>();
             if (Power == null) Power = GetComponent<PowerView>();
             if (Water == null) Water = GetComponent<WaterView>();
             if (Waste == null) Waste = GetComponent<WasteView>();
@@ -85,14 +86,15 @@ namespace Citybuilder
             cachedLines[0] = Needs != null ? Needs.CurrentText : string.Empty;
             cachedLines[1] = Goal != null ? Goal.CurrentText : string.Empty;
             cachedLines[2] = Connectivity != null ? Connectivity.CurrentText : string.Empty;
-            cachedLines[3] = Power != null ? Power.CurrentText : string.Empty;
-            cachedLines[4] = Water != null ? Water.CurrentText : string.Empty;
-            cachedLines[5] = Waste != null ? Waste.CurrentText : string.Empty;
-            cachedLines[6] = Fire != null ? Fire.CurrentText : string.Empty;
-            cachedLines[7] = Fire != null ? Fire.HealthLeisureText : string.Empty;
-            cachedLines[8] = Progression != null ? Progression.CurrentText : string.Empty;
+            cachedLines[3] = Congestion != null ? Congestion.CurrentSummaryText : string.Empty;
+            cachedLines[4] = Power != null ? Power.CurrentText : string.Empty;
+            cachedLines[5] = Water != null ? Water.CurrentText : string.Empty;
+            cachedLines[6] = Waste != null ? Waste.CurrentText : string.Empty;
+            cachedLines[7] = Fire != null ? Fire.CurrentText : string.Empty;
+            cachedLines[8] = Fire != null ? Fire.HealthLeisureText : string.Empty;
+            cachedLines[9] = Progression != null ? Progression.CurrentText : string.Empty;
             float attr = Population != null ? Population.CurrentAttractiveness : 1f;
-            cachedLines[9] = AttractivenessPolicy.FormatLine(attr);
+            cachedLines[10] = AttractivenessPolicy.FormatLine(attr);
         }
 
         private void DrawCachedSections(float width)
@@ -101,14 +103,14 @@ namespace Citybuilder
             DrawSection(ref y, "=== Город ===", cachedLines[0]);
             DrawSection(ref y, "=== Цель ===", cachedLines[1]);
             DrawHeader(ref y, "=== Сети ===");
-            for (int i = 2; i <= 5; i++) DrawLine(ref y, cachedLines[i]);
+            for (int i = 2; i <= 6; i++) DrawLine(ref y, cachedLines[i]);
             DrawHeader(ref y, "=== Службы ===");
-            DrawLine(ref y, cachedLines[6]);
             DrawLine(ref y, cachedLines[7]);
+            DrawLine(ref y, cachedLines[8]);
             DrawBudgetSection(ref y, width);
             DrawHeader(ref y, "=== Развитие ===");
-            DrawLine(ref y, cachedLines[8]);
             DrawLine(ref y, cachedLines[9]);
+            DrawLine(ref y, cachedLines[10]);
         }
 
         private void DrawBudgetSection(ref float y, float width)

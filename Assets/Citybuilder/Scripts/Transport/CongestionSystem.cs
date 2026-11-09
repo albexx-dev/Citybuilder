@@ -2,7 +2,7 @@ using System;
 
 namespace Citybuilder
 {
-    // Пробки транспорта (T3, этап 057; EPIC-15 шаг 1 — запрос Load01). Чистая логика без Unity.
+    // Пробки транспорта (T3, этап 057; EPIC-15 шаги 1 и 3). Чистая логика без Unity.
     // Множитель времени растёт с нагрузкой клетки; ниже порога — без эффекта.
     public class CongestionSystem
     {
@@ -67,10 +67,7 @@ namespace Citybuilder
         public CongestionSystem(Func<int, int> loadOf, int threshold, float factor, float maxMultiplier)
             : this((Func<GridPosition, int>)null, null, threshold, factor, maxMultiplier) { }
 
-        public bool IsCongested(int load)
-        {
-            return load >= Threshold;
-        }
+        public bool IsCongested(int load) { return load >= Threshold; }
 
         public float MultiplierFor(int load)
         {
@@ -81,7 +78,6 @@ namespace Citybuilder
             return value;
         }
 
-        // Нормированная нагрузка клетки 0..1 для визуализации (EPIC-15 шаг 1): 0 ниже порога, 1 на потолке.
         public float Load01(GridPosition cell)
         {
             if (loadOf == null || MaxMultiplier <= 1f) return 0f;
@@ -108,10 +104,43 @@ namespace Citybuilder
             return worst;
         }
 
+        public int CongestedCellsCount()
+        {
+            if (grid == null || loadOf == null) return 0;
+            int count = 0;
+            GridSize size = grid.Size;
+            for (int x = 0; x < size.Width; x++)
+            {
+                for (int y = 0; y < size.Height; y++)
+                {
+                    if (IsCongested(loadOf(new GridPosition(x, y)))) count++;
+                }
+            }
+            return count;
+        }
+
+        public float WorstLoad01()
+        {
+            if (MaxMultiplier <= 1f) return 0f;
+            float w = WorstMultiplier();
+            if (float.IsNaN(w) || w <= 1f) return 0f;
+            float r = (w - 1f) / (MaxMultiplier - 1f);
+            return r > 1f ? 1f : r;
+        }
+
         public int GrowthTickMultiplier()
         {
             int ticks = (int)Math.Round(WorstMultiplier());
             return ticks < 1 ? 1 : ticks;
+        }
+
+        // Форматирует строку для инфоменю (EPIC-15 шаг 3): «Пробки: N (худшая клетка Z%, рост ×M)».
+        public string FormatSummaryLine()
+        {
+            int count = CongestedCellsCount();
+            int pct = (int)Math.Round(WorstLoad01() * 100f);
+            int mult = GrowthTickMultiplier();
+            return "Пробки: " + count + " (худшая клетка " + pct + "%, рост ×" + mult + ")";
         }
     }
 }
