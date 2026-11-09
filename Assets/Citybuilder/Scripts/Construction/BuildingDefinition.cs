@@ -36,11 +36,11 @@ namespace Citybuilder
         public int JobsProvided = 0;
 
         [Header("Service")]
-        [Tooltip("Радиус службы в клетках. 0 — не служба")]
-        public int ServiceRadius = 0;
-
-        [Tooltip("Тип службы. None — не служба")]
+        [Tooltip("Тип службы. None — не служба.")]
         public ServiceKind ServiceKind = ServiceKind.None;
+
+        [Tooltip("Радиус службы в клетках. 0 — не служба.")]
+        public int ServiceRadius = 0;
 
         [Header("Infrastructure")]
         [Tooltip("Сколько энергии потребляет одно здание. Не может быть отрицательным.")]
@@ -102,10 +102,10 @@ namespace Citybuilder
             return value < 0 ? 0 : value;
         }
 
-        // Неизвестное значение типа службы (вне 0..2) гаснет в None.
+        // Неизвестное значение типа службы гаснет в None.
         public static ServiceKind SanitizeServiceKind(ServiceKind kind)
         {
-            return kind == ServiceKind.Fire || kind == ServiceKind.Police ? kind : ServiceKind.None;
+            return System.Enum.IsDefined(typeof(ServiceKind), kind) ? kind : ServiceKind.None;
         }
 
         private void ClampServiceKind()
