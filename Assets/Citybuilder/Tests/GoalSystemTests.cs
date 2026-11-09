@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Границы победы/поражения цели из 045 на настоящем API.
+    // Тесты прогресса к первой вехе GoalSystem (EPIC-08: без исходов победы/поражения).
     public class GoalSystemTests
     {
         private const float Delta = 1e-4f;
@@ -40,62 +40,6 @@ namespace Citybuilder
         public void Ctor_NullClock_Throws()
         {
             Assert.Throws<ArgumentNullException>(() => new GoalSystem(new PopulationSystem(), null));
-        }
-
-        [Test]
-        public void Won_BelowGoal_False()
-        {
-            GoalSystem goals;
-            MakeGoal(49, 0, out goals);
-            Assert.IsFalse(goals.Won);
-        }
-
-        [Test]
-        public void Won_AtGoal_True()
-        {
-            GoalSystem goals;
-            MakeGoal(50, 0, out goals);
-            Assert.IsTrue(goals.Won);
-        }
-
-        [Test]
-        public void Won_AboveGoal_True()
-        {
-            GoalSystem goals;
-            MakeGoal(51, 0, out goals);
-            Assert.IsTrue(goals.Won);
-        }
-
-        [Test]
-        public void Lost_BeforeDeadline_Empty_False()
-        {
-            GoalSystem goals;
-            MakeGoal(0, 0, out goals);
-            Assert.IsFalse(goals.Lost);
-        }
-
-        [Test]
-        public void Lost_AtDeadline_Empty_False()
-        {
-            GoalSystem goals;
-            MakeGoal(0, 72, out goals);
-            Assert.IsFalse(goals.Lost);
-        }
-
-        [Test]
-        public void Lost_AfterDeadline_Empty_True()
-        {
-            GoalSystem goals;
-            MakeGoal(0, 73, out goals);
-            Assert.IsTrue(goals.Lost);
-        }
-
-        [Test]
-        public void Lost_AfterDeadline_WithResidents_False()
-        {
-            GoalSystem goals;
-            MakeGoal(1, 73, out goals);
-            Assert.IsFalse(goals.Lost);
         }
 
         [Test]
