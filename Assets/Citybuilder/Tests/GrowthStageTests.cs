@@ -10,9 +10,11 @@ namespace Citybuilder
         [Test]
         public void SelectVariant_SameEntityId_ReturnsDeterministicIndex()
         {
-            EntityId id = new EntityId(17);
-            Assert.AreEqual(2, BuildingDefinition.SelectVariant(id, 3));
-            Assert.AreEqual(2, BuildingDefinition.SelectVariant(id, 3));
+            EntityId id = EntityId.New();
+            int expected = BuildingDefinition.SelectVariant(id, 3);
+            Assert.GreaterOrEqual(expected, 0);
+            Assert.Less(expected, 3);
+            Assert.AreEqual(expected, BuildingDefinition.SelectVariant(id, 3));
             Assert.AreEqual(0, BuildingDefinition.SelectVariant(id, 1));
             Assert.AreEqual(0, BuildingDefinition.SelectVariant(id, 0));
         }
@@ -28,7 +30,7 @@ namespace Citybuilder
                 def.Footprint = new Vector2Int(2, 2);
                 def.VariantCount = 3;
                 BuildingState state = new BuildingState(
-                    new EntityId(5), def, new GridPosition(0, 0),
+                    EntityId.New(), def, new GridPosition(0, 0),
                     new List<GridPosition> { new GridPosition(0, 0) });
 
                 GameObject go = view.AddBuilding(state, def, 1f, false);
@@ -46,14 +48,14 @@ namespace Citybuilder
 
                 // Восстановление из сейва пропускает фазу стройки.
                 BuildingState restored = new BuildingState(
-                    new EntityId(6), def, new GridPosition(4, 4),
+                    EntityId.New(), def, new GridPosition(4, 4),
                     new List<GridPosition> { new GridPosition(4, 4) });
                 GameObject restoredGo = view.AddBuilding(restored, def, 1f, true);
                 Assert.IsNull(restoredGo.GetComponent<GrowthStageView>());
 
                 // Снос в фазе стройки не бросает исключений.
                 BuildingState midBuild = new BuildingState(
-                    new EntityId(7), def, new GridPosition(8, 8),
+                    EntityId.New(), def, new GridPosition(8, 8),
                     new List<GridPosition> { new GridPosition(8, 8) });
                 view.AddBuilding(midBuild, def, 1f, false);
                 Assert.DoesNotThrow(() => view.RemoveBuilding(midBuild));
