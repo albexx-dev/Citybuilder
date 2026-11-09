@@ -28,7 +28,7 @@ namespace Citybuilder
             GUI.color = saved;
         }
 
-        // Кнопка с подсветкой активного состояния.
+        // Кнопка с подсветкой активного состояния и звуком клика (EPIC-19).
         public static bool DrawButton(Rect rect, string label, bool highlighted)
         {
             Color saved = GUI.backgroundColor;
@@ -38,6 +38,7 @@ namespace Citybuilder
             }
             bool clicked = GUI.Button(rect, label);
             GUI.backgroundColor = saved;
+            if (clicked) AudioController.PlayClickGlobal();
             return clicked;
         }
 

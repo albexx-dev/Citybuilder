@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Окно событийной ленты города по кнопке «Лента» или клавише L (EPIC-09 шаг 2, ADR-007).
+    // Окно событийной ленты города по кнопке «Лента» или клавише L (EPIC-09 шаг 2, ADR-007, EPIC-19).
     // В закрытом состоянии ничего не рисует; снимок строк пересобирается при открытии и раз в полсекунды.
     public class EventLogView : MonoBehaviour
     {
@@ -33,6 +33,7 @@ namespace Citybuilder
 
         public void SetOpen(bool open)
         {
+            if (isOpen != open) AudioController.PlaySwooshGlobal();
             isOpen = open;
             if (isOpen)
             {
@@ -46,7 +47,11 @@ namespace Citybuilder
 
         public void Record(EventKind kind, string message, int tick)
         {
-            if (log.Add(kind, message, tick) && isOpen) RebuildCache();
+            if (log.Add(kind, message, tick))
+            {
+                AudioController.PlayPopGlobal();
+                if (isOpen) RebuildCache();
+            }
         }
 
         public void ClearLog()
