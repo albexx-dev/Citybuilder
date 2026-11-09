@@ -5,6 +5,7 @@ function `export_building_fbx(name, output_path)` with deterministic Unity FBX
 export settings (1 unit = 1 meter = 1 grid cell, Y up, -Z forward, pivot at ground).
 """
 import os
+import re
 import bpy
 
 bl_info = {
@@ -47,6 +48,17 @@ def apply_transforms(objects):
         bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
 
+def normalize_fbx_timestamps(filepath):
+    """Normalize CreationTime/TimeStamp fields in binary FBX for byte-identical reproducible exports."""
+    with open(filepath, "rb") as f:
+        data = f.read()
+    data = re.sub(rb"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}:\d{3}", b"2026-01-01 00:00:00:000", data)
+    for tag in (b"YearI", b"MonthI", b"DayI", b"HourI", b"MinuteI", b"SecondI", b"MillisecondI"):
+        data = re.sub(tag + rb"....", tag + b"\x00\x00\x00\x00", data, flags=re.DOTALL)
+    with open(filepath, "wb") as f:
+        f.write(data)
+
+
 def export_building_fbx(name, repo_root=None, objects=None):
     """Deterministically export mesh objects to Assets/Citybuilder/Models/<name>.fbx."""
     target_objects = objects if objects is not None else [o for o in bpy.context.scene.objects if o.type == "MESH"]
@@ -84,6 +96,7 @@ def export_building_fbx(name, repo_root=None, objects=None):
         axis_forward="-Z",
         axis_up="Y",
     )
+    normalize_fbx_timestamps(out_path)
     return out_path, message
 
 
