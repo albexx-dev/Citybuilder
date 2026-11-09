@@ -85,7 +85,7 @@ namespace Citybuilder
             validMaterial = PreviewMaterial(new Color(0f, 1f, 0f, 0.4f));
             invalidMaterial = PreviewMaterial(new Color(1f, 0f, 0f, 0.4f));
             previewMesh = EnsureChildMesh("RoadPreview", new Color(0f, 1f, 0f, 0.4f), out previewRenderer);
-            previewRenderer.material = validMaterial;
+            previewRenderer.sharedMaterial = validMaterial;
         }
 
         private Mesh EnsureChildMesh(string childName, Color color, out MeshRenderer renderer)
@@ -95,11 +95,11 @@ namespace Citybuilder
             if (found == null) go.transform.SetParent(transform, false);
             MeshFilter filter = go.GetComponent<MeshFilter>();
             if (filter == null) filter = go.AddComponent<MeshFilter>();
-            if (filter.mesh == null) filter.mesh = new Mesh();
+            if (filter.sharedMesh == null) filter.sharedMesh = new Mesh();
             renderer = go.GetComponent<MeshRenderer>();
             if (renderer == null) renderer = go.AddComponent<MeshRenderer>();
-            renderer.material = PreviewMaterial(color);
-            return filter.mesh;
+            renderer.sharedMaterial = PreviewMaterial(color);
+            return filter.sharedMesh;
         }
 
         private static Material PreviewMaterial(Color color)

@@ -41,9 +41,9 @@ namespace Citybuilder
             growBlend = 0f;
             isConstructing = true;
             if (roofObject != null) roofObject.SetActive(false);
-            if (wallRenderer != null && wallRenderer.material != null)
+            if (wallRenderer != null && wallRenderer.sharedMaterial != null)
             {
-                wallRenderer.material.color = new Color(0.5f, 0.5f, 0.5f);
+                wallRenderer.sharedMaterial.color = new Color(0.5f, 0.5f, 0.5f);
             }
             ApplyScale(FrameScale);
             SubscribeClock();
@@ -57,9 +57,9 @@ namespace Citybuilder
             isConstructing = false;
             growBlend = 0f;
             if (roofObject != null) roofObject.SetActive(true);
-            if (wallRenderer != null && wallRenderer.material != null)
+            if (wallRenderer != null && wallRenderer.sharedMaterial != null)
             {
-                wallRenderer.material.color = finalWallColor;
+                wallRenderer.sharedMaterial.color = finalWallColor;
             }
             UnsubscribeClock();
         }

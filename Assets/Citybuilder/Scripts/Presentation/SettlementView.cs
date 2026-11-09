@@ -29,14 +29,14 @@ namespace Citybuilder
             GameObject go;
             if (!views.TryGetValue(state.Id, out go)) return;
             views.Remove(state.Id);
-            if (go != null) Destroy(go);
+            DestroySafe(go);
         }
 
         public void Clear()
         {
             foreach (KeyValuePair<EntityId, GameObject> entry in views)
             {
-                if (entry.Value != null) Destroy(entry.Value);
+                DestroySafe(entry.Value);
             }
             views.Clear();
         }
@@ -63,10 +63,10 @@ namespace Citybuilder
             Vector3 groundCenter = FootprintCenter(state.Origin, def, cellSize, 0f);
             cube.transform.localScale = fullScale;
             cube.transform.localPosition = new Vector3(groundCenter.x, h * 0.5f, groundCenter.z);
-            Destroy(cube.GetComponent<Collider>());
+            DestroySafe(cube.GetComponent<Collider>());
             Color wallColor = WallColor(def, variant);
             MeshRenderer renderer = cube.GetComponent<MeshRenderer>();
-            renderer.material = BuildMaterial(wallColor);
+            renderer.sharedMaterial = BuildMaterial(wallColor);
             GameObject roof = BuildRoof(cube, h, variant);
             if (!skipConstructionStage)
             {
@@ -82,9 +82,9 @@ namespace Citybuilder
             roof.transform.SetParent(parent.transform, false);
             roof.transform.localScale = new Vector3(0.7f, 0.3f / h, 0.7f);
             roof.transform.localPosition = new Vector3(0f, 0.5f + 0.15f / h, 0f);
-            Destroy(roof.GetComponent<Collider>());
+            DestroySafe(roof.GetComponent<Collider>());
             float tint = variant * 0.08f;
-            roof.GetComponent<MeshRenderer>().material = BuildMaterial(new Color(0.45f + tint, 0.25f + tint * 0.5f, 0.1f));
+            roof.GetComponent<MeshRenderer>().sharedMaterial = BuildMaterial(new Color(0.45f + tint, 0.25f + tint * 0.5f, 0.1f));
             return roof;
         }
 
@@ -102,6 +102,13 @@ namespace Citybuilder
             Material material = new Material(Shader.Find("Unlit/Color"));
             material.color = color;
             return material;
+        }
+
+        private static void DestroySafe(Object obj)
+        {
+            if (obj == null) return;
+            if (Application.isPlaying) Destroy(obj);
+            else DestroyImmediate(obj);
         }
 
         private Color WallColor(BuildingDefinition def, int variant)
