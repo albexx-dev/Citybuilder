@@ -34,6 +34,14 @@ namespace Citybuilder
             Balance = startingBalance < 0 ? 0 : startingBalance;
         }
 
+        // Казна из сохранения: минус допустим, иначе загрузка «прощала» бы дефицит содержания.
+        public static Treasury Restore(int balance)
+        {
+            Treasury treasury = new Treasury(0);
+            treasury.Balance = balance;
+            return treasury;
+        }
+
         public bool CanAfford(int amount)
         {
             if (amount < 0)

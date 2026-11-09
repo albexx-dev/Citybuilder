@@ -88,5 +88,13 @@ namespace Citybuilder
             Assert.AreEqual(114, treasury.Balance);
             Assert.IsFalse(treasury.IsInDeficit);
         }
+
+        [Test]
+        public void Restore_PreservesNegativeDeficitBalance()
+        {
+            Treasury treasury = Treasury.Restore(-45);
+            Assert.AreEqual(-45, treasury.Balance);
+            Assert.IsTrue(treasury.IsInDeficit);
+        }
     }
 }

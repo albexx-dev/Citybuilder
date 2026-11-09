@@ -28,7 +28,7 @@ namespace Citybuilder
         // Сброс баланса из сохранения: казна пересоздаётся как после reload.
         public void ResetBalance(int balance)
         {
-            treasury = new Treasury(balance);
+            treasury = Treasury.Restore(balance);
         }
 
         private void OnGUI()
