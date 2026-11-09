@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Citybuilder
 {
@@ -63,14 +64,11 @@ namespace Citybuilder
             CongestionSystem congestion = new CongestionSystem(p => p == cell ? currentLoad : 0, MakeGrid(), 4, 0.25f, 3f);
 
             Assert.AreEqual(0f, congestion.Load01(cell), 1e-4f);
-
-            currentLoad = 4; // multiplier = 1.25 -> (1.25 - 1) / 2 = 0.125
+            currentLoad = 4;
             Assert.AreEqual(0.125f, congestion.Load01(cell), 1e-4f);
-
-            currentLoad = 7; // multiplier = 2.0 -> (2 - 1) / 2 = 0.5
+            currentLoad = 7;
             Assert.AreEqual(0.5f, congestion.Load01(cell), 1e-4f);
-
-            currentLoad = 25; // multiplier = 3.0 -> 1.0
+            currentLoad = 25;
             Assert.AreEqual(1f, congestion.Load01(cell), 1e-4f);
         }
 
@@ -79,6 +77,30 @@ namespace Citybuilder
         {
             CongestionSystem congestion = new CongestionSystem(p => 10, MakeGrid(), 4, float.NaN, 3f);
             Assert.AreEqual(0f, congestion.Load01(new GridPosition(0, 0)), 1e-4f);
+        }
+
+        [Test]
+        public void RoadRecolor_ThresholdsAndOncePerTickGuard()
+        {
+            Assert.AreEqual(0, RoadView.BucketForLoad01(0.32f));
+            Assert.AreEqual(1, RoadView.BucketForLoad01(0.34f));
+            Assert.AreEqual(1, RoadView.BucketForLoad01(0.65f));
+            Assert.AreEqual(2, RoadView.BucketForLoad01(0.67f));
+
+            GameObject go = new GameObject("TestRoadView");
+            try
+            {
+                RoadView view = go.AddComponent<RoadView>();
+                int calls = 0;
+                List<GridPosition> cells = new List<GridPosition> { new GridPosition(0, 0) };
+                Assert.IsTrue(view.RefreshCongestionOncePerTick(10, cells, 1f, c => { calls++; return 0.5f; }));
+                Assert.IsFalse(view.RefreshCongestionOncePerTick(10, cells, 1f, c => { calls++; return 0.5f; }));
+                Assert.AreEqual(1, calls);
+            }
+            finally
+            {
+                Object.DestroyImmediate(go);
+            }
         }
     }
 }
