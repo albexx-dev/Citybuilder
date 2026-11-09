@@ -2,14 +2,10 @@ using System;
 
 namespace Citybuilder
 {
-    // Чистая логика цели: победа и поражение опросом систем, своего состояния нет.
-    // Won/Lost сохранены осознанно: в v1.1 экранов исходов нет, это протестированная основа для v1.2.
+    // Чистая логика вехи цели (EPIC-08: без исходов победы/поражения, доктрина песочницы GAME_DESIGN §19).
     public class GoalSystem
     {
         public const int GoalResidents = 50;
-        public const int LoseDay = 3;
-        // Поражение — пустой город после дня 3: 3 суток по 24 тика.
-        public const long LoseTicks = (long)LoseDay * SimulationTime.TicksPerDay;
 
         private readonly PopulationSystem population;
         private readonly SimulationClock clock;
@@ -32,7 +28,7 @@ namespace Citybuilder
             get { return clock.CurrentTime.TickCount; }
         }
 
-        // Доля пути к цели 0..1. Переполнение сверху режется.
+        // Доля пути к первой вехе 0..1. Переполнение сверху режется.
         public float Progress01
         {
             get
@@ -42,16 +38,6 @@ namespace Citybuilder
                 if (progress > 1f) return 1f;
                 return progress;
             }
-        }
-
-        public bool Won
-        {
-            get { return Residents >= GoalResidents; }
-        }
-
-        public bool Lost
-        {
-            get { return Ticks > LoseTicks && Residents == 0; }
         }
     }
 }
