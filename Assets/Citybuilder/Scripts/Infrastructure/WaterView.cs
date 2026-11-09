@@ -10,14 +10,20 @@ namespace Citybuilder
         [Tooltip("Контроллер воды. Опционален: иначе ищется на этом же объекте.")]
         public WaterController Controller;
 
+        public string CurrentText
+        {
+            get
+            {
+                WaterController controller = Controller != null ? Controller : GetComponent<WaterController>();
+                if (controller == null) return string.Empty;
+                return "Вода: " + controller.Demand + "/" + controller.Supply + " (" + ToPercent(controller.Rate01) + "%)";
+            }
+        }
+
         private void OnGUI()
         {
-            WaterController controller = Controller;
-            if (controller == null) controller = GetComponent<WaterController>();
-            if (controller == null) return;
-            string text = "Вода: " + controller.Demand + "/" + controller.Supply;
-            text += " (" + ToPercent(controller.Rate01) + "%)";
-            // y=278: ниже энергии (246+26+6 зазор), иначе налезает на лейблы.
+            string text = CurrentText;
+            if (string.IsNullOrEmpty(text)) return;
             HudText.Draw(10, 278, text);
         }
 

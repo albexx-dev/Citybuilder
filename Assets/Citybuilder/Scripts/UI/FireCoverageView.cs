@@ -13,14 +13,22 @@ namespace Citybuilder
         [Tooltip("Второй контроллер — полиция. Пусто = одна строка")]
         public FireCoverageController Police;
 
+        public string CurrentText
+        {
+            get
+            {
+                FireCoverageController fire = Controller != null ? Controller : GetComponent<FireCoverageController>();
+                if (fire == null) return string.Empty;
+                string text = Line("Пожарные", fire);
+                if (Police != null) text += " • " + Line("Полиция", Police);
+                return text;
+            }
+        }
+
         private void OnGUI()
         {
-            FireCoverageController fire = Controller;
-            if (fire == null) fire = GetComponent<FireCoverageController>();
-            if (fire == null) return;
-            string text = Line("Пожарные", fire);
-            if (Police != null) text += " • " + Line("Полиция", Police);
-            // y=342: ниже мусора (310+30+2), иначе налезает на лейблы.
+            string text = CurrentText;
+            if (string.IsNullOrEmpty(text)) return;
             HudText.Draw(10, 342, text);
         }
 

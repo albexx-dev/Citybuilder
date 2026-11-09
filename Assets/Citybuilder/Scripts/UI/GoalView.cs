@@ -27,6 +27,19 @@ namespace Citybuilder
             get { return stages.Stage; }
         }
 
+        // Текущая строка цели для информационного меню (EPIC-14).
+        public string CurrentText
+        {
+            get
+            {
+                PopulationController population = Population != null ? Population : GetComponent<PopulationController>();
+                SimulationRunner simulation = Simulation != null ? Simulation : GetComponent<SimulationRunner>();
+                if (population == null || simulation == null) return string.Empty;
+                EnsureGoals(population, simulation);
+                return goals != null ? BuildText() : string.Empty;
+            }
+        }
+
         public void RestoreStage(int stage)
         {
             stages.Restore(stage);
@@ -49,15 +62,9 @@ namespace Citybuilder
 
         private void OnGUI()
         {
-            PopulationController population = Population;
-            if (population == null) population = GetComponent<PopulationController>();
-            SimulationRunner simulation = Simulation;
-            if (simulation == null) simulation = GetComponent<SimulationRunner>();
-            if (population == null || simulation == null) return;
-            EnsureGoals(population, simulation);
-            if (goals == null) return;
-            // y=148: ниже потребностей (y=114), чтобы не налезать на левую колонку.
-            HudText.Draw(10, 148, BuildText());
+            string text = CurrentText;
+            if (string.IsNullOrEmpty(text)) return;
+            HudText.Draw(10, 148, text);
         }
 
         // Ленивый кеш: казна может жить на отдельном объекте, а поле в сцене пустое.
