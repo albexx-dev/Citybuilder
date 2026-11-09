@@ -1,34 +1,34 @@
 # Citybuilder
 
-3D city-building simulation in Unity 6 / C#. Current line: **v1.1**.
+3D city-building simulation in Unity 6 / C#. Current release: **v1.1.0**.
 
-Connected systems: construction, roads, zones, tick-based growth, population, employment, needs, taxes, energy/water/waste, fire/police coverage, road connectivity and congestion, goal stages, save/load and a HUD with onboarding hints.
+Connected systems:
+- **Construction & Growth:** grid 50×50, roads with drag-preview, R/C/I zones, tick-based building growth with 3-tick construction frames (`GrowthStageView`) and deterministic visual variants, low-poly 3D FBX models for Hospital (`3×3`) and Park (`2×2`) via the Blender pipeline (`Tools/blender-addon/`).
+- **Services & Needs v2:** unified `ServiceCoverageController` for Fire, Police, Health (Hospital) and Leisure (Park), 9 city need indicators (`NeedSystem`), satisfaction migration gate (`< 50%` stops move-in).
+- **Two-Sided Economy:** hourly tax collection, hourly building upkeep (`UpkeepPolicy`), treasury deficit support, city attractiveness multiplier (`0.5×..1.5×`) driven by tax rate, satisfaction and services.
+- **Visibility & UX v2:** bottom action bar (`BottomBarView`), collapsible statistics menu (`InfoMenuView`, `Tab`), city event log (`EventLogView`, `L`, 50-event ring buffer), building inspection panel with service radius overlay (`InfoPanelView`), road congestion heat coloring (green/yellow/red), 7-step interactive tutorial (`TutorialView`), main menu & pause menu (`Esc`) with unsaved-exit confirmation, 3 manual save slots + 24-tick autosave (`SaveSlotIndex`), and procedural UI audio (`AudioController`).
 
 ## Requirements
 
 - Unity **6000.3.25f1** — exact version in `ProjectSettings/ProjectVersion.txt`.
-- Optional MCP stack: Unity bridge on `127.0.0.1:8080`, Blender MCP on `127.0.0.1:9876`.
-- Python 3.10+ only for the static validator `Tools/ValidateRepo.py`.
+- Optional MCP stack: Unity bridge on `127.0.0.1:8080`, Blender 4.5 LTS MCP on `127.0.0.1:9876`.
+- Python 3.10+ for the static validator `Tools/ValidateRepo.py`.
 
 ## Quickstart
 
-1. Clone the repository and open **its root** as a Unity project. The repo IS the project: `Assets/`, `Packages/` and `ProjectSettings/` are committed together with `.meta` files.
-2. Open `Assets/Citybuilder/Scenes/Prototype.unity`.
-3. Press Play. Paint zones (mode **Зоны**), switch to **Рост** — houses grow on clock ticks, households move in, taxes are collected hourly.
-4. EditMode tests: Unity Test Runner → assembly `Tests` (288+ tests). They must be green before merging.
-5. Static CI validation: `python Tools/ValidateRepo.py`. The Unity EditMode CI job runs only when a Unity license secret is configured.
-
-## Configuration
-
-- Copy `Tools/mcp.example.json` to your WorkBuddy AI MCP configuration and adjust paths/ports if needed. The real config deliberately lives outside git.
-- Launcher paths are derived from the repo root or overridden with `CITYBUILDER_UNITY_EXE` / `CITYBUILDER_BLENDER_EXE`; see `UNITY_MCP_SETUP.md`.
-- Health check from the repo root: `powershell -ExecutionPolicy Bypass -File Tools/Check-UnityMcp.ps1`.
+1. Clone the repository and open **its root** as a Unity project (`Assets/`, `Packages/`, and `ProjectSettings/` are tracked with `.meta` files).
+2. Open `Assets/Citybuilder/Scenes/Prototype.unity` and press **Play**.
+3. Click **Новая игра** in the main menu. Follow the 7-step tutorial at the top of the screen:
+   - Paint **Зоны [3]** (Жилая / Коммерция / Промзона) and enable **Рост [4]**.
+   - Build roads (**Дороги [2]**) and utility/service buildings (**Дома [1]** palette: Power, Water, Waste, Fire, Police, Park, Hospital).
+   - Inspect any building by left-clicking it in **Выкл [Esc]** mode to see its status and service radius.
+   - Open **Статистика [Tab]** or **Лента [L]** from the bottom bar, or press **Esc** for the Pause Menu (Save/Load slots, volume slider, mute toggle).
+4. Static validation: `python Tools/ValidateRepo.py`.
 
 ## Documentation
 
-- `CONTRIBUTING.md` — workflow, limits, CI, branch protection, releases.
-- `SECURITY.md` — how to report vulnerabilities.
-- `CHANGELOG.md` — version history.
-- `AGENTS.md` — working rules for the orchestrator/engineer/reviewer roles.
-- `ARCHITECTURE.md`, `GAME_DESIGN.md`, `DECISIONS/` — design and ADRs.
-- `TASKS/README.md` — очередь эпиков v1.1; детальные планы — `TASKS/EPIC-XX-*.md`, трекинг — GitHub Issues #1–#21.
+- `CHANGELOG.md` — full release notes for `[v1.1.0]` and `[v1.1]`.
+- `ARCHITECTURE.md` — modular monolith design and implemented v1.1.0 systems.
+- `GAME_DESIGN.md` — simulation rules, infinite-game doctrine (§19), and v1.1 balance table (§20).
+- `UNITY_MCP_SETUP.md` — Unity/Blender MCP setup and the Blender FBX exporter addon workflow.
+- `TASKS/README.md` — completed v1.1 epic queue (`EPIC-01`..`EPIC-21`).

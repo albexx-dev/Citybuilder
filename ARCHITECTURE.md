@@ -2,13 +2,11 @@
 
 ## 1. Project goal
 
-Подробная 3D city-building игра в Unity 6. Акцент — глубокая симуляция связанных систем: дороги влияют на доступность, транспорт на время поездок, работа на доход, доход на потребление, коммуналка на качество жизни.
-
-Первый результат: вертикальный срез (сетка → выбор дома → предпросмотр → установка → списание денег).
+Подробная 3D city-building игра в Unity 6. Акцент — глубокая симуляция связанных систем: дороги влияют на доступность, транспорт на время поездок, работа на доход, доход на потребление, коммуналка и службы на качество жизни и привлекательность города.
 
 ## 2. Architectural principles
 
-- Маленькие проверяемые задачи, 1 задача = 1-3 файла, до 200 строк нового кода.
+- Маленькие проверяемые задачи, 1 задача = 1-3 файла, до 200 строк на C#-файл (жёсткий лимит валидатора).
 - Модульный монолит, чёткие границы модулей.
 - Plain C# domain logic внизу, Unity-адаптеры сверху, UI только команды и отображение.
 - State отдельно от View, Definition отдельно от State.
@@ -22,44 +20,52 @@
 
 ## 4. Separation of definition, state and view
 
-- `Definition` (ScriptableObject): тип объекта. Пример `BuildingDefinition`: id, displayName, size, constructionCost, prefab.
-- `State` (plain C#): экземпляр в городе. Пример `BuildingState`: EntityId, ссылка на definition, позиция, поворот, занятые клетки. Никогда не хранить runtime в ScriptableObject.
-- `View` (MonoBehaviour): отображение — GameObject, материалы, подсветка. Не решает правила игры.
+- `Definition` (ScriptableObject): тип объекта. Пример `BuildingDefinition`: id, displayName, footprint, constructionCost, upkeepPerHour, serviceKind, serviceRadius, variantCount, prefab.
+- `State` (plain C#): экземпляр в городе. Пример `BuildingState`: EntityId, ссылка на definition, позиция, занятые клетки. Никогда не хранить runtime в ScriptableObject.
+- `View` (MonoBehaviour): отображение — GameObject, материалы, фаза стройки (`GrowthStageView`), подсветка радиуса. Не решает правила игры.
 
 ## 5. Simulation time and ticks
 
-Frame Update каждый кадр: камера, ввод, анимации, предпросмотр, UI.
-Simulation Tick периодически: экономика, производство, жители, сети, статистика.
+Frame Update каждый кадр: камера, ввод, плавная доводка масштаба стройки, предпросмотр, UI.
+Simulation Tick периодически: экономика, производство, жители, сети, перекраска пробок на дорогах, автосейв, запись событий в ленту.
 
-Locked V1: Tick 1 сек = 1 игровой час, день = 24 тика, FastForward x4. Пауза останавливает тики. К тику подключены: часы, казна (`EconomyTicker`), рост поселения (`SettlementGrowthController` → `GrowthPace`: берётся худший из множителей — пробки `CongestionController.GrowthTickMultiplier` и дефицит снабжения `SupplyGrowthController.GrowthTickMultiplier`, ×1/×2/×3).
-Режимы: Paused / Playing / FastForward. События: `SimulationClock.TickStarted` / `TickCompleted` и `Treasury.BalanceChanged`; отдельных классов Command/Event и глобальной шины нет.
+Locked V1 / v1.1: Tick 1 сек = 1 игровой час, день = 24 тика, FastForward x4. Пауза останавливает тики. К тику подключены:
+- часы (`SimulationRunner`),
+- казна (`EconomyTicker`: сбор налогов, списание содержания `UpkeepPolicy.UpkeepPerHour`, запись событий дефицита/безработицы/пробок/снабжения в `CityEventLog`),
+- рост поселения (`SettlementGrowthController` → `GrowthPace`: худший множитель из пробок `CongestionController.GrowthTickMultiplier` и снабжения `SupplyGrowthController.GrowthTickMultiplier`, ×1/×2/×3),
+- визуализация пробок (`CongestionController` → `RoadView.RefreshCongestionOncePerTick`),
+- автосохранение каждые 24 тика (`AutosaveController`).
 
 ## 6. Commands, queries and events
 
 UI не меняет мир напрямую: `Команда → проверка → изменение мира → событие → обновление View/UI`.
-
-Команды: PlaceBuildingCommand, DemolishBuildingCommand, BuildRoadCommand и др.
-События: BuildingPlacedEvent, MoneyChangedEvent и др.
-Связи без циклов: через запросы (GetAvailableJobsQuery), интерфейсы чтения, снимки данных.
+Событийная лента для игрока (`CityEventLog`, кольцевой буфер на 50 записей с дедупликацией в окне 10 тиков, ADR-007) предназначена исключительно для отображения причин в `EventLogView`, а не для межсистемной связности.
 
 ## 7. Coordinate system
 
 Locked V1: квадратная сетка, клетка 1x1 м, начало (0,0), карта 50x50, без высоты. Менять только через ADR.
-
-Базовый тип `GridPosition (X, Y)`. Операции сетки: IsInside, WorldToGrid, GridToWorld, IsOccupied, Occupy, Release. Здания занимают прямоугольник, поворот меняет ширину/длину. Не нужны: гексы, свободное строительство, мосты, подземные уровни.
+Базовый тип `GridPosition (X, Y)`. Операции сетки: IsInside, WorldToGrid, GridToWorld, IsOccupied, Occupy, Release.
 
 ## 8. Core systems
 
-- Core: EntityId, GridPosition, GridSize, SimulationTime, NeedProviders, SupplyBalance, UnlockPolicy.
+- Core: EntityId, GridPosition, GridSize, SimulationTime, NeedProviders (6 провайдеров, включая `HealthNeedProvider` и `LeisureNeedProvider`), SupplyBalance, UnlockPolicy, CityEventLog, EventKind, CityEvent.
 - World: Map, Grid, ZonePainting, снимок клеток.
-- Construction: BuildingDefinition/State, PlacementController, RoadPlacementController, Demolition, View.
-- Economy: Treasury, TaxSystem, TaxPolicy, EconomyTicker.
-- Population: SettlementSystem, SettlementGrowthController, GrowthPace, PopulationController, HouseholdState, GoalStages.
-- Infrastructure: SupplyBalance (энергия / вода / мусор), SupplyGrowthPolicy + SupplyGrowthController (дефицит замедляет рост), ServiceCoverage, пожарные и полиция, NeedProviders, NeedSystem.
-- Transport: ConnectivitySystem, RouteSystem (A* по дорогам), CongestionSystem + CongestionController.
-- Simulation: Runner, порядок систем, статистика.
-- Presentation / UI: только отображение и команды, строки HUD через `HudText`; подсказки — чистая `StartHintPolicy` + `StartHintView`, статус роста — `GrowthStatusPolicy` + `GrowthStatusView`.
-- Persistence: CitySnapshot (v1–v4), SaveSystem, SnapshotHouseholds, HouseholdBinder, SaveSlotStorage, SaveController, LoadController, LoadLog.
+- Construction: BuildingDefinition/State, PlacementController, RoadPlacementController (`RoadDragInput`), Demolition, View.
+- Economy: Treasury (допускает отрицательный баланс/дефицит при списании `Charge`), TaxSystem, TaxPolicy, UpkeepPolicy, UpkeepStatusPolicy, AttractivenessPolicy, EconomyTicker.
+- Population: SettlementSystem, SettlementGrowthController, GrowthPace, PopulationController (интервал заселения масштабируется `AttractivenessPolicy.Multiplier` и блокируется при `OverallSatisfaction < 0.5`), HouseholdState, GoalSystem (вехи развития без `Won/Lost`), GoalStages, GoalRewardController.
+- Infrastructure: SupplyBalance (энергия / вода / мусор), SupplyGrowthPolicy + SupplyGrowthController, обобщённые службы v2 (`ServiceKind`: Fire, Police, Health, Leisure; `ServiceSource`, `ServiceCoverage`, `ServiceBuildingSystem`, `ServiceCoverageController`, ADR-006), `BuildingInfoQuery` (инспекция клетки/здания и расчёт клеток радиуса), `NeedSystem` (9 показателей).
+- Transport: ConnectivitySystem, RouteSystem (A* по дорогам), CongestionSystem (`Load01`, `CongestedCellsCount`, `WorstLoad01`, `FormatSummaryLine`) + CongestionController + `RoadView` (перекраска дорог зелёный/жёлтый/красный по порогам 0.33 и 0.66).
+- Presentation / UI:
+  - Нижняя панель действий (`BottomBarView`, `BottomBarStyle`, `HudLayout`, EPIC-13),
+  - Информационное меню по кнопке «Статистика» / `Tab` (`InfoMenuView`, EPIC-14),
+  - Событийная лента по кнопке «Лента» / `L` (`EventLogView`, EPIC-09),
+  - Инфопанель выбранного здания с подсветкой радиуса службы на сетке (`InfoPanelView` + `GridVisualizer.ShowRadiusOverlay`, EPIC-12),
+  - Главное меню (`MainMenu`), меню паузы по `Esc` с подтверждением несохранённого выхода и настройками звука (`PauseMenuView`, EPIC-16), окна слотов (`SaveMenuView`, `LoadMenuView`),
+  - Пошаговый туториал v2 из 7 шагов с подсветкой кнопок (`TutorialPolicy` + `TutorialView`, EPIC-18),
+  - Стадии роста зданий (3 тика каркаса 0.6 масштаба) и 3 детерминированных варианта домов (`GrowthStageView`, `SettlementView`, EPIC-17),
+  - Звуковая подсистема (`AudioController` + 4 процедурных CC0 WAV-клипа в `Assets/Citybuilder/Audio/`, EPIC-19),
+  - Blender-конвейер (`Tools/blender-addon/citybuilder_export.py`, `generate_models.py`) и low-poly FBX-модели `hospital.fbx` и `park.fbx` (EPIC-20).
+- Persistence: сейвы v2 (ADR-008, EPIC-11) — 3 ручных слота (`slot_0..2.json`), отдельный слот автосейва (`autosave.json`), индекс метаданных (`slots.json` через `SaveSlotIndex`), `AutosaveController` (каждые 24 тика), `SaveSlotStorage`, `SaveController` (`IsDirty`), `LoadController`.
 
 ## 9. Dependencies
 
@@ -69,45 +75,30 @@ Core
  │   Infrastructure, Transport, Population, Persistence
 ```
 
-World не знает про деньги и жителей. Construction знает World + стоимость через интерфейс экономики. Economy не создаёт жителей и здания напрямую. UI только отображает и шлёт команды.
-
 ## 10. Dependency restrictions
 
 Запрещены циклы вида BuildingSystem → EconomySystem → PopulationSystem → BuildingSystem. Вместо прямых ссылок: команды, запросы, события, порядок симуляции.
 
 ## 11. Unity integration
 
-Тонкие MonoBehaviour-адаптеры: ссылка на логику + вызов 1-2 методов. Сцена: `Prototype.unity` (единственная игровая). Папки растут только с кодом: Scripts/Core, World, Construction, Economy, Population, Infrastructure, Transport, Persistence, Simulation, UI, Presentation + Prefabs, Data/Buildings, Scenes.
+Тонкие MonoBehaviour-адаптеры: ссылка на логику + вызов 1-2 методов. Сцена: `Prototype.unity` (единственная игровая).
 
 ## 12. Data persistence
 
-Реализовано: снапшот v4 (`CitySnapshot`) — версия, тики, баланс, налоговая ставка, ступень цели, зоны, выросшие здания, домохозяйства (индекс + координаты дома), дороги, ручные здания. Версии 1–4 читаются совместимо: `SaveSlotStorage.Validate` принимает `1..CurrentVersion`, отсутствующие в старом слоте поля трактуются как значение по умолчанию (v1 → налог «обычный», ступень 0). Домохозяйства новый слот привязывает к дому по координатам (`HasHome`), старый — по индексу: `HouseholdBinder`.
-
-Отложено: облачные сейвы, автосейв по таймеру, несколько слотов на диске.
+Реализовано (сейвы v2, EPIC-11): снапшот v4 (`CitySnapshot`) сохраняется в 3 именованных слота (`slot_0.json`..`slot_2.json`) и автосейв (`autosave.json`) с метаданными в `slots.json` (`SaveSlotIndex`: имя слота, игровое время, население, баланс, штамп времени). Отрицательный баланс казны при дефиците корректно сохраняется и восстанавливается (`Treasury.Restore`).
 
 ## 13. Testing strategy
 
-- EditMode-тесты на всю чистую логику: 288+ тестов в 39+ файлах (`Assets/Citybuilder/Tests/`), прогон в редакторе — оркестратор; статическая валидация — `Tools/ValidateRepo.py` в CI.
-- Перед коммитом инженер гоняет чистый C# через `dotnet`/`csc` во временной папке, без Unity, и прикладывает результат.
-- Unity-специфика (компиляция сборок проекта, EditMode в редакторе, Play-E2E) — только оркестратор: редактор один на машину.
-- PlayMode-автотестов нет: игровой сценарий проверяется руками по чек-листу задачи.
+- EditMode-тесты на всю чистую логику и адаптеры: 63 тестовых файла (`Assets/Citybuilder/Tests/`), статическая валидация — `Tools/ValidateRepo.py` в CI.
 
 ## 14. Performance strategy
 
-Ориентир V1: сетка 50x50 = 2500 клеток только логика, без 2500 GameObject. Визуал сетки — 1 draw call. Тик не дольше 5 мс. Запрещено до Этапа 8: Jobs/Burst, LOD, оптимизации ради оптимизаций. Замеры только через Profiler.
+Ориентир V1 / v1.1: сетка 50x50 = 2500 клеток только логика, без 2500 GameObject. Визуал сетки и оверлея радиуса — процедурные меши (`GridMeshBuilder`). Перекраска пробок выполняется строго 1 раз за тик часов, а кеш строк `InfoMenuView` и `EventLogView` обновляется не чаще 2 раз в секунду.
 
-## 15. Current implementation scope
+## 15. Current implementation scope (v1.1.0)
 
-Задачи 001–104 смержены и запушены; на этом состоянии начинается **v1.1** (`DECISIONS/ADR-005-v1.1-scope.md`). Играбельно в редакторе и в билде windows64 102 (90 МиБ): сетка 50×50, зоны, рост по тикам, налоги с видимым сбором, энергия / вода / мусор со станциями-источниками, дефицит снабжения замедляет рост, пожарные и полиция, связность дорог и пробки, цель со ступенями, стартовая подсказка и статус роста, сейв и лоад v4 с налогом, ступенью цели и привязкой жителей к домам по координатам.
+Все эпики фаз 1–6 версии **v1.1.0** (`EPIC-01`..`EPIC-06`, `EPIC-08`..`EPIC-21`) полностью реализованы, покрыты тестами и смержены в `main`. Доктрина бесконечной партии (`GAME_DESIGN.md §19`) соблюдена: `GoalSystem.Won/Lost` полностью удалены из кодовой базы (EPIC-08).
 
-Дальше: CI и автоматическая валидация, читаемость HUD на низких окнах, сплиты крупных файлов, службы по готовому образцу. Экраны победы/поражения в v1.1 не возвращаются; `GoalSystem.Won/Lost` сохранён как протестированная доменная логика для следующей версии.
+## 16. Future decisions (v1.2+)
 
-## 16. Future decisions
-
-Транспорт с машинами, многоуровневость, облачные сейвы, Jobs/Burst — только через ADR в `DECISIONS/`, после того как текущий срез проверен на живом билде. Спорные изменения архитектуры без ADR не начинаются.
-
-## 17. v1.1 roadmap (эпики)
-
-Крупные изменения v1.1 планируются эпиками (GitHub Issues) и фиксируются ADR **до** кода: обобщённая система служб (ADR-006), событийная лента города (ADR-007), сейвы v2 — три слота + автосейв (ADR-008). По правилу §15 этот раздел не описывает планируемые системы как факт — после реализации каждого эпика факты переезжают в §8 и связанные разделы.
-
-Доктрина дизайна: партия не имеет конца (GAME_DESIGN §19) — исходов и финальных экранов нет, цель остаётся вехами роста.
+Пожары как активное событие (`EPIC-07`, требует ADR-009), визуальный трафик машин на дорогах, расширение 3D-моделей на остальные типы зданий — в очереди версии v1.2.
