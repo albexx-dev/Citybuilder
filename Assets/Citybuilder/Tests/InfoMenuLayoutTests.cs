@@ -25,5 +25,13 @@ namespace Citybuilder
             Assert.IsFalse(menu.Overlaps(bar));
             Assert.IsFalse(menu.Overlaps(popup));
         }
+
+        [Test]
+        public void LowWindow600_MenuScrollsAndStaysAboveBottomBar()
+        {
+            Rect menu = HudLayout.InfoMenuRect(1280f, 600f);
+            Assert.Less(menu.height, 600f);
+            Assert.IsTrue(HudLayout.IsHudRowVisible(454f, 0, 600f));
+        }
     }
 }
