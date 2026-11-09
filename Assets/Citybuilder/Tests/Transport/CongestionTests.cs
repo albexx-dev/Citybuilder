@@ -54,5 +54,31 @@ namespace Citybuilder
             CongestionSystem congestion = MakeSystem(grid);
             Assert.AreEqual(1f, congestion.WorstMultiplier());
         }
+
+        [Test]
+        public void Load01_EmptyCongestedAndClampedCells_ReturnsExpectedRatio()
+        {
+            GridPosition cell = new GridPosition(2, 3);
+            int currentLoad = 0;
+            CongestionSystem congestion = new CongestionSystem(p => p == cell ? currentLoad : 0, MakeGrid(), 4, 0.25f, 3f);
+
+            Assert.AreEqual(0f, congestion.Load01(cell), 1e-4f);
+
+            currentLoad = 4; // multiplier = 1.25 -> (1.25 - 1) / 2 = 0.125
+            Assert.AreEqual(0.125f, congestion.Load01(cell), 1e-4f);
+
+            currentLoad = 7; // multiplier = 2.0 -> (2 - 1) / 2 = 0.5
+            Assert.AreEqual(0.5f, congestion.Load01(cell), 1e-4f);
+
+            currentLoad = 25; // multiplier = 3.0 -> 1.0
+            Assert.AreEqual(1f, congestion.Load01(cell), 1e-4f);
+        }
+
+        [Test]
+        public void Load01_NaNFactor_ReturnsZero()
+        {
+            CongestionSystem congestion = new CongestionSystem(p => 10, MakeGrid(), 4, float.NaN, 3f);
+            Assert.AreEqual(0f, congestion.Load01(new GridPosition(0, 0)), 1e-4f);
+        }
     }
 }

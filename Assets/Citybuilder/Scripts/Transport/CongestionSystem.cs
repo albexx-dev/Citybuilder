@@ -1,15 +1,13 @@
 using System;
-using System.Collections.Generic;
 
 namespace Citybuilder
 {
-    // Пробки транспорта (T3, этап 057). Чистая логика, никем не используется.
+    // Пробки транспорта (T3, этап 057; EPIC-15 шаг 1 — запрос Load01). Чистая логика без Unity.
     // Множитель времени растёт с нагрузкой клетки; ниже порога — без эффекта.
     public class CongestionSystem
     {
-        private Func<GridPosition, int> loadOf;
-        private GridSystem grid;
-
+        private readonly Func<GridPosition, int> loadOf;
+        private readonly GridSystem grid;
         private int threshold;
         private float factor;
         private float maxMultiplier;
@@ -32,23 +30,9 @@ namespace Citybuilder
             set { maxMultiplier = value < 1f ? 1f : value; }
         }
 
-        public int CongestionThreshold
-        {
-            get { return Threshold; }
-            set { Threshold = value; }
-        }
-
-        public float CongestionFactor
-        {
-            get { return Factor; }
-            set { Factor = value; }
-        }
-
-        public float Max
-        {
-            get { return MaxMultiplier; }
-            set { MaxMultiplier = value; }
-        }
+        public int CongestionThreshold { get { return Threshold; } set { Threshold = value; } }
+        public float CongestionFactor { get { return Factor; } set { Factor = value; } }
+        public float Max { get { return MaxMultiplier; } set { MaxMultiplier = value; } }
 
         public CongestionSystem(RouteSystem routes)
             : this(routes, null, 4, 0.25f, 3.0f) { }
@@ -60,18 +44,7 @@ namespace Citybuilder
             : this(routes, null, threshold, factor, maxMultiplier) { }
 
         public CongestionSystem(RouteSystem routes, GridSystem grid, int threshold, float factor, float maxMultiplier)
-        {
-            Func<GridPosition, int> provider = null;
-            if (routes != null)
-            {
-                provider = routes.LoadOf;
-            }
-            loadOf = provider;
-            this.grid = grid;
-            Threshold = threshold;
-            Factor = factor;
-            MaxMultiplier = maxMultiplier;
-        }
+            : this(routes != null ? (Func<GridPosition, int>)routes.LoadOf : null, grid, threshold, factor, maxMultiplier) { }
 
         public CongestionSystem(Func<GridPosition, int> loadOf)
             : this(loadOf, null, 4, 0.25f, 3.0f) { }
@@ -101,40 +74,35 @@ namespace Citybuilder
 
         public float MultiplierFor(int load)
         {
-            if (!IsCongested(load))
-            {
-                return 1f;
-            }
+            if (!IsCongested(load)) return 1f;
             float value = 1f + (load - Threshold + 1) * Factor;
-            if (value < 1f)
-            {
-                value = 1f;
-            }
-            if (value > MaxMultiplier)
-            {
-                value = MaxMultiplier;
-            }
+            if (value < 1f) value = 1f;
+            if (value > MaxMultiplier) value = MaxMultiplier;
             return value;
+        }
+
+        // Нормированная нагрузка клетки 0..1 для визуализации (EPIC-15 шаг 1): 0 ниже порога, 1 на потолке.
+        public float Load01(GridPosition cell)
+        {
+            if (loadOf == null || MaxMultiplier <= 1f) return 0f;
+            float m = MultiplierFor(loadOf(cell));
+            if (float.IsNaN(m) || m <= 1f) return 0f;
+            float ratio = (m - 1f) / (MaxMultiplier - 1f);
+            if (float.IsNaN(ratio) || ratio < 0f) return 0f;
+            return ratio > 1f ? 1f : ratio;
         }
 
         public float WorstMultiplier()
         {
-            if (grid == null || loadOf == null)
-            {
-                return 1f;
-            }
+            if (grid == null || loadOf == null) return 1f;
             float worst = 1f;
             GridSize size = grid.Size;
             for (int x = 0; x < size.Width; x++)
             {
                 for (int y = 0; y < size.Height; y++)
                 {
-                    int load = loadOf(new GridPosition(x, y));
-                    float m = MultiplierFor(load);
-                    if (m > worst)
-                    {
-                        worst = m;
-                    }
+                    float m = MultiplierFor(loadOf(new GridPosition(x, y)));
+                    if (m > worst) worst = m;
                 }
             }
             return worst;
@@ -143,11 +111,7 @@ namespace Citybuilder
         public int GrowthTickMultiplier()
         {
             int ticks = (int)Math.Round(WorstMultiplier());
-            if (ticks < 1)
-            {
-                ticks = 1;
-            }
-            return ticks;
+            return ticks < 1 ? 1 : ticks;
         }
     }
 }

@@ -3,9 +3,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Мост пробок в рост (067): поездки копят нагрузку дорог, загруженные клетки
-    // мягко замедляют рост домов. Счёт — в CongestionSystem, здесь только связка.
-    // Настройка сцены: тот же объект, что GridVisualizer.
+    // Мост пробок в рост (067) и запрос нагрузки клеток (EPIC-15).
     public class CongestionController : MonoBehaviour
     {
         [Header("References")]
@@ -23,7 +21,11 @@ namespace Citybuilder
         private RouteSystem routes;
         private CongestionSystem congestion;
 
-        // Наихудший множитель по сетке. Без систем — 1, без исключений.
+        public CongestionSystem System
+        {
+            get { BuildSystems(); return congestion; }
+        }
+
         public float Multiplier
         {
             get
@@ -33,7 +35,6 @@ namespace Citybuilder
             }
         }
 
-        // Во сколько раз дольше растёт дом. Без систем — 1: рост как раньше.
         public int GrowthTickMultiplier
         {
             get
@@ -41,6 +42,12 @@ namespace Citybuilder
                 BuildSystems();
                 return congestion == null ? 1 : congestion.GrowthTickMultiplier();
             }
+        }
+
+        public float Load01(GridPosition cell)
+        {
+            BuildSystems();
+            return congestion == null ? 0f : congestion.Load01(cell);
         }
 
         private void Start()
@@ -55,31 +62,18 @@ namespace Citybuilder
             ApplySettings();
         }
 
-        // Публичный вход для будущих поездок: клетки пути копят нагрузку.
         public void TrackTrip(List<GridPosition> path)
         {
-            if (path == null || path.Count == 0)
-            {
-                return;
-            }
-            if (!EnsureReady() || routes == null)
-            {
-                return;
-            }
+            if (path == null || path.Count == 0 || !EnsureReady() || routes == null) return;
             routes.TrackLoad(path);
         }
 
-        // Сброс накопленных нагрузок (новый день, перестройка дорог).
         public void ClearLoads()
         {
-            if (!EnsureReady() || routes == null)
-            {
-                return;
-            }
+            if (!EnsureReady() || routes == null) return;
             routes.ClearLoads();
         }
 
-        // Проверяет ссылку и лениво создаёт системы. Без GridVisualizer гаснет.
         private bool EnsureReady()
         {
             if (GridVisualizer == null)
@@ -92,17 +86,10 @@ namespace Citybuilder
             return true;
         }
 
-        // Ленивое создание: после перезагрузки домена поля Unity пустеют.
         private void BuildSystems()
         {
-            if (GridVisualizer == null)
-            {
-                return;
-            }
-            if (routes == null)
-            {
-                routes = new RouteSystem(GridVisualizer.Grid);
-            }
+            if (GridVisualizer == null) return;
+            if (routes == null) routes = new RouteSystem(GridVisualizer.Grid);
             if (congestion == null)
             {
                 congestion = new CongestionSystem(routes, GridVisualizer.Grid);
@@ -112,10 +99,7 @@ namespace Citybuilder
 
         private void ApplySettings()
         {
-            if (congestion == null)
-            {
-                return;
-            }
+            if (congestion == null) return;
             congestion.Threshold = Threshold;
             congestion.Factor = Factor;
             congestion.MaxMultiplier = MaxMultiplier;
