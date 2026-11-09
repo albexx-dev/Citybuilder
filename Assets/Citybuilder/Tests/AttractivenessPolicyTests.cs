@@ -2,8 +2,8 @@ using NUnit.Framework;
 
 namespace Citybuilder
 {
-    // Матрица привлекательности (EPIC-05 шаг 1): сдвиг по каждому фактору, границы 0.5/1.5,
-    // нейтральность NaN. Политика чистая и без состояния — Unity тестам не нужен.
+    // Матрица привлекательности (EPIC-05 шаг 1-3): сдвиг по каждому фактору, границы 0.5/1.5,
+    // нейтральность NaN и строка HUD. Политика чистая и без состояния — Unity тестам не нужен.
     public class AttractivenessPolicyTests
     {
         private const float Delta = 1e-4f;
@@ -117,6 +117,15 @@ namespace Citybuilder
                 Value(0.8f, 0.3f, 0.4f, 0.5f, Nan, 1.7f, true), Delta);
             Assert.AreEqual(Value(0.8f, 0.3f, 0.4f, 0.5f, 0.6f, 1f, true),
                 Value(0.8f, 0.3f, 0.4f, 0.5f, 0.6f, Nan, true), Delta);
+        }
+
+        [Test]
+        public void FormatLine_FormatsPercentageAndClamps()
+        {
+            Assert.AreEqual("Привлекательность: 100%", AttractivenessPolicy.FormatLine(1f));
+            Assert.AreEqual("Привлекательность: 120%", AttractivenessPolicy.FormatLine(1.2f));
+            Assert.AreEqual("Привлекательность: 50%", AttractivenessPolicy.FormatLine(0.2f));
+            Assert.AreEqual("Привлекательность: 100%", AttractivenessPolicy.FormatLine(Nan));
         }
     }
 }
