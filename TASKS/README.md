@@ -37,7 +37,7 @@
 | #12 | [Инфопанель здания](EPIC-12-info-panel.md) | architecture | **done** — шаги 1-3 из 3 готовы |
 | #13 | [Нижняя панель действий](EPIC-13-bottom-bar.md) | ux | **done** — шаги 1-3 из 3 готовы |
 | #14 | [Информационное меню](EPIC-14-info-menu.md) | ux | **done** — шаги 1-3 из 3 готовы |
-| #15 | [Пробки глазами игрока](EPIC-15-congestion-view.md) | ux | not started |
+| #15 | [Пробки глазами игрока](EPIC-15-congestion-view.md) | ux | **done** — шаги 1-3 из 3 готовы |
 | #16 | [Главное меню + пауза](EPIC-16-menus.md) | ux | not started |
 | #17 | [Стадии роста зданий](EPIC-17-growth-stages.md) | ux | not started |
 | #18 | [Туториал v2](EPIC-18-tutorial.md) | ux | not started |
