@@ -2,50 +2,93 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Минимальное меню: новая / продолжить / сохранить / выйти. Только OnGUI.
-    // Вешать на Grid, ссылки на контроллеры объекта Persistence вязать вручную.
+    // Главное меню поверх живого города (EPIC-16 шаг 2): Продолжить, Новая игра, Загрузить, Выход.
+    // Вешать на Grid, ссылки на контроллеры Persistence и меню слотов добираются автоматически.
     public class MainMenu : MonoBehaviour
     {
         [Header("References")]
-        [Tooltip("Запись слота. Опционален: иначе ищется на этом же объекте.")]
-        public SaveController Save;
-        [Tooltip("Загрузка слота и новая игра. Опционален: иначе ищется на этом же объекте.")]
-        public LoadController Load;
+        [Tooltip("Запись слота.")] public SaveController Save;
+        [Tooltip("Загрузка слота и новая игра.")] public LoadController Load;
+        [Tooltip("Меню выбора слота загрузки (EPIC-11).")] public LoadMenuView LoadMenu;
+        [Tooltip("Драйвер часов.")] public SimulationRunner Runner;
+
+        private bool isOpen;
+
+        public bool IsOpen { get { return isOpen; } }
+
+        public void Open()
+        {
+            ResolveRefs();
+            isOpen = true;
+            if (Runner != null) Runner.SetSpeed(SimulationSpeed.Paused);
+        }
+
+        public void Close()
+        {
+            isOpen = false;
+            UiClickGuard.Set("mainmenu", new Rect());
+        }
+
+        // Последний сохранённый слот по времени (0..2 или автосейв). Если пусто — 0.
+        public static int FindLatestSlot(string baseDir)
+        {
+            long bestTick = -1;
+            int bestSlot = 0;
+            int[] candidates = { 0, 1, 2, SaveSlotIndex.AutosaveSlot };
+            for (int i = 0; i < candidates.Length; i++)
+            {
+                SaveSlotIndex.SlotMeta meta = SaveSlotIndex.GetMeta(baseDir, candidates[i]);
+                if (meta != null && meta.savedAtTick >= bestTick)
+                {
+                    bestTick = meta.savedAtTick;
+                    bestSlot = candidates[i];
+                }
+            }
+            return bestSlot;
+        }
 
         private void OnGUI()
         {
-            SaveController save = Save;
-            if (save == null) save = GetComponent<SaveController>();
-            LoadController load = Load;
-            if (load == null) load = GetComponent<LoadController>();
-            if (save == null && load == null) return;
-            float width = 90f;
-            float height = 26f;
-            float startX = 10f;
-            float startY = 182f;
-            float gap = 4f;
-            UiClickGuard.Set("mainmenu", new Rect(startX, startY, 4 * width + 3 * gap, height));
-            string[] labels = { "Новая", "Далее", "Сохранить", "Выйти" };
-            for (int i = 0; i < labels.Length; i++)
+            if (!isOpen) return;
+            ResolveRefs();
+            Rect full = new Rect(0f, 0f, Screen.width, Screen.height);
+            UiClickGuard.Set("mainmenu", full);
+            BottomBarStyle.DrawPopupBackground(full);
+            Rect panel = new Rect((Screen.width - 320f) * 0.5f, (Screen.height - 230f) * 0.5f, 320f, 230f);
+            BottomBarStyle.DrawBarBackground(panel);
+            float x = panel.x + 20f;
+            float y = panel.y + 14f;
+            HudText.Draw(x, y, "=== Citybuilder ===");
+            y += 34f;
+            if (GUI.Button(new Rect(x, y, 280f, 32f), "Продолжить"))
             {
-                Rect rect = new Rect(startX + i * (width + gap), startY, width, height);
-                if (DrawButton(rect, labels[i])) Press(i, save, load);
+                if (Load != null) Load.LoadNow(FindLatestSlot(Application.persistentDataPath));
+                if (Runner != null) Runner.SetSpeed(SimulationSpeed.Playing);
+                Close();
             }
+            y += 40f;
+            if (GUI.Button(new Rect(x, y, 280f, 32f), "Новая игра"))
+            {
+                if (Load != null) Load.NewGame();
+                if (Runner != null) Runner.SetSpeed(SimulationSpeed.Playing);
+                Close();
+            }
+            y += 40f;
+            if (GUI.Button(new Rect(x, y, 280f, 32f), "Загрузить") && LoadMenu != null)
+            {
+                Close();
+                LoadMenu.Open();
+            }
+            y += 40f;
+            if (GUI.Button(new Rect(x, y, 280f, 32f), "Выход")) Application.Quit();
         }
 
-        // Одна кнопка меню по индексу. Нет своей ссылки — тихий игнор.
-        private static void Press(int index, SaveController save, LoadController load)
+        private void ResolveRefs()
         {
-            if (index == 0 && load != null) load.NewGame();
-            else if (index == 1 && load != null) load.LoadNow();
-            else if (index == 2 && save != null) save.SaveNow();
-            else if (index == 3) Application.Quit();
-        }
-
-        // Одна кнопка. Возвращает клик.
-        private static bool DrawButton(Rect rect, string label)
-        {
-            return GUI.Button(rect, label);
+            if (Save == null) Save = FindFirstObjectByType<SaveController>();
+            if (Load == null) Load = FindFirstObjectByType<LoadController>();
+            if (LoadMenu == null) LoadMenu = GetComponent<LoadMenuView>();
+            if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
         }
     }
 }
