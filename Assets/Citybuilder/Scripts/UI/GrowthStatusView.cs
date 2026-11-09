@@ -97,6 +97,8 @@ namespace Citybuilder
                     return head + " — потолок " + Growth.MaxSettlements + " достигнут";
                 case GrowthStatusPolicy.Kind.NoMoney:
                     return head + " — нет денег: дом стоит $" + CheapestCost();
+                case GrowthStatusPolicy.Kind.Deficit:
+                    return head + " — казна пуста: содержание больше дохода";
                 default:
                     return head + ", следующий через " + Growth.TicksToNextGrowth + " ч" + SlowSuffix();
             }

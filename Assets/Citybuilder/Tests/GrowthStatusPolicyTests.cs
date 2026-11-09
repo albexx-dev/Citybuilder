@@ -40,6 +40,13 @@ namespace Citybuilder.Tests
         }
 
         [Test]
+        public void DeficitTreasuryStopsGrowth()
+        {
+            Assert.AreEqual(GrowthStatusPolicy.Kind.Deficit,
+                GrowthStatusPolicy.Pick(3, 16, true, 30, 100, -1));
+        }
+
+        [Test]
         public void AffordableAndZonedMeansGrowing()
         {
             Assert.AreEqual(GrowthStatusPolicy.Kind.Growing,

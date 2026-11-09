@@ -40,7 +40,7 @@ namespace Citybuilder
             {
                 int needed = GrowthPace.RequiredTicks(TicksPerGrowth,
                     Congestion != null ? Congestion.GrowthTickMultiplier : 1,
-                    SupplyGrowth != null ? SupplyGrowth.GrowthTickMultiplier : 1);
+                    SupplyGrowth != null ? SupplyGrowth.GrowthTickMultiplier : 1, Treasury != null && Treasury.Treasury.IsInDeficit);
                 return tickCount >= needed ? 0 : needed - tickCount;
             }
         }
@@ -50,10 +50,11 @@ namespace Citybuilder
         {
             if (!EnsureReady() || settlement == null) return;
             if (!eligibility.CanProgress(placementActive, settlement.SettledCount, MaxSettlements)) return;
-            tickCount++;
+            bool deficit = Treasury != null && Treasury.Treasury.IsInDeficit;
+            if (!deficit) tickCount++;
             int neededTicks = GrowthPace.RequiredTicks(TicksPerGrowth,
                 Congestion != null ? Congestion.GrowthTickMultiplier : 1,
-                SupplyGrowth != null ? SupplyGrowth.GrowthTickMultiplier : 1);
+                SupplyGrowth != null ? SupplyGrowth.GrowthTickMultiplier : 1, deficit);
             if (tickCount < neededTicks) return;
             tickCount = 0;
             TryGrow();
