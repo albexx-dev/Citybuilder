@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Геометрия HUD, нижней панели действий (EPIC-13) и информационного меню (EPIC-14).
+    // Геометрия HUD, нижней панели действий (EPIC-13), инфоменю (EPIC-14) и ленты событий (EPIC-09).
     // Единственный источник прямоугольников: отсюда рисуются группы и регистрируется UiClickGuard.
     public static class HudLayout
     {
@@ -33,10 +33,7 @@ namespace Citybuilder
         public static float FixedOrBottom(float preferredY, int linesFromBottom, float screenHeight)
         {
             float maxY = Mathf.Max(10f, screenHeight - BottomMargin);
-            if (preferredY <= maxY)
-            {
-                return preferredY;
-            }
+            if (preferredY <= maxY) return preferredY;
             return Mathf.Max(10f, maxY - linesFromBottom * LineStep);
         }
 
@@ -95,6 +92,12 @@ namespace Citybuilder
             float maxBottom = BottomBarRect(screenWidth, screenHeight).y - SubRowOffset - InfoMenuBottomGap;
             float height = Mathf.Max(120f, maxBottom - InfoMenuTop);
             return new Rect(x, InfoMenuTop, width, height);
+        }
+
+        // Окно ленты событий (EPIC-09 шаг 2).
+        public static Rect EventLogRect(float screenWidth, float screenHeight)
+        {
+            return InfoMenuRect(screenWidth, screenHeight);
         }
     }
 }
