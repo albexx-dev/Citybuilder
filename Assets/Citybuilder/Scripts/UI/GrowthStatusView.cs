@@ -12,6 +12,8 @@ namespace Citybuilder
         public SettlementGrowthController Growth;
         [Tooltip("Меню режимов. Пусто = ищется на этом же объекте.")]
         public BuildModeMenu Menu;
+        [Tooltip("Население города (для привлекательности). Пусто = ищется в сцене.")]
+        public PopulationController Population;
 
         // Для E2E-моста.
         public GrowthStatusPolicy.Kind CurrentKind
@@ -46,6 +48,7 @@ namespace Citybuilder
         {
             if (Growth == null) Growth = GetComponent<SettlementGrowthController>();
             if (Menu == null) Menu = GetComponent<BuildModeMenu>();
+            if (Population == null) Population = FindFirstObjectByType<PopulationController>();
         }
 
         private int CountResidential()
@@ -101,7 +104,9 @@ namespace Citybuilder
                 case GrowthStatusPolicy.Kind.Deficit:
                     return head + " — казна пуста: содержание больше дохода";
                 default:
-                    return head + ", следующий через " + Growth.TicksToNextGrowth + " ч" + SlowSuffix();
+                    float attr = Population != null ? Population.CurrentAttractiveness : 1f;
+                    return head + ", следующий через " + Growth.TicksToNextGrowth + " ч"
+                        + SlowSuffix() + GrowthStatusPolicy.LowAttractivenessSuffix(attr);
             }
         }
 

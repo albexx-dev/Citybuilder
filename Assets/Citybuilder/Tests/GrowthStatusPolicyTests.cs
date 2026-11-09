@@ -63,5 +63,22 @@ namespace Citybuilder.Tests
             Assert.AreEqual("дом", GrowthStatusPolicy.HousesWord(21));
             Assert.AreEqual("дома", GrowthStatusPolicy.HousesWord(22));
         }
+
+        [Test]
+        public void LowAttractivenessSuffix_ReportsOnlyBelowOne()
+        {
+            Assert.AreEqual(string.Empty, GrowthStatusPolicy.LowAttractivenessSuffix(1f));
+            Assert.AreEqual(string.Empty, GrowthStatusPolicy.LowAttractivenessSuffix(1.2f));
+            Assert.AreEqual(string.Empty, GrowthStatusPolicy.LowAttractivenessSuffix(float.NaN));
+            Assert.AreEqual(" • низкая привлекательность (70%)", GrowthStatusPolicy.LowAttractivenessSuffix(0.7f));
+        }
+
+        [Test]
+        public void EffectiveMoveInInterval_ScalesInverselyWithAttractiveness()
+        {
+            Assert.AreEqual(6f, PopulationController.EffectiveInterval(9f, 1.5f), 1e-4f);
+            Assert.AreEqual(14f, PopulationController.EffectiveInterval(7f, 0.5f), 1e-4f);
+            Assert.AreEqual(7f, PopulationController.EffectiveInterval(7f, float.NaN), 1e-4f);
+        }
     }
 }
