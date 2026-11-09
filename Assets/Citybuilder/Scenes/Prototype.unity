@@ -355,7 +355,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1ac62d4409b7fc94d96dd3fd38893a0e, type: 2}
   - {fileID: 11400000, guid: 6e8e1f61493484b45af48640f86a4863, type: 2}
   TicksPerGrowth: 5
-  MaxSettlements: 30
+  MaxSettlements: 80
   placementActive: 1
 --- !u!114 &985593159
 MonoBehaviour:
