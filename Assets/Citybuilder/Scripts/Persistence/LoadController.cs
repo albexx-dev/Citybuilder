@@ -1,52 +1,49 @@
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 namespace Citybuilder
 {
-    // Загрузка слота сохранений: F9 или публичный LoadNow() читают slot0.json. Ссылки опциональны.
+    // Загрузка слота сохранений: F9 грузит слот 0; LoadNow(slot) поддерживает слоты 0..2 и autosave (EPIC-11).
     public class LoadController : MonoBehaviour
     {
         [Header("References")]
-        [Tooltip("Население. Опционален: иначе ищется на этом же объекте.")]
-        public PopulationController Population;
-        [Tooltip("Рост поселений. Опционален: иначе ищется на этом же объекте.")]
-        public SettlementGrowthController Growth;
-        [Tooltip("Снос выросших домов. Опционален: иначе ищется на этом же объекте.")]
-        public SettlementDemolitionController Demolition;
-        [Tooltip("Кисть зон. Опциональна: иначе ищется на этом же объекте.")]
-        public ZonePaintingController Zones;
-        [Tooltip("Казна. Опциональна: иначе ищется на этом же объекте.")]
-        public TreasuryView Treasury;
-        [Tooltip("Драйвер часов. Опционален: иначе ищется на этом же объекте.")]
-        public SimulationRunner Runner;
-        [Tooltip("Стройка дорог. Опциональна: иначе ищется на этом же объекте.")]
-        public RoadNetworkStore Roads;
-        [Tooltip("Налоговая политика. Пусто = обычный налог после загрузки.")]
-        public TaxPolicyView Policy;
-        [Tooltip("Ручные здания. Пусто = ищется в сцене.")]
-        public BuildingPlacementController Placement;
+        [Tooltip("Население. Опционален: иначе ищется на этом же объекте.")] public PopulationController Population;
+        [Tooltip("Рост поселений. Опционален: иначе ищется на этом же объекте.")] public SettlementGrowthController Growth;
+        [Tooltip("Снос выросших домов. Опционален: иначе ищется на этом же объекте.")] public SettlementDemolitionController Demolition;
+        [Tooltip("Кисть зон. Опциональна: иначе ищется на этом же объекте.")] public ZonePaintingController Zones;
+        [Tooltip("Казна. Опциональна: иначе ищется на этом же объекте.")] public TreasuryView Treasury;
+        [Tooltip("Драйвер часов. Опционален: иначе ищется на этом же объекте.")] public SimulationRunner Runner;
+        [Tooltip("Стройка дорог. Опциональна: иначе ищется на этом же объекте.")] public RoadNetworkStore Roads;
+        [Tooltip("Налоговая политика. Пусто = обычный налог после загрузки.")] public TaxPolicyView Policy;
+        [Tooltip("Ручные здания. Пусто = ищется в сцене.")] public BuildingPlacementController Placement;
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.F9)) LoadNow();
+            if (Input.GetKeyDown(KeyCode.F9)) LoadNow(0);
         }
 
         public bool LoadNow()
         {
+            return LoadNow(0);
+        }
+
+        public bool LoadNow(int slot)
+        {
             ResolveRefs();
-            string path = Path.Combine(Application.persistentDataPath, SaveSlotStorage.SlotFileName);
-            CitySnapshot snapshot = SaveSlotStorage.ReadSlot(path);
-            if (snapshot == null || !SaveSlotStorage.Validate(snapshot))
+            string file = SaveSlotIndex.FileNameForSlot(slot);
+            CitySnapshot snapshot = SaveSlotStorage.Load(Application.persistentDataPath, slot);
+            if (snapshot == null)
             {
-                Debug.LogError("LoadController: слот бит или отсутствует: " + path);
+                Debug.LogError("LoadController: слот бит или отсутствует: " + file);
                 return false;
             }
             ClearAll();
             List<BuildingState> homes = ApplyCity(snapshot);
             int manual = ApplyManual(snapshot);
             ApplyMeta(snapshot);
-            LoadLog.Report(path, snapshot, homes, manual);
+            SaveController save = GetComponent<SaveController>();
+            if (save != null) save.ClearDirty();
+            LoadLog.Report(file, snapshot, homes, manual);
             return true;
         }
 
@@ -57,6 +54,8 @@ namespace Citybuilder
             if (Treasury != null) Treasury.ResetBalance(Treasury.StartingBalance);
             if (Runner != null && Runner.Clock != null) Runner.Clock.RestoreTime(0);
             if (Policy != null) Policy.Policy.Set(TaxPolicy.Level.Normal);
+            SaveController save = GetComponent<SaveController>();
+            if (save != null) save.ClearDirty();
             Debug.Log("LoadController: новая игра начата.");
         }
 
