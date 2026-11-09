@@ -119,7 +119,7 @@ namespace Citybuilder
             BuildingState state = settlement.Settle(def, origin);
             if (state == null) return null;
             states.Add(state);
-            View.AddBuilding(state, def, GridVisualizer.Grid.CellSize);
+            View.AddBuilding(state, def, GridVisualizer.Grid.CellSize, true);
             GridVisualizer.RefreshOccupied();
             return state;
         }

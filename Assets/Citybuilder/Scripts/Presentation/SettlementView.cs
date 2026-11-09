@@ -3,8 +3,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Виды выросших домов: префаб или бежевый куб. Только показ, без логики.
-    // Настройка сцены: компонент рядом с SettlementGrowthController.
+    // Виды выросших домов: детерминированные варианты (EPIC-17 шаг 2) и фаза стройки (EPIC-17 шаг 1).
     public class SettlementView : MonoBehaviour
     {
         [Header("Fallback")]
@@ -13,92 +12,80 @@ namespace Citybuilder
 
         private readonly Dictionary<EntityId, GameObject> views = new Dictionary<EntityId, GameObject>();
 
-        // Ставит вид и запоминает по Id. Без префаба — куб Footprint x 1 x Footprint.
-        public GameObject AddBuilding(BuildingState state, BuildingDefinition def, float cellSize)
+        // Ставит вид и запоминает по Id. При skipConstructionStage=true (сейв/лоад) здание сразу готовое.
+        public GameObject AddBuilding(BuildingState state, BuildingDefinition def, float cellSize, bool skipConstructionStage = false)
         {
-            if (state == null || def == null)
-            {
-                return null;
-            }
+            if (state == null || def == null) return null;
             RemoveBuilding(state);
-            GameObject go = SpawnView(state, def, cellSize);
-            if (go == null)
-            {
-                return null;
-            }
+            GameObject go = SpawnView(state, def, cellSize, skipConstructionStage);
+            if (go == null) return null;
             views[state.Id] = go;
             return go;
         }
 
-        // Убирает вид по Id. Нет вида — ничего не делает.
         public void RemoveBuilding(BuildingState state)
         {
-            if (state == null)
-            {
-                return;
-            }
+            if (state == null) return;
             GameObject go;
-            if (!views.TryGetValue(state.Id, out go))
-            {
-                return;
-            }
+            if (!views.TryGetValue(state.Id, out go)) return;
             views.Remove(state.Id);
-            if (go != null)
-            {
-                Destroy(go);
-            }
+            if (go != null) Destroy(go);
         }
 
-        // Сносит все виды.
         public void Clear()
         {
             foreach (KeyValuePair<EntityId, GameObject> entry in views)
             {
-                if (entry.Value != null)
-                {
-                    Destroy(entry.Value);
-                }
+                if (entry.Value != null) Destroy(entry.Value);
             }
             views.Clear();
         }
 
-        private GameObject SpawnView(BuildingState state, BuildingDefinition def, float cellSize)
+        private GameObject SpawnView(BuildingState state, BuildingDefinition def, float cellSize, bool skipConstructionStage)
         {
             Vector3 at = FootprintCenter(state.Origin, def, cellSize, 0f);
             if (def.Prefab != null)
             {
                 return Instantiate(def.Prefab, at, Quaternion.identity, transform);
             }
-            return BuildCube(state, def, cellSize);
+            return BuildCube(state, def, cellSize, skipConstructionStage);
         }
 
-        private GameObject BuildCube(BuildingState state, BuildingDefinition def, float cellSize)
+        private GameObject BuildCube(BuildingState state, BuildingDefinition def, float cellSize, bool skipConstructionStage)
         {
             GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cube.transform.SetParent(transform, false);
+            int variant = BuildingDefinition.SelectVariant(state.Id, def.VariantCount);
             float w = def.Footprint.x * cellSize * 0.9f;
             float d = def.Footprint.y * cellSize * 0.9f;
-            float h = 1f + (state.Id.Value % 3) * 0.5f;
-            cube.transform.localScale = new Vector3(w, h, d);
-            cube.transform.localPosition = FootprintCenter(state.Origin, def, cellSize, h * 0.5f);
+            float h = 1f + variant * 0.5f;
+            Vector3 fullScale = new Vector3(w, h, d);
+            Vector3 groundCenter = FootprintCenter(state.Origin, def, cellSize, 0f);
+            cube.transform.localScale = fullScale;
+            cube.transform.localPosition = new Vector3(groundCenter.x, h * 0.5f, groundCenter.z);
             Destroy(cube.GetComponent<Collider>());
-            cube.GetComponent<MeshRenderer>().material = BuildMaterial(WallColor(def));
-            BuildRoof(cube, h);
+            Color wallColor = WallColor(def, variant);
+            MeshRenderer renderer = cube.GetComponent<MeshRenderer>();
+            renderer.material = BuildMaterial(wallColor);
+            GameObject roof = BuildRoof(cube, h, variant);
+            if (!skipConstructionStage)
+            {
+                GrowthStageView stage = cube.AddComponent<GrowthStageView>();
+                stage.BeginConstruction(renderer, roof, fullScale, groundCenter, wallColor);
+            }
             return cube;
         }
 
-        // Крыша-ребёнок наследует scale родителя: компенсируем делением на w/h/d,
-        // чтобы мировые размеры были (0.7w, 0.3, 0.7d), а низ — ровно на верху куба.
-        private void BuildRoof(GameObject parent, float h)
+        private GameObject BuildRoof(GameObject parent, float h, int variant)
         {
             GameObject roof = GameObject.CreatePrimitive(PrimitiveType.Cube);
             roof.transform.SetParent(parent.transform, false);
             roof.transform.localScale = new Vector3(0.7f, 0.3f / h, 0.7f);
             roof.transform.localPosition = new Vector3(0f, 0.5f + 0.15f / h, 0f);
             Destroy(roof.GetComponent<Collider>());
-            Material material = new Material(Shader.Find("Unlit/Color"));
-            material.color = new Color(0.45f, 0.25f, 0.1f);
-            roof.GetComponent<MeshRenderer>().material = material;
+            float tint = variant * 0.08f;
+            roof.GetComponent<MeshRenderer>().material = BuildMaterial(new Color(0.45f + tint, 0.25f + tint * 0.5f, 0.1f));
+            return roof;
         }
 
         private Vector3 FootprintCenter(GridPosition origin, BuildingDefinition def, float cellSize, float height)
@@ -110,29 +97,20 @@ namespace Citybuilder
             return new Vector3(centerX, height, centerZ);
         }
 
-        private Material BuildMaterial(Color color)
+        private static Material BuildMaterial(Color color)
         {
             Material material = new Material(Shader.Find("Unlit/Color"));
             material.color = color;
             return material;
         }
 
-        // Цвет стен по зоне: жильё бежевое, коммерция синяя, промышленность серая.
-        private Color WallColor(BuildingDefinition def)
+        private Color WallColor(BuildingDefinition def, int variant)
         {
-            if (def == null)
-            {
-                return FallbackColor;
-            }
-            if (def.AllowedZone == ZoneType.Commercial)
-            {
-                return new Color(0.6f, 0.75f, 0.9f);
-            }
-            if (def.AllowedZone == ZoneType.Industrial)
-            {
-                return new Color(0.55f, 0.5f, 0.45f);
-            }
-            return FallbackColor;
+            float shift = (variant - 1) * 0.04f;
+            if (def == null) return FallbackColor;
+            if (def.AllowedZone == ZoneType.Commercial) return new Color(0.6f + shift, 0.75f + shift, 0.9f);
+            if (def.AllowedZone == ZoneType.Industrial) return new Color(0.55f + shift, 0.5f + shift, 0.45f);
+            return new Color(Mathf.Clamp01(FallbackColor.r + shift), Mathf.Clamp01(FallbackColor.g + shift), FallbackColor.b);
         }
     }
 }
