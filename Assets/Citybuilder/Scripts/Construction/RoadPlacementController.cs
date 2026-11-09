@@ -89,7 +89,7 @@ namespace Citybuilder
         private void UpdatePreview(GridPosition hover)
         {
             lastHover = hover;
-            previewCells = GetLineCells(dragStart, hover);
+            previewCells = RoadPlacementInput.GetLineCells(dragStart, hover);
             View.ShowPreview(previewCells, GridVisualizer.Grid.CellSize, CheckCells());
         }
 
@@ -106,7 +106,7 @@ namespace Citybuilder
             dragging = false;
             View.HidePreview();
             if (!CheckCells()) return;
-            int total = NewCellsCount() * Store.CellCost();
+            int total = RoadPlacementInput.CountNewCells(previewCells, Store.IsOwnRoadCell) * Store.CellCost();
             if (total > 0 && TreasuryView != null && TreasuryView.Treasury != null)
             {
                 Treasury.TransactionResult spent = TreasuryView.Treasury.TrySpend(total, "Road");
@@ -136,44 +136,8 @@ namespace Citybuilder
 
         private bool CheckCells()
         {
-            for (int i = 0; i < previewCells.Count; i++)
-            {
-                if (!Store.CanPlace(previewCells[i]) && !Store.IsOwnRoadCell(previewCells[i])) return false;
-            }
-            if (TreasuryView != null && TreasuryView.Treasury != null)
-            {
-                int total = NewCellsCount() * Store.CellCost();
-                return TreasuryView.Treasury.CanAfford(total);
-            }
-            return true;
-        }
-
-        // Число клеток превью, которых ещё нет в сторе.
-        private int NewCellsCount()
-        {
-            int count = 0;
-            for (int i = 0; i < previewCells.Count; i++)
-            {
-                if (!Store.IsOwnRoadCell(previewCells[i])) count++;
-            }
-            return count;
-        }
-
-        private List<GridPosition> GetLineCells(GridPosition from, GridPosition to)
-        {
-            List<GridPosition> cells = new List<GridPosition>();
-            int dx = to.X - from.X;
-            int dy = to.Y - from.Y;
-            bool horizontal = Mathf.Abs(dx) >= Mathf.Abs(dy);
-            int step = (horizontal ? dx : dy) >= 0 ? 1 : -1;
-            int length = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy));
-            for (int i = 0; i <= length; i++)
-            {
-                cells.Add(horizontal
-                    ? new GridPosition(from.X + i * step, from.Y)
-                    : new GridPosition(from.X, from.Y + i * step));
-            }
-            return cells;
+            Treasury treasury = TreasuryView != null ? TreasuryView.Treasury : null;
+            return RoadPlacementInput.CanCommit(previewCells, Store.CanPlace, Store.IsOwnRoadCell, Store.CellCost(), treasury);
         }
     }
 }
