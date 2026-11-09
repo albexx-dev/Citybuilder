@@ -36,13 +36,6 @@ namespace Citybuilder
             }
         }
 
-        private void OnGUI()
-        {
-            string text = CurrentText;
-            if (string.IsNullOrEmpty(text)) return;
-            HudText.Draw(10, 114, text);
-        }
-
         // Тихое создание поверх живых симуляций. Систем нет — тихо рисуем нули.
         private void EnsureNeeds(PopulationController population, SettlementGrowthController growth)
         {

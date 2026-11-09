@@ -60,13 +60,6 @@ namespace Citybuilder
             rewards.Claim(goals, stages, treasury.Treasury);
         }
 
-        private void OnGUI()
-        {
-            string text = CurrentText;
-            if (string.IsNullOrEmpty(text)) return;
-            HudText.Draw(10, 148, text);
-        }
-
         // Ленивый кеш: казна может жить на отдельном объекте, а поле в сцене пустое.
         // Повторный поиск по сцене каждый OnGUI-эвент не нужен.
         private TreasuryView ResolveTreasury()
