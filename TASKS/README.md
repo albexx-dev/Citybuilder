@@ -23,7 +23,7 @@
 
 | Issue | Эпик | Блок | Статус |
 |-------|------|------|--------|
-| #1 | [Службы v2](EPIC-01-services-v2.md) | mechanics | not started |
+| #1 | [Службы v2](EPIC-01-services-v2.md) | mechanics | **done** — шаги 1-3 из 3 готовы |
 | #2 | [Больница и парк](EPIC-02-hospital-park.md) | mechanics | not started |
 | #3 | [Нужды v2](EPIC-03-needs-v2.md) | mechanics | not started |
 | #4 | [Содержание зданий](EPIC-04-upkeep.md) | mechanics | **done** — шаги 1-3 из 3 готовы |
