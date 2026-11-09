@@ -28,7 +28,7 @@
 | #3 | [Нужды v2](EPIC-03-needs-v2.md) | mechanics | **done** — шаги 1-3 из 3 готовы |
 | #4 | [Содержание зданий](EPIC-04-upkeep.md) | mechanics | **done** — шаги 1-3 из 3 готовы |
 | #5 | [Привлекательность города](EPIC-05-attractiveness.md) | mechanics | **done** — шаги 1-3 из 3 готовы |
-| #6 | [Баланс-проход](EPIC-06-balance.md) | mechanics | **in progress** — шаг 1 из 4 готов |
+| #6 | [Баланс-проход](EPIC-06-balance.md) | mechanics | **done** — шаги 1-4 из 4 готовы |
 | #7 | [Пожары как событие](EPIC-07-fires.md) | mechanics | on hold (v1.2?) |
 | #8 | [Чистка Won/Lost](EPIC-08-remove-won-lost.md) | architecture | not started |
 | #9 | [Событийная лента](EPIC-09-event-log.md) | architecture | not started |

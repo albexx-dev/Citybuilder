@@ -14,10 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.BuildingDefinition
   Id: police_station
   DisplayName: Police Station
+  Footprint: {x: 2, y: 2}
   ConstructionCost: 250
+  UnlockBuildings: 0
   AllowedZone: 2
   ResidentCapacity: 0
   JobsProvided: 2
-  ServiceRadius: 5
   ServiceKind: 2
+  ServiceRadius: 5
+  PowerDemand: 1
+  PowerOutput: 0
+  WaterDemand: 1
+  WaterOutput: 0
+  WasteOutput: 1
+  WasteCapacity: 0
   UpkeepPerHour: 6
+  Prefab: {fileID: 0}
