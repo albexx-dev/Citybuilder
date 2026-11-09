@@ -64,6 +64,15 @@ namespace Citybuilder
             Assert.IsTrue(SaveSlotStorage.Validate(snapshot));
         }
 
+        [Test]
+        public void Roundtrip_NegativeDeficitBalance_PreservesAndValidates()
+        {
+            CitySnapshot snapshot = SaveSystem.BuildSnapshot(null, null, null, -120, 10, null);
+            CitySnapshot restored = SaveSlotStorage.FromJson(SaveSlotStorage.ToJson(snapshot));
+            Assert.IsTrue(SaveSlotStorage.Validate(restored));
+            Assert.AreEqual(-120, restored.Balance);
+        }
+
         private static CitySnapshot BuildSampleCity()
         {
             CitySnapshot snapshot = new CitySnapshot();
