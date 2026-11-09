@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace Citybuilder
 {
-    // Тесты трёх слотов, автосейва и индекса slots.json (EPIC-11 шаг 1, ADR-008).
+    // Тесты трёх слотов, автосейва и индекса slots.json (EPIC-11 шаги 1-2, ADR-008).
     public class SaveSlotsTests
     {
         private string tempDir;
@@ -80,6 +80,23 @@ namespace Citybuilder
             Assert.IsFalse(SaveSlotStorage.Validate(tempDir, 2));
             Assert.IsTrue(SaveSlotStorage.Validate(tempDir, 0));
             Assert.IsTrue(File.Exists(Path.Combine(tempDir, "slot2.json")));
+        }
+
+        [Test]
+        public void AutosaveCounter_FiresAt24Ticks_PausesWhenClockPaused_AndSkipsManualSaveSameTick()
+        {
+            int counter = 0;
+            for (int t = 1; t <= 23; t++)
+            {
+                Assert.IsFalse(AutosaveController.StepCounter(ref counter, 24, t, -1));
+            }
+            Assert.IsTrue(AutosaveController.StepCounter(ref counter, 24, 24, -1));
+            Assert.AreEqual(0, counter);
+            Assert.IsFalse(AutosaveController.StepCounter(ref counter, 24, 25, -1));
+
+            // Если на 48-м тике уже был ручной сейв, автосейв пропускает запись.
+            counter = 23;
+            Assert.IsFalse(AutosaveController.StepCounter(ref counter, 24, 48, 48));
         }
     }
 }
