@@ -1,18 +1,15 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Citybuilder
 {
-    // Логическая сетка и ховер клетки. Меши строит GridMeshBuilder на том же объекте.
-    // Настройка сцены: пустой GameObject + этот компонент, камера сверху.
+    // Логическая сетка, ховер клетки и подсветка радиуса службы (EPIC-12 шаг 3).
     public class GridVisualizer : MonoBehaviour
     {
         [Header("Grid")]
-        [Tooltip("Клеток по X.")]
-        public int Width = 50;
-        [Tooltip("Клеток по Y.")]
-        public int Height = 50;
-        [Tooltip("Размер клетки в метрах.")]
-        public float CellSize = 1f;
+        [Tooltip("Клеток по X.")] public int Width = 50;
+        [Tooltip("Клеток по Y.")] public int Height = 50;
+        [Tooltip("Размер клетки в метрах.")] public float CellSize = 1f;
 
         [Header("Colors")]
         public Color LineColor = Color.white;
@@ -25,16 +22,11 @@ namespace Citybuilder
 
         private GridSystem grid;
 
-        // Ленивый доступ: после перезагрузки домена Unity поле пустеет,
-        // сетка пересоздаётся из настроек Inspector. Занятость при этом сбрасывается (V1).
         public GridSystem Grid
         {
             get
             {
-                if (grid == null)
-                {
-                    grid = new GridSystem(new GridSize(Width, Height), CellSize);
-                }
+                if (grid == null) grid = new GridSystem(new GridSize(Width, Height), CellSize);
                 return grid;
             }
         }
@@ -47,12 +39,38 @@ namespace Citybuilder
             return HasHoveredCell;
         }
 
-        // Перестроить красный оверлей после Occupy/Release.
         public void RefreshOccupied()
         {
             EnsureBuilder();
             if (Builder == null) return;
             Builder.RebuildOccupied();
+        }
+
+        public void ShowRadiusOverlay(GridPosition center, int radius, ServiceKind kind)
+        {
+            EnsureBuilder();
+            if (Builder == null) return;
+            List<GridPosition> cells = BuildingInfoQuery.GetRadiusCells(center, radius, Grid.Size);
+            Builder.RebuildRadius(cells, ColorForService(kind));
+        }
+
+        public void ClearRadiusOverlay()
+        {
+            EnsureBuilder();
+            if (Builder == null) return;
+            Builder.RebuildRadius(null, Color.clear);
+        }
+
+        public static Color ColorForService(ServiceKind kind)
+        {
+            switch (kind)
+            {
+                case ServiceKind.Fire: return new Color(1f, 0.45f, 0.1f, 0.3f);
+                case ServiceKind.Police: return new Color(0.2f, 0.55f, 1f, 0.3f);
+                case ServiceKind.Health: return new Color(0.2f, 0.9f, 0.7f, 0.3f);
+                case ServiceKind.Leisure: return new Color(0.3f, 0.9f, 0.3f, 0.3f);
+                default: return new Color(0.8f, 0.8f, 0.8f, 0.25f);
+            }
         }
 
         private void Awake()
@@ -71,7 +89,6 @@ namespace Citybuilder
             UpdateHover();
         }
 
-        // Добирает билдер: Inspector, свой объект, фолбэк-создание.
         private void EnsureBuilder()
         {
             if (Builder != null)
@@ -99,7 +116,6 @@ namespace Citybuilder
             Builder.SetHover(wx, wz);
         }
 
-        // Луч из камеры в плоскость сетки → клетка. Нет камеры/луча/клетки — false.
         private bool TryPickCell(out GridPosition cell)
         {
             cell = new GridPosition();
