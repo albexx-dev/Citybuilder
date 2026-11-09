@@ -47,6 +47,18 @@ powershell -ExecutionPolicy Bypass -File Tools\Check-UnityMcp.ps1
 | `playwright` | Node 18+ и `@playwright/mcp` через `npx`. |
 | `blender` | GUI Blender 4.5 LTS с включённым аддоном; команда `uvx mcp-for-blender`. |
 
+## Конвейер 3D-моделей (Blender → Unity FBX, EPIC-20)
+
+Для повторяемого экспорта low-poly зданий используется аддон `Tools/blender-addon/citybuilder_export.py` и генератор `Tools/blender-addon/generate_models.py`.
+
+1. **Установка аддона в Blender:** `Edit → Preferences → Add-ons → Install from Disk...` → выбрать `Tools/blender-addon/citybuilder_export.py` и включить чекбокс **Import-Export: Citybuilder FBX Exporter**.
+2. **Использование из GUI:** в `3D Viewport` нажать `N` → вкладка **Citybuilder** → **Export FBX**. Аддон применяет трансформы (`Location/Rotation/Scale`), проверяет бюджет полигонов (`≤ 2000 tris`) и экспортирует выбранные меши в `Assets/Citybuilder/Models/<id>.fbx` с фиксированными настройками (`scale 1.0`, `Y up`, `-Z forward`, `Bake Space Transform`, без анимаций и костей).
+3. **Пакетная генерация без GUI:**
+   ```powershell
+   & "C:\Program Files\Blender Foundation\Blender 4.5\blender.exe" -b -P Tools\blender-addon\generate_models.py
+   ```
+4. **Хранение в Git:** low-poly `.fbx` модели (`≤ 30 КБ`) хранятся напрямую в обычном Git (`*.fbx binary` в `.gitattributes`) без Git LFS.
+
 ## История
 
 Ранее использовался OpenCode и отдельный watcher в планировщике задач. С v1.1 эта инфраструктура не применяется: конфиг один, лаунчер один, watcher удалён из актуального процесса. Архивные задачи в `TASKS/` могут упоминать старые пути — это история, а не инструкция.
