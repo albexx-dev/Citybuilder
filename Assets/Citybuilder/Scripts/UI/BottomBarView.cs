@@ -8,14 +8,11 @@ namespace Citybuilder
     public class BottomBarView : MonoBehaviour
     {
         [Header("References")]
-        [Tooltip("Драйвер игровых часов. Пусто = ищется в сцене.")]
-        public SimulationRunner Runner;
-        [Tooltip("Меню режимов стройки. Пусто = ищется на этом же объекте.")]
-        public BuildModeMenu Menu;
-        [Tooltip("Палитра типов зданий. Пусто = ищется на этом же объекте.")]
-        public BuildPaletteView Palette;
-        [Tooltip("Информационное меню статистики (EPIC-14). Пусто = ищется на этом же объекте.")]
-        public InfoMenuView InfoMenu;
+        [Tooltip("Драйвер игровых часов. Пусто = ищется в сцене.")] public SimulationRunner Runner;
+        [Tooltip("Меню режимов стройки. Пусто = ищется на этом же объекте.")] public BuildModeMenu Menu;
+        [Tooltip("Палитра типов зданий. Пусто = ищется на этом же объекте.")] public BuildPaletteView Palette;
+        [Tooltip("Информационное меню статистики (EPIC-14). Пусто = ищется на этом же объекте.")] public InfoMenuView InfoMenu;
+        [Tooltip("Событийная лента города (EPIC-09). Пусто = ищется на этом же объекте.")] public EventLogView EventLog;
 
         // Доступность зарезервированных кнопок меню (включатся в EPIC-14 и EPIC-09).
         public bool StatsEnabled;
@@ -40,6 +37,7 @@ namespace Citybuilder
             if (Menu == null) Menu = GetComponent<BuildModeMenu>();
             if (Palette == null) Palette = GetComponent<BuildPaletteView>();
             if (InfoMenu == null) InfoMenu = GetComponent<InfoMenuView>();
+            if (EventLog == null) EventLog = GetComponent<EventLogView>();
             if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
         }
 
@@ -52,10 +50,7 @@ namespace Citybuilder
                 float x = group.x + i * (HudLayout.SpeedButtonWidth + HudLayout.ButtonGap);
                 Rect rect = new Rect(x, group.y, HudLayout.SpeedButtonWidth, group.height);
                 bool active = Runner != null && Runner.Speed == speeds[i];
-                if (BottomBarStyle.DrawButton(rect, labels[i], active) && Runner != null)
-                {
-                    Runner.SetSpeed(speeds[i]);
-                }
+                if (BottomBarStyle.DrawButton(rect, labels[i], active) && Runner != null) Runner.SetSpeed(speeds[i]);
             }
         }
 
@@ -72,10 +67,7 @@ namespace Citybuilder
                 float x = group.x + i * (HudLayout.ModeButtonWidth + HudLayout.ButtonGap);
                 Rect rect = new Rect(x, group.y, HudLayout.ModeButtonWidth, group.height);
                 bool active = Menu != null && Menu.CurrentMode == modes[i];
-                if (BottomBarStyle.DrawButton(rect, labels[i], active) && Menu != null)
-                {
-                    Menu.SetMode(modes[i]);
-                }
+                if (BottomBarStyle.DrawButton(rect, labels[i], active) && Menu != null) Menu.SetMode(modes[i]);
             }
         }
 
@@ -86,9 +78,19 @@ namespace Citybuilder
             bool hasStats = InfoMenu != null || StatsEnabled;
             bool statsOpen = InfoMenu != null && InfoMenu.IsOpen;
             if (!hasStats) BottomBarStyle.DrawDisabledButton(stats, "Статистика");
-            else if (BottomBarStyle.DrawButton(stats, "Статистика", statsOpen) && InfoMenu != null) InfoMenu.Toggle();
-            if (!EventLogEnabled) BottomBarStyle.DrawDisabledButton(log, "Лента");
-            else BottomBarStyle.DrawButton(log, "Лента", false);
+            else if (BottomBarStyle.DrawButton(stats, "Статистика", statsOpen) && InfoMenu != null)
+            {
+                if (EventLog != null && !statsOpen) EventLog.SetOpen(false);
+                InfoMenu.Toggle();
+            }
+            bool hasLog = EventLog != null || EventLogEnabled;
+            bool logOpen = EventLog != null && EventLog.IsOpen;
+            if (!hasLog) BottomBarStyle.DrawDisabledButton(log, "Лента");
+            else if (BottomBarStyle.DrawButton(log, "Лента", logOpen) && EventLog != null)
+            {
+                if (InfoMenu != null && !logOpen) InfoMenu.SetOpen(false);
+                EventLog.Toggle();
+            }
         }
 
         private void DrawSubRow(float sw, float sh)
