@@ -40,7 +40,7 @@
 | #15 | [Пробки глазами игрока](EPIC-15-congestion-view.md) | ux | **done** — шаги 1-3 из 3 готовы |
 | #16 | [Главное меню + пауза](EPIC-16-menus.md) | ux | **done** — шаги 1-3 из 3 готовы |
 | #17 | [Стадии роста зданий](EPIC-17-growth-stages.md) | ux | **done** — шаги 1-3 из 3 готовы |
-| #18 | [Туториал v2](EPIC-18-tutorial.md) | ux | not started |
+| #18 | [Туториал v2](EPIC-18-tutorial.md) | ux | **done** — шаги 1-2 из 2 готовы |
 | #19 | [Звук](EPIC-19-sound.md) | ux | optional |
 | #20 | [Blender-конвейер](EPIC-20-blender.md) | content | not started |
 | #21 | [Релиз v1.1.0](EPIC-21-release.md) | release | not started |

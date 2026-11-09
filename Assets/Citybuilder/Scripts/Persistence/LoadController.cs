@@ -43,6 +43,8 @@ namespace Citybuilder
             ApplyMeta(snapshot);
             SaveController save = GetComponent<SaveController>();
             if (save != null) save.ClearDirty();
+            TutorialView tut = FindFirstObjectByType<TutorialView>();
+            if (tut != null) tut.Dismiss();
             LoadLog.Report(file, snapshot, homes, manual);
             return true;
         }
@@ -56,6 +58,8 @@ namespace Citybuilder
             if (Policy != null) Policy.Policy.Set(TaxPolicy.Level.Normal);
             SaveController save = GetComponent<SaveController>();
             if (save != null) save.ClearDirty();
+            TutorialView tut = FindFirstObjectByType<TutorialView>();
+            if (tut != null) tut.ResetTutorial();
             Debug.Log("LoadController: новая игра начата.");
         }
 
