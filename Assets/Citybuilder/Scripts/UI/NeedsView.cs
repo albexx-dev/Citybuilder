@@ -19,7 +19,7 @@ namespace Citybuilder
         [Tooltip("Мусор города. Опционален: иначе ищется на этом же объекте.")]
         public WasteController Waste;
         [Tooltip("Пожарные города. Опционален: иначе ищется на этом же объекте.")]
-        public FireCoverageController Fire;
+        public ServiceCoverageController Fire;
 
         private NeedSystem needs;
 
@@ -46,7 +46,7 @@ namespace Citybuilder
             if (Power == null) Power = GetComponent<PowerController>();
             if (Water == null) Water = GetComponent<WaterController>();
             if (Waste == null) Waste = GetComponent<WasteController>();
-            if (Fire == null) Fire = GetComponent<FireCoverageController>();
+            if (Fire == null) Fire = GetComponent<ServiceCoverageController>();
             Func<float> power = Power != null ? (Func<float>)(() => Power.Rate01) : null;
             Func<float> water = Water != null ? (Func<float>)(() => Water.Rate01) : null;
             Func<float> waste = Waste != null ? (Func<float>)(() => Waste.Rate01) : null;
