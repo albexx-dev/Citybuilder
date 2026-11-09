@@ -139,7 +139,13 @@ namespace Citybuilder
                 }
                 y += 30f;
             }
-            if (Upkeep != null) DrawLine(ref y, Upkeep.CurrentText);
+            if (Upkeep != null)
+            {
+                string line = Upkeep.CurrentText;
+                if (Upkeep.CurrentLook == UpkeepStatusPolicy.Look.Deficit) HudText.Draw(12f, y, line, UpkeepView.DeficitColor);
+                else HudText.Draw(12f, y, line);
+                y += 24f;
+            }
         }
 
         private static void DrawSection(ref float y, string header, string line)

@@ -25,13 +25,6 @@ namespace Citybuilder
             }
         }
 
-        private void OnGUI()
-        {
-            string text = CurrentText;
-            if (string.IsNullOrEmpty(text)) return;
-            HudText.Draw(10, 342, text);
-        }
-
         // Один сегмент строки: «Пожарные: N/M (Z%)».
         private static string Line(string label, FireCoverageController controller)
         {
