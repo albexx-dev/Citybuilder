@@ -22,13 +22,6 @@ namespace Citybuilder
             }
         }
 
-        private void OnGUI()
-        {
-            string text = CurrentText;
-            if (string.IsNullOrEmpty(text) || !HudLayout.IsHudRowVisible(406f, 2, Screen.height)) return;
-            HudText.Draw(10, HudLayout.FixedOrBottom(406f, 2), text);
-        }
-
         // Текст строки: ближайший тип или признание, что открыто всё.
         private static string BuildText(BuildingDefinition next)
         {

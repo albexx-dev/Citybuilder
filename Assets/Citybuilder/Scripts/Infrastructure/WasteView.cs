@@ -20,13 +20,6 @@ namespace Citybuilder
             }
         }
 
-        private void OnGUI()
-        {
-            string text = CurrentText;
-            if (string.IsNullOrEmpty(text)) return;
-            HudText.Draw(10, 310, text);
-        }
-
         // Округлённый процент из ставки ядра 0..1.
         private static int ToPercent(float rate)
         {
