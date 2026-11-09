@@ -3,8 +3,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Инфопанель выбранного здания по клику на клетку (EPIC-12 шаг 2).
-    // Показывает жителей, нужды и покрытие; закрывается по Esc, повторному клику или клику мимо.
+    // Инфопанель выбранного здания по клику на клетку + подсветка радиуса службы (EPIC-12 шаги 2-3).
     public class InfoPanelView : MonoBehaviour
     {
         [Header("References")]
@@ -21,23 +20,16 @@ namespace Citybuilder
 
         private BuildingInfo current;
 
-        public BuildingInfo CurrentInfo
-        {
-            get { return current; }
-        }
-
-        public bool IsOpen
-        {
-            get { return current.Found; }
-        }
+        public BuildingInfo CurrentInfo { get { return current; } }
+        public bool IsOpen { get { return current.Found; } }
 
         public void Close()
         {
             current = new BuildingInfo();
             UiClickGuard.Set("info_panel", new Rect());
+            if (GridVisualizer != null) GridVisualizer.ClearRadiusOverlay();
         }
 
-        // Выбрать здание по клетке. Повторный клик по тому же зданию или пустой клетке закрывает панель.
         public void SelectCell(GridPosition cell)
         {
             ResolveRefs();
@@ -60,6 +52,8 @@ namespace Citybuilder
                 return;
             }
             current = next;
+            if (current.HasServiceRadius) GridVisualizer.ShowRadiusOverlay(current.Origin, current.ServiceRadius, current.ServiceKind);
+            else GridVisualizer.ClearRadiusOverlay();
         }
 
         private void Update()
@@ -111,10 +105,7 @@ namespace Citybuilder
                 HudText.Draw(x, y, "Радиус: " + current.ServiceRadius + " кл. • Покрыто домов: " + current.CoveredHomes + "/" + current.TotalHomes);
                 y += 24f;
             }
-            if (current.JobsProvided > 0)
-            {
-                HudText.Draw(x, y, "Рабочих мест: " + current.JobsProvided);
-            }
+            if (current.JobsProvided > 0) HudText.Draw(x, y, "Рабочих мест: " + current.JobsProvided);
         }
 
         private void ResolveRefs()

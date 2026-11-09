@@ -34,7 +34,7 @@
 | #9 | [Событийная лента](EPIC-09-event-log.md) | architecture | **done** — шаги 1-3 из 3 готовы |
 | #10 | [Сплиты крупных файлов](EPIC-10-splits.md) | architecture | **done** — шаги 1-4 из 4 готовы |
 | #11 | [Сейвы v2](EPIC-11-saves-v2.md) | architecture | not started |
-| #12 | [Инфопанель здания](EPIC-12-info-panel.md) | architecture | not started |
+| #12 | [Инфопанель здания](EPIC-12-info-panel.md) | architecture | **done** — шаги 1-3 из 3 готовы |
 | #13 | [Нижняя панель действий](EPIC-13-bottom-bar.md) | ux | **done** — шаги 1-3 из 3 готовы |
 | #14 | [Информационное меню](EPIC-14-info-menu.md) | ux | **done** — шаги 1-3 из 3 готовы |
 | #15 | [Пробки глазами игрока](EPIC-15-congestion-view.md) | ux | not started |

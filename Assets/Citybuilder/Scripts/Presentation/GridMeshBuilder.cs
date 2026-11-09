@@ -1,9 +1,9 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Citybuilder
 {
-    // Строит меши сетки: линии, ховер-квад, красный оверлей занятых клеток (геометрия — OccupiedOverlayBuilder). Только показ.
-    // Настройка сцены: компонент на том же объекте, что и GridVisualizer.
+    // Строит меши сетки: линии, ховер-квад, красный оверлей занятых клеток и подсветку радиуса службы (EPIC-12 шаг 3).
     public class GridMeshBuilder : MonoBehaviour
     {
         [Header("References")]
@@ -12,11 +12,11 @@ namespace Citybuilder
 
         private GameObject hoverQuad;
         private Mesh occupiedMesh;
+        private Mesh radiusMesh;
+        private MeshRenderer radiusRenderer;
 
-        // Готовы ли квад ховера и меш оверлея. Гард для Update визуализатора.
         public bool HasVisuals { get { return hoverQuad != null && occupiedMesh != null; } }
 
-        // Находит готовые объекты или строит заново. Дубли не плодит.
         public void EnsureVisuals()
         {
             if (!Ready()) return;
@@ -24,7 +24,6 @@ namespace Citybuilder
             EnsureOverlays();
         }
 
-        // Показать ховер в мировых координатах. Центр клетки считает вызывающий.
         public void SetHover(float worldX, float worldZ)
         {
             if (hoverQuad == null) return;
@@ -32,14 +31,12 @@ namespace Citybuilder
             hoverQuad.SetActive(true);
         }
 
-        // Спрятать ховер: нет камеры, мимо плоскости, вне сетки.
         public void HideHover()
         {
             if (hoverQuad == null) return;
             hoverQuad.SetActive(false);
         }
 
-        // Перестроить красный оверлей по занятым клеткам сетки. Геометрию квадов строит OccupiedOverlayBuilder.
         public void RebuildOccupied()
         {
             if (!Ready()) return;
@@ -47,7 +44,22 @@ namespace Citybuilder
             OccupiedOverlayBuilder.Fill(occupiedMesh, Visualizer.Grid.GetOccupiedCells(), Visualizer.CellSize);
         }
 
-        // Резолв Visualizer через свой объект. Нет — ошибка.
+        // Подсветить клетки радиуса выбранной службы или очистить при пустом списке (EPIC-12 шаг 3).
+        public void RebuildRadius(List<GridPosition> cells, Color color)
+        {
+            if (!Ready()) return;
+            if (radiusMesh == null)
+            {
+                radiusMesh = OccupiedOverlayBuilder.BuildOverlay(transform, color);
+                Transform found = transform.Find("OccupiedOverlay");
+                if (found != null && found.GetComponent<MeshFilter>().mesh == radiusMesh) found.name = "RadiusOverlay";
+                GameObject go = FindChild("RadiusOverlay");
+                if (go != null) radiusRenderer = go.GetComponent<MeshRenderer>();
+            }
+            if (radiusRenderer != null && radiusRenderer.material != null) radiusRenderer.material.color = color;
+            OccupiedOverlayBuilder.Fill(radiusMesh, cells ?? new List<GridPosition>(), Visualizer.CellSize);
+        }
+
         private bool Ready()
         {
             if (Visualizer == null) Visualizer = GetComponent<GridVisualizer>();
@@ -85,8 +97,7 @@ namespace Citybuilder
         private GameObject FindChild(string childName)
         {
             Transform found = transform.Find(childName);
-            if (found == null) return null;
-            return found.gameObject;
+            return found == null ? null : found.gameObject;
         }
 
         private void BuildGridLines()
