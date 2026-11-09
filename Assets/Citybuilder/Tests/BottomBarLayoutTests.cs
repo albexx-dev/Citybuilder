@@ -60,5 +60,14 @@ namespace Citybuilder
             Assert.Less(y1, y0);
             Assert.LessOrEqual(y0 + 24f, bar.y);
         }
+
+        [Test]
+        public void LowWindow_HidesCrushedRows_WhileKeepingBottomBarVisible()
+        {
+            Assert.IsFalse(HudLayout.IsHudRowVisible(454f, 0, 440f));
+            Assert.IsTrue(HudLayout.IsHudRowVisible(454f, 0, 600f));
+            Assert.IsTrue(HudLayout.IsHudRowVisible(406f, 2, 600f));
+            Assert.AreEqual(HudLayout.BarHeight, HudLayout.BottomBarRect(1024f, 440f).height, 0.01f);
+        }
     }
 }

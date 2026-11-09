@@ -16,6 +16,7 @@ namespace Citybuilder
         private void OnGUI()
         {
             if (Growth == null || Definitions == null || Definitions.Count == 0) return;
+            if (!HudLayout.IsHudRowVisible(406f, 2, Screen.height)) return;
             BuildingDefinition next = UnlockPolicy.NextLocked(Definitions, Growth.GrownCount);
             // y=406: ниже пожарных (342) и кнопки налога (374 + 26); на низких окнах строка поджимается.
             HudText.Draw(10, HudLayout.FixedOrBottom(406f, 2), BuildText(next));

@@ -31,6 +31,7 @@ namespace Citybuilder
         {
             string text = CurrentText;
             if (string.IsNullOrEmpty(text)) return;
+            if (!HudLayout.IsHudRowVisible(430f, 1, Screen.height)) return;
             // y=430: ниже «Дальше» (406); на низких окнах строка поджимается к низу.
             HudText.Draw(10, HudLayout.FixedOrBottom(430f, 1), text);
         }
