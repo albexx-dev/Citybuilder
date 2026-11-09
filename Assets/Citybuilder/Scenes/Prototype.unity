@@ -219,6 +219,7 @@ GameObject:
   - component: {fileID: 985593189}
   - component: {fileID: 985593190}
   - component: {fileID: 985593191}
+  - component: {fileID: 985593192}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -866,6 +867,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Citybuilder::Citybuilder.LoadMenuView
   Load: {fileID: 1432023088}
+--- !u!114 &985593192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fbbea830a65429f82b9e64d9a799501, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.PauseMenuView
+  Runner: {fileID: 1821543313}
+  Save: {fileID: 1432023086}
+  SaveMenu: {fileID: 985593190}
+  LoadMenu: {fileID: 985593191}
+  MainMenu: {fileID: 985593162}
 --- !u!1 &1069481158
 GameObject:
   m_ObjectHideFlags: 0
