@@ -29,4 +29,4 @@ MonoBehaviour:
   WasteOutput: 0
   WasteCapacity: 0
   UpkeepPerHour: 10
-  Prefab: {fileID: 0}
+  Prefab: {fileID: 919132149155446097, guid: 7b4e1a9d3c8542e09f1a6d2c8e4b5021, type: 3}
