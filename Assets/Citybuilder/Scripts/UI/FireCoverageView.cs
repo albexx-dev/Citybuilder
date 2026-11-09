@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Показывает покрытие служб. В EPIC-01 шаг 2 читает оба вида из одного ServiceCoverageController (или второго контроллера).
+    // Показывает покрытие всех четырёх служб города (EPIC-01/EPIC-02): пожарные, полиция, больницы и досуг.
     public class FireCoverageView : MonoBehaviour
     {
         [Header("References")]
@@ -12,6 +12,7 @@ namespace Citybuilder
         [Tooltip("Второй контроллер — полиция (опционально: иначе читается из того же Controller).")]
         public ServiceCoverageController Police;
 
+        // Строка пожарных и полиции.
         public string CurrentText
         {
             get
@@ -22,6 +23,18 @@ namespace Citybuilder
                 ServiceCoverageController police = Police != null ? Police : primary;
                 text += " • " + KindLine("Полиция", police, ServiceKind.Police);
                 return text;
+            }
+        }
+
+        // Строка больниц и досуга (EPIC-02 шаг 2) из того же снимка ServiceBuildingSystem.
+        public string HealthLeisureText
+        {
+            get
+            {
+                ServiceCoverageController primary = Controller != null ? Controller : GetComponent<ServiceCoverageController>();
+                if (primary == null) return string.Empty;
+                return KindLine("Больницы", primary, ServiceKind.Health)
+                    + " • " + KindLine("Досуг", primary, ServiceKind.Leisure);
             }
         }
 
