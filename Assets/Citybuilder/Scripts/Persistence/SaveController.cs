@@ -1,48 +1,61 @@
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 namespace Citybuilder
 {
-    // Запись слота сохранений: F5 или публичный SaveNow() пишут slot0.json. Ссылки опциональны.
+    // Запись слота сохранений: F5 пишет слот 0; SaveNow(slot) поддерживает слоты 0..2 и autosave (EPIC-11).
     public class SaveController : MonoBehaviour
     {
         [Header("References")]
-        [Tooltip("Население. Опционален: иначе ищется на этом же объекте.")]
-        public PopulationController Population;
-        [Tooltip("Рост поселений. Опционален: иначе ищется на этом же объекте.")]
-        public SettlementGrowthController Growth;
-        [Tooltip("Кисть зон. Опциональна: иначе ищется на этом же объекте.")]
-        public ZonePaintingController Zones;
-        [Tooltip("Казна. Опциональна: иначе ищется на этом же объекте.")]
-        public TreasuryView Treasury;
-        [Tooltip("Драйвер часов. Опционален: иначе ищется на этом же объекте.")]
-        public SimulationRunner Runner;
-        [Tooltip("Стройка дорог. Опциональна: иначе ищется на этом же объекте.")]
-        public RoadNetworkStore Roads;
-        [Tooltip("Налоговая политика. Пусто = обычный налог в слот.")]
-        public TaxPolicyView Policy;
-        [Tooltip("Ручные здания. Пусто = ищется в сцене.")]
-        public BuildingPlacementController Placement;
-        [Tooltip("Ступень цели. Пусто = ищется в сцене.")]
-        public GoalView Goal;
+        [Tooltip("Население. Опционален: иначе ищется на этом же объекте.")] public PopulationController Population;
+        [Tooltip("Рост поселений. Опционален: иначе ищется на этом же объекте.")] public SettlementGrowthController Growth;
+        [Tooltip("Кисть зон. Опциональна: иначе ищется на этом же объекте.")] public ZonePaintingController Zones;
+        [Tooltip("Казна. Опциональна: иначе ищется на этом же объекте.")] public TreasuryView Treasury;
+        [Tooltip("Драйвер часов. Опционален: иначе ищется на этом же объекте.")] public SimulationRunner Runner;
+        [Tooltip("Стройка дорог. Опциональна: иначе ищется на этом же объекте.")] public RoadNetworkStore Roads;
+        [Tooltip("Налоговая политика. Пусто = обычный налог в слот.")] public TaxPolicyView Policy;
+        [Tooltip("Ручные здания. Пусто = ищется в сцене.")] public BuildingPlacementController Placement;
+        [Tooltip("Ступень цели. Пусто = ищется в сцене.")] public GoalView Goal;
+
+        private long lastManualSaveTick = -1;
+        private bool isDirty;
+
+        public long LastManualSaveTick { get { return lastManualSaveTick; } }
+        public bool IsDirty { get { return isDirty; } }
+
+        public void MarkDirty() { isDirty = true; }
+        public void ClearDirty() { isDirty = false; }
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.F5)) SaveNow();
+            if (Input.GetKeyDown(KeyCode.F5)) SaveNow(0);
         }
 
-        // Мост для E2E: собирает снапшот из живых систем и пишет slot0.json. Пустых ссылок не боится.
         public bool SaveNow()
+        {
+            return SaveNow(0, null);
+        }
+
+        public bool SaveNow(int slot, string slotName = null)
+        {
+            ResolveRefs();
+            CitySnapshot snapshot = BuildCurrentSnapshot();
+            bool written = SaveSlotStorage.Save(Application.persistentDataPath, slot, snapshot, slotName);
+            if (written && slot >= 0)
+            {
+                lastManualSaveTick = snapshot.TickCount;
+                isDirty = false;
+            }
+            LogResult(written, SaveSlotIndex.FileNameForSlot(slot), snapshot);
+            return written;
+        }
+
+        public CitySnapshot BuildCurrentSnapshot()
         {
             ResolveRefs();
             int goalStage = Goal == null ? 0 : Goal.Stage;
-            CitySnapshot snapshot = SaveSystem.BuildSnapshot(CollectHomes(), CollectHouseholds(), CollectZones(),
+            return SaveSystem.BuildSnapshot(CollectHomes(), CollectHouseholds(), CollectZones(),
                 ReadBalance(), ReadTicks(), CollectRoads(), ReadTaxLevel(), CollectManual(), goalStage);
-            string path = Path.Combine(Application.persistentDataPath, SaveSlotStorage.SlotFileName);
-            bool written = SaveSlotStorage.WriteSlot(path, snapshot);
-            LogResult(written, path, snapshot);
-            return written;
         }
 
         private void ResolveRefs()
@@ -60,91 +73,58 @@ namespace Citybuilder
 
         private List<BuildingState> CollectHomes()
         {
-            if (Growth == null)
-            {
-                return new List<BuildingState>();
-            }
-            List<BuildingState> homes = Growth.Homes;
-            return homes == null ? new List<BuildingState>() : homes;
+            return Growth != null && Growth.Homes != null ? Growth.Homes : new List<BuildingState>();
         }
 
         private List<BuildingState> CollectManual()
         {
-            if (Placement == null) return new List<BuildingState>();
-            List<BuildingState> placed = Placement.Placed;
-            return placed == null ? new List<BuildingState>() : placed;
+            return Placement != null && Placement.Placed != null ? Placement.Placed : new List<BuildingState>();
         }
 
         private List<HouseholdState> CollectHouseholds()
         {
-            if (Population == null || Population.Population == null)
+            if (Population == null || Population.Population == null || Population.Population.Households == null)
             {
                 return new List<HouseholdState>();
             }
-            List<HouseholdState> households = Population.Population.Households;
-            return households == null ? new List<HouseholdState>() : households;
+            return Population.Population.Households;
         }
 
         private List<KeyValuePair<GridPosition, ZoneType>> CollectZones()
         {
-            if (Zones == null || Zones.Zones == null)
-            {
-                return new List<KeyValuePair<GridPosition, ZoneType>>();
-            }
-            List<KeyValuePair<GridPosition, ZoneType>> cells = Zones.Zones.GetZonedCells();
-            return cells == null ? new List<KeyValuePair<GridPosition, ZoneType>>() : cells;
+            if (Zones == null || Zones.Zones == null) return new List<KeyValuePair<GridPosition, ZoneType>>();
+            return Zones.Zones.GetZonedCells() ?? new List<KeyValuePair<GridPosition, ZoneType>>();
         }
 
         private List<RoadState> CollectRoads()
         {
-            if (Roads == null)
-            {
-                return new List<RoadState>();
-            }
-            List<RoadState> states = Roads.Roads;
-            return states == null ? new List<RoadState>() : states;
+            return Roads != null && Roads.Roads != null ? Roads.Roads : new List<RoadState>();
         }
 
         private int ReadBalance()
         {
-            if (Treasury == null || Treasury.Treasury == null)
-            {
-                return 0;
-            }
-            return Treasury.Treasury.Balance;
+            return Treasury != null && Treasury.Treasury != null ? Treasury.Treasury.Balance : 0;
         }
 
         private long ReadTicks()
         {
-            if (Runner == null || Runner.Clock == null)
-            {
-                return 0;
-            }
-            return Runner.Clock.CurrentTime.TickCount;
+            return Runner != null && Runner.Clock != null ? Runner.Clock.CurrentTime.TickCount : 0;
         }
 
         private int ReadTaxLevel()
         {
-            if (Policy == null) return 0;
-            return SaveSystem.EncodeTaxLevel(Policy.Policy.Current);
+            return Policy == null ? 0 : SaveSystem.EncodeTaxLevel(Policy.Policy.Current);
         }
 
-        private static void LogResult(bool written, string path, CitySnapshot snapshot)
+        private static void LogResult(bool written, string file, CitySnapshot snapshot)
         {
             if (!written)
             {
-                Debug.LogError("SaveController: не удалось записать слот: " + path);
+                Debug.LogError("SaveController: не удалось записать слот: " + file);
                 return;
             }
             Debug.Log("SaveController: слот записан: домов=" + snapshot.Buildings.Count
-                + ", ручных=" + snapshot.ManualBuildings.Count
-                + ", домохозяйств=" + snapshot.Households.Count
-                + ", зон=" + snapshot.Zones.Count
-                + ", дорог=" + snapshot.Roads.Count
-                + ", баланс=" + snapshot.Balance
-                + ", налог=" + snapshot.TaxLevel + ", цель=" + snapshot.GoalStage
-                + ", тик=" + snapshot.TickCount
-                + ", файл=" + path);
+                + ", баланс=" + snapshot.Balance + ", тик=" + snapshot.TickCount + ", файл=" + file);
         }
     }
 }
