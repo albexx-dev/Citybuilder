@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Показывает удовлетворённость потребностей. V1: штатный OnGUI-лейбл под строкой населения.
+    // Показывает удовлетворённость потребностей (EPIC-03: до 9 показателей).
     // Нет контроллеров — молча не рисует. Есть, но системы не готовы — рисует нули.
     public class NeedsView : MonoBehaviour
     {
@@ -18,7 +18,7 @@ namespace Citybuilder
         public WaterController Water;
         [Tooltip("Мусор города. Опционален: иначе ищется на этом же объекте.")]
         public WasteController Waste;
-        [Tooltip("Пожарные города. Опционален: иначе ищется на этом же объекте.")]
+        [Tooltip("Службы города (пожарные, здоровье, досуг). Опционален: иначе ищется на этом же объекте.")]
         public ServiceCoverageController Fire;
 
         private NeedSystem needs;
@@ -50,12 +50,14 @@ namespace Citybuilder
             Func<float> power = Power != null ? (Func<float>)(() => Power.Rate01) : null;
             Func<float> water = Water != null ? (Func<float>)(() => Water.Rate01) : null;
             Func<float> waste = Waste != null ? (Func<float>)(() => Waste.Rate01) : null;
-            Func<float> fire = Fire != null ? (Func<float>)(() => Fire.Rate01) : null;
-            needs = new NeedSystem(population.Population, growth.Settlement, power, water, waste, fire);
+            Func<float> fire = Fire != null ? (Func<float>)(() => Fire.RateOf(ServiceKind.Fire)) : null;
+            Func<float> health = Fire != null ? NeedProviders.Health(Fire.System) : null;
+            Func<float> leisure = Fire != null ? NeedProviders.Leisure(Fire.System) : null;
+            needs = new NeedSystem(population.Population, growth.Settlement, power, water, waste, fire, health, leisure);
         }
 
         // Строка потребностей. Провайдеры добавляются только при наличии.
-        private static string BuildText(NeedSystem model)
+        public static string BuildText(NeedSystem model)
         {
             float housing = model != null ? model.HousingRoomRate : 0f;
             float jobs = model != null ? model.JobsRoomRate : 0f;
@@ -69,7 +71,7 @@ namespace Citybuilder
             return text + ")";
         }
 
-        // Подключённые показатели после базовых трёх: энергия, вода, мусор, пожарные.
+        // Подключённые показатели после базовых трёх: энергия, вода, мусор, пожарные, здоровье, досуг.
         private static string AppendProviders(string text, NeedSystem model)
         {
             if (model == null) return text;
@@ -77,6 +79,8 @@ namespace Citybuilder
             if (model.HasWater) text += " • вода " + ToPercent(model.WaterRate) + "%";
             if (model.HasWaste) text += " • мусор " + ToPercent(model.WasteRate) + "%";
             if (model.HasFire) text += " • пожарные " + ToPercent(model.FireRate) + "%";
+            if (model.HasHealth) text += " • здоровье " + ToPercent(model.HealthRate) + "%";
+            if (model.HasLeisure) text += " • досуг " + ToPercent(model.LeisureRate) + "%";
             return text;
         }
 

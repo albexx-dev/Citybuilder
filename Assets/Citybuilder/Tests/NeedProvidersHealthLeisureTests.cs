@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace Citybuilder
 {
-    // Тесты провайдеров здоровья и досуга в NeedProviders (EPIC-03 шаг 1).
+    // Тесты провайдеров здоровья и досуга в NeedProviders и 9 показателей в NeedSystem (EPIC-03 шаги 1-2).
     public class NeedProvidersHealthLeisureTests
     {
         private const float Tolerance = 1e-4f;
@@ -46,6 +46,27 @@ namespace Citybuilder
 
             Assert.AreEqual(0.5f, providers.HealthRate, Tolerance);
             Assert.AreEqual(0f, providers.LeisureRate, Tolerance);
+        }
+
+        [Test]
+        public void NeedSystem_EightArgCtor_AveragesAcrossNineIndicators_AndFormatsHudLine()
+        {
+            GridSystem grid = new GridSystem(new GridSize(20, 20), 2f);
+            SettlementSystem settlement = new SettlementSystem(grid, new ZoneSystem(grid), new BuildingSystem(grid));
+            PopulationSystem population = new PopulationSystem();
+            // Пустой город: housing=0, jobs=1, employment=1 -> базовые дают 2.0
+            NeedSystem needs = new NeedSystem(population, settlement,
+                () => 1f, () => 1f, () => 1f, () => 1f, () => 0f, () => 0.5f);
+
+            Assert.IsTrue(needs.HasHealth);
+            Assert.IsTrue(needs.HasLeisure);
+            Assert.AreEqual(0f, needs.HealthRate, Tolerance);
+            Assert.AreEqual(0.5f, needs.LeisureRate, Tolerance);
+            Assert.AreEqual(6.5f / 9f, needs.AverageSatisfaction, Tolerance);
+
+            string line = NeedsView.BuildText(needs);
+            StringAssert.Contains("здоровье 0%", line);
+            StringAssert.Contains("досуг 50%", line);
         }
     }
 }

@@ -2,7 +2,7 @@ using System;
 
 namespace Citybuilder
 {
-    // Удовлетворённость жителей: жильё, работа, занятость и подключённые провайдеры. Чистый C#.
+    // Удовлетворённость жителей: жильё, работа, занятость и подключённые провайдеры (EPIC-03: до 9 показателей). Чистый C#.
     public class NeedSystem
     {
         private readonly PopulationSystem population;
@@ -26,13 +26,20 @@ namespace Citybuilder
             Func<float> powerRate, Func<float> waterRate, Func<float> wasteRate)
             : this(population, settlement, new NeedProviders(powerRate, waterRate, wasteRate)) { }
 
-        // Полный набор: энергия, вода, мусор, пожарные. null — показатель не входит в среднее.
+        // Энергия, вода, мусор, пожарные. null — показатель не входит в среднее.
         public NeedSystem(PopulationSystem population, SettlementSystem settlement,
             Func<float> powerRate, Func<float> waterRate, Func<float> wasteRate, Func<float> fireRate)
             : this(population, settlement,
                 new NeedProviders(powerRate, waterRate, wasteRate, fireRate)) { }
 
-        private NeedSystem(PopulationSystem population, SettlementSystem settlement, NeedProviders providers)
+        // Полный набор v1.1 (EPIC-03): до 9 показателей (+ здоровье и досуг).
+        public NeedSystem(PopulationSystem population, SettlementSystem settlement,
+            Func<float> powerRate, Func<float> waterRate, Func<float> wasteRate,
+            Func<float> fireRate, Func<float> healthRate, Func<float> leisureRate)
+            : this(population, settlement,
+                new NeedProviders(powerRate, waterRate, wasteRate, fireRate, healthRate, leisureRate)) { }
+
+        public NeedSystem(PopulationSystem population, SettlementSystem settlement, NeedProviders providers)
         {
             if (population == null) throw new ArgumentNullException("population");
             if (settlement == null) throw new ArgumentNullException("settlement");
@@ -52,10 +59,14 @@ namespace Citybuilder
         public bool HasWater { get { return providers.HasWater; } }
         public bool HasWaste { get { return providers.HasWaste; } }
         public bool HasFire { get { return providers.HasFire; } }
+        public bool HasHealth { get { return providers.HasHealth; } }
+        public bool HasLeisure { get { return providers.HasLeisure; } }
         public float PowerRate { get { return providers.PowerRate; } }
         public float WaterRate { get { return providers.WaterRate; } }
         public float WasteRate { get { return providers.WasteRate; } }
         public float FireRate { get { return providers.FireRate; } }
+        public float HealthRate { get { return providers.HealthRate; } }
+        public float LeisureRate { get { return providers.LeisureRate; } }
 
         // Доля свободного жилья. Домов нет — 0, пустой город — 1.
         public float HousingRoomRate
@@ -90,7 +101,7 @@ namespace Citybuilder
             }
         }
 
-        // Среднее по трём базовым потребностям плюс подключённые провайдеры (3..7 слагаемых).
+        // Среднее по трём базовым потребностям плюс подключённые провайдеры (3..9 слагаемых).
         public float AverageSatisfaction
         {
             get
