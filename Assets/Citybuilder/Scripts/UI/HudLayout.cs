@@ -99,5 +99,16 @@ namespace Citybuilder
         {
             return InfoMenuRect(screenWidth, screenHeight);
         }
+
+        // Инфопанель выбранного здания в правом нижнем углу над нижней панелью (EPIC-12 шаг 2).
+        public static Rect InfoPanelRect(float screenWidth, float screenHeight)
+        {
+            const float width = 320f;
+            const float height = 166f;
+            float x = Mathf.Max(BarPadding, screenWidth - width - BarPadding);
+            float maxBottom = BottomBarRect(screenWidth, screenHeight).y - SubRowOffset - InfoMenuBottomGap;
+            float y = Mathf.Max(InfoMenuTop, maxBottom - height);
+            return new Rect(x, y, width, height);
+        }
     }
 }
