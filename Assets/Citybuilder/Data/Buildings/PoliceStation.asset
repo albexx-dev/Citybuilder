@@ -20,3 +20,4 @@ MonoBehaviour:
   JobsProvided: 2
   ServiceRadius: 5
   ServiceKind: 2
+  UpkeepPerHour: 6

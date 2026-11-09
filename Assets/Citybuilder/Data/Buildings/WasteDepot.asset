@@ -30,4 +30,5 @@ MonoBehaviour:
   WaterOutput: 0
   WasteOutput: 0
   WasteCapacity: 12
+  UpkeepPerHour: 5
   Prefab: {fileID: 0}
