@@ -3,12 +3,16 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Мост пробок в рост (067) и запрос нагрузки клеток (EPIC-15).
+    // Мост пробок в рост (067), запрос нагрузки клеток и перекраска дорог раз в тик (EPIC-15).
     public class CongestionController : MonoBehaviour
     {
         [Header("References")]
         [Tooltip("Сетка. Обязателен: даёт Grid для маршрутов и подсчёта пробок.")]
         public GridVisualizer GridVisualizer;
+        [Tooltip("Сеть дорог (для перекраски по нагрузке). Пусто = ищется на этом же объекте.")]
+        public RoadNetworkStore Roads;
+        [Tooltip("Драйвер часов (для обновления цвета раз в тик). Пусто = ищется в сцене.")]
+        public SimulationRunner Runner;
 
         [Header("Congestion")]
         [Tooltip("С какой нагрузки клетки начинается пробка. Минимум 1.")]
@@ -54,6 +58,33 @@ namespace Citybuilder
         {
             ClampLimits();
             EnsureReady();
+        }
+
+        private void OnEnable()
+        {
+            if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
+            if (Runner != null && Runner.Clock != null) Runner.Clock.TickCompleted += OnClockTick;
+        }
+
+        private void OnDisable()
+        {
+            if (Runner != null && Runner.Clock != null) Runner.Clock.TickCompleted -= OnClockTick;
+        }
+
+        private void OnClockTick(SimulationTime time)
+        {
+            RefreshRoadColors((int)time.TickCount);
+        }
+
+        public bool RefreshRoadColors(int tick)
+        {
+            if (!EnsureReady()) return false;
+            if (Roads == null) Roads = GetComponent<RoadNetworkStore>();
+            if (Roads == null || Roads.View == null) return false;
+            List<RoadState> states = Roads.Roads;
+            List<GridPosition> cells = new List<GridPosition>(states.Count);
+            for (int i = 0; i < states.Count; i++) cells.Add(states[i].Cell);
+            return Roads.View.RefreshCongestionOncePerTick(tick, cells, GridVisualizer.Grid.CellSize, Load01);
         }
 
         private void OnValidate()
