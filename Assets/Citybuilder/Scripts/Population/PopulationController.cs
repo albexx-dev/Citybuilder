@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Автовъезд домохозяйств в выросшие дома по таймеру. Связные раньше, внутри — first-fit. Только таймер.
-    // Настройка сцены: отдельный объект, Growth обязателен, по умолчанию выключен.
+    // Автовъезд домохозяйств в выросшие дома по таймеру. Связные раньше, внутри — first-fit.
+    // В EPIC-03 шаг 3 проверяет гейты занятости и среднего удовлетворения по 9 показателям.
     public class PopulationController : MonoBehaviour
     {
         [Header("References")]
@@ -13,8 +13,14 @@ namespace Citybuilder
         public SettlementGrowthController Growth;
         [Tooltip("Вид населения. Пусто = создастся на этом же объекте.")]
         public PopulationView View;
-        [Tooltip("Энергия города. Пусто = ищется на этом же объекте; нет — без учёта энергии.")]
+        [Tooltip("Энергия города. Пусто = ищется на объекте Growth; нет — без учёта энергии.")]
         public PowerController Power;
+        [Tooltip("Вода города. Пусто = ищется на объекте Growth.")]
+        public WaterController Water;
+        [Tooltip("Мусор города. Пусто = ищется на объекте Growth.")]
+        public WasteController Waste;
+        [Tooltip("Службы города (пожарные, здоровье, досуг). Пусто = ищется на объекте Growth.")]
+        public ServiceCoverageController Services;
         [Header("Transport")]
         [Tooltip("Связность дорог. Пусто = старое поведение first-fit.")]
         public ConnectivityController Connectivity;
@@ -25,13 +31,15 @@ namespace Citybuilder
         public float MoveInIntervalSec = 7f;
         [Tooltip("Минимальная занятость для въезда. Ниже — новые не въезжают.")]
         public float MinEmployment = 0.4f;
+        [Tooltip("Минимальное среднее удовлетворение потребностей (EPIC-03).")]
+        public float MinSatisfaction = 0.5f;
         [Tooltip("Режим автовъезда. Выключите для ручного заселения.")]
         public bool placementActive = true;
+
         private PopulationSystem population;
         private NeedSystem needs;
         private float timer;
-        // Ленивый доступ для вида и выселения при сносе.
-        // Заселённое при перезагрузке домена теряется (не V1).
+
         public PopulationSystem Population
         {
             get
@@ -40,7 +48,7 @@ namespace Citybuilder
                 return population;
             }
         }
-        // Суммарная вместимость выросших домов. Нет роста — 0.
+
         public int GrownCapacity
         {
             get
@@ -50,24 +58,20 @@ namespace Citybuilder
                 if (homes == null) return 0;
                 EnsurePopulation();
                 int total = 0;
-                for (int i = 0; i < homes.Count; i++)
-                {
-                    total += population.CapacityOf(homes[i]);
-                }
+                for (int i = 0; i < homes.Count; i++) total += population.CapacityOf(homes[i]);
                 return total;
             }
         }
+
         private void Start()
         {
             ClampLimits();
             EnsureReady();
             EnsureView();
         }
-        private void OnValidate()
-        {
-            ClampLimits();
-        }
-        // Чинит систему после перезагрузки домена. Без роста отключается.
+
+        private void OnValidate() { ClampLimits(); }
+
         private bool EnsureReady()
         {
             if (Growth == null)
@@ -79,43 +83,47 @@ namespace Citybuilder
             EnsurePopulation();
             return true;
         }
+
         private void EnsureView()
         {
             if (View == null) View = GetComponent<PopulationView>();
             if (View == null) View = gameObject.AddComponent<PopulationView>();
         }
-        // Тихое создание системы для геттеров: без логов, вид опрашивает каждый кадр.
+
         private void EnsurePopulation()
         {
             if (population == null) population = new PopulationSystem();
         }
+
         private void Update()
         {
-            if (!EnsureReady()) return;
-            if (!placementActive || population == null) return;
+            if (!EnsureReady() || !placementActive || population == null) return;
             timer += Time.deltaTime;
             if (timer < MoveInIntervalSec) return;
             timer = 0f;
             TryMoveIn();
         }
-        // Первое выросшее жильё, куда домохозяйство влезает целиком. Связные раньше.
+
+        // Проходят ли гейты занятости и 9-компонентного удовлетворения (EPIC-03 шаг 3).
+        public static bool CanMoveInByNeeds(NeedSystem needs, float minEmployment, float minSatisfaction)
+        {
+            if (needs == null) return true;
+            if (needs.EmploymentRate < minEmployment) return false;
+            return needs.AverageSatisfaction >= minSatisfaction;
+        }
+
         private void TryMoveIn()
         {
             EnsureNeeds();
-            // Гейт: низкая занятость — въезд закрыт. Систем нет — старое поведение.
-            if (needs != null && needs.EmploymentRate < MinEmployment) return;
+            if (!CanMoveInByNeeds(needs, MinEmployment, MinSatisfaction)) return;
             List<BuildingState> homes = Growth.Homes;
             if (homes == null) return;
             BuildingState home = FindMoveInHome(homes, population, HouseholdSize, IsHomeConnected);
             if (home != null) population.MoveIn(home, HouseholdSize);
         }
-        // Выбор дома для въезда: сначала связные со свободным местом, потом любые.
-        // Порядок внутри проходов не меняем. Предиката нет — старый first-fit один в один.
+
         public static BuildingState FindMoveInHome(
-            List<BuildingState> homes,
-            PopulationSystem population,
-            int householdSize,
-            Func<BuildingState, bool> isConnected)
+            List<BuildingState> homes, PopulationSystem population, int householdSize, Func<BuildingState, bool> isConnected)
         {
             if (homes == null || population == null) return null;
             if (isConnected != null)
@@ -131,34 +139,42 @@ namespace Citybuilder
             }
             return null;
         }
+
         private static bool HasRoomFor(PopulationSystem population, BuildingState home, int householdSize)
         {
             if (home == null || householdSize <= 0) return false;
             return population.ResidentsIn(home) + householdSize <= population.CapacityOf(home);
         }
-        // Связность дома через транспорт. Транспорта нет — false, дальше first-fit.
+
         private bool IsHomeConnected(BuildingState home)
         {
-            if (Connectivity == null) Connectivity = GetComponent<ConnectivityController>();
+            if (Connectivity == null && Growth != null) Connectivity = Growth.GetComponent<ConnectivityController>();
             if (Connectivity == null) return false;
             return Connectivity.IsHomeConnected(home);
         }
-        // Ленивая сборка гейта: поселения не готовы — старое поведение.
+
         private void EnsureNeeds()
         {
-            if (needs != null) return;
-            if (population == null) return;
-            if (Growth == null || Growth.Settlement == null) return;
-            if (Power == null) Power = GetComponent<PowerController>();
-            Func<float> rate = Power != null ? (Func<float>)(() => Power.Rate01) : null;
-            needs = new NeedSystem(population, Growth.Settlement, rate);
+            if (needs != null || population == null || Growth == null || Growth.Settlement == null) return;
+            if (Power == null) Power = Growth.GetComponent<PowerController>();
+            if (Water == null) Water = Growth.GetComponent<WaterController>();
+            if (Waste == null) Waste = Growth.GetComponent<WasteController>();
+            if (Services == null) Services = Growth.GetComponent<ServiceCoverageController>();
+            Func<float> power = Power != null ? (Func<float>)(() => Power.Rate01) : null;
+            Func<float> water = Water != null ? (Func<float>)(() => Water.Rate01) : null;
+            Func<float> waste = Waste != null ? (Func<float>)(() => Waste.Rate01) : null;
+            Func<float> fire = Services != null ? (Func<float>)(() => Services.RateOf(ServiceKind.Fire)) : null;
+            Func<float> health = Services != null ? NeedProviders.Health(Services.System) : null;
+            Func<float> leisure = Services != null ? NeedProviders.Leisure(Services.System) : null;
+            needs = new NeedSystem(population, Growth.Settlement, power, water, waste, fire, health, leisure);
         }
+
         private void ClampLimits()
         {
             if (HouseholdSize < 1) HouseholdSize = 1;
             if (MoveInIntervalSec < 1f) MoveInIntervalSec = 1f;
-            if (MinEmployment < 0f) MinEmployment = 0f;
-            if (MinEmployment > 1f) MinEmployment = 1f;
+            MinEmployment = Mathf.Clamp01(MinEmployment);
+            MinSatisfaction = Mathf.Clamp01(MinSatisfaction);
         }
     }
 }

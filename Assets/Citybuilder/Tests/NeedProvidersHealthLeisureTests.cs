@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace Citybuilder
 {
-    // Тесты провайдеров здоровья и досуга в NeedProviders и 9 показателей в NeedSystem (EPIC-03 шаги 1-2).
+    // Тесты провайдеров здоровья и досуга в NeedProviders, 9 показателей в NeedSystem и гейта въезда (EPIC-03).
     public class NeedProvidersHealthLeisureTests
     {
         private const float Tolerance = 1e-4f;
@@ -54,7 +54,6 @@ namespace Citybuilder
             GridSystem grid = new GridSystem(new GridSize(20, 20), 2f);
             SettlementSystem settlement = new SettlementSystem(grid, new ZoneSystem(grid), new BuildingSystem(grid));
             PopulationSystem population = new PopulationSystem();
-            // Пустой город: housing=0, jobs=1, employment=1 -> базовые дают 2.0
             NeedSystem needs = new NeedSystem(population, settlement,
                 () => 1f, () => 1f, () => 1f, () => 1f, () => 0f, () => 0.5f);
 
@@ -67,6 +66,33 @@ namespace Citybuilder
             string line = NeedsView.BuildText(needs);
             StringAssert.Contains("здоровье 0%", line);
             StringAssert.Contains("досуг 50%", line);
+        }
+
+        [Test]
+        public void MoveInGate_BlockedWithoutHospitalAndPark_ResumesWhenCovered()
+        {
+            GridSystem grid = new GridSystem(new GridSize(20, 20), 2f);
+            SettlementSystem settlement = new SettlementSystem(grid, new ZoneSystem(grid), new BuildingSystem(grid));
+            PopulationSystem population = new PopulationSystem();
+            ServiceBuildingSystem services = new ServiceBuildingSystem();
+            List<GridPosition> homes = new List<GridPosition>
+            {
+                new GridPosition(0, 0), new GridPosition(2, 0), new GridPosition(4, 0), new GridPosition(6, 0)
+            };
+            services.BuildSnapshot(homes);
+
+            // Базовые (жильё 0, работа 1, занятость 1 = 2.0) + низкое снабжение (2.0) + 0 здоровье + 0 досуг = 4.0 / 9 < 0.5
+            NeedSystem needs = new NeedSystem(population, settlement,
+                () => 0.5f, () => 0.5f, () => 0.5f, () => 0.5f,
+                NeedProviders.Health(services), NeedProviders.Leisure(services));
+
+            Assert.IsFalse(PopulationController.CanMoveInByNeeds(needs, 0.4f, 0.5f));
+
+            services.SetSources(ServiceKind.Health, new List<ServiceSource> { new ServiceSource(new GridPosition(2, 0), 7) });
+            services.SetSources(ServiceKind.Leisure, new List<ServiceSource> { new ServiceSource(new GridPosition(2, 0), 5) });
+            services.BuildSnapshot(homes);
+
+            Assert.IsTrue(PopulationController.CanMoveInByNeeds(needs, 0.4f, 0.5f));
         }
     }
 }
