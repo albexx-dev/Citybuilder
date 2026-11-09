@@ -5,170 +5,127 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Слот на диске: JSON через JsonUtility, проверка, чтение и запись файла.
+    // Слот на диске: JSON через JsonUtility, проверка, чтение и запись слотов 0..2 и autosave (EPIC-11 шаг 1).
     public static class SaveSlotStorage
     {
         public const string SlotFileName = "slot0.json";
-        // V1: карта 50x50, координаты клеток 0..49.
         private const int MapCells = 50;
 
         public static string ToJson(CitySnapshot snapshot)
         {
-            if (snapshot == null)
-            {
-                return string.Empty;
-            }
-            return JsonUtility.ToJson(snapshot);
+            return snapshot == null ? string.Empty : JsonUtility.ToJson(snapshot);
         }
+
         public static CitySnapshot FromJson(string json)
         {
-            if (string.IsNullOrEmpty(json))
-            {
-                return null;
-            }
-            try
-            {
-                return JsonUtility.FromJson<CitySnapshot>(json);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            if (string.IsNullOrEmpty(json)) return null;
+            try { return JsonUtility.FromJson<CitySnapshot>(json); }
+            catch (Exception) { return null; }
         }
+
         public static bool Validate(CitySnapshot snapshot)
         {
-            if (snapshot == null || !IsSupportedVersion(snapshot.Version))
-            {
-                return false;
-            }
-            // Отрицательный баланс допустим: дефицит содержания (EPIC-04).
-            if (snapshot.TickCount < 0)
-            {
-                return false;
-            }
-            if (snapshot.TaxLevel < 0 || snapshot.TaxLevel > 3)
-            {
-                return false;
-            }
-            if (snapshot.GoalStage < 0 || snapshot.GoalStage > GoalStages.StageCount)
-            {
-                return false;
-            }
-            if (snapshot.Zones == null || snapshot.Buildings == null)
-            {
-                return false;
-            }
-            if (snapshot.Households == null || snapshot.Roads == null)
-            {
-                return false;
-            }
-            // Ручные здания (v3): поле может отсутствовать в слотах v1/v2 — это не ошибка.
+            if (snapshot == null || !IsSupportedVersion(snapshot.Version)) return false;
+            if (snapshot.TickCount < 0) return false;
+            if (snapshot.TaxLevel < 0 || snapshot.TaxLevel > 3) return false;
+            if (snapshot.GoalStage < 0 || snapshot.GoalStage > GoalStages.StageCount) return false;
+            if (snapshot.Zones == null || snapshot.Buildings == null) return false;
+            if (snapshot.Households == null || snapshot.Roads == null) return false;
             if (snapshot.ManualBuildings != null && !ValidateBuildings(snapshot.ManualBuildings)) return false;
             return ValidateZones(snapshot.Zones) && ValidateBuildings(snapshot.Buildings)
                 && ValidateHouseholds(snapshot.Households, snapshot.Buildings.Count)
                 && ValidateRoads(snapshot.Roads);
         }
-        // Версии 1..4: v1 без TaxLevel, v2 с TaxLevel, v3 с ручными зданиями, v4 — ступень цели.
+
+        public static bool Save(string baseDir, int slot, CitySnapshot snapshot, string slotName = null)
+        {
+            string file = SaveSlotIndex.FileNameForSlot(slot);
+            if (string.IsNullOrEmpty(baseDir) || string.IsNullOrEmpty(file) || snapshot == null) return false;
+            string path = Path.Combine(baseDir, file);
+            if (!WriteSlot(path, snapshot)) return false;
+            SaveSlotIndex.UpdateEntry(baseDir, slot, slotName, snapshot.TickCount);
+            return true;
+        }
+
+        public static CitySnapshot Load(string baseDir, int slot)
+        {
+            string file = SaveSlotIndex.FileNameForSlot(slot);
+            if (string.IsNullOrEmpty(baseDir) || string.IsNullOrEmpty(file)) return null;
+            CitySnapshot snap = ReadSlot(Path.Combine(baseDir, file));
+            if (snap == null || !Validate(snap)) return null;
+            SaveSlotIndex.GetMeta(baseDir, slot);
+            return snap;
+        }
+
+        public static bool Validate(string baseDir, int slot)
+        {
+            return Load(baseDir, slot) != null;
+        }
+
         private static bool IsSupportedVersion(int version)
         {
             return version >= 1 && version <= SaveSystem.CurrentVersion;
         }
+
         public static bool WriteSlot(string path, CitySnapshot snapshot)
         {
-            if (string.IsNullOrEmpty(path) || snapshot == null)
-            {
-                return false;
-            }
+            if (string.IsNullOrEmpty(path) || snapshot == null) return false;
             try
             {
                 File.WriteAllText(path, ToJson(snapshot));
                 return true;
             }
-            catch (Exception)
-            {
-                return false;
-            }
+            catch (Exception) { return false; }
         }
+
         public static CitySnapshot ReadSlot(string path)
         {
-            if (string.IsNullOrEmpty(path) || !File.Exists(path))
-            {
-                return null;
-            }
-            try
-            {
-                return FromJson(File.ReadAllText(path));
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            if (string.IsNullOrEmpty(path) || !File.Exists(path)) return null;
+            try { return FromJson(File.ReadAllText(path)); }
+            catch (Exception) { return null; }
         }
+
         private static bool ValidateZones(List<CitySnapshot.ZoneEntry> zones)
         {
             for (int i = 0; i < zones.Count; i++)
             {
-                if (zones[i] == null)
-                {
-                    return false;
-                }
-                if (!InMap(zones[i].X, zones[i].Y))
-                {
-                    return false;
-                }
-                if (zones[i].Type < (int)ZoneType.Residential || zones[i].Type > (int)ZoneType.Industrial)
-                {
-                    return false;
-                }
+                if (zones[i] == null || !InMap(zones[i].X, zones[i].Y)) return false;
+                if (zones[i].Type < (int)ZoneType.Residential || zones[i].Type > (int)ZoneType.Industrial) return false;
             }
             return true;
         }
+
         private static bool ValidateBuildings(List<CitySnapshot.BuildingEntry> buildings)
         {
             for (int i = 0; i < buildings.Count; i++)
             {
-                if (buildings[i] == null || string.IsNullOrEmpty(buildings[i].DefId))
-                {
-                    return false;
-                }
-                if (!InMap(buildings[i].X, buildings[i].Y))
-                {
-                    return false;
-                }
+                if (buildings[i] == null || string.IsNullOrEmpty(buildings[i].DefId)) return false;
+                if (!InMap(buildings[i].X, buildings[i].Y)) return false;
             }
             return true;
         }
+
         private static bool InMap(int x, int y)
         {
             return x >= 0 && y >= 0 && x < MapCells && y < MapCells;
         }
+
         private static bool ValidateHouseholds(List<CitySnapshot.HouseholdEntry> households, int buildingCount)
         {
             for (int i = 0; i < households.Count; i++)
             {
-                if (households[i] == null || households[i].Size <= 0)
-                {
-                    return false;
-                }
-                if (households[i].BuildingIndex < 0 || households[i].BuildingIndex >= buildingCount)
-                {
-                    return false;
-                }
-                if (households[i].HasHome && !InMap(households[i].HomeX, households[i].HomeY))
-                {
-                    return false;
-                }
+                if (households[i] == null || households[i].Size <= 0) return false;
+                if (households[i].BuildingIndex < 0 || households[i].BuildingIndex >= buildingCount) return false;
+                if (households[i].HasHome && !InMap(households[i].HomeX, households[i].HomeY)) return false;
             }
             return true;
         }
+
         private static bool ValidateRoads(List<CitySnapshot.RoadEntry> roads)
         {
             for (int i = 0; i < roads.Count; i++)
             {
-                if (roads[i] == null || !InMap(roads[i].X, roads[i].Y))
-                {
-                    return false;
-                }
+                if (roads[i] == null || !InMap(roads[i].X, roads[i].Y)) return false;
             }
             return true;
         }
