@@ -220,6 +220,7 @@ GameObject:
   - component: {fileID: 985593190}
   - component: {fileID: 985593191}
   - component: {fileID: 985593192}
+  - component: {fileID: 985593193}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -884,6 +885,24 @@ MonoBehaviour:
   SaveMenu: {fileID: 985593190}
   LoadMenu: {fileID: 985593191}
   MainMenu: {fileID: 985593162}
+  Audio: {fileID: 985593193}
+--- !u!114 &985593193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b4e1a9d3c8542e09f1a6d2c8e4b5036, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.AudioController
+  Source: {fileID: 0}
+  ClickClip: {fileID: 8300000, guid: 7b4e1a9d3c8542e09f1a6d2c8e4b5031, type: 3}
+  CoinClip: {fileID: 8300000, guid: 7b4e1a9d3c8542e09f1a6d2c8e4b5032, type: 3}
+  PopClip: {fileID: 8300000, guid: 7b4e1a9d3c8542e09f1a6d2c8e4b5033, type: 3}
+  SwooshClip: {fileID: 8300000, guid: 7b4e1a9d3c8542e09f1a6d2c8e4b5034, type: 3}
 --- !u!1 &1069481158
 GameObject:
   m_ObjectHideFlags: 0

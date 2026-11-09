@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Экономика часов: сбор налога, списание содержания и запись событий города на границе тика (EPIC-09 шаг 3).
+    // Экономика часов: сбор налога, списание содержания и запись событий города на границе тика (EPIC-09 шаг 3, EPIC-19).
     public class EconomyTicker : MonoBehaviour
     {
         [Header("References")]
@@ -79,7 +79,7 @@ namespace Citybuilder
         {
             EnsureSystems();
             if (tax == null) return;
-            tax.Collect(PerWorker);
+            if (tax.Collect(PerWorker) > 0) AudioController.PlayCoinGlobal();
             Treasury.Treasury.Charge(UpkeepPolicy.UpkeepPerHour(Growth.Homes,
                 Placement != null ? Placement.Placed : null));
             ReportCityEvents(tickCount);
@@ -90,6 +90,7 @@ namespace Citybuilder
             if (EventLog == null) EventLog = FindFirstObjectByType<EventLogView>();
             if (EventLog == null) return;
             CityEventLog log = EventLog.Log;
+            int before = log.Count;
             if (Growth != null && Growth.SupplyGrowth != null) Growth.SupplyGrowth.ReportTick(log, tick);
             if (Growth != null && Growth.Congestion != null && Growth.Congestion.GrowthTickMultiplier > 1)
             {
@@ -104,6 +105,7 @@ namespace Citybuilder
                 int pct = (int)Math.Round(employment.EmploymentRate * 100f);
                 log.Add(EventKind.Employment, "Высокая безработица: занятость " + pct + "%", tick);
             }
+            if (log.Count > before) AudioController.PlayPopGlobal();
         }
 
         private void ClampLimits()

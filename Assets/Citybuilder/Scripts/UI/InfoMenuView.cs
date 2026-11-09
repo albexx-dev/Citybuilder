@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Информационное меню по кнопке «Статистика» или Tab (EPIC-14, EPIC-05, EPIC-15).
+    // Информационное меню по кнопке «Статистика» или Tab (EPIC-14, EPIC-05, EPIC-15, EPIC-19).
     public class InfoMenuView : MonoBehaviour
     {
         [Header("References")]
@@ -33,6 +33,7 @@ namespace Citybuilder
 
         public void SetOpen(bool open)
         {
+            if (isOpen != open) AudioController.PlaySwooshGlobal();
             isOpen = open;
             if (isOpen)
             {
@@ -118,6 +119,7 @@ namespace Citybuilder
             DrawHeader(ref y, "=== Бюджет ===");
             if (Tax != null && GUI.Button(new Rect(4f, y, Mathf.Min(260f, width - 8f), 26f), Tax.CurrentLabel))
             {
+                AudioController.PlayClickGlobal();
                 Tax.Policy.Next();
                 RebuildCache();
             }
