@@ -26,13 +26,13 @@
 | #1 | [Службы v2](EPIC-01-services-v2.md) | mechanics | not started |
 | #2 | [Больница и парк](EPIC-02-hospital-park.md) | mechanics | not started |
 | #3 | [Нужды v2](EPIC-03-needs-v2.md) | mechanics | not started |
-| #4 | [Содержание зданий](EPIC-04-upkeep.md) | mechanics | not started |
-| #5 | [Привлекательность города](EPIC-05-attractiveness.md) | mechanics | not started |
-| #6 | [Баланс-проход](EPIC-06-balance.md) | mechanics | not started |
+| #4 | [Содержание зданий](EPIC-04-upkeep.md) | mechanics | **done** — шаги 1-3 из 3 готовы |
+| #5 | [Привлекательность города](EPIC-05-attractiveness.md) | mechanics | **in progress** — шаг 1 из 3 готов |
+| #6 | [Баланс-проход](EPIC-06-balance.md) | mechanics | **in progress** — шаг 1 из 4 готов |
 | #7 | [Пожары как событие](EPIC-07-fires.md) | mechanics | on hold (v1.2?) |
 | #8 | [Чистка Won/Lost](EPIC-08-remove-won-lost.md) | architecture | not started |
 | #9 | [Событийная лента](EPIC-09-event-log.md) | architecture | not started |
-| #10 | [Сплиты крупных файлов](EPIC-10-splits.md) | architecture | **in progress** — шаги 1-2 из 4 готовы |
+| #10 | [Сплиты крупных файлов](EPIC-10-splits.md) | architecture | **done** — шаги 1-4 из 4 готовы |
 | #11 | [Сейвы v2](EPIC-11-saves-v2.md) | architecture | not started |
 | #12 | [Инфопанель здания](EPIC-12-info-panel.md) | architecture | not started |
 | #13 | [Нижняя панель действий](EPIC-13-bottom-bar.md) | ux | not started |
