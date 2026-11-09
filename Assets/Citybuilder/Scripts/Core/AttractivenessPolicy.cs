@@ -1,6 +1,8 @@
+using System;
+
 namespace Citybuilder
 {
-    // Привлекательность города (EPIC-05 шаг 1): множитель скорости въезда жителей 0.5..1.5.
+    // Привлекательность города (EPIC-05 шаг 1-3): множитель скорости въезда жителей 0.5..1.5 и строка HUD.
     // Чистый C#, без Unity и без состояния: вход — снимок факторов, выход — один множитель.
     // Фактор с NaN нейтрален: его вклад 0, база 1.0 от него не смещается; итог никогда не NaN.
     public static class AttractivenessPolicy
@@ -29,6 +31,14 @@ namespace Citybuilder
             result -= CongestionWeight * CongestionExcess(worstCongestionMultiplier);
             if (inDeficit) result -= DeficitPenalty;
             return Clamp(result);
+        }
+
+        // Форматирует строку для инфоменю (EPIC-05 шаг 3): «Привлекательность: 100%».
+        public static string FormatLine(float multiplier)
+        {
+            float safe = Clamp(multiplier);
+            int pct = (int)Math.Round(safe * 100f);
+            return "Привлекательность: " + pct + "%";
         }
 
         // Прирост от покрытия: NaN — фактора нет, вклад 0.

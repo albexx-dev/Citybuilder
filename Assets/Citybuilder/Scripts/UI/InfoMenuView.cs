@@ -2,49 +2,34 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Информационное меню по кнопке «Статистика» или Tab (EPIC-14).
+    // Информационное меню по кнопке «Статистика» или Tab (EPIC-14, EPIC-05).
     // В закрытом состоянии ничего не рисует и не аллоцирует; строки кешируются при открытии/по интервалу.
     public class InfoMenuView : MonoBehaviour
     {
         [Header("References")]
-        [Tooltip("Потребности города. Пусто = ищется в сцене.")]
-        public NeedsView Needs;
-        [Tooltip("Цель города. Пусто = ищется в сцене.")]
-        public GoalView Goal;
-        [Tooltip("Связность дорог. Пусто = ищется на этом же объекте.")]
-        public ConnectivityView Connectivity;
-        [Tooltip("Энергия. Пусто = ищется на этом же объекте.")]
-        public PowerView Power;
-        [Tooltip("Вода. Пусто = ищется на этом же объекте.")]
-        public WaterView Water;
-        [Tooltip("Мусор. Пусто = ищется на этом же объекте.")]
-        public WasteView Waste;
-        [Tooltip("Службы города (пожарные, полиция, больницы, досуг). Пусто = ищется на этом же объекте.")]
-        public FireCoverageView Fire;
-        [Tooltip("Налоговая политика. Пусто = ищется на этом же объекте.")]
-        public TaxPolicyView Tax;
-        [Tooltip("Содержание зданий. Пусто = ищется на этом же объекте.")]
-        public UpkeepView Upkeep;
-        [Tooltip("Прогрессия разблокировок. Пусто = ищется на этом же объекте.")]
-        public ProgressionView Progression;
+        [Tooltip("Потребности города. Пусто = ищется в сцене.")] public NeedsView Needs;
+        [Tooltip("Цель города. Пусто = ищется в сцене.")] public GoalView Goal;
+        [Tooltip("Связность дорог. Пусто = ищется на этом же объекте.")] public ConnectivityView Connectivity;
+        [Tooltip("Энергия. Пусто = ищется на этом же объекте.")] public PowerView Power;
+        [Tooltip("Вода. Пусто = ищется на этом же объекте.")] public WaterView Water;
+        [Tooltip("Мусор. Пусто = ищется на этом же объекте.")] public WasteView Waste;
+        [Tooltip("Службы города (пожарные, полиция, больницы, досуг). Пусто = ищется на этом же объекте.")] public FireCoverageView Fire;
+        [Tooltip("Налоговая политика. Пусто = ищется на этом же объекте.")] public TaxPolicyView Tax;
+        [Tooltip("Содержание зданий. Пусто = ищется на этом же объекте.")] public UpkeepView Upkeep;
+        [Tooltip("Прогрессия разблокировок. Пусто = ищется на этом же объекте.")] public ProgressionView Progression;
+        [Tooltip("Население города (для привлекательности). Пусто = ищется в сцене.")] public PopulationController Population;
 
         private const float RefreshIntervalSec = 0.5f;
-        private const float ContentHeight = 450f;
+        private const float ContentHeight = 480f;
 
         private bool isOpen;
         private Vector2 scroll;
         private float nextRefreshTime;
-        private readonly string[] cachedLines = new string[9];
+        private readonly string[] cachedLines = new string[10];
 
-        public bool IsOpen
-        {
-            get { return isOpen; }
-        }
+        public bool IsOpen { get { return isOpen; } }
 
-        public void Toggle()
-        {
-            SetOpen(!isOpen);
-        }
+        public void Toggle() { SetOpen(!isOpen); }
 
         public void SetOpen(bool open)
         {
@@ -91,6 +76,7 @@ namespace Citybuilder
             if (Progression == null) Progression = GetComponent<ProgressionView>();
             if (Needs == null) Needs = FindFirstObjectByType<NeedsView>();
             if (Goal == null) Goal = FindFirstObjectByType<GoalView>();
+            if (Population == null) Population = FindFirstObjectByType<PopulationController>();
         }
 
         private void RebuildCache()
@@ -105,6 +91,8 @@ namespace Citybuilder
             cachedLines[6] = Fire != null ? Fire.CurrentText : string.Empty;
             cachedLines[7] = Fire != null ? Fire.HealthLeisureText : string.Empty;
             cachedLines[8] = Progression != null ? Progression.CurrentText : string.Empty;
+            float attr = Population != null ? Population.CurrentAttractiveness : 1f;
+            cachedLines[9] = AttractivenessPolicy.FormatLine(attr);
         }
 
         private void DrawCachedSections(float width)
@@ -118,7 +106,9 @@ namespace Citybuilder
             DrawLine(ref y, cachedLines[6]);
             DrawLine(ref y, cachedLines[7]);
             DrawBudgetSection(ref y, width);
-            DrawSection(ref y, "=== Развитие ===", cachedLines[8]);
+            DrawHeader(ref y, "=== Развитие ===");
+            DrawLine(ref y, cachedLines[8]);
+            DrawLine(ref y, cachedLines[9]);
         }
 
         private void DrawBudgetSection(ref float y, float width)
