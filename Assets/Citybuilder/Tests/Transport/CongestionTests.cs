@@ -102,5 +102,15 @@ namespace Citybuilder
                 Object.DestroyImmediate(go);
             }
         }
+
+        [Test]
+        public void FormatSummaryLine_MatchesCongestedCountWorstPercentAndGrowthMultiplier()
+        {
+            GridPosition jammed = new GridPosition(1, 1);
+            CongestionSystem congestion = new CongestionSystem(p => p == jammed ? 7 : 0, MakeGrid(), 4, 0.25f, 3f);
+
+            Assert.AreEqual(1, congestion.CongestedCellsCount());
+            Assert.AreEqual("Пробки: 1 (худшая клетка 50%, рост ×2)", congestion.FormatSummaryLine());
+        }
     }
 }
