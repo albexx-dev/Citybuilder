@@ -3,83 +3,48 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Статическое описание типа здания. Только данные для стройки (V1).
+    // Статическое описание типа здания (V1 + EPIC-01/02/04/17).
     [CreateAssetMenu(menuName = "Citybuilder/Building Definition")]
     public class BuildingDefinition : ScriptableObject
     {
         [Header("Identity")]
-        [Tooltip("Уникальный id здания, латиницей без пробелов.")]
-        public string Id;
-
-        [Tooltip("Имя для UI.")]
-        public string DisplayName;
+        [Tooltip("Уникальный id здания, латиницей без пробелов.")] public string Id;
+        [Tooltip("Имя для UI.")] public string DisplayName;
 
         [Header("Construction")]
-        [Tooltip("Размер здания в клетках. Минимум 1x1.")]
-        public Vector2Int Footprint = new Vector2Int(2, 2);
-
-        [Tooltip("Стоимость постройки. Не может быть отрицательной.")]
-        public int ConstructionCost = 100;
+        [Tooltip("Размер здания в клетках. Минимум 1x1.")] public Vector2Int Footprint = new Vector2Int(2, 2);
+        [Tooltip("Стоимость постройки. Не может быть отрицательной.")] public int ConstructionCost = 100;
 
         [Header("Progression")]
-        [Tooltip("Нужно выросших зданий в городе. 0 — доступно сразу")]
-        public int UnlockBuildings = 0;
+        [Tooltip("Нужно выросших зданий в городе. 0 — доступно сразу")] public int UnlockBuildings = 0;
 
         [Header("Settlement")]
-        [Tooltip("На какой зоне может стоять тип здания.")]
-        public ZoneType AllowedZone = ZoneType.Residential;
-
-        [Tooltip("Сколько жителей вмещает одно здание. Не может быть отрицательным.")]
-        public int ResidentCapacity = 4;
-
-        [Tooltip("Сколько рабочих мест даёт одно здание. Не может быть отрицательным.")]
-        public int JobsProvided = 0;
+        [Tooltip("На какой зоне может стоять тип здания.")] public ZoneType AllowedZone = ZoneType.Residential;
+        [Tooltip("Сколько жителей вмещает одно здание. Не может быть отрицательным.")] public int ResidentCapacity = 4;
+        [Tooltip("Сколько рабочих мест даёт одно здание. Не может быть отрицательным.")] public int JobsProvided = 0;
 
         [Header("Service")]
-        [Tooltip("Тип службы. None — не служба.")]
-        public ServiceKind ServiceKind = ServiceKind.None;
-
-        [Tooltip("Радиус службы в клетках. 0 — не служба.")]
-        public int ServiceRadius = 0;
+        [Tooltip("Тип службы. None — не служба.")] public ServiceKind ServiceKind = ServiceKind.None;
+        [Tooltip("Радиус службы в клетках. 0 — не служба.")] public int ServiceRadius = 0;
 
         [Header("Infrastructure")]
-        [Tooltip("Сколько энергии потребляет одно здание. Не может быть отрицательным.")]
-        public int PowerDemand = 1;
-
-        // Источники (электростанция, водонапорная) намеренно имеют PowerDemand = 0:
-        // иначе при полном блэкауте нельзя построить станцию, которая его лечит.
-        [Tooltip("Сколько энергии производит одно здание. Не может быть отрицательным.")]
-        public int PowerOutput = 0;
-
-        [Tooltip("Сколько воды потребляет одно здание. Не может быть отрицательным.")]
-        public int WaterDemand = 1;
-
-        // Водонапорная башня намеренно имеет WaterDemand = 0:
-        // иначе при полном дефиците воды нельзя построить станцию, которая его лечит.
-        [Tooltip("Сколько воды производит одно здание. Не может быть отрицательным.")]
-        public int WaterOutput = 0;
-
-        [Tooltip("Сколько мусора производит одно здание. Не может быть отрицательным.")]
-        public int WasteOutput = 1;
-
-        [Tooltip("Сколько мусора утилизирует одно здание. Не может быть отрицательным.")]
-        public int WasteCapacity = 0;
+        [Tooltip("Сколько энергии потребляет одно здание.")] public int PowerDemand = 1;
+        [Tooltip("Сколько энергии производит одно здание.")] public int PowerOutput = 0;
+        [Tooltip("Сколько воды потребляет одно здание.")] public int WaterDemand = 1;
+        [Tooltip("Сколько воды производит одно здание.")] public int WaterOutput = 0;
+        [Tooltip("Сколько мусора производит одно здание.")] public int WasteOutput = 1;
+        [Tooltip("Сколько мусора утилизирует одно здание.")] public int WasteCapacity = 0;
 
         [Header("Economy")]
-        [Tooltip("Содержание здания в час. Не может быть отрицательным.")]
-        public int UpkeepPerHour = 0;
+        [Tooltip("Содержание здания в час. Не может быть отрицательным.")] public int UpkeepPerHour = 0;
 
         [Header("Presentation")]
-        [Tooltip("Префаб здания. Может быть пустым до готовности арта.")]
-        public GameObject Prefab;
+        [Tooltip("Число визуальных вариантов (EPIC-17). Минимум 1.")] public int VariantCount = 1;
+        [Tooltip("Префаб здания. Может быть пустым до готовности арта.")] public GameObject Prefab;
 
         private void OnValidate()
         {
-            if (string.IsNullOrWhiteSpace(Id))
-            {
-                Debug.LogWarning("BuildingDefinition: id is empty.", this);
-            }
-
+            if (string.IsNullOrWhiteSpace(Id)) Debug.LogWarning("BuildingDefinition: id is empty.", this);
             ClampFootprint();
             ConstructionCost = Clamp(ConstructionCost, "cost");
             UnlockBuildings = Clamp(UnlockBuildings, "unlock buildings");
@@ -94,18 +59,25 @@ namespace Citybuilder
             WasteOutput = Clamp(WasteOutput, "waste output");
             WasteCapacity = Clamp(WasteCapacity, "waste capacity");
             UpkeepPerHour = Clamp(UpkeepPerHour, "upkeep");
+            if (VariantCount < 1) VariantCount = 1;
         }
 
-        // Чистая часть клампа без логирования: отрицательное становится нулём.
         public static int ClampNonNegative(int value)
         {
             return value < 0 ? 0 : value;
         }
 
-        // Неизвестное значение типа службы гаснет в None.
         public static ServiceKind SanitizeServiceKind(ServiceKind kind)
         {
             return System.Enum.IsDefined(typeof(ServiceKind), kind) ? kind : ServiceKind.None;
+        }
+
+        // Детерминированный выбор варианта по EntityId (EPIC-17 шаг 2).
+        public static int SelectVariant(EntityId id, int variantCount)
+        {
+            int count = variantCount < 1 ? 1 : variantCount;
+            int val = id.Value < 0 ? -id.Value : id.Value;
+            return val % count;
         }
 
         private void ClampServiceKind()
@@ -116,18 +88,13 @@ namespace Citybuilder
             ServiceKind = fixedKind;
         }
 
-        // Поле в 0 и одно предупреждение с его именем.
         private int Clamp(int value, string field)
         {
             int fixedValue = ClampNonNegative(value);
-            if (fixedValue != value)
-            {
-                Debug.LogWarning("BuildingDefinition: " + field + " fixed to 0.", this);
-            }
+            if (fixedValue != value) Debug.LogWarning("BuildingDefinition: " + field + " fixed to 0.", this);
             return fixedValue;
         }
 
-        // Сторона меньше 1 ломает покрытие клеток: поднимаем до 1x1.
         private void ClampFootprint()
         {
             int fixedX = Mathf.Max(1, Footprint.x);
@@ -137,7 +104,6 @@ namespace Citybuilder
             Footprint = new Vector2Int(fixedX, fixedY);
         }
 
-        // Все клетки прямоугольника от origin (включительно).
         public List<GridPosition> CoversCells(GridPosition origin)
         {
             List<GridPosition> cells = new List<GridPosition>(Footprint.x * Footprint.y);
