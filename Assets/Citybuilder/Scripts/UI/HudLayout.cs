@@ -21,7 +21,7 @@ namespace Citybuilder
 
         private const float BottomMargin = 72f;
         private const float LineStep = 24f;
-        private const float MinHudRowY = 404f;
+        private const float MinHudRowY = 90f;
 
         // Адаптивные координаты нижних строк HUD: не наезжают на нижнюю панель.
         public static float FixedOrBottom(float preferredY, int linesFromBottom)
