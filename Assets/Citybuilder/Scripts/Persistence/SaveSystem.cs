@@ -38,7 +38,8 @@ namespace Citybuilder
         {
             CitySnapshot snapshot = new CitySnapshot();
             snapshot.Version = CurrentVersion;
-            snapshot.Balance = Math.Max(0, balance);
+            // Баланс пишется как есть: минус — это дефицит содержания (EPIC-04), его нельзя «прощать».
+            snapshot.Balance = balance;
             snapshot.TickCount = Math.Max(0, tickCount);
             // Допустимы только 1..3; всё прочее пишется как «не задано».
             snapshot.TaxLevel = taxLevel >= 1 && taxLevel <= 3 ? taxLevel : 0;

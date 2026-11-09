@@ -41,7 +41,8 @@ namespace Citybuilder
             {
                 return false;
             }
-            if (snapshot.TickCount < 0 || snapshot.Balance < 0)
+            // Отрицательный баланс допустим: дефицит содержания (EPIC-04).
+            if (snapshot.TickCount < 0)
             {
                 return false;
             }
