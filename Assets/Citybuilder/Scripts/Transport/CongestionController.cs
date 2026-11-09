@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Мост пробок в рост (067), запрос нагрузки клеток и перекраска дорог раз в тик (EPIC-15).
+    // Мост пробок в рост (067), запрос нагрузки клеток, перекраска дорог раз в тик и сводка HUD (EPIC-15).
     public class CongestionController : MonoBehaviour
     {
         [Header("References")]
@@ -45,6 +45,15 @@ namespace Citybuilder
             {
                 BuildSystems();
                 return congestion == null ? 1 : congestion.GrowthTickMultiplier();
+            }
+        }
+
+        public string CurrentSummaryText
+        {
+            get
+            {
+                BuildSystems();
+                return congestion == null ? "Пробки: 0 (худшая клетка 0%, рост ×1)" : congestion.FormatSummaryLine();
             }
         }
 
