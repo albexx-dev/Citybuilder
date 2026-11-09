@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace Citybuilder
 {
-    // Тесты кольцевого буфера, дедупликации и очистки CityEventLog (EPIC-09 шаг 1).
+    // Тесты кольцевого буфера, дедупликации, очистки и источников CityEventLog (EPIC-09 шаги 1-3).
     public class CityEventLogTests
     {
         [Test]
@@ -58,6 +58,26 @@ namespace Citybuilder
             Assert.AreEqual(0, log.Count);
             Assert.IsTrue(log.Add(EventKind.Employment, "Высокая безработица: занятость 38%", 82));
             Assert.AreEqual(1, log.Count);
+        }
+
+        [Test]
+        public void SupplyEvent_ReportsDeficitAndThenRecoveryOnce()
+        {
+            bool wasInDeficit = false;
+            Assert.AreEqual(string.Empty,
+                SupplyGrowthController.EvaluateSupplyEvent(1f, 1f, 1f, ref wasInDeficit));
+            Assert.IsFalse(wasInDeficit);
+
+            Assert.AreEqual("Энергия 46%: рост замедлен",
+                SupplyGrowthController.EvaluateSupplyEvent(0.46f, 1f, 1f, ref wasInDeficit));
+            Assert.IsTrue(wasInDeficit);
+
+            Assert.AreEqual("Снабжение восстановлено: 100%",
+                SupplyGrowthController.EvaluateSupplyEvent(1f, 1f, 1f, ref wasInDeficit));
+            Assert.IsFalse(wasInDeficit);
+
+            Assert.AreEqual(string.Empty,
+                SupplyGrowthController.EvaluateSupplyEvent(1f, 1f, 1f, ref wasInDeficit));
         }
     }
 }

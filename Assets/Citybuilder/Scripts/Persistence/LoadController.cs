@@ -82,6 +82,8 @@ namespace Citybuilder
             if (Placement != null) Placement.ClearPlaced();
             GoalView goal = FindFirstObjectByType<GoalView>();
             if (goal != null) goal.RestoreStage(0);
+            EventLogView eventLog = FindFirstObjectByType<EventLogView>();
+            if (eventLog != null) eventLog.ClearLog();
             if (Population == null || Population.Population == null || homes == null) return;
             for (int i = 0; i < homes.Count; i++) Population.Population.EvictHome(homes[i]);
         }
