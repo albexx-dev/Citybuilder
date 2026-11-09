@@ -19,7 +19,7 @@ namespace Citybuilder
         public WaterView Water;
         [Tooltip("Мусор. Пусто = ищется на этом же объекте.")]
         public WasteView Waste;
-        [Tooltip("Пожарные и полиция. Пусто = ищется на этом же объекте.")]
+        [Tooltip("Службы города (пожарные, полиция, больницы, досуг). Пусто = ищется на этом же объекте.")]
         public FireCoverageView Fire;
         [Tooltip("Налоговая политика. Пусто = ищется на этом же объекте.")]
         public TaxPolicyView Tax;
@@ -29,12 +29,12 @@ namespace Citybuilder
         public ProgressionView Progression;
 
         private const float RefreshIntervalSec = 0.5f;
-        private const float ContentHeight = 420f;
+        private const float ContentHeight = 450f;
 
         private bool isOpen;
         private Vector2 scroll;
         private float nextRefreshTime;
-        private readonly string[] cachedLines = new string[8];
+        private readonly string[] cachedLines = new string[9];
 
         public bool IsOpen
         {
@@ -62,14 +62,8 @@ namespace Citybuilder
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Tab))
-            {
-                Toggle();
-            }
-            if (isOpen && Time.unscaledTime >= nextRefreshTime)
-            {
-                RebuildCache();
-            }
+            if (Input.GetKeyDown(KeyCode.Tab)) Toggle();
+            if (isOpen && Time.unscaledTime >= nextRefreshTime) RebuildCache();
         }
 
         private void OnGUI()
@@ -109,7 +103,8 @@ namespace Citybuilder
             cachedLines[4] = Water != null ? Water.CurrentText : string.Empty;
             cachedLines[5] = Waste != null ? Waste.CurrentText : string.Empty;
             cachedLines[6] = Fire != null ? Fire.CurrentText : string.Empty;
-            cachedLines[7] = Progression != null ? Progression.CurrentText : string.Empty;
+            cachedLines[7] = Fire != null ? Fire.HealthLeisureText : string.Empty;
+            cachedLines[8] = Progression != null ? Progression.CurrentText : string.Empty;
         }
 
         private void DrawCachedSections(float width)
@@ -118,32 +113,27 @@ namespace Citybuilder
             DrawSection(ref y, "=== Город ===", cachedLines[0]);
             DrawSection(ref y, "=== Цель ===", cachedLines[1]);
             DrawHeader(ref y, "=== Сети ===");
-            DrawLine(ref y, cachedLines[2]);
-            DrawLine(ref y, cachedLines[3]);
-            DrawLine(ref y, cachedLines[4]);
-            DrawLine(ref y, cachedLines[5]);
-            DrawSection(ref y, "=== Службы ===", cachedLines[6]);
+            for (int i = 2; i <= 5; i++) DrawLine(ref y, cachedLines[i]);
+            DrawHeader(ref y, "=== Службы ===");
+            DrawLine(ref y, cachedLines[6]);
+            DrawLine(ref y, cachedLines[7]);
             DrawBudgetSection(ref y, width);
-            DrawSection(ref y, "=== Развитие ===", cachedLines[7]);
+            DrawSection(ref y, "=== Развитие ===", cachedLines[8]);
         }
 
         private void DrawBudgetSection(ref float y, float width)
         {
             DrawHeader(ref y, "=== Бюджет ===");
-            if (Tax != null)
+            if (Tax != null && GUI.Button(new Rect(4f, y, Mathf.Min(260f, width - 8f), 26f), Tax.CurrentLabel))
             {
-                if (GUI.Button(new Rect(4f, y, Mathf.Min(260f, width - 8f), 26f), Tax.CurrentLabel))
-                {
-                    Tax.Policy.Next();
-                    RebuildCache();
-                }
-                y += 30f;
+                Tax.Policy.Next();
+                RebuildCache();
             }
+            if (Tax != null) y += 30f;
             if (Upkeep != null)
             {
-                string line = Upkeep.CurrentText;
-                if (Upkeep.CurrentLook == UpkeepStatusPolicy.Look.Deficit) HudText.Draw(12f, y, line, UpkeepView.DeficitColor);
-                else HudText.Draw(12f, y, line);
+                Color c = Upkeep.CurrentLook == UpkeepStatusPolicy.Look.Deficit ? UpkeepView.DeficitColor : Color.white;
+                HudText.Draw(12f, y, Upkeep.CurrentText, c);
                 y += 24f;
             }
         }
