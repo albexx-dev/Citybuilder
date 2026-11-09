@@ -14,6 +14,8 @@ namespace Citybuilder
         public BuildModeMenu Menu;
         [Tooltip("Палитра типов зданий. Пусто = ищется на этом же объекте.")]
         public BuildPaletteView Palette;
+        [Tooltip("Информационное меню статистики (EPIC-14). Пусто = ищется на этом же объекте.")]
+        public InfoMenuView InfoMenu;
 
         // Доступность зарезервированных кнопок меню (включатся в EPIC-14 и EPIC-09).
         public bool StatsEnabled;
@@ -37,6 +39,7 @@ namespace Citybuilder
         {
             if (Menu == null) Menu = GetComponent<BuildModeMenu>();
             if (Palette == null) Palette = GetComponent<BuildPaletteView>();
+            if (InfoMenu == null) InfoMenu = GetComponent<InfoMenuView>();
             if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
         }
 
@@ -80,8 +83,10 @@ namespace Citybuilder
         {
             Rect stats = new Rect(group.x, group.y, HudLayout.MenuButtonWidth, group.height);
             Rect log = new Rect(stats.xMax + HudLayout.ButtonGap, group.y, HudLayout.MenuButtonWidth, group.height);
-            if (!StatsEnabled) BottomBarStyle.DrawDisabledButton(stats, "Статистика");
-            else BottomBarStyle.DrawButton(stats, "Статистика", false);
+            bool hasStats = InfoMenu != null || StatsEnabled;
+            bool statsOpen = InfoMenu != null && InfoMenu.IsOpen;
+            if (!hasStats) BottomBarStyle.DrawDisabledButton(stats, "Статистика");
+            else if (BottomBarStyle.DrawButton(stats, "Статистика", statsOpen) && InfoMenu != null) InfoMenu.Toggle();
             if (!EventLogEnabled) BottomBarStyle.DrawDisabledButton(log, "Лента");
             else BottomBarStyle.DrawButton(log, "Лента", false);
         }

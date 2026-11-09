@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Геометрия HUD и нижней панели действий (EPIC-13).
+    // Геометрия HUD, нижней панели действий (EPIC-13) и информационного меню (EPIC-14).
     // Единственный источник прямоугольников: отсюда рисуются группы и регистрируется UiClickGuard.
     public static class HudLayout
     {
@@ -16,6 +16,8 @@ namespace Citybuilder
         public const float MenuButtonWidth = 92f;
         public const float PaletteButtonWidth = 128f;
         public const float SubRowOffset = 34f;
+        public const float InfoMenuTop = 10f;
+        public const float InfoMenuBottomGap = 8f;
 
         private const float BottomMargin = 72f;
         private const float LineStep = 24f;
@@ -38,7 +40,7 @@ namespace Citybuilder
             return Mathf.Max(10f, maxY - linesFromBottom * LineStep);
         }
 
-        // Видна ли нижняя справочная строка HUD при данной высоте окна (панель видна всегда).
+        // Видна ли нижняя строка HUD при данной высоте окна: при нехватке места строка прячется, панель — никогда.
         public static bool IsHudRowVisible(float preferredY, int linesFromBottom, float screenHeight)
         {
             float y = FixedOrBottom(preferredY, linesFromBottom, screenHeight);
@@ -83,6 +85,16 @@ namespace Citybuilder
             float width = itemCount * PaletteButtonWidth + (itemCount - 1) * ButtonGap;
             float y = Mathf.Max(0f, BottomBarRect(screenWidth, screenHeight).y - SubRowOffset);
             return new Rect(mode.x, y, width, ButtonHeight);
+        }
+
+        // Информационное меню справа (~половина экрана), всегда выше нижней панели и её попапа.
+        public static Rect InfoMenuRect(float screenWidth, float screenHeight)
+        {
+            float width = Mathf.Clamp(screenWidth * 0.48f, 360f, 640f);
+            float x = Mathf.Max(BarPadding, screenWidth - width - BarPadding);
+            float maxBottom = BottomBarRect(screenWidth, screenHeight).y - SubRowOffset - InfoMenuBottomGap;
+            float height = Mathf.Max(120f, maxBottom - InfoMenuTop);
+            return new Rect(x, InfoMenuTop, width, height);
         }
     }
 }
