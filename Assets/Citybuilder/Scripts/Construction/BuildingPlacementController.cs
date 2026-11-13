@@ -19,21 +19,15 @@ namespace Citybuilder
         private readonly ManualBuildingsStore store = new ManualBuildingsStore();
         private readonly PlacementGhostView ghostView = new PlacementGhostView();
         private BuildingSystem system;
-        private bool placementActive = true;
+        public bool placementActive = true;
 
         // Копия построенного: нужна покрытию, инфраструктуре и сохранениям.
         public List<BuildingState> Placed { get { return store.Placed; } }
 
-        private void Start()
-        {
-            EnsureReady();
-        }
-
+        private void Start() { EnsureReady(); }
+        private void OnEnable() { placementActive = true; }
         // Прячем призрак при выключении: иначе висящий куб.
-        private void OnDisable()
-        {
-            ghostView.Hide();
-        }
+        private void OnDisable() { ghostView.Hide(); }
 
         // Сменить тип и пересоздать призрак: иначе останется старый габарит.
         public void SetDefinition(BuildingDefinition def)
@@ -53,7 +47,7 @@ namespace Citybuilder
                 return false;
             }
             if (!EnsureSystem()) return false;
-            ghostView.Ensure(Definition, GridVisualizer, transform);
+            if (Application.isPlaying) ghostView.Ensure(Definition, GridVisualizer, transform);
             return true;
         }
 
@@ -91,7 +85,7 @@ namespace Citybuilder
         {
             if (!EnsureReady()) return false;
             if (!system.CanPlace(Definition, cell)) return false;
-            if (TreasuryView != null)
+            if (Definition.ConstructionCost > 0 && TreasuryView != null && TreasuryView.Treasury != null)
             {
                 Treasury.TransactionResult spent = TreasuryView.Treasury.TrySpend(Definition.ConstructionCost, Definition.Id);
                 if (!spent.Success) return false;
