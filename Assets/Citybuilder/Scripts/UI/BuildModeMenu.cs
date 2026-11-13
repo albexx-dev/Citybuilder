@@ -39,7 +39,6 @@ namespace Citybuilder
         }
 
         // Включает один режим, остальные гасит. Публичный для E2E-моста.
-        // placementActive у Houses приватный — им управляем только через enabled.
         public void SetMode(Mode mode)
         {
             current = mode;
@@ -47,6 +46,7 @@ namespace Citybuilder
             if (Houses != null)
             {
                 Houses.enabled = (mode == Mode.Houses);
+                Houses.placementActive = (mode == Mode.Houses);
             }
             if (Roads != null)
             {
