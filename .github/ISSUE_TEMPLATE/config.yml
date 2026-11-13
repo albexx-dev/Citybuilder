@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Setup help / онбординг
+    url: https://github.com/albexx-dev/Citybuilder/blob/main/ONBOARDING.md
+    about: Clone, Unity version, first run and troubleshooting before opening an issue.
+  - name: Contribution rules
+    url: https://github.com/albexx-dev/Citybuilder/blob/main/CONTRIBUTING.md
+    about: Code rules, PR workflow and CI requirements.
