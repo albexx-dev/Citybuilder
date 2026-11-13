@@ -47,4 +47,5 @@ Connected systems:
 - `ARCHITECTURE.md` — modular monolith design and implemented v1.1.0 systems.
 - `GAME_DESIGN.md` — simulation rules, infinite-game doctrine (§19), and v1.1 balance table (§20).
 - `UNITY_MCP_SETUP.md` — Unity/Blender MCP setup and the Blender FBX exporter addon workflow.
-- `TASKS/README.md` — completed v1.1 epic queue (`EPIC-01`..`EPIC-21`).
+- `DECISIONS/` — architecture decision records (ADR-005 and later).
+- GitHub Issues — current task queue, bugs and proposals (templates in `.github/ISSUE_TEMPLATE/`).

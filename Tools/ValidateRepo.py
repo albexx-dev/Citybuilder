@@ -53,6 +53,9 @@ files_by_rel = {path.relative_to(ROOT).as_posix(): path for path in files}
 if (ROOT / "HANDOFF.md").exists():
     fail("HANDOFF.md must not exist in v1.1")
 
+if (ROOT / "TASKS").is_dir():
+    fail("TASKS/ must not exist; task tracking lives in GitHub Issues")
+
 for path in files:
     rel = path.relative_to(ROOT).as_posix()
     if path.suffix != ".cs":
@@ -117,7 +120,7 @@ for path in files:
         if secret_pattern.search(line):
             fail(f"{rel}:{number}: possible hardcoded credential")
 
-# CHANGELOG/AGENTS/TASKS/README may mention the removal as history; operational docs must not.
+# Historical docs (CHANGELOG/AGENTS/DECISIONS) may mention the removal; operational docs must not.
 operational_docs = (
     "README.md",
     "ARCHITECTURE.md",

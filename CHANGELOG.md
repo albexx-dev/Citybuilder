@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Removed
+
+- `TASKS/` (22 v1.1 epic-plan files): the plans remain in git history. Task tracking now lives in GitHub Issues and the pull request workflow; see `ONBOARDING.md` and `CONTRIBUTING.md`.
+
+### Changed
+
+- Documentation no longer points at the removed `TASKS/` folder; the static validator now rejects its re-creation.
+
 ## [v1.1.0] - 2026-11-09
 
 Complete release of the **v1.1** product milestone (Epics #1–#6, #8–#21).
@@ -37,7 +47,7 @@ Starting point for the v1.1 line. Built on tasks 001–104, HEAD before this cha
 
 ### Removed
 
-- `HANDOFF.md`: obsolete handoff document. Current entry points are `README.md`, `AGENTS.md`, `TASKS/README.md`, `CHANGELOG.md` and `DECISIONS/`.
+- `HANDOFF.md`: obsolete handoff document. Entry points at the time were `README.md`, `AGENTS.md`, `CHANGELOG.md` and `DECISIONS/`.
 - `com.unity.multiplayer.center`: unused direct dependency removed from `Packages/manifest.json` and `Packages/packages-lock.json`.
 
 ### Changed
