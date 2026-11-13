@@ -37,9 +37,11 @@ Maintainers with admin rights can still merge locally with `git merge --no-ff` w
 
 `main` is the release branch. Current GitHub → Settings → Branches configuration:
 
+- **a pull request is required before merging** — a direct push to `main` is rejected for non-admins;
 - required status check: `Static validation`, strict (the PR branch must be up to date with `main`);
 - force pushes and branch deletion blocked;
-- review ownership comes from `.github/CODEOWNERS`.
+- review ownership comes from `.github/CODEOWNERS`;
+- admins are not constrained by these rules (`enforce_admins: false`), so the owner can still push hotfixes.
 
 These are repository settings and cannot be fully expressed as a file. If you change the CI job name, update the required check name too, otherwise PRs will stay blocked.
 
