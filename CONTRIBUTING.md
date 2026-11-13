@@ -21,7 +21,7 @@ New here? Start with [ONBOARDING.md](ONBOARDING.md) (RU): cloning, the exact Uni
 
 1. Sync with the base branch: `git fetch upstream && git rebase upstream/main` (fork) or `git pull --ff-only`.
 2. Create a branch `task/XXX-short-name` (also fine: `fix/...`, `docs/...`).
-3. Put the breakdown in `TASKS/XXX-breakdown.md` for larger tasks.
+3. For larger tasks, put the breakdown in the GitHub issue body or in the PR description.
 4. Keep commits small: max 5 files and 250 changed lines.
 5. Run local checks:
    - `python Tools/ValidateRepo.py` — must print `OK`; `WARN` lines about the 150-line soft limit are acceptable;
