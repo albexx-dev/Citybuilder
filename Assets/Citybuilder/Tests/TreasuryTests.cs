@@ -85,5 +85,28 @@ namespace Citybuilder
             Assert.AreEqual(0, calls);
             Assert.AreEqual(30, treasury.Balance);
         }
+
+        [Test]
+        public void Reset_UpdatesBalanceAndNotifies()
+        {
+            Treasury treasury = new Treasury(100);
+            int notified = -1;
+            treasury.BalanceChanged += (value) => { notified = value; };
+            treasury.Reset(500);
+            Assert.AreEqual(500, treasury.Balance);
+            Assert.AreEqual(500, notified);
+        }
+
+        [Test]
+        public void Reset_AllowsNegativeBalanceForDeficit()
+        {
+            Treasury treasury = new Treasury(100);
+            int notified = 0;
+            treasury.BalanceChanged += (value) => { notified = value; };
+            treasury.Reset(-250);
+            Assert.AreEqual(-250, treasury.Balance);
+            Assert.IsTrue(treasury.IsInDeficit);
+            Assert.AreEqual(-250, notified);
+        }
     }
 }
