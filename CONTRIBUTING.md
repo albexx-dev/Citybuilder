@@ -1,5 +1,7 @@
 # Contributing to Citybuilder
 
+New here? Start with [ONBOARDING.md](ONBOARDING.md) (RU): cloning, the exact Unity version, first run, verification and troubleshooting. The repository is public — **fork + pull request is enough to contribute**, an invitation is optional.
+
 ## Ground rules
 
 - The repository root **is** the Unity project. Open the root in Unity, not a subfolder.
@@ -9,28 +11,37 @@
 - One C# file = one top-level type. Keep runtime state out of `ScriptableObject`.
 - Do not add third-party packages, modify `ProjectSettings/`, or change Unity APIs without an ADR or an explicit task.
 - No global singletons, `async/await`, LINQ chains, reflection, regex or DI containers in V1.
+- Commit every new Unity asset together with its `.meta` file; rename and move assets inside the Unity Editor.
+- Never commit generated folders (`Library/`, `Temp/`, `Logs/`, `Obj/`, `UserSettings/`, `Builds/`, `Screenshots/`) or local MCP configs.
+- The MCP stack is editor tooling only: it is not required to play, build or write game code.
 
-## Workflow
+## Workflow (pull request — default for `main`)
 
-1. Create a branch `task/XXX-name` from `main`.
-2. Put the breakdown in `TASKS/XXX-breakdown.md`.
-3. Keep commits small: max 5 files and 250 changed lines.
-4. Run local checks:
-   - `python Tools/ValidateRepo.py`
-   - `powershell -ExecutionPolicy Bypass -File Tools/Check-UnityMcp.ps1` (only when the MCP stack is needed)
-5. Run EditMode tests in Unity Test Runner, assembly `Tests` (288+ tests), before merging.
-6. Merge with `git merge --no-ff`, then push `main`.
-7. CI in `.github/workflows/ci.yml` must be green.
+`main` is protected, so the normal path is a branch plus a PR, not a direct push.
+
+1. Sync with the base branch: `git fetch upstream && git rebase upstream/main` (fork) or `git pull --ff-only`.
+2. Create a branch `task/XXX-short-name` (also fine: `fix/...`, `docs/...`).
+3. Put the breakdown in `TASKS/XXX-breakdown.md` for larger tasks.
+4. Keep commits small: max 5 files and 250 changed lines.
+5. Run local checks:
+   - `python Tools/ValidateRepo.py` — must print `OK`; `WARN` lines about the 150-line soft limit are acceptable;
+   - Unity Test Runner → **EditMode** → assembly `Tests` (434 tests) must be green;
+   - `powershell -ExecutionPolicy Bypass -File Tools/Check-UnityMcp.ps1` only when the MCP stack is in use.
+6. Push the branch and open a PR against `albexx-dev/Citybuilder:main`, filling in `.github/PULL_REQUEST_TEMPLATE.md`.
+7. CI in `.github/workflows/ci.yml` must be green. The required check is named **`Static validation`**. The optional `Unity EditMode tests` job runs only when the repository variable `ENABLE_UNITY_TESTS=true` and the Unity license secrets are configured.
+8. Review by the code owner (`.github/CODEOWNERS`), then merge through the GitHub UI. Never force-push to `main`.
+
+Maintainers with admin rights can still merge locally with `git merge --no-ff` when CI is not gating, but the PR path is the default for everyone.
 
 ## Branch protection
 
-`main` is the release branch. In GitHub → Settings → Branches enable:
+`main` is the release branch. Current GitHub → Settings → Branches configuration:
 
-- require the `validate` CI check;
-- require branches to be up to date before merging;
-- block force pushes and branch deletion.
+- required status check: `Static validation`, strict (the PR branch must be up to date with `main`);
+- force pushes and branch deletion blocked;
+- review ownership comes from `.github/CODEOWNERS`.
 
-This is a repository setting and cannot be fully expressed as a file; `.github/CODEOWNERS` adds review ownership.
+These are repository settings and cannot be fully expressed as a file. If you change the CI job name, update the required check name too, otherwise PRs will stay blocked.
 
 ## Releases
 
@@ -38,4 +49,4 @@ Update `CHANGELOG.md`, `ProjectSettings/ProjectSettings.asset` (`bundleVersion`)
 
 ## Reporting problems
 
-Use GitHub Issues for bugs and ideas. For security issues follow `SECURITY.md` instead of opening a public issue.
+Use GitHub Issues for bugs and ideas (templates in `.github/ISSUE_TEMPLATE/`). For security issues follow `SECURITY.md` instead of opening a public issue.
