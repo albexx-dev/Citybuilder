@@ -27,17 +27,87 @@ function Get-UnityVersion {
 }
 
 function Resolve-UnityExe {
-    if ($env:CITYBUILDER_UNITY_EXE) { return $env:CITYBUILDER_UNITY_EXE }
+    # 1. Environment variable override
+    if ($env:CITYBUILDER_UNITY_EXE) {
+        $envPath = $env:CITYBUILDER_UNITY_EXE.Trim('"', "'", ' ')
+        $envCandidates = @(
+            $envPath,
+            (Join-Path $envPath 'Unity.exe'),
+            (Join-Path $envPath 'Editor\Unity.exe')
+        )
+        foreach ($c in $envCandidates) {
+            if ((Test-Path -LiteralPath $c) -and -not (Test-Path -LiteralPath $c -PathType Container)) {
+                return [IO.Path]::GetFullPath($c)
+            }
+        }
+        return $envPath
+    }
+
     $version = Get-UnityVersion
-    $relative = "Unity\Hub\Editor\$version-x86_64\Editor\Unity.exe"
-    $roots = @($env:ProgramFiles, ${env:ProgramFiles(x86)}, $env:LOCALAPPDATA, $env:ProgramData)
+
+    # 2. Windows Registry lookup
+    $regKeys = @(
+        "HKLM:\SOFTWARE\Unity Technologies\Installer\Unity $version",
+        "HKCU:\SOFTWARE\Unity Technologies\Installer\Unity $version",
+        "HKLM:\SOFTWARE\WOW6432Node\Unity Technologies\Installer\Unity $version",
+        "HKCU:\SOFTWARE\WOW6432Node\Unity Technologies\Installer\Unity $version"
+    )
+    $propNames = @('Location x64', 'Location', 'InstallLocation', 'UnityPath', 'Path')
+    foreach ($rk in $regKeys) {
+        if (Test-Path -LiteralPath $rk) {
+            $item = Get-ItemProperty -LiteralPath $rk -ErrorAction SilentlyContinue
+            if ($item) {
+                foreach ($prop in $propNames) {
+                    $val = $item.$prop
+                    if ($val) {
+                        $loc = $val.ToString().Trim('"', "'", ' ')
+                        $candidates = @(
+                            $loc,
+                            (Join-Path $loc 'Editor\Unity.exe'),
+                            (Join-Path $loc 'Unity.exe')
+                        )
+                        foreach ($c in $candidates) {
+                            if ((Test-Path -LiteralPath $c) -and -not (Test-Path -LiteralPath $c -PathType Container)) {
+                                return [IO.Path]::GetFullPath($c)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    # 3. Known fallback locations and standard drive roots
+    $fallbackPaths = @(
+        "D:\Unity\Editor\Unity.exe",
+        "C:\Program Files\Unity\Hub\Editor\$version\Editor\Unity.exe",
+        "C:\Program Files\Unity\Hub\Editor\$version-x86_64\Editor\Unity.exe",
+        "C:\Program Files\Unity\Editor\Unity.exe"
+    )
+    $roots = @($env:ProgramFiles, ${env:ProgramFiles(x86)}, $env:LOCALAPPDATA, $env:ProgramData, 'D:', 'E:', 'F:')
+    $subPaths = @(
+        "Unity\Hub\Editor\$version\Editor\Unity.exe",
+        "Unity\Hub\Editor\$version-x86_64\Editor\Unity.exe",
+        "Unity\Editor\Unity.exe"
+    )
     foreach ($root in $roots) {
         if (-not $root) { continue }
-        $candidate = Join-Path $root $relative
-        if (Test-Path $candidate) { return $candidate }
+        foreach ($sub in $subPaths) {
+            $fallbackPaths += (Join-Path $root $sub)
+        }
     }
+    foreach ($cand in $fallbackPaths) {
+        if ((Test-Path -LiteralPath $cand) -and -not (Test-Path -LiteralPath $cand -PathType Container)) {
+            return [IO.Path]::GetFullPath($cand)
+        }
+    }
+
+    # 4. PATH environment lookup
     $onPath = Get-Command Unity.exe -ErrorAction SilentlyContinue
-    if ($onPath) { return $onPath.Source }
+    if ($onPath -and $onPath.Source) {
+        return $onPath.Source
+    }
+
     return $null
 }
 

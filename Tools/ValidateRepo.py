@@ -61,7 +61,7 @@ for path in files:
     if path.suffix != ".cs":
         continue
     text = read_text(path)
-    line_count = text.count("\n") + 1
+    line_count = len(text.splitlines())
     if line_count > 200:
         fail(f"{rel}: {line_count} lines exceeds hard C# limit 200")
     elif line_count > 150:
@@ -77,6 +77,15 @@ for path in files:
         if not meta.exists():
             fail(f"{rel}: missing .meta file")
     if rel.endswith(".meta"):
+        target_rel = rel[:-5]
+        target_path = ROOT / target_rel
+        if not target_path.exists():
+            fail(f"{rel}: orphan .meta file (target does not exist: {target_rel})")
+        elif target_path.is_dir():
+            if not any(f.startswith(target_rel + "/") for f in files_by_rel):
+                fail(f"{rel}: orphan .meta file (target directory has no tracked files: {target_rel})")
+            elif not any(target_path.iterdir()):
+                fail(f"{rel}: orphan .meta file (target directory is empty: {target_rel})")
         match = re.search(r"^guid:\s*([0-9a-fA-F]{32})\s*$", read_text(path), re.M)
         if match:
             guid = match.group(1).lower()
@@ -84,6 +93,19 @@ for path in files:
                 fail(f"duplicate GUID {guid}: {guids[guid]} and {rel}")
             else:
                 guids[guid] = rel
+
+assets_root = ROOT / "Assets"
+if assets_root.is_dir():
+    for disk_meta in sorted(assets_root.rglob("*.meta")):
+        rel_meta = disk_meta.relative_to(ROOT).as_posix()
+        disk_target = disk_meta.with_name(disk_meta.name[:-5])
+        target_rel = disk_target.relative_to(ROOT).as_posix()
+        if not disk_target.exists():
+            if rel_meta not in files_by_rel:
+                fail(f"{rel_meta}: orphan .meta file on disk (target does not exist: {target_rel})")
+        elif disk_target.is_dir() and not any(disk_target.iterdir()):
+            if rel_meta not in files_by_rel:
+                fail(f"{rel_meta}: orphan .meta file on disk (target directory is empty: {target_rel})")
 
 for rel in (
     "Packages/manifest.json",
