@@ -35,14 +35,26 @@ namespace Citybuilder
             return EscAction.OpenPause;
         }
 
+        public static bool CanProcessHotkeys(bool isModalOpen, int keyboardControl)
+        {
+            return !isModalOpen && keyboardControl == 0;
+        }
+
+        public bool IsModalOpen()
+        {
+            ResolveModalRefs();
+            return (Pause != null && Pause.IsOpen)
+                || (SaveMenu != null && SaveMenu.IsOpen)
+                || (LoadMenu != null && LoadMenu.IsOpen)
+                || (Main != null && Main.IsOpen);
+        }
+
         private void Update()
         {
+            if (GUIUtility.keyboardControl != 0) return;
             BuildModeMenu menu = ResolveMenu();
             if (menu == null) return;
-            if (Pause == null) Pause = GetComponent<PauseMenuView>();
-            if (Main == null) Main = GetComponent<MainMenu>();
-            if (SaveMenu == null) SaveMenu = GetComponent<SaveMenuView>();
-            if (LoadMenu == null) LoadMenu = GetComponent<LoadMenuView>();
+            ResolveModalRefs();
             if ((SaveMenu != null && SaveMenu.IsOpen) || (LoadMenu != null && LoadMenu.IsOpen)) return;
             bool mainOpen = Main != null && Main.IsOpen;
             bool pauseOpen = Pause != null && Pause.IsOpen;
@@ -65,6 +77,14 @@ namespace Citybuilder
         public void SelectMode(BuildModeMenu menu, BuildModeMenu.Mode mode)
         {
             menu.SetMode(mode);
+        }
+
+        private void ResolveModalRefs()
+        {
+            if (Pause == null) Pause = GetComponent<PauseMenuView>() ?? FindFirstObjectByType<PauseMenuView>();
+            if (Main == null) Main = GetComponent<MainMenu>() ?? FindFirstObjectByType<MainMenu>();
+            if (SaveMenu == null) SaveMenu = GetComponent<SaveMenuView>() ?? FindFirstObjectByType<SaveMenuView>();
+            if (LoadMenu == null) LoadMenu = GetComponent<LoadMenuView>() ?? FindFirstObjectByType<LoadMenuView>();
         }
 
         private BuildModeMenu ResolveMenu()
