@@ -53,8 +53,8 @@ files_by_rel = {path.relative_to(ROOT).as_posix(): path for path in files}
 if (ROOT / "HANDOFF.md").exists():
     fail("HANDOFF.md must not exist in v1.1")
 
-if (ROOT / "TASKS").is_dir():
-    fail("TASKS/ must not exist; task tracking lives in GitHub Issues")
+if not (ROOT / "TASKS" / "README.md").is_file():
+    fail("TASKS/README.md (epic queue) is required; see ONBOARDING.md")
 
 for path in files:
     rel = path.relative_to(ROOT).as_posix()
