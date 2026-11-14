@@ -71,7 +71,7 @@ namespace Citybuilder
         }
 
         private static bool RequiresService(BuildingState state) =>
-            state != null && state.Definition != null && (state.Definition.ResidentCapacity > 0 || state.Definition.ServiceKind == ServiceKind.None);
+            state != null && state.Definition != null && state.Definition.ResidentCapacity > 0;
 
         public int SourcesCount(ServiceKind kind)
         {

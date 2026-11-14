@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Citybuilder
 {
@@ -81,6 +82,42 @@ namespace Citybuilder
             system.BuildSnapshot(houses);
             Assert.AreEqual(0, system.CoveredHomesCount(ServiceKind.Fire));
             Assert.AreEqual(0f, system.Coverage01(ServiceKind.Fire), Tolerance);
+        }
+
+        [Test]
+        public void BuildSnapshotFromStates_UtilityManualBuilding_ExcludedFromDenominator()
+        {
+            ServiceBuildingSystem system = new ServiceBuildingSystem();
+            system.SetSources(ServiceKind.Fire, new List<ServiceSource>
+            {
+                new ServiceSource(new GridPosition(0, 0), 6)
+            });
+            BuildingDefinition house = ScriptableObject.CreateInstance<BuildingDefinition>();
+            house.Id = "house"; house.DisplayName = "House";
+            house.ResidentCapacity = 4; house.ServiceKind = ServiceKind.None;
+            BuildingDefinition utility = ScriptableObject.CreateInstance<BuildingDefinition>();
+            utility.Id = "power_station"; utility.DisplayName = "Power Station";
+            utility.ResidentCapacity = 0; utility.ServiceKind = ServiceKind.None;
+            List<BuildingState> placed = new List<BuildingState>
+            {
+                new BuildingState(EntityId.New(), house, new GridPosition(1, 1),
+                    new List<GridPosition> { new GridPosition(1, 1) }),
+                new BuildingState(EntityId.New(), utility, new GridPosition(2, 2),
+                    new List<GridPosition> { new GridPosition(2, 2) }),
+            };
+            try
+            {
+                system.BuildSnapshotFromStates(placed, null);
+
+                Assert.AreEqual(1, system.TotalHomesCount());
+                Assert.AreEqual(1, system.CoveredHomesCount(ServiceKind.Fire));
+                Assert.AreEqual(1f, system.Coverage01(ServiceKind.Fire), Tolerance);
+            }
+            finally
+            {
+                ScriptableObject.DestroyImmediate(house);
+                ScriptableObject.DestroyImmediate(utility);
+            }
         }
     }
 }
