@@ -98,7 +98,8 @@ namespace Citybuilder
             if (!verdict.Allowed) return;
             BuildingState state = settlement.Settle(verdict.Definition, verdict.Origin);
             if (state == null) return;
-            if (treasury != null && !treasury.TrySpend(verdict.Definition.ConstructionCost, verdict.Definition.Id).Success)
+            int cost = verdict.Definition.ConstructionCost;
+            if (treasury != null && cost > 0 && !treasury.TrySpend(cost, verdict.Definition.Id).Success)
             {
                 settlement.Demolish(state);
                 GridVisualizer.RefreshOccupied();
@@ -142,10 +143,6 @@ namespace Citybuilder
             states.Remove(state);
             GridVisualizer.RefreshOccupied();
         }
-        private void ClampLimits()
-        {
-            if (TicksPerGrowth < 1) TicksPerGrowth = 1;
-            if (MaxSettlements < 1) MaxSettlements = 1;
-        }
+        private void ClampLimits() { TicksPerGrowth = Mathf.Max(1, TicksPerGrowth); MaxSettlements = Mathf.Max(1, MaxSettlements); }
     }
 }
