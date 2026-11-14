@@ -60,6 +60,7 @@ namespace Citybuilder
             TryGrow();
         }
         private void OnValidate() { ClampLimits(); }
+        public void ResetGrowth() { tickCount = 0; lastGrownZone = ZoneType.None; }
         // Проверяет ссылки и чинит логику после перезагрузки домена. Выросшее при reload теряется (не V1).
         private bool EnsureReady()
         {
@@ -117,7 +118,7 @@ namespace Citybuilder
             BuildingDefinition def = null;
             for (int i = 0; i < Definitions.Count; i++) if (Definitions[i] != null && Definitions[i].Id == defId) def = Definitions[i];
             if (def == null) return null;
-            BuildingState state = settlement.Settle(def, origin);
+            BuildingState state = settlement.Restore(def, origin);
             if (state == null) return null;
             states.Add(state);
             View.AddBuilding(state, def, GridVisualizer.Grid.CellSize, true);
