@@ -55,23 +55,49 @@ namespace Citybuilder
 
         private bool EnsureReady()
         {
+            ResolveReferences();
             if (Population == null || Growth == null || Treasury == null || Runner == null)
             {
                 Debug.LogError("EconomyTicker: задайте Population, Growth, Treasury и Runner в Inspector.");
                 enabled = false;
                 return false;
             }
-            if (Placement == null) Placement = FindFirstObjectByType<BuildingPlacementController>();
-            if (EventLog == null) EventLog = FindFirstObjectByType<EventLogView>();
             EnsureSystems();
             return true;
         }
 
+        private void ResolveReferences()
+        {
+            if (Population == null) Population = FindFirstObjectByType<PopulationController>();
+            if (Growth == null) Growth = FindFirstObjectByType<SettlementGrowthController>();
+            if (Treasury == null) Treasury = FindFirstObjectByType<TreasuryView>();
+            if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
+            if (Placement == null) Placement = FindFirstObjectByType<BuildingPlacementController>();
+            if (EventLog == null) EventLog = FindFirstObjectByType<EventLogView>();
+        }
+
+        private int GetManualJobs()
+        {
+            if (Placement == null || Placement.Placed == null) return 0;
+            int total = 0;
+            var list = Placement.Placed;
+            for (int i = 0; i < list.Count; i++)
+            {
+                var building = list[i];
+                if (building != null && building.Definition != null)
+                {
+                    total += Math.Max(0, building.Definition.JobsProvided);
+                }
+            }
+            return total;
+        }
+
         private void EnsureSystems()
         {
-            if (tax != null || Population == null || Growth == null || Treasury == null) return;
+            if (Population == null || Growth == null || Treasury == null) return;
             if (Population.Population == null || Growth.Settlement == null || Treasury.Treasury == null) return;
-            employment = new EmploymentSystem(Population.Population, Growth.Settlement);
+            if (tax != null && tax.Treasury == Treasury.Treasury && employment != null) return;
+            employment = new EmploymentSystem(Population.Population, Growth.Settlement, GetManualJobs);
             tax = new TaxSystem(employment, Treasury.Treasury);
         }
 
