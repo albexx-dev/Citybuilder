@@ -40,6 +40,7 @@ namespace Citybuilder
             isOpen = false;
             confirmingExit = false;
             UiClickGuard.Set("pause_menu", new Rect());
+            if (Runner != null) Runner.SetSpeed(SimulationSpeed.Playing);
         }
 
         // Чистая логика решения при нажатии «В главное меню» (EPIC-16 шаг 3).
@@ -66,25 +67,13 @@ namespace Citybuilder
             HudText.Draw(x, y, "=== Пауза ===");
             y += 32f;
             if (GUI.Button(new Rect(x, y, 300f, 30f), "Продолжить [Esc]"))
-            {
-                AudioController.PlayClickGlobal();
-                if (Runner != null) Runner.SetSpeed(SimulationSpeed.Playing);
-                Close();
-            }
+            { AudioController.PlayClickGlobal(); Close(); }
             y += 36f;
             if (GUI.Button(new Rect(x, y, 300f, 30f), "Сохранить") && SaveMenu != null)
-            {
-                AudioController.PlayClickGlobal();
-                Close();
-                SaveMenu.Open();
-            }
+            { AudioController.PlayClickGlobal(); Close(); SaveMenu.Open(); }
             y += 36f;
             if (GUI.Button(new Rect(x, y, 300f, 30f), "Загрузить") && LoadMenu != null)
-            {
-                AudioController.PlayClickGlobal();
-                Close();
-                LoadMenu.Open();
-            }
+            { AudioController.PlayClickGlobal(); Close(); LoadMenu.Open(); }
             y += 36f;
             DrawAudioControls(x, ref y);
             if (GUI.Button(new Rect(x, y, 300f, 30f), "В главное меню"))

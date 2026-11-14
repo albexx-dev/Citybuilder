@@ -74,14 +74,23 @@ namespace Citybuilder
             return new Rect(x, speed.y, width, ButtonHeight);
         }
 
+        public static int MaxPaletteItems(float screenWidth)
+        {
+            float modeX = ModeGroupRect(screenWidth, 0f).x;
+            float maxWidth = Mathf.Max(0f, screenWidth - modeX - BarPadding);
+            return Mathf.Max(1, Mathf.FloorToInt((maxWidth + ButtonGap) / (PaletteButtonWidth + ButtonGap)));
+        }
+
         // Попап над панелью: палитра зданий (режим Дома) или кисти зон (режим Зоны).
         public static Rect PaletteRect(float screenWidth, float screenHeight, int itemCount)
         {
             if (itemCount <= 0) return new Rect();
             Rect mode = ModeGroupRect(screenWidth, screenHeight);
-            float width = itemCount * PaletteButtonWidth + (itemCount - 1) * ButtonGap;
+            float maxWidth = Mathf.Max(0f, screenWidth - mode.x - BarPadding);
+            int count = Mathf.Min(itemCount, MaxPaletteItems(screenWidth));
+            float width = Mathf.Min(count * PaletteButtonWidth + (count - 1) * ButtonGap, maxWidth);
             float y = Mathf.Max(0f, BottomBarRect(screenWidth, screenHeight).y - SubRowOffset);
-            return new Rect(mode.x, y, width, ButtonHeight);
+            return new Rect(mode.x, y, Mathf.Max(0f, width), ButtonHeight);
         }
 
         // Информационное меню справа (~половина экрана), всегда выше нижней панели и её попапа.
@@ -104,9 +113,11 @@ namespace Citybuilder
         public static Rect InfoPanelRect(float screenWidth, float screenHeight)
         {
             const float width = 320f;
-            const float height = 166f;
+            const float defaultHeight = 166f;
             float x = Mathf.Max(BarPadding, screenWidth - width - BarPadding);
             float maxBottom = BottomBarRect(screenWidth, screenHeight).y - SubRowOffset - InfoMenuBottomGap;
+            float availableHeight = Mathf.Max(0f, maxBottom - InfoMenuTop);
+            float height = Mathf.Min(defaultHeight, availableHeight);
             float y = Mathf.Max(InfoMenuTop, maxBottom - height);
             return new Rect(x, y, width, height);
         }
