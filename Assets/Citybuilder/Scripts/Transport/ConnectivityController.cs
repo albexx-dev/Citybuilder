@@ -112,22 +112,24 @@ namespace Citybuilder
             return cells;
         }
 
-        // Все занятые клетки выросших и ручных домов.
+        // Все занятые клетки выросших зданий и ручных ЖИЛЫХ построек.
+        // Станции (ResidentCapacity == 0) знаменатель метрики не растят (issue #42).
         private List<GridPosition> CollectBuildingCells()
         {
             List<GridPosition> cells = new List<GridPosition>();
-            AppendBuildingCells(cells, Growth != null ? Growth.Homes : null);
-            AppendBuildingCells(cells, Placement != null ? Placement.Placed : null);
+            AppendBuildingCells(cells, Growth != null ? Growth.Homes : null, false);
+            AppendBuildingCells(cells, Placement != null ? Placement.Placed : null, true);
             return cells;
         }
 
-        private static void AppendBuildingCells(List<GridPosition> cells, IReadOnlyList<BuildingState> states)
+        public static void AppendBuildingCells(List<GridPosition> cells, IReadOnlyList<BuildingState> states, bool residentialOnly)
         {
             if (states == null) return;
             for (int i = 0; i < states.Count; i++)
             {
                 BuildingState state = states[i];
                 if (state == null) continue;
+                if (residentialOnly && (state.Definition == null || state.Definition.ResidentCapacity <= 0)) continue;
                 List<GridPosition> occupied = state.Cells ?? (state.Definition != null ? state.Definition.CoversCells(state.Origin) : null);
                 if (occupied == null) continue;
                 for (int c = 0; c < occupied.Count; c++) cells.Add(occupied[c]);

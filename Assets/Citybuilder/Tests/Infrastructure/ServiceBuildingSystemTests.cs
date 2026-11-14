@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Citybuilder
 {
@@ -81,6 +82,47 @@ namespace Citybuilder
             system.BuildSnapshot(houses);
             Assert.AreEqual(0, system.CoveredHomesCount(ServiceKind.Fire));
             Assert.AreEqual(0f, system.Coverage01(ServiceKind.Fire), Tolerance);
+        }
+
+        [Test]
+        public void BuildSnapshotFromStates_UtilityManualBuilding_ExcludedFromDenominator()
+        {
+            BuildingDefinition fireStation = ScriptableObject.CreateInstance<BuildingDefinition>();
+            fireStation.Id = "fire_station"; fireStation.DisplayName = "Fire Station";
+            fireStation.ResidentCapacity = 0; fireStation.ServiceKind = ServiceKind.Fire; fireStation.ServiceRadius = 6;
+            BuildingDefinition power = ScriptableObject.CreateInstance<BuildingDefinition>();
+            power.Id = "power_station"; power.DisplayName = "Power Station";
+            power.ResidentCapacity = 0; power.ServiceKind = ServiceKind.None;
+            BuildingDefinition house = ScriptableObject.CreateInstance<BuildingDefinition>();
+            house.Id = "house"; house.DisplayName = "House";
+            house.ResidentCapacity = 4; house.ServiceKind = ServiceKind.None;
+            List<BuildingState> placed = new List<BuildingState>
+            {
+                new BuildingState(EntityId.New(), fireStation, new GridPosition(0, 0),
+                    new List<GridPosition> { new GridPosition(0, 0) }),
+                new BuildingState(EntityId.New(), power, new GridPosition(4, 4),
+                    new List<GridPosition> { new GridPosition(4, 4) }),
+            };
+            List<BuildingState> grown = new List<BuildingState>
+            {
+                new BuildingState(EntityId.New(), house, new GridPosition(2, 2),
+                    new List<GridPosition> { new GridPosition(2, 2) }),
+            };
+            try
+            {
+                ServiceBuildingSystem system = new ServiceBuildingSystem();
+                system.BuildSnapshotFromStates(placed, grown);
+
+                Assert.AreEqual(1, system.TotalHomesCount());
+                Assert.AreEqual(1, system.CoveredHomesCount(ServiceKind.Fire));
+                Assert.AreEqual(1f, system.Coverage01(ServiceKind.Fire), Tolerance);
+            }
+            finally
+            {
+                ScriptableObject.DestroyImmediate(fireStation);
+                ScriptableObject.DestroyImmediate(power);
+                ScriptableObject.DestroyImmediate(house);
+            }
         }
     }
 }
