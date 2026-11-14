@@ -82,7 +82,7 @@ namespace Citybuilder
                 {
                     continue;
                 }
-                BuildingState state = settlement.Settle(FindDefinition(definitions, entry.DefId), new GridPosition(entry.X, entry.Y));
+                BuildingState state = settlement.Restore(FindDefinition(definitions, entry.DefId), new GridPosition(entry.X, entry.Y));
                 if (state != null)
                 {
                     homes.Add(state);
