@@ -30,6 +30,11 @@ namespace Citybuilder
             dismissed = false;
         }
 
+        public void OnDisable()
+        {
+            UiClickGuard.Set("tutorial_dismiss", new Rect());
+        }
+
         private void OnGUI()
         {
             TutorialPolicy.Step step = CurrentStep;
@@ -46,6 +51,10 @@ namespace Citybuilder
                 Rect btn = new Rect(460f, y - 2f, 90f, 24f);
                 UiClickGuard.Set("tutorial_dismiss", btn);
                 if (GUI.Button(btn, "Понятно")) Dismiss();
+            }
+            else
+            {
+                UiClickGuard.Set("tutorial_dismiss", new Rect());
             }
             DrawHighlight(TutorialPolicy.HighlightTarget(step));
         }

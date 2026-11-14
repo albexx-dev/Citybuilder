@@ -77,7 +77,7 @@ namespace Citybuilder
             {
                 return;
             }
-            float yaw = camera.transform.eulerAngles.y * Mathf.Deg2Rad;
+            float yaw = ReadYaw(camera.transform.eulerAngles) * Mathf.Deg2Rad;
             Vector3 ahead = new Vector3(Mathf.Sin(yaw), 0f, Mathf.Cos(yaw));
             Vector3 side = new Vector3(ahead.z, 0f, -ahead.x);
             camera.transform.position += side * right + ahead * forward;
@@ -149,7 +149,7 @@ namespace Citybuilder
             camera.transform.position = point;
         }
         // На питче 90° yaw и roll вырождаются: истинный yaw = y − z.
-        private static float ReadYaw(Vector3 angles)
+        public static float ReadYaw(Vector3 angles)
         {
             if (Mathf.Abs(angles.x - MaxPitch) < 0.05f)
             {
