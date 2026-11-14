@@ -19,10 +19,7 @@ namespace Citybuilder
             List<ServiceSource> list = EnsureSourceList(kind);
             list.Clear();
             if (sources == null) return;
-            for (int i = 0; i < sources.Count; i++)
-            {
-                list.Add(sources[i]);
-            }
+            for (int i = 0; i < sources.Count; i++) list.Add(sources[i]);
         }
 
         // Полный сброс источников и снимка.
@@ -39,10 +36,7 @@ namespace Citybuilder
             lastHouses.Clear();
             if (houses != null)
             {
-                for (int i = 0; i < houses.Count; i++)
-                {
-                    lastHouses.Add(houses[i]);
-                }
+                for (int i = 0; i < houses.Count; i++) lastHouses.Add(houses[i]);
             }
             coverageByKind.Clear();
             foreach (KeyValuePair<ServiceKind, List<ServiceSource>> pair in sourcesByKind)
@@ -55,14 +49,17 @@ namespace Citybuilder
         public void BuildSnapshotFromStates(IReadOnlyList<BuildingState> placedStations, IReadOnlyList<BuildingState> grownHomes)
         {
             sourcesByKind.Clear();
+            List<GridPosition> houses = new List<GridPosition>();
             if (placedStations != null)
             {
                 for (int i = 0; i < placedStations.Count; i++)
                 {
-                    AddStationSource(placedStations[i]);
+                    BuildingState state = placedStations[i];
+                    if (state == null) continue;
+                    AddStationSource(state);
+                    if (RequiresService(state)) houses.Add(state.Origin);
                 }
             }
-            List<GridPosition> houses = new List<GridPosition>();
             if (grownHomes != null)
             {
                 for (int i = 0; i < grownHomes.Count; i++)
@@ -73,16 +70,16 @@ namespace Citybuilder
             BuildSnapshot(houses);
         }
 
+        private static bool RequiresService(BuildingState state) =>
+            state != null && state.Definition != null && (state.Definition.ResidentCapacity > 0 || state.Definition.ServiceKind == ServiceKind.None);
+
         public int SourcesCount(ServiceKind kind)
         {
             List<ServiceSource> list;
             return sourcesByKind.TryGetValue(kind, out list) ? list.Count : 0;
         }
 
-        public int TotalHomesCount()
-        {
-            return lastHouses.Count;
-        }
+        public int TotalHomesCount() => lastHouses.Count;
 
         public int CoveredHomesCount(ServiceKind kind)
         {
@@ -131,14 +128,8 @@ namespace Citybuilder
         private static ServiceCoverage BuildKindCoverage(List<ServiceSource> sources, List<GridPosition> houses)
         {
             ServiceCoverage coverage = new ServiceCoverage();
-            for (int i = 0; i < sources.Count; i++)
-            {
-                coverage.SetSource(EntityId.New(), sources[i].Center, sources[i].Radius);
-            }
-            for (int i = 0; i < houses.Count; i++)
-            {
-                coverage.SetPoint(EntityId.New(), houses[i]);
-            }
+            for (int i = 0; i < sources.Count; i++) coverage.SetSource(EntityId.New(), sources[i].Center, sources[i].Radius);
+            for (int i = 0; i < houses.Count; i++) coverage.SetPoint(EntityId.New(), houses[i]);
             return coverage;
         }
     }

@@ -25,49 +25,16 @@ namespace Citybuilder
         private RouteSystem routes;
         private CongestionSystem congestion;
 
-        public CongestionSystem System
-        {
-            get { BuildSystems(); return congestion; }
-        }
+        public CongestionSystem System { get { BuildSystems(); return congestion; } }
+        public RouteSystem Routes { get { BuildSystems(); return routes; } }
+        public float Multiplier { get { BuildSystems(); return congestion == null ? 1f : congestion.WorstMultiplier(); } }
+        public int GrowthTickMultiplier { get { BuildSystems(); return congestion == null ? 1 : congestion.GrowthTickMultiplier(); } }
+        public string CurrentSummaryText { get { BuildSystems(); return congestion == null ? "Пробки: 0 (худшая клетка 0%, рост ×1)" : congestion.FormatSummaryLine(); } }
 
-        public float Multiplier
-        {
-            get
-            {
-                BuildSystems();
-                return congestion == null ? 1f : congestion.WorstMultiplier();
-            }
-        }
+        public float Load01(GridPosition cell) { BuildSystems(); return congestion == null ? 0f : congestion.Load01(cell); }
 
-        public int GrowthTickMultiplier
-        {
-            get
-            {
-                BuildSystems();
-                return congestion == null ? 1 : congestion.GrowthTickMultiplier();
-            }
-        }
-
-        public string CurrentSummaryText
-        {
-            get
-            {
-                BuildSystems();
-                return congestion == null ? "Пробки: 0 (худшая клетка 0%, рост ×1)" : congestion.FormatSummaryLine();
-            }
-        }
-
-        public float Load01(GridPosition cell)
-        {
-            BuildSystems();
-            return congestion == null ? 0f : congestion.Load01(cell);
-        }
-
-        private void Start()
-        {
-            ClampLimits();
-            EnsureReady();
-        }
+        private void Start() { ClampLimits(); EnsureReady(); }
+        private void OnValidate() { ClampLimits(); ApplySettings(); }
 
         private void OnEnable()
         {
@@ -80,10 +47,7 @@ namespace Citybuilder
             if (Runner != null && Runner.Clock != null) Runner.Clock.TickCompleted -= OnClockTick;
         }
 
-        private void OnClockTick(SimulationTime time)
-        {
-            RefreshRoadColors((int)time.TickCount);
-        }
+        private void OnClockTick(SimulationTime time) => RefreshRoadColors((int)time.TickCount);
 
         public bool RefreshRoadColors(int tick)
         {
@@ -93,25 +57,42 @@ namespace Citybuilder
             List<RoadState> states = Roads.Roads;
             List<GridPosition> cells = new List<GridPosition>(states.Count);
             for (int i = 0; i < states.Count; i++) cells.Add(states[i].Cell);
+            if (routes != null) routes.Rebuild(cells);
             return Roads.View.RefreshCongestionOncePerTick(tick, cells, GridVisualizer.Grid.CellSize, Load01);
         }
 
-        private void OnValidate()
+        public void RebuildRoutes()
         {
-            ClampLimits();
-            ApplySettings();
+            if (routes == null) return;
+            if (Roads == null) Roads = GetComponent<RoadNetworkStore>();
+            if (Roads == null || Roads.Roads == null) return;
+            List<RoadState> states = Roads.Roads;
+            List<GridPosition> cells = new List<GridPosition>(states.Count);
+            for (int i = 0; i < states.Count; i++) cells.Add(states[i].Cell);
+            routes.Rebuild(cells);
         }
 
-        public void TrackTrip(List<GridPosition> path)
+        public void TrackTrip(IReadOnlyList<GridPosition> path)
         {
-            if (path == null || path.Count == 0 || !EnsureReady() || routes == null) return;
-            routes.TrackLoad(path);
+            if (path == null || path.Count == 0 || !EnsureReady()) return;
+            if (congestion != null) congestion.TrackTrip(path);
+            if (routes != null)
+            {
+                List<GridPosition> list = path as List<GridPosition>;
+                if (list == null)
+                {
+                    list = new List<GridPosition>(path.Count);
+                    for (int i = 0; i < path.Count; i++) list.Add(path[i]);
+                }
+                routes.TrackLoad(list);
+            }
         }
 
         public void ClearLoads()
         {
-            if (!EnsureReady() || routes == null) return;
-            routes.ClearLoads();
+            if (!EnsureReady()) return;
+            if (congestion != null) congestion.ClearLoads();
+            if (routes != null) routes.ClearLoads();
         }
 
         private bool EnsureReady()
@@ -122,6 +103,7 @@ namespace Citybuilder
                 enabled = false;
                 return false;
             }
+            if (Roads == null) Roads = GetComponent<RoadNetworkStore>();
             BuildSystems();
             return true;
         }
@@ -129,7 +111,11 @@ namespace Citybuilder
         private void BuildSystems()
         {
             if (GridVisualizer == null) return;
-            if (routes == null) routes = new RouteSystem(GridVisualizer.Grid);
+            if (routes == null)
+            {
+                routes = new RouteSystem(GridVisualizer.Grid);
+                RebuildRoutes();
+            }
             if (congestion == null)
             {
                 congestion = new CongestionSystem(routes, GridVisualizer.Grid);
