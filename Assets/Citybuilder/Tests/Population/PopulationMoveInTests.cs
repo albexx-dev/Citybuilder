@@ -28,10 +28,8 @@ namespace Citybuilder
         private static BuildingDefinition HouseDef(int capacity)
         {
             BuildingDefinition definition = ScriptableObject.CreateInstance<BuildingDefinition>();
-            definition.AllowedZone = ZoneType.None;
-            definition.Footprint = new Vector2Int(1, 1);
-            definition.ResidentCapacity = capacity;
-            definition.JobsProvided = 0;
+            definition.AllowedZone = ZoneType.None; definition.Footprint = new Vector2Int(1, 1);
+            definition.ResidentCapacity = capacity; definition.JobsProvided = 0;
             return definition;
         }
 
@@ -51,9 +49,7 @@ namespace Citybuilder
             homes = new List<BuildingState> { MustSettle(settlement, HouseDef(4), 0), MustSettle(settlement, HouseDef(4), 1) };
             List<GridPosition> cells = new List<GridPosition>();
             for (int i = 0; i < homes.Count; i++)
-            {
                 for (int c = 0; c < homes[i].Cells.Count; c++) cells.Add(homes[i].Cells[c]);
-            }
             connectivity = new ConnectivitySystem(grid, roads, cells);
         }
 
@@ -72,34 +68,30 @@ namespace Citybuilder
         public void ConnectedHome_WinsOverEarlier()
         {
             MakeScene(new List<GridPosition> { new GridPosition(3, 0) }, out population, out homes, out connectivity);
-            BuildingState chosen = PopulationController.FindMoveInHome(homes, population, 2,
-                home => IsHomeConnected(connectivity, home));
-            Assert.AreSame(homes[1], chosen);
+            Assert.AreSame(homes[1], PopulationController.FindMoveInHome(homes, population, 2,
+                home => IsHomeConnected(connectivity, home)));
         }
 
         [Test]
         public void TwoConnected_FirstWins()
         {
             MakeScene(new List<GridPosition> { new GridPosition(1, 0), new GridPosition(3, 0) }, out population, out homes, out connectivity);
-            BuildingState chosen = PopulationController.FindMoveInHome(homes, population, 2,
-                home => IsHomeConnected(connectivity, home));
-            Assert.AreSame(homes[0], chosen);
+            Assert.AreSame(homes[0], PopulationController.FindMoveInHome(homes, population, 2,
+                home => IsHomeConnected(connectivity, home)));
         }
 
         [Test]
         public void NullPredicate_OldFirstFit()
         {
-            BuildingState chosen = PopulationController.FindMoveInHome(homes, population, 2, null);
-            Assert.AreSame(homes[0], chosen);
+            Assert.AreSame(homes[0], PopulationController.FindMoveInHome(homes, population, 2, null));
         }
 
         [Test]
         public void OnlyUnconnected_SettledNotBlocked()
         {
             MakeScene(new List<GridPosition> { new GridPosition(10, 10) }, out population, out homes, out connectivity);
-            BuildingState chosen = PopulationController.FindMoveInHome(homes, population, 2,
-                home => IsHomeConnected(connectivity, home));
-            Assert.AreSame(homes[0], chosen);
+            Assert.AreSame(homes[0], PopulationController.FindMoveInHome(homes, population, 2,
+                home => IsHomeConnected(connectivity, home)));
         }
 
         [Test]
@@ -107,9 +99,8 @@ namespace Citybuilder
         {
             MakeScene(new List<GridPosition> { new GridPosition(3, 0) }, out population, out homes, out connectivity);
             Assert.IsNotNull(population.MoveIn(homes[1], 4));
-            BuildingState chosen = PopulationController.FindMoveInHome(homes, population, 2,
-                home => IsHomeConnected(connectivity, home));
-            Assert.AreSame(homes[0], chosen);
+            Assert.AreSame(homes[0], PopulationController.FindMoveInHome(homes, population, 2,
+                home => IsHomeConnected(connectivity, home)));
         }
 
         [Test]
@@ -117,8 +108,7 @@ namespace Citybuilder
         {
             Assert.IsNotNull(population.MoveIn(homes[0], 4));
             Assert.IsNotNull(population.MoveIn(homes[1], 4));
-            BuildingState chosen = PopulationController.FindMoveInHome(homes, population, 2, null);
-            Assert.IsNull(chosen);
+            Assert.IsNull(PopulationController.FindMoveInHome(homes, population, 2, null));
         }
 
         [Test]
@@ -133,11 +123,72 @@ namespace Citybuilder
         {
             GameObject go = new GameObject();
             ConnectivityController controller = go.AddComponent<ConnectivityController>();
-            List<GridPosition> cells = new List<GridPosition> { new GridPosition(0, 0) };
-            BuildingState home = new BuildingState(EntityId.New(), HouseDef(4), new GridPosition(0, 0), cells);
+            BuildingState home = new BuildingState(EntityId.New(), HouseDef(4), new GridPosition(0, 0), new List<GridPosition> { new GridPosition(0, 0) });
             Assert.IsFalse(controller.IsHomeConnected(null));
             Assert.IsFalse(controller.IsHomeConnected(home));
             Object.DestroyImmediate(go);
+        }
+
+        [Test]
+        public void EffectiveInterval_GuardsNaNAndNonPositive()
+        {
+            Assert.AreEqual(7f, PopulationController.EffectiveInterval(7f, 1f));
+            Assert.AreEqual(1f, PopulationController.EffectiveInterval(float.NaN, 1f));
+            Assert.AreEqual(1f, PopulationController.EffectiveInterval(-5f, 1f));
+            Assert.AreEqual(7f, PopulationController.EffectiveInterval(7f, float.NaN));
+            Assert.AreEqual(7f, PopulationController.EffectiveInterval(7f, 0f));
+            Assert.AreEqual(7f, PopulationController.EffectiveInterval(7f, -1f));
+        }
+
+        [Test]
+        public void FindMoveInHome_NullElementInHomes_HandledGracefully()
+        {
+            List<BuildingState> listWithNull = new List<BuildingState> { null, homes[0], null };
+            Assert.AreSame(homes[0], PopulationController.FindMoveInHome(listWithNull, population, 2, h => true));
+            Assert.IsNull(PopulationController.FindMoveInHome(listWithNull, population, 0, null));
+            Assert.IsNull(PopulationController.FindMoveInHome(listWithNull, population, -1, null));
+        }
+
+        [Test]
+        public void SimulationSpeed_ScalesTickAccumulation()
+        {
+            GameObject go = new GameObject("PopSpeedTest");
+            try
+            {
+                SimulationRunner runner = go.AddComponent<SimulationRunner>();
+                PopulationController pop = go.AddComponent<PopulationController>();
+                pop.Runner = runner;
+                runner.SetSpeed(SimulationSpeed.Paused);
+                pop.Timer = 0f; pop.Tick(1f);
+                Assert.AreEqual(0f, pop.Timer);
+                runner.SetSpeed(SimulationSpeed.Playing);
+                pop.Tick(1f);
+                Assert.AreEqual(1f, pop.Timer);
+                runner.SetSpeed(SimulationSpeed.FastForward);
+                pop.Tick(1f);
+                Assert.AreEqual(5f, pop.Timer);
+            }
+            finally { Object.DestroyImmediate(go); }
+        }
+
+        [Test]
+        public void BuildingViewFactory_CreateGhost_DestroySafeInEditMode()
+        {
+            GameObject root = new GameObject("GhostTestRoot");
+            GameObject ghost = null;
+            try
+            {
+                GridVisualizer viz = root.AddComponent<GridVisualizer>();
+                ghost = BuildingViewFactory.CreateGhost(HouseDef(2), viz, root.transform);
+                Assert.IsNotNull(ghost);
+                Assert.IsNull(ghost.GetComponent<Collider>());
+                Assert.DoesNotThrow(() => BuildingViewFactory.DestroySafe(null));
+            }
+            finally
+            {
+                BuildingViewFactory.DestroySafe(ghost);
+                BuildingViewFactory.DestroySafe(root);
+            }
         }
     }
 }

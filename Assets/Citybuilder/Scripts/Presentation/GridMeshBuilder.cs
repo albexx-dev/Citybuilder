@@ -44,6 +44,8 @@ namespace Citybuilder
             OccupiedOverlayBuilder.Fill(occupiedMesh, Visualizer.Grid.GetOccupiedCells(), Visualizer.CellSize);
         }
 
+        public MeshRenderer RadiusRenderer => radiusRenderer;
+
         // Подсветить клетки радиуса выбранной службы или очистить при пустом списке (EPIC-12 шаг 3).
         public void RebuildRadius(List<GridPosition> cells, Color color)
         {
@@ -51,12 +53,27 @@ namespace Citybuilder
             if (radiusMesh == null)
             {
                 radiusMesh = OccupiedOverlayBuilder.BuildOverlay(transform, color);
-                Transform found = transform.Find("OccupiedOverlay");
-                if (found != null && found.GetComponent<MeshFilter>().mesh == radiusMesh) found.name = "RadiusOverlay";
+                for (int i = 0; i < transform.childCount; i++)
+                {
+                    Transform child = transform.GetChild(i);
+                    MeshFilter filter = child.GetComponent<MeshFilter>();
+                    if (filter != null && filter.sharedMesh == radiusMesh)
+                    {
+                        child.name = "RadiusOverlay";
+                        radiusRenderer = child.GetComponent<MeshRenderer>();
+                        break;
+                    }
+                }
+            }
+            if (radiusRenderer == null)
+            {
                 GameObject go = FindChild("RadiusOverlay");
                 if (go != null) radiusRenderer = go.GetComponent<MeshRenderer>();
             }
-            if (radiusRenderer != null && radiusRenderer.material != null) radiusRenderer.material.color = color;
+            if (radiusRenderer != null && radiusRenderer.sharedMaterial != null)
+            {
+                radiusRenderer.sharedMaterial.color = color;
+            }
             OccupiedOverlayBuilder.Fill(radiusMesh, cells ?? new List<GridPosition>(), Visualizer.CellSize);
         }
 

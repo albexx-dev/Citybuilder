@@ -77,6 +77,7 @@ namespace Citybuilder
             if (services != null)
             {
                 info.FireCoverage01 = services.Coverage01(ServiceKind.Fire, state.Origin);
+                info.PoliceCoverage01 = services.Coverage01(ServiceKind.Police, state.Origin);
                 info.HealthCoverage01 = services.Coverage01(ServiceKind.Health, state.Origin);
                 info.LeisureCoverage01 = services.Coverage01(ServiceKind.Leisure, state.Origin);
             }

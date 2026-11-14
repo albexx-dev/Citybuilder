@@ -60,6 +60,7 @@ namespace Citybuilder
             TryGrow();
         }
         private void OnValidate() { ClampLimits(); }
+        public void ResetGrowth() { tickCount = 0; lastGrownZone = ZoneType.None; }
         // Проверяет ссылки и чинит логику после перезагрузки домена. Выросшее при reload теряется (не V1).
         private bool EnsureReady()
         {
@@ -98,7 +99,8 @@ namespace Citybuilder
             if (!verdict.Allowed) return;
             BuildingState state = settlement.Settle(verdict.Definition, verdict.Origin);
             if (state == null) return;
-            if (treasury != null && !treasury.TrySpend(verdict.Definition.ConstructionCost, verdict.Definition.Id).Success)
+            int cost = verdict.Definition.ConstructionCost;
+            if (treasury != null && cost > 0 && !treasury.TrySpend(cost, verdict.Definition.Id).Success)
             {
                 settlement.Demolish(state);
                 GridVisualizer.RefreshOccupied();
@@ -116,7 +118,7 @@ namespace Citybuilder
             BuildingDefinition def = null;
             for (int i = 0; i < Definitions.Count; i++) if (Definitions[i] != null && Definitions[i].Id == defId) def = Definitions[i];
             if (def == null) return null;
-            BuildingState state = settlement.Settle(def, origin);
+            BuildingState state = settlement.Restore(def, origin);
             if (state == null) return null;
             states.Add(state);
             View.AddBuilding(state, def, GridVisualizer.Grid.CellSize, true);
@@ -142,10 +144,6 @@ namespace Citybuilder
             states.Remove(state);
             GridVisualizer.RefreshOccupied();
         }
-        private void ClampLimits()
-        {
-            if (TicksPerGrowth < 1) TicksPerGrowth = 1;
-            if (MaxSettlements < 1) MaxSettlements = 1;
-        }
+        private void ClampLimits() { TicksPerGrowth = Mathf.Max(1, TicksPerGrowth); MaxSettlements = Mathf.Max(1, MaxSettlements); }
     }
 }

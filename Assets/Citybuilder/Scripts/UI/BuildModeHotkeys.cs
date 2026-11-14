@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Хоткеи меню режимов и паузы (EPIC-16): Esc сначала гасит режим, при Выкл — открывает/закрывает паузу;
-    // открытые меню блокируют 1-4; переключение 1-4 отмечает город как несохранённый (IsDirty).
+    // открытые меню блокируют 1-4; переключение 1-4 переключает режим без изменения состояния города.
     public class BuildModeHotkeys : MonoBehaviour
     {
         [Header("References")]
@@ -15,6 +15,8 @@ namespace Citybuilder
         public MainMenu Main;
         [Tooltip("Контроллер сохранения (для флага IsDirty). Пусто = ищется в сцене.")]
         public SaveController Save;
+        [Tooltip("Меню сохранения.")] public SaveMenuView SaveMenu;
+        [Tooltip("Меню загрузки.")] public LoadMenuView LoadMenu;
 
         public enum EscAction
         {
@@ -33,13 +35,27 @@ namespace Citybuilder
             return EscAction.OpenPause;
         }
 
+        public static bool CanProcessHotkeys(bool isModalOpen, int keyboardControl)
+        {
+            return !isModalOpen && keyboardControl == 0;
+        }
+
+        public bool IsModalOpen()
+        {
+            ResolveModalRefs();
+            return (Pause != null && Pause.IsOpen)
+                || (SaveMenu != null && SaveMenu.IsOpen)
+                || (LoadMenu != null && LoadMenu.IsOpen)
+                || (Main != null && Main.IsOpen);
+        }
+
         private void Update()
         {
+            if (GUIUtility.keyboardControl != 0) return;
             BuildModeMenu menu = ResolveMenu();
             if (menu == null) return;
-            if (Pause == null) Pause = GetComponent<PauseMenuView>();
-            if (Main == null) Main = GetComponent<MainMenu>();
-            if (Save == null) Save = FindFirstObjectByType<SaveController>();
+            ResolveModalRefs();
+            if ((SaveMenu != null && SaveMenu.IsOpen) || (LoadMenu != null && LoadMenu.IsOpen)) return;
             bool mainOpen = Main != null && Main.IsOpen;
             bool pauseOpen = Pause != null && Pause.IsOpen;
 
@@ -58,10 +74,17 @@ namespace Citybuilder
             else if (Input.GetKeyDown(KeyCode.Alpha4)) SelectMode(menu, BuildModeMenu.Mode.Growth);
         }
 
-        private void SelectMode(BuildModeMenu menu, BuildModeMenu.Mode mode)
+        public void SelectMode(BuildModeMenu menu, BuildModeMenu.Mode mode)
         {
             menu.SetMode(mode);
-            if (Save != null) Save.MarkDirty();
+        }
+
+        private void ResolveModalRefs()
+        {
+            if (Pause == null) Pause = GetComponent<PauseMenuView>() ?? FindFirstObjectByType<PauseMenuView>();
+            if (Main == null) Main = GetComponent<MainMenu>() ?? FindFirstObjectByType<MainMenu>();
+            if (SaveMenu == null) SaveMenu = GetComponent<SaveMenuView>() ?? FindFirstObjectByType<SaveMenuView>();
+            if (LoadMenu == null) LoadMenu = GetComponent<LoadMenuView>() ?? FindFirstObjectByType<LoadMenuView>();
         }
 
         private BuildModeMenu ResolveMenu()
