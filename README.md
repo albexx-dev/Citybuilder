@@ -30,6 +30,8 @@ Connected systems:
 
 ## Quickstart
 
+![Citybuilder v1.1.0 — нижняя панель действий, чистый HUD и туториал](https://github.com/albexx-dev/Citybuilder/releases/download/v1.1.0/v110-play-city.png)
+
 1. Clone the repository and open **its root** as a Unity project (`Assets/`, `Packages/`, and `ProjectSettings/` are tracked with `.meta` files).
 2. Open `Assets/Citybuilder/Scenes/Prototype.unity` and press **Play**.
 3. Click **Новая игра** in the main menu. Follow the 7-step tutorial at the top of the screen:
@@ -38,6 +40,10 @@ Connected systems:
    - Inspect any building by left-clicking it in **Выкл [Esc]** mode to see its status and service radius.
    - Open **Статистика [Tab]** or **Лента [L]** from the bottom bar, or press **Esc** for the Pause Menu (Save/Load slots, volume slider, mute toggle).
 4. Static validation: `python Tools/ValidateRepo.py`.
+
+## Download
+
+Ready-to-play Windows64 build: [GitHub Release v1.1.0](https://github.com/albexx-dev/Citybuilder/releases/tag/v1.1.0) — unzip and run `CityBuilder.exe`.
 
 ## Documentation
 
