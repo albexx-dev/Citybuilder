@@ -8,6 +8,8 @@ namespace Citybuilder
         [Header("References")]
         [Tooltip("Контроллер сохранения. Пусто = ищется в сцене.")]
         public SaveController Save;
+        [Tooltip("Драйвер часов.")] public SimulationRunner Runner;
+        [Tooltip("Меню паузы.")] public PauseMenuView Pause;
 
         private readonly string[] slotNames = new string[SaveSlotIndex.ManualSlotCount];
         private bool isOpen;
@@ -26,12 +28,25 @@ namespace Citybuilder
                     : SaveSlotIndex.DefaultName(i);
             }
             isOpen = true;
+            if (Runner != null) Runner.SetSpeed(SimulationSpeed.Paused);
         }
 
         public void Close()
         {
             isOpen = false;
             UiClickGuard.Set("save_menu", new Rect());
+            if (Runner != null) Runner.SetSpeed(SimulationSpeed.Playing);
+        }
+
+        public void ReturnToPause()
+        {
+            Close();
+            if (Pause != null) Pause.Open();
+        }
+
+        private void Update()
+        {
+            if (isOpen && Input.GetKeyDown(KeyCode.Escape)) ReturnToPause();
         }
 
         private void OnGUI()
@@ -51,7 +66,7 @@ namespace Citybuilder
                 DrawSlotRow(x, y, i, baseDir);
                 y += 40f;
             }
-            if (GUI.Button(new Rect(x, y + 6f, 120f, 28f), "Закрыть")) Close();
+            if (GUI.Button(new Rect(x, y + 6f, 120f, 28f), "Закрыть")) ReturnToPause();
         }
 
         private void DrawSlotRow(float x, float y, int slot, string baseDir)
@@ -72,6 +87,9 @@ namespace Citybuilder
         private void ResolveRefs()
         {
             if (Save == null) Save = FindFirstObjectByType<SaveController>();
+            if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
+            if (Pause == null) Pause = GetComponent<PauseMenuView>();
+            if (Pause == null) Pause = FindFirstObjectByType<PauseMenuView>();
         }
 
         private static Rect CenterRect(float width, float height)

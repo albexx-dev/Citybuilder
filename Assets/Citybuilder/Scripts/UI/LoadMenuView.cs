@@ -8,6 +8,8 @@ namespace Citybuilder
         [Header("References")]
         [Tooltip("Контроллер загрузки. Пусто = ищется в сцене.")]
         public LoadController Load;
+        [Tooltip("Драйвер часов.")] public SimulationRunner Runner;
+        [Tooltip("Меню паузы.")] public PauseMenuView Pause;
 
         private bool isOpen;
 
@@ -17,12 +19,25 @@ namespace Citybuilder
         {
             ResolveRefs();
             isOpen = true;
+            if (Runner != null) Runner.SetSpeed(SimulationSpeed.Paused);
         }
 
         public void Close()
         {
             isOpen = false;
             UiClickGuard.Set("load_menu", new Rect());
+            if (Runner != null) Runner.SetSpeed(SimulationSpeed.Playing);
+        }
+
+        public void ReturnToPause()
+        {
+            Close();
+            if (Pause != null) Pause.Open();
+        }
+
+        private void Update()
+        {
+            if (isOpen && Input.GetKeyDown(KeyCode.Escape)) ReturnToPause();
         }
 
         private void OnGUI()
@@ -44,7 +59,7 @@ namespace Citybuilder
             }
             DrawRow(x, y, SaveSlotIndex.AutosaveSlot, baseDir);
             y += 44f;
-            if (GUI.Button(new Rect(x, y, 120f, 28f), "Закрыть")) Close();
+            if (GUI.Button(new Rect(x, y, 120f, 28f), "Закрыть")) ReturnToPause();
         }
 
         private void DrawRow(float x, float y, int slot, string baseDir)
@@ -72,6 +87,9 @@ namespace Citybuilder
         private void ResolveRefs()
         {
             if (Load == null) Load = FindFirstObjectByType<LoadController>();
+            if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
+            if (Pause == null) Pause = GetComponent<PauseMenuView>();
+            if (Pause == null) Pause = FindFirstObjectByType<PauseMenuView>();
         }
 
         private static Rect CenterRect(float width, float height)
