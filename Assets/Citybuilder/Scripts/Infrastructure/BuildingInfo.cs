@@ -21,6 +21,7 @@ namespace Citybuilder
         public float WaterRate01;
         public float WasteRate01;
         public float FireCoverage01;
+        public float PoliceCoverage01;
         public float HealthCoverage01;
         public float LeisureCoverage01;
         public bool RoadConnected;

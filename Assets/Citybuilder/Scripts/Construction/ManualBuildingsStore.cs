@@ -44,7 +44,7 @@ namespace Citybuilder
         {
             int index = IndexOf(state);
             if (index < 0) return false;
-            if (views[index] != null) Object.Destroy(views[index]);
+            if (views[index] != null) BuildingViewFactory.DestroySafe(views[index]);
             states.RemoveAt(index);
             views.RemoveAt(index);
             return true;
@@ -62,7 +62,7 @@ namespace Citybuilder
             }
             for (int i = 0; i < views.Count; i++)
             {
-                if (views[i] != null) Object.Destroy(views[i]);
+                if (views[i] != null) BuildingViewFactory.DestroySafe(views[i]);
             }
             states.Clear();
             views.Clear();

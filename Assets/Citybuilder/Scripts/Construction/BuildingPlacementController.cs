@@ -15,25 +15,21 @@ namespace Citybuilder
         public List<BuildingDefinition> Definitions = new List<BuildingDefinition>();
         [Tooltip("Казна для списания стоимости. Пусто = строить бесплатно.")]
         public TreasuryView TreasuryView;
+        [Tooltip("Контроллер сохранения.")]
+        public SaveController Save;
 
         private readonly ManualBuildingsStore store = new ManualBuildingsStore();
         private readonly PlacementGhostView ghostView = new PlacementGhostView();
         private BuildingSystem system;
-        private bool placementActive = true;
+        public bool placementActive = true;
 
         // Копия построенного: нужна покрытию, инфраструктуре и сохранениям.
         public List<BuildingState> Placed { get { return store.Placed; } }
 
-        private void Start()
-        {
-            EnsureReady();
-        }
-
+        private void Start() { EnsureReady(); }
+        private void OnEnable() { placementActive = true; }
         // Прячем призрак при выключении: иначе висящий куб.
-        private void OnDisable()
-        {
-            ghostView.Hide();
-        }
+        private void OnDisable() { ghostView.Hide(); }
 
         // Сменить тип и пересоздать призрак: иначе останется старый габарит.
         public void SetDefinition(BuildingDefinition def)
@@ -52,8 +48,9 @@ namespace Citybuilder
                 enabled = false;
                 return false;
             }
+            if (Save == null) Save = FindFirstObjectByType<SaveController>();
             if (!EnsureSystem()) return false;
-            ghostView.Ensure(Definition, GridVisualizer, transform);
+            if (Application.isPlaying) ghostView.Ensure(Definition, GridVisualizer, transform);
             return true;
         }
 
@@ -91,7 +88,7 @@ namespace Citybuilder
         {
             if (!EnsureReady()) return false;
             if (!system.CanPlace(Definition, cell)) return false;
-            if (TreasuryView != null)
+            if (Definition.ConstructionCost > 0 && TreasuryView != null && TreasuryView.Treasury != null)
             {
                 Treasury.TransactionResult spent = TreasuryView.Treasury.TrySpend(Definition.ConstructionCost, Definition.Id);
                 if (!spent.Success) return false;
@@ -100,6 +97,7 @@ namespace Citybuilder
             if (state == null) return false;
             store.Add(state, BuildingViewFactory.CreateView(state, GridVisualizer));
             GridVisualizer.RefreshOccupied();
+            if (Save != null) Save.MarkDirty();
             return true;
         }
 
@@ -122,13 +120,15 @@ namespace Citybuilder
             store.Clear(system, GridVisualizer);
         }
 
-        private void TryDemolish(GridPosition cell)
+        public bool TryDemolish(GridPosition cell)
         {
             BuildingState state = store.FindAt(cell);
-            if (state == null) return;
+            if (state == null) return false;
             system.Demolish(state);
             store.Demolish(state);
             GridVisualizer.RefreshOccupied();
+            if (Save != null) Save.MarkDirty();
+            return true;
         }
 
         private BuildingDefinition FindDefinition(string defId)

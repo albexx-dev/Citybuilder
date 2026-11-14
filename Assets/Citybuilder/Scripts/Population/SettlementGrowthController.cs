@@ -13,6 +13,7 @@ namespace Citybuilder
         [Tooltip("Вид выросших домов. Пусто = создастся на этом же объекте.")] public SettlementView View;
         [Tooltip("Казна для оплаты роста. Пусто = рост бесплатный.")] public TreasuryView Treasury;
         [Tooltip("Драйвер часов. Обязателен: даёт тики часов для роста.")] public SimulationRunner Runner;
+        [Tooltip("Контроллер сохранения.")] public SaveController Save;
         [Header("Transport")]
         [Tooltip("Пробки. Пусто = рост без пробок.")] public CongestionController Congestion;
         [Tooltip("Дефицит энергии/воды/мусора. Пусто = рост без штрафа.")] public SupplyGrowthController SupplyGrowth;
@@ -60,6 +61,7 @@ namespace Citybuilder
             TryGrow();
         }
         private void OnValidate() { ClampLimits(); }
+        public void ResetGrowth() { tickCount = 0; lastGrownZone = ZoneType.None; }
         // Проверяет ссылки и чинит логику после перезагрузки домена. Выросшее при reload теряется (не V1).
         private bool EnsureReady()
         {
@@ -69,6 +71,7 @@ namespace Citybuilder
                 enabled = false;
                 return false;
             }
+            if (Save == null) Save = FindFirstObjectByType<SaveController>();
             if (Definitions == null) Definitions = new List<BuildingDefinition>();
             for (int i = Definitions.Count - 1; i >= 0; i--) if (Definitions[i] == null) Definitions.RemoveAt(i);
             if (Definitions.Count == 0)
@@ -98,7 +101,8 @@ namespace Citybuilder
             if (!verdict.Allowed) return;
             BuildingState state = settlement.Settle(verdict.Definition, verdict.Origin);
             if (state == null) return;
-            if (treasury != null && !treasury.TrySpend(verdict.Definition.ConstructionCost, verdict.Definition.Id).Success)
+            int cost = verdict.Definition.ConstructionCost;
+            if (treasury != null && cost > 0 && !treasury.TrySpend(cost, verdict.Definition.Id).Success)
             {
                 settlement.Demolish(state);
                 GridVisualizer.RefreshOccupied();
@@ -108,6 +112,7 @@ namespace Citybuilder
             lastGrownZone = ZonePainter.Zones.GetZone(verdict.Origin);
             View.AddBuilding(state, verdict.Definition, GridVisualizer.Grid.CellSize);
             GridVisualizer.RefreshOccupied();
+            if (Save != null) Save.MarkDirty();
         }
         // Восстановить выросший дом из сохранения: без оплаты, вид и занятость обновляются.
         public BuildingState RestoreGrown(string defId, GridPosition origin)
@@ -116,7 +121,7 @@ namespace Citybuilder
             BuildingDefinition def = null;
             for (int i = 0; i < Definitions.Count; i++) if (Definitions[i] != null && Definitions[i].Id == defId) def = Definitions[i];
             if (def == null) return null;
-            BuildingState state = settlement.Settle(def, origin);
+            BuildingState state = settlement.Restore(def, origin);
             if (state == null) return null;
             states.Add(state);
             View.AddBuilding(state, def, GridVisualizer.Grid.CellSize, true);
@@ -141,11 +146,8 @@ namespace Citybuilder
             View.RemoveBuilding(state);
             states.Remove(state);
             GridVisualizer.RefreshOccupied();
+            if (Save != null) Save.MarkDirty();
         }
-        private void ClampLimits()
-        {
-            if (TicksPerGrowth < 1) TicksPerGrowth = 1;
-            if (MaxSettlements < 1) MaxSettlements = 1;
-        }
+        private void ClampLimits() { TicksPerGrowth = Mathf.Max(1, TicksPerGrowth); MaxSettlements = Mathf.Max(1, MaxSettlements); }
     }
 }
