@@ -16,16 +16,11 @@ namespace Citybuilder
         [Tooltip("Стройка дорог. Опциональна: иначе ищется на этом же объекте.")] public RoadNetworkStore Roads;
         [Tooltip("Налоговая политика. Пусто = обычный налог после загрузки.")] public TaxPolicyView Policy;
         [Tooltip("Ручные здания. Пусто = ищется в сцене.")] public BuildingPlacementController Placement;
+        [Tooltip("Пробки. Опционален: иначе ищется на этом же объекте.")] public CongestionController Congestion;
 
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.F9)) LoadNow(0);
-        }
+        private void Update() { if (Input.GetKeyDown(KeyCode.F9)) LoadNow(0); }
 
-        public bool LoadNow()
-        {
-            return LoadNow(0);
-        }
+        public bool LoadNow() { return LoadNow(0); }
 
         public bool LoadNow(int slot)
         {
@@ -74,21 +69,24 @@ namespace Citybuilder
             if (Roads == null) Roads = GetComponent<RoadNetworkStore>();
             if (Policy == null) Policy = FindFirstObjectByType<TaxPolicyView>();
             if (Placement == null) Placement = FindFirstObjectByType<BuildingPlacementController>();
+            if (Congestion == null) Congestion = GetComponent<CongestionController>();
+            if (Congestion == null && Growth != null) Congestion = Growth.Congestion;
+            if (Congestion == null) Congestion = FindFirstObjectByType<CongestionController>();
         }
 
-        private void ClearAll()
+        public void ClearAll()
         {
-            List<BuildingState> homes = Growth != null ? Growth.Homes : null;
             if (Demolition != null) Demolition.ClearGrown();
             if (Zones != null) Zones.ClearZones();
             if (Roads != null) Roads.ClearRoads();
             if (Placement != null) Placement.ClearPlaced();
+            if (Growth != null) Growth.ResetGrowth();
+            if (Congestion != null) Congestion.ClearLoads();
+            if (Population != null && Population.Population != null) Population.Population.Clear();
             GoalView goal = FindFirstObjectByType<GoalView>();
             if (goal != null) goal.RestoreStage(0);
             EventLogView eventLog = FindFirstObjectByType<EventLogView>();
             if (eventLog != null) eventLog.ClearLog();
-            if (Population == null || Population.Population == null || homes == null) return;
-            for (int i = 0; i < homes.Count; i++) Population.Population.EvictHome(homes[i]);
         }
 
         private List<BuildingState> ApplyCity(CitySnapshot snapshot)
