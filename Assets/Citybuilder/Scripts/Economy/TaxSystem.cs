@@ -28,6 +28,12 @@ namespace Citybuilder
             get { return employment.Employed; }
         }
 
+        // Казна, в которую зачисляется налог.
+        public Treasury Treasury
+        {
+            get { return treasury; }
+        }
+
         // Налог за тик: Employed × ставка. Ставка 0 и ниже — сбор выключен.
         public int ComputeTax(int perWorker)
         {

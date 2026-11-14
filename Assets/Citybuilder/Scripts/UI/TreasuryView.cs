@@ -25,10 +25,17 @@ namespace Citybuilder
             }
         }
 
-        // Сброс баланса из сохранения: казна пересоздаётся как после reload.
+        // Сброс баланса из сохранения: обновляет существующую казну без разрыва ссылок.
         public void ResetBalance(int balance)
         {
-            treasury = Treasury.Restore(balance);
+            if (treasury == null)
+            {
+                treasury = Treasury.Restore(balance);
+            }
+            else
+            {
+                treasury.Reset(balance);
+            }
         }
 
         private void OnGUI()

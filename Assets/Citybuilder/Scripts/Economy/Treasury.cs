@@ -42,6 +42,13 @@ namespace Citybuilder
             return treasury;
         }
 
+        // Сброс баланса без пересоздания объекта: сохраняет подписчиков и внешние ссылки.
+        public void Reset(int balance)
+        {
+            Balance = balance;
+            Notify();
+        }
+
         public bool CanAfford(int amount)
         {
             if (amount < 0)
