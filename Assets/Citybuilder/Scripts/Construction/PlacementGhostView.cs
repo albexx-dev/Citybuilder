@@ -54,7 +54,7 @@ namespace Citybuilder
             if (ghost != null)
             {
                 ghost.SetActive(false);
-                Object.Destroy(ghost);
+                BuildingViewFactory.DestroySafe(ghost);
             }
             ghost = BuildingViewFactory.CreateGhost(definition, grid, parent);
             if (ghost != null) ghost.SetActive(false);

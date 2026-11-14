@@ -38,9 +38,17 @@ namespace Citybuilder
             Collider collider = ghost.GetComponent<Collider>();
             if (collider != null)
             {
-                Object.Destroy(collider);
+                DestroySafe(collider);
             }
             return ghost;
+        }
+
+        // Безопасное уничтожение объекта: в PlayMode через Destroy, в EditMode через DestroyImmediate.
+        public static void DestroySafe(UnityEngine.Object obj)
+        {
+            if (obj == null) return;
+            if (Application.isPlaying) Object.Destroy(obj);
+            else Object.DestroyImmediate(obj);
         }
 
         // Полупрозрачный материал призрака на Unlit/Color.
