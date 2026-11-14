@@ -13,6 +13,7 @@ namespace Citybuilder
 
         private readonly string[] slotNames = new string[SaveSlotIndex.ManualSlotCount];
         private bool isOpen;
+        private SimulationSpeed speedBeforeOpen = SimulationSpeed.Playing;
 
         public bool IsOpen { get { return isOpen; } }
 
@@ -28,6 +29,7 @@ namespace Citybuilder
                     : SaveSlotIndex.DefaultName(i);
             }
             isOpen = true;
+            speedBeforeOpen = Runner != null ? Runner.Speed : SimulationSpeed.Playing;
             if (Runner != null) Runner.SetSpeed(SimulationSpeed.Paused);
         }
 
@@ -35,7 +37,7 @@ namespace Citybuilder
         {
             isOpen = false;
             UiClickGuard.Set("save_menu", new Rect());
-            if (Runner != null) Runner.SetSpeed(SimulationSpeed.Playing);
+            if (Runner != null) Runner.SetSpeed(speedBeforeOpen);
         }
 
         public void ReturnToPause()

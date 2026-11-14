@@ -12,6 +12,7 @@ namespace Citybuilder
         [Tooltip("Меню паузы.")] public PauseMenuView Pause;
 
         private bool isOpen;
+        private SimulationSpeed speedBeforeOpen = SimulationSpeed.Playing;
 
         public bool IsOpen { get { return isOpen; } }
 
@@ -19,6 +20,7 @@ namespace Citybuilder
         {
             ResolveRefs();
             isOpen = true;
+            speedBeforeOpen = Runner != null ? Runner.Speed : SimulationSpeed.Playing;
             if (Runner != null) Runner.SetSpeed(SimulationSpeed.Paused);
         }
 
@@ -26,7 +28,7 @@ namespace Citybuilder
         {
             isOpen = false;
             UiClickGuard.Set("load_menu", new Rect());
-            if (Runner != null) Runner.SetSpeed(SimulationSpeed.Playing);
+            if (Runner != null) Runner.SetSpeed(speedBeforeOpen);
         }
 
         public void ReturnToPause()

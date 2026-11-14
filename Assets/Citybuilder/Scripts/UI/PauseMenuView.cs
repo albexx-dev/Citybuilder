@@ -15,6 +15,7 @@ namespace Citybuilder
 
         private bool isOpen;
         private bool confirmingExit;
+        private SimulationSpeed speedBeforeOpen = SimulationSpeed.Playing;
 
         public bool IsOpen { get { return isOpen; } }
         public bool IsConfirmingExit { get { return confirmingExit; } }
@@ -29,6 +30,7 @@ namespace Citybuilder
         {
             ResolveRefs();
             if (!isOpen) AudioController.PlaySwooshGlobal();
+            if (!isOpen) speedBeforeOpen = Runner != null ? Runner.Speed : SimulationSpeed.Playing;
             isOpen = true;
             confirmingExit = false;
             if (Runner != null) Runner.SetSpeed(SimulationSpeed.Paused);
@@ -40,7 +42,7 @@ namespace Citybuilder
             isOpen = false;
             confirmingExit = false;
             UiClickGuard.Set("pause_menu", new Rect());
-            if (Runner != null) Runner.SetSpeed(SimulationSpeed.Playing);
+            if (Runner != null) Runner.SetSpeed(speedBeforeOpen);
         }
 
         // Чистая логика решения при нажатии «В главное меню» (EPIC-16 шаг 3).
