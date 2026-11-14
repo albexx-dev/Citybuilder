@@ -97,7 +97,9 @@ namespace Citybuilder
                 y += 24f;
                 HudText.Draw(x, y, "Свет " + Pct(current.PowerRate01) + "% • Вода " + Pct(current.WaterRate01) + "% • Мусор " + Pct(current.WasteRate01) + "%");
                 y += 24f;
-                HudText.Draw(x, y, "Пожарные " + Pct(current.FireCoverage01) + "% • Больница " + Pct(current.HealthCoverage01) + "% • Парк " + Pct(current.LeisureCoverage01) + "%");
+                HudText.Draw(x, y, "Пожарные " + Pct(current.FireCoverage01) + "% • Полиция " + Pct(current.PoliceCoverage01) + "%");
+                y += 24f;
+                HudText.Draw(x, y, "Больница " + Pct(current.HealthCoverage01) + "% • Парк " + Pct(current.LeisureCoverage01) + "%");
                 return;
             }
             if (current.HasServiceRadius)
