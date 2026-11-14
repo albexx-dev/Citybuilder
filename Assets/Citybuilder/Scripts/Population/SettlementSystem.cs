@@ -52,10 +52,10 @@ namespace Citybuilder
             return buildings.CanPlace(definition, origin);
         }
 
-        // Ставит здание и растит счётчики. Не подошло — null.
-        public BuildingState Settle(BuildingDefinition definition, GridPosition origin)
+        // Восстанавливает здание (например, из сохранения), игнорируя текущие зоны.
+        public BuildingState Restore(BuildingDefinition definition, GridPosition origin)
         {
-            if (!CanSettle(definition, origin))
+            if (definition == null || !buildings.CanPlace(definition, origin))
             {
                 return null;
             }
@@ -68,6 +68,16 @@ namespace Citybuilder
             TotalCapacity += ClampNonNegative(definition.ResidentCapacity);
             TotalJobs += ClampNonNegative(definition.JobsProvided);
             return state;
+        }
+
+        // Ставит здание и растит счётчики. Не подошло — null.
+        public BuildingState Settle(BuildingDefinition definition, GridPosition origin)
+        {
+            if (!CanSettle(definition, origin))
+            {
+                return null;
+            }
+            return Restore(definition, origin);
         }
 
         // Сносит здание и уменьшает счётчики. Повторный снос — false.

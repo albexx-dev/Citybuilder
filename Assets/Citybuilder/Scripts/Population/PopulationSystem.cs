@@ -24,6 +24,14 @@ namespace Citybuilder
         {
         }
 
+        // Очистить все домохозяйства и счётчики населения при сбросе/загрузке.
+        public void Clear()
+        {
+            households.Clear();
+            HouseholdCount = 0;
+            TotalResidents = 0;
+        }
+
         // Заселяет домохозяйство в дом в пределах вместимости. Не влезло — null.
         public HouseholdState MoveIn(BuildingState home, int size)
         {
