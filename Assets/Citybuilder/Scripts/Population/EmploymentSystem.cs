@@ -7,6 +7,7 @@ namespace Citybuilder
     {
         private readonly PopulationSystem population;
         private readonly SettlementSystem settlement;
+        private readonly Func<int> manualJobsProvider;
 
         public EmploymentSystem(PopulationSystem population, SettlementSystem settlement)
         {
@@ -22,10 +23,26 @@ namespace Citybuilder
             this.settlement = settlement;
         }
 
+        public EmploymentSystem(PopulationSystem population, SettlementSystem settlement, Func<int> manualJobsProvider)
+            : this(population, settlement)
+        {
+            this.manualJobsProvider = manualJobsProvider;
+        }
+
+        // Всего рабочих мест (зоны + ручные постройки).
+        public int TotalJobs
+        {
+            get
+            {
+                int manual = manualJobsProvider != null ? Math.Max(0, manualJobsProvider()) : 0;
+                return settlement.TotalJobs + manual;
+            }
+        }
+
         // Трудоустроено: жителей не больше, чем рабочих мест.
         public int Employed
         {
-            get { return Math.Min(population.TotalResidents, settlement.TotalJobs); }
+            get { return Math.Min(population.TotalResidents, TotalJobs); }
         }
 
         // Безработные: остаток жителей, минимум 0.
@@ -52,11 +69,11 @@ namespace Citybuilder
         {
             get
             {
-                if (settlement.TotalJobs == 0)
+                if (TotalJobs == 0)
                 {
                     return 0f;
                 }
-                return Employed / (float)settlement.TotalJobs;
+                return Employed / (float)TotalJobs;
             }
         }
     }
