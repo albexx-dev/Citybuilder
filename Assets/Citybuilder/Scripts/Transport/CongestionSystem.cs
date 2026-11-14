@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Citybuilder
 {
@@ -8,50 +9,23 @@ namespace Citybuilder
     {
         private readonly Func<GridPosition, int> loadOf;
         private readonly GridSystem grid;
+        private readonly Dictionary<GridPosition, int> recordedLoads = new Dictionary<GridPosition, int>();
         private int threshold;
         private float factor;
         private float maxMultiplier;
 
-        public int Threshold
-        {
-            get { return threshold; }
-            set { threshold = value < 1 ? 1 : value; }
-        }
-
-        public float Factor
-        {
-            get { return factor; }
-            set { factor = value < 0f ? 0f : value; }
-        }
-
-        public float MaxMultiplier
-        {
-            get { return maxMultiplier; }
-            set { maxMultiplier = value < 1f ? 1f : value; }
-        }
-
-        public int CongestionThreshold { get { return Threshold; } set { Threshold = value; } }
-        public float CongestionFactor { get { return Factor; } set { Factor = value; } }
-        public float Max { get { return MaxMultiplier; } set { MaxMultiplier = value; } }
-
-        public CongestionSystem(RouteSystem routes)
-            : this(routes, null, 4, 0.25f, 3.0f) { }
-
-        public CongestionSystem(RouteSystem routes, GridSystem grid)
-            : this(routes, grid, 4, 0.25f, 3.0f) { }
-
-        public CongestionSystem(RouteSystem routes, int threshold, float factor, float maxMultiplier)
-            : this(routes, null, threshold, factor, maxMultiplier) { }
-
-        public CongestionSystem(RouteSystem routes, GridSystem grid, int threshold, float factor, float maxMultiplier)
-            : this(routes != null ? (Func<GridPosition, int>)routes.LoadOf : null, grid, threshold, factor, maxMultiplier) { }
-
-        public CongestionSystem(Func<GridPosition, int> loadOf)
-            : this(loadOf, null, 4, 0.25f, 3.0f) { }
-
-        public CongestionSystem(Func<GridPosition, int> loadOf, GridSystem grid)
-            : this(loadOf, grid, 4, 0.25f, 3.0f) { }
-
+        public int Threshold { get => threshold; set => threshold = value < 1 ? 1 : value; }
+        public float Factor { get => factor; set => factor = float.IsNaN(value) || value < 0f ? 0f : value; }
+        public float MaxMultiplier { get => maxMultiplier; set => maxMultiplier = float.IsNaN(value) || value < 1f ? 1f : value; }
+        public int CongestionThreshold { get => Threshold; set => Threshold = value; }
+        public float CongestionFactor { get => Factor; set => Factor = value; }
+        public float Max { get => MaxMultiplier; set => MaxMultiplier = value; }
+        public CongestionSystem(RouteSystem routes) : this(routes, null, 4, 0.25f, 3.0f) { }
+        public CongestionSystem(RouteSystem routes, GridSystem grid) : this(routes, grid, 4, 0.25f, 3.0f) { }
+        public CongestionSystem(RouteSystem routes, int threshold, float factor, float maxMultiplier) : this(routes, null, threshold, factor, maxMultiplier) { }
+        public CongestionSystem(RouteSystem routes, GridSystem grid, int threshold, float factor, float maxMultiplier) : this(routes != null ? (Func<GridPosition, int>)routes.LoadOf : null, grid, threshold, factor, maxMultiplier) { }
+        public CongestionSystem(Func<GridPosition, int> loadOf) : this(loadOf, null, 4, 0.25f, 3.0f) { }
+        public CongestionSystem(Func<GridPosition, int> loadOf, GridSystem grid) : this(loadOf, grid, 4, 0.25f, 3.0f) { }
         public CongestionSystem(Func<GridPosition, int> loadOf, GridSystem grid, int threshold, float factor, float maxMultiplier)
         {
             this.loadOf = loadOf;
@@ -61,27 +35,46 @@ namespace Citybuilder
             MaxMultiplier = maxMultiplier;
         }
 
-        public CongestionSystem(Func<int, int> loadOf)
-            : this((Func<GridPosition, int>)null, null, 4, 0.25f, 3.0f) { }
+        public CongestionSystem(Func<int, int> loadOf) : this(pos => loadOf != null ? loadOf(pos.X) : 0, null, 4, 0.25f, 3.0f) { }
+        public CongestionSystem(Func<int, int> loadOf, int threshold, float factor, float maxMultiplier) : this(pos => loadOf != null ? loadOf(pos.X) : 0, null, threshold, factor, maxMultiplier) { }
 
-        public CongestionSystem(Func<int, int> loadOf, int threshold, float factor, float maxMultiplier)
-            : this((Func<GridPosition, int>)null, null, threshold, factor, maxMultiplier) { }
+        public void TrackTrip(IReadOnlyList<GridPosition> path)
+        {
+            if (path == null || path.Count == 0) return;
+            for (int i = 0; i < path.Count; i++)
+            {
+                GridPosition cell = path[i];
+                int c;
+                recordedLoads.TryGetValue(cell, out c);
+                recordedLoads[cell] = c + 1;
+            }
+        }
 
-        public bool IsCongested(int load) { return load >= Threshold; }
+        public void ClearLoads() => recordedLoads.Clear();
+
+        public int GetLoad(GridPosition cell)
+        {
+            int b = loadOf != null ? loadOf(cell) : 0;
+            int r;
+            recordedLoads.TryGetValue(cell, out r);
+            return b > r ? b : r;
+        }
+
+        public bool IsCongested(int load) => load >= Threshold;
 
         public float MultiplierFor(int load)
         {
-            if (!IsCongested(load)) return 1f;
+            if (float.IsNaN(factor) || float.IsNaN(maxMultiplier) || !IsCongested(load)) return 1f;
             float value = 1f + (load - Threshold + 1) * Factor;
-            if (value < 1f) value = 1f;
-            if (value > MaxMultiplier) value = MaxMultiplier;
+            if (float.IsNaN(value) || value < 1f) return 1f;
+            if (value > MaxMultiplier) return MaxMultiplier;
             return value;
         }
 
         public float Load01(GridPosition cell)
         {
-            if (loadOf == null || MaxMultiplier <= 1f) return 0f;
-            float m = MultiplierFor(loadOf(cell));
+            if (MaxMultiplier <= 1f) return 0f;
+            float m = MultiplierFor(GetLoad(cell));
             if (float.IsNaN(m) || m <= 1f) return 0f;
             float ratio = (m - 1f) / (MaxMultiplier - 1f);
             if (float.IsNaN(ratio) || ratio < 0f) return 0f;
@@ -90,31 +83,37 @@ namespace Citybuilder
 
         public float WorstMultiplier()
         {
-            if (grid == null || loadOf == null) return 1f;
             float worst = 1f;
-            GridSize size = grid.Size;
-            for (int x = 0; x < size.Width; x++)
+            if (grid != null)
             {
+                GridSize size = grid.Size;
+                for (int x = 0; x < size.Width; x++)
                 for (int y = 0; y < size.Height; y++)
                 {
-                    float m = MultiplierFor(loadOf(new GridPosition(x, y)));
-                    if (m > worst) worst = m;
+                    float m = MultiplierFor(GetLoad(new GridPosition(x, y)));
+                    if (!float.IsNaN(m) && m > worst) worst = m;
                 }
             }
-            return worst;
+            else if (recordedLoads.Count > 0)
+            {
+                foreach (KeyValuePair<GridPosition, int> pair in recordedLoads)
+                {
+                    float m = MultiplierFor(GetLoad(pair.Key));
+                    if (!float.IsNaN(m) && m > worst) worst = m;
+                }
+            }
+            return float.IsNaN(worst) ? 1f : worst;
         }
 
         public int CongestedCellsCount()
         {
-            if (grid == null || loadOf == null) return 0;
+            if (grid == null) return 0;
             int count = 0;
             GridSize size = grid.Size;
             for (int x = 0; x < size.Width; x++)
+            for (int y = 0; y < size.Height; y++)
             {
-                for (int y = 0; y < size.Height; y++)
-                {
-                    if (IsCongested(loadOf(new GridPosition(x, y)))) count++;
-                }
+                if (IsCongested(GetLoad(new GridPosition(x, y)))) count++;
             }
             return count;
         }
@@ -125,12 +124,15 @@ namespace Citybuilder
             float w = WorstMultiplier();
             if (float.IsNaN(w) || w <= 1f) return 0f;
             float r = (w - 1f) / (MaxMultiplier - 1f);
+            if (float.IsNaN(r) || r < 0f) return 0f;
             return r > 1f ? 1f : r;
         }
 
         public int GrowthTickMultiplier()
         {
-            int ticks = (int)Math.Round(WorstMultiplier());
+            float worst = WorstMultiplier();
+            if (float.IsNaN(worst)) return 1;
+            int ticks = (int)Math.Round(worst);
             return ticks < 1 ? 1 : ticks;
         }
 

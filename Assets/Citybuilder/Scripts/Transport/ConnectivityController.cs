@@ -14,6 +14,8 @@ namespace Citybuilder
         public SettlementGrowthController Growth;
         [Tooltip("Сетка. Обязателен: даёт Grid для системы.")]
         public GridVisualizer GridVisualizer;
+        [Tooltip("Ручные постройки. Пусто = ищется на сцене.")]
+        public BuildingPlacementController Placement;
         [Header("Refresh")]
         [Tooltip("Пауза между пересчётами в секундах. Минимум 0.5.")]
         public float RefreshIntervalSec = 2f;
@@ -22,47 +24,25 @@ namespace Citybuilder
         private float timer;
 
         // Связанных клеток домов из последнего снимка. Системы нет — 0.
-        public int Connected
-        {
-            get
-            {
-                EnsureSystem();
-                if (connectivity == null) return 0;
-                return connectivity.ConnectedCount;
-            }
-        }
+        public int Connected { get { EnsureSystem(); return connectivity != null ? connectivity.ConnectedCount : 0; } }
 
         // Всего клеток домов из последнего снимка. Системы нет — 0.
-        public int Total
-        {
-            get
-            {
-                EnsureSystem();
-                if (connectivity == null) return 0;
-                return connectivity.TotalCount;
-            }
-        }
+        public int Total { get { EnsureSystem(); return connectivity != null ? connectivity.TotalCount : 0; } }
 
         // Доля связанных 0..1. Системы нет — 0.
-        public float Rate01
-        {
-            get
-            {
-                EnsureSystem();
-                if (connectivity == null) return 0f;
-                return connectivity.ConnectionRate01;
-            }
-        }
+        public float Rate01 { get { EnsureSystem(); return connectivity != null ? connectivity.ConnectionRate01 : 0f; } }
 
         // Дом связан, если хотя бы одна его клетка связана. Снимка нет — false.
         public bool IsHomeConnected(BuildingState home)
         {
-            if (home == null || home.Cells == null) return false;
+            if (home == null) return false;
             EnsureSystem();
             if (connectivity == null) return false;
-            for (int i = 0; i < home.Cells.Count; i++)
+            List<GridPosition> cells = home.Cells ?? (home.Definition != null ? home.Definition.CoversCells(home.Origin) : null);
+            if (cells == null) return false;
+            for (int i = 0; i < cells.Count; i++)
             {
-                if (connectivity.IsConnected(home.Cells[i])) return true;
+                if (connectivity.IsConnected(cells[i])) return true;
             }
             return false;
         }
@@ -100,6 +80,7 @@ namespace Citybuilder
         // Чинит ссылки после перезагрузки домена. Без ссылок гаснет с ошибкой.
         private bool EnsureReady()
         {
+            if (Placement == null) Placement = FindFirstObjectByType<BuildingPlacementController>();
             if (Store == null || Growth == null || GridVisualizer == null)
             {
                 Debug.LogError("ConnectivityController: задайте Store, Growth и GridVisualizer в Inspector.");
@@ -131,20 +112,26 @@ namespace Citybuilder
             return cells;
         }
 
-        // Все занятые клетки выросших домов. Роста нет — пустой набор.
+        // Все занятые клетки выросших и ручных домов.
         private List<GridPosition> CollectBuildingCells()
         {
             List<GridPosition> cells = new List<GridPosition>();
-            List<BuildingState> homes = Growth.Homes;
-            if (homes == null) return cells;
-            for (int i = 0; i < homes.Count; i++)
+            AppendBuildingCells(cells, Growth != null ? Growth.Homes : null);
+            AppendBuildingCells(cells, Placement != null ? Placement.Placed : null);
+            return cells;
+        }
+
+        private static void AppendBuildingCells(List<GridPosition> cells, IReadOnlyList<BuildingState> states)
+        {
+            if (states == null) return;
+            for (int i = 0; i < states.Count; i++)
             {
-                if (homes[i] == null) continue;
-                List<GridPosition> occupied = homes[i].Cells;
+                BuildingState state = states[i];
+                if (state == null) continue;
+                List<GridPosition> occupied = state.Cells ?? (state.Definition != null ? state.Definition.CoversCells(state.Origin) : null);
                 if (occupied == null) continue;
                 for (int c = 0; c < occupied.Count; c++) cells.Add(occupied[c]);
             }
-            return cells;
         }
 
         private void ClampInterval()
