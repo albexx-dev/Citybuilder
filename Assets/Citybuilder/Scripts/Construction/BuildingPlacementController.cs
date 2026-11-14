@@ -15,6 +15,8 @@ namespace Citybuilder
         public List<BuildingDefinition> Definitions = new List<BuildingDefinition>();
         [Tooltip("Казна для списания стоимости. Пусто = строить бесплатно.")]
         public TreasuryView TreasuryView;
+        [Tooltip("Контроллер сохранения.")]
+        public SaveController Save;
 
         private readonly ManualBuildingsStore store = new ManualBuildingsStore();
         private readonly PlacementGhostView ghostView = new PlacementGhostView();
@@ -46,6 +48,7 @@ namespace Citybuilder
                 enabled = false;
                 return false;
             }
+            if (Save == null) Save = FindFirstObjectByType<SaveController>();
             if (!EnsureSystem()) return false;
             if (Application.isPlaying) ghostView.Ensure(Definition, GridVisualizer, transform);
             return true;
@@ -94,6 +97,7 @@ namespace Citybuilder
             if (state == null) return false;
             store.Add(state, BuildingViewFactory.CreateView(state, GridVisualizer));
             GridVisualizer.RefreshOccupied();
+            if (Save != null) Save.MarkDirty();
             return true;
         }
 
@@ -116,13 +120,15 @@ namespace Citybuilder
             store.Clear(system, GridVisualizer);
         }
 
-        private void TryDemolish(GridPosition cell)
+        public bool TryDemolish(GridPosition cell)
         {
             BuildingState state = store.FindAt(cell);
-            if (state == null) return;
+            if (state == null) return false;
             system.Demolish(state);
             store.Demolish(state);
             GridVisualizer.RefreshOccupied();
+            if (Save != null) Save.MarkDirty();
+            return true;
         }
 
         private BuildingDefinition FindDefinition(string defId)

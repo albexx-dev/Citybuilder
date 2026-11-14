@@ -15,6 +15,8 @@ namespace Citybuilder
         public TreasuryView TreasuryView;
         [Tooltip("Вид дорог. Пусто = создастся на этом же объекте.")]
         public RoadView View;
+        [Tooltip("Контроллер сохранения.")]
+        public SaveController Save;
 
         [Header("Placement")]
         [Tooltip("Режим стройки дорог. Выключите, когда строите дома.")]
@@ -48,10 +50,12 @@ namespace Citybuilder
                 enabled = false;
                 return false;
             }
+            if (Save == null) Save = FindFirstObjectByType<SaveController>();
             if (View == null) View = GetComponent<RoadView>();
             if (View == null) View = gameObject.AddComponent<RoadView>();
             if (Store == null) Store = GetComponent<RoadNetworkStore>();
             if (Store == null) Store = gameObject.AddComponent<RoadNetworkStore>();
+            if (Store != null && Store.GridVisualizer == null) Store.GridVisualizer = GridVisualizer;
             return Store != null;
         }
 
@@ -116,22 +120,37 @@ namespace Citybuilder
         }
 
         // Раскладка превью в стор: свои клетки — пропуск, вид и занятость обновляются.
-        private void PlacePreviewed()
+        public void PlacePreviewed()
         {
+            int placed = 0;
             for (int i = 0; i < previewCells.Count; i++)
             {
-                if (!Store.IsOwnRoadCell(previewCells[i])) Store.Place(previewCells[i]);
+                if (!Store.IsOwnRoadCell(previewCells[i])) { Store.Place(previewCells[i]); placed++; }
             }
             Store.RefreshView();
             GridVisualizer.RefreshOccupied();
+            if (placed > 0 && Save != null) Save.MarkDirty();
         }
 
         // Снос ПКМ: поиск в сторе, снос и обновление вида.
-        private void TryDemolish(GridPosition cell)
+        public bool TryDemolish(GridPosition cell)
         {
             RoadState state = Store.FindStateAt(cell);
-            if (state == null) return;
-            if (Store.DemolishState(state)) Store.RefreshView();
+            if (state == null || !Store.DemolishState(state)) return false;
+            Store.RefreshView();
+            if (Save != null) Save.MarkDirty();
+            return true;
+        }
+
+        // Построить линию клеток: для тестов и программного ввода.
+        public bool PlaceLine(GridPosition from, GridPosition to)
+        {
+            if (!EnsureReady()) return false;
+            dragStart = from;
+            UpdatePreview(to);
+            if (!CheckCells()) { CancelDrag(); return false; }
+            CommitDrag();
+            return true;
         }
 
         private bool CheckCells()

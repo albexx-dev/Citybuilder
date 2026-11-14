@@ -12,6 +12,8 @@ namespace Citybuilder
         public GridVisualizer GridVisualizer;
         [Tooltip("Вид зон. Пусто = создастся на этом же объекте.")]
         public ZoneView View;
+        [Tooltip("Контроллер сохранения.")]
+        public SaveController Save;
 
         [Header("Brush")]
         [Tooltip("Тип зоны для кисти.")]
@@ -53,6 +55,7 @@ namespace Citybuilder
                 enabled = false;
                 return false;
             }
+            if (Save == null) Save = FindFirstObjectByType<SaveController>();
             if (View == null)
             {
                 View = GetComponent<ZoneView>();
@@ -112,14 +115,25 @@ namespace Citybuilder
 
         private void ApplyBrush(GridPosition cell)
         {
-            if (Input.GetMouseButton(0))
+            ZoneType target = Input.GetMouseButton(0) ? Brush : ZoneType.None;
+            ZoneType current = system.GetZone(cell);
+            if (current != target)
             {
-                system.SetZone(cell, Brush);
+                system.SetZone(cell, target);
+                if (Save != null) Save.MarkDirty();
             }
-            else
-            {
-                system.SetZone(cell, ZoneType.None);
-            }
+        }
+
+        // Покрасить зону клетки: для тестов и программного ввода.
+        public bool PaintZoneAt(GridPosition cell, ZoneType target)
+        {
+            if (!EnsureReady() || system == null) return false;
+            ZoneType current = system.GetZone(cell);
+            if (current == target) return false;
+            system.SetZone(cell, target);
+            RefreshView();
+            if (Save != null) Save.MarkDirty();
+            return true;
         }
 
         private void RefreshView()

@@ -13,6 +13,7 @@ namespace Citybuilder
         [Tooltip("Вид выросших домов. Пусто = создастся на этом же объекте.")] public SettlementView View;
         [Tooltip("Казна для оплаты роста. Пусто = рост бесплатный.")] public TreasuryView Treasury;
         [Tooltip("Драйвер часов. Обязателен: даёт тики часов для роста.")] public SimulationRunner Runner;
+        [Tooltip("Контроллер сохранения.")] public SaveController Save;
         [Header("Transport")]
         [Tooltip("Пробки. Пусто = рост без пробок.")] public CongestionController Congestion;
         [Tooltip("Дефицит энергии/воды/мусора. Пусто = рост без штрафа.")] public SupplyGrowthController SupplyGrowth;
@@ -70,6 +71,7 @@ namespace Citybuilder
                 enabled = false;
                 return false;
             }
+            if (Save == null) Save = FindFirstObjectByType<SaveController>();
             if (Definitions == null) Definitions = new List<BuildingDefinition>();
             for (int i = Definitions.Count - 1; i >= 0; i--) if (Definitions[i] == null) Definitions.RemoveAt(i);
             if (Definitions.Count == 0)
@@ -110,6 +112,7 @@ namespace Citybuilder
             lastGrownZone = ZonePainter.Zones.GetZone(verdict.Origin);
             View.AddBuilding(state, verdict.Definition, GridVisualizer.Grid.CellSize);
             GridVisualizer.RefreshOccupied();
+            if (Save != null) Save.MarkDirty();
         }
         // Восстановить выросший дом из сохранения: без оплаты, вид и занятость обновляются.
         public BuildingState RestoreGrown(string defId, GridPosition origin)
@@ -143,6 +146,7 @@ namespace Citybuilder
             View.RemoveBuilding(state);
             states.Remove(state);
             GridVisualizer.RefreshOccupied();
+            if (Save != null) Save.MarkDirty();
         }
         private void ClampLimits() { TicksPerGrowth = Mathf.Max(1, TicksPerGrowth); MaxSettlements = Mathf.Max(1, MaxSettlements); }
     }
