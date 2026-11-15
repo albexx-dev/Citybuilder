@@ -71,14 +71,14 @@ namespace Citybuilder
             return false;
         }
 
-        // Свободная незонированная клетка внутри карты.
+        // Свободная незонированная клетка внутри карты. Кисть зон недоступна — фильтр зон пропускается.
         public bool CanPlaceAt(GridPosition cell)
         {
             if (GridVisualizer == null) return false;
             if (!GridVisualizer.Grid.IsInside(cell) || GridVisualizer.Grid.IsOccupied(cell)) return false;
-            if (ZonePainter == null) return false;
+            if (ZonePainter == null) return true;
             ZoneSystem zones = ZonePainter.Zones;
-            return zones != null && zones.GetZone(cell) != ZoneType.None;
+            return zones == null || zones.GetZone(cell) == ZoneType.None;
         }
 
         // ЛКМ: поставить выбранный вид, заменив существующий декор на клетке.
