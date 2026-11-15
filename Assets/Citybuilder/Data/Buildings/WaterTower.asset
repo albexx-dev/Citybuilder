@@ -19,7 +19,7 @@ MonoBehaviour:
   UnlockBuildings: 0
   AllowedZone: 3
   ResidentCapacity: 0
-  JobsProvided: 1
+  JobsProvided: 2
   ServiceKind: 0
   ServiceRadius: 0
   PowerDemand: 0
@@ -28,6 +28,6 @@ MonoBehaviour:
   WaterOutput: 12
   WasteOutput: 0
   WasteCapacity: 0
-  UpkeepPerHour: 6
+  UpkeepPerHour: 3
   VariantCount: 1
   Prefab: {fileID: 8099908136520659039, guid: 1d1a1d653ef28bd40a631fbd5831a198, type: 3}
