@@ -2,8 +2,10 @@ using System;
 
 namespace Citybuilder
 {
-    // Налоговая политика города: три уровня и ставка за работающего.
-    // Чистая логика без Unity: текущий уровень хранит сам объект.
+    // Налоговая политика города (эпик #49): три зоны — Жилая/Коммерция/Промзона, у каждой
+    // своя лестница 2/4/6 за работающего (ребаланс 171), дефолт 4/4/4. Чистая логика без Unity.
+    // Ставки живут в памяти сцены. Сейв v4 хранит один уровень: раздельные ставки не
+    // сохраняются (сейв v5 — эпик #64), после загрузки все зоны равны сохранённой ставке.
     public class TaxPolicy
     {
         public enum Level
@@ -13,70 +15,118 @@ namespace Citybuilder
             High
         }
 
-        private Level current = Level.Normal;
+        private Level residential = Level.Normal;
+        private Level commercial = Level.Normal;
+        private Level industrial = Level.Normal;
 
-        // Текущий уровень. Неизвестное значение не хранится: всегда Normal.
-        public Level Current
+        // Уровень зоны. None и битые значения — обычный.
+        public Level LevelFor(ZoneType zone)
         {
-            get { return current; }
+            if (zone == ZoneType.Residential) return residential;
+            if (zone == ZoneType.Commercial) return commercial;
+            if (zone == ZoneType.Industrial) return industrial;
+            return Level.Normal;
         }
 
-        // Ставка за одного работающего за час: низкий 2, обычный 4, высокий 6 (ребаланс 171).
-        public int PerWorker
+        // Ставка за одного работающего в час: низкая 2, обычная 4, высокая 6. Вне зон — 0.
+        public int RateFor(ZoneType zone)
         {
-            get
+            if (zone == ZoneType.None) return 0;
+            switch (LevelFor(zone))
             {
-                switch (current)
-                {
-                    case Level.Low:
-                        return 2;
-                    case Level.High:
-                        return 6;
-                    default:
-                        return 4;
-                }
+                case Level.Low:
+                    return 2;
+                case Level.High:
+                    return 6;
+                default:
+                    return 4;
             }
         }
 
-        // Текст кнопки HUD: «Налог: обычный (2)».
-        public string Label
+        // Сменить уровень зоны: битый уровень — обычный, None игнорируется.
+        public void SetZone(ZoneType zone, Level level)
         {
-            get { return "Налог: " + NameOf(current) + " (" + PerWorker + ")"; }
+            Level safe = IsKnown(level) ? level : Level.Normal;
+            if (zone == ZoneType.Residential) residential = safe;
+            else if (zone == ZoneType.Commercial) commercial = safe;
+            else if (zone == ZoneType.Industrial) industrial = safe;
         }
 
-        // Сбор за час при таком числе работающих. Работающих нет — 0.
+        // Следующий уровень зоны по кругу: низкий → обычный → высокий → низкий.
+        public Level NextZone(ZoneType zone)
+        {
+            SetZone(zone, Step(LevelFor(zone), 1));
+            return LevelFor(zone);
+        }
+
+        // Сбор за час с зоны: занятые зоны × ставка. Работающих нет или ставка 0 — 0.
+        public int IncomeForZone(ZoneType zone, int zoneEmployed)
+        {
+            if (zoneEmployed <= 0) return 0;
+            return zoneEmployed * RateFor(zone);
+        }
+
+        // Строка бюджета для зоны: «Жилая: обычный (4) +8 $/ч».
+        public string ZoneLabel(ZoneType zone, int zoneEmployed)
+        {
+            return ZoneName(zone) + ": " + NameOf(LevelFor(zone)) + " (" + RateFor(zone) + ") "
+                + "+" + IncomeForZone(zone, zoneEmployed) + " $/ч";
+        }
+
+        // === Совместимость с одной ставкой (сейв v4 и старый HUD) ===
+
+        // Уровень жилой зоны: в сейв v4 пишется одна ставка (v5 — эпик #64).
+        public Level Current
+        {
+            get { return residential; }
+        }
+
+        // Старое свойство: ставка жилой зоны.
+        public int PerWorker
+        {
+            get { return RateFor(ZoneType.Residential); }
+        }
+
+        // Один уровень всем зонам: новая игра и чтение v4 («старая ставка на всё»).
+        public void Set(Level level)
+        {
+            Level safe = IsKnown(level) ? level : Level.Normal;
+            residential = safe;
+            commercial = safe;
+            industrial = safe;
+        }
+
+        // Подпись старой кнопки HUD: «Налог: обычный (4)». Временное: удалится с переработкой UI.
+        public string Label
+        {
+            get { return "Налог: " + NameOf(residential) + " (" + PerWorker + ")"; }
+        }
+
+        // Сбор за час по жилой ставке (старое поведение). Временное: удалится с переработкой UI.
         public int Income(int employed)
         {
             if (employed <= 0) return 0;
             return employed * PerWorker;
         }
 
-        // Следующий уровень по кругу: низкий → обычный → высокий → низкий.
+        // Цикл уровня жилой зоны (старая кнопка). Временное: удалится с переработкой UI.
         public Level Next()
         {
-            Set(Step(current, 1));
-            return current;
+            SetZone(ZoneType.Residential, Step(residential, 1));
+            return residential;
         }
 
-        // Предыдущий уровень по кругу: низкий → высокий → обычный → низкий.
+        // Обратный цикл жилой зоны. Временное: удалится с переработкой UI.
         public Level Previous()
         {
-            Set(Step(current, -1));
-            return current;
-        }
-
-        // Неизвестное значение enum (например, из старого слота) — обычный налог.
-        public void Set(Level level)
-        {
-            current = IsKnown(level) ? level : Level.Normal;
+            SetZone(ZoneType.Residential, Step(residential, -1));
+            return residential;
         }
 
         private static Level Step(Level level, int delta)
         {
             Level safe = IsKnown(level) ? level : Level.Normal;
-            int count = 3;
-            int index = ((int)safe + delta + count) % count;
-            return (Level)index;
+            return (Level)(((int)safe + delta + 3) % 3);
         }
 
         private static bool IsKnown(Level level)
@@ -86,15 +136,16 @@ namespace Citybuilder
 
         private static string NameOf(Level level)
         {
-            switch (level)
-            {
-                case Level.Low:
-                    return "низкий";
-                case Level.High:
-                    return "высокий";
-                default:
-                    return "обычный";
-            }
+            if (level == Level.Low) return "низкий";
+            if (level == Level.High) return "высокий";
+            return "обычный";
+        }
+
+        private static string ZoneName(ZoneType zone)
+        {
+            if (zone == ZoneType.Commercial) return "Коммерция";
+            if (zone == ZoneType.Industrial) return "Промзона";
+            return "Жилая";
         }
     }
 }
