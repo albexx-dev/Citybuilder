@@ -1,10 +1,10 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Citybuilder
 {
-    // Нижняя панель действий (EPIC-13): скорости, режимы, палитра/кисти и кнопки меню.
+    // Нижняя панель действий (EPIC-13): скорости, режимы, кисти зон и кнопки меню.
     // Вешать на Grid. Все прямоугольники берутся из HudLayout и регистрируются в UiClickGuard.
+    // Каталог зданий (задача 173) вынесен в BuildCatalogView.
     public class BottomBarView : MonoBehaviour
     {
         [Header("References")]
@@ -29,6 +29,7 @@ namespace Citybuilder
             DrawSpeedGroup(HudLayout.SpeedGroupRect(sw, sh));
             DrawModeGroup(HudLayout.ModeGroupRect(sw, sh));
             DrawMenuGroup(HudLayout.MenuButtonsRect(sw, sh));
+            BuildCatalogView.ResetGuards();
             DrawSubRow(sw, sh);
         }
 
@@ -108,7 +109,9 @@ namespace Citybuilder
             }
             if (Menu != null && Menu.CurrentMode == BuildModeMenu.Mode.Houses && Palette != null && Palette.Definitions != null && Palette.Definitions.Count > 0)
             {
-                DrawPaletteRow(sw, sh, Palette.Definitions);
+                // Строка палитры заменена каталогом с вкладками и скроллом (задача 173).
+                UiClickGuard.Set("bottom_subrow", new Rect());
+                BuildCatalogView.Draw(sw, sh, Palette.Definitions, Palette.Placement, Palette.Growth);
                 return;
             }
             UiClickGuard.Set("bottom_subrow", new Rect());
@@ -130,29 +133,5 @@ namespace Citybuilder
             }
         }
 
-        private void DrawPaletteRow(float sw, float sh, List<BuildingDefinition> defs)
-        {
-            Rect popup = HudLayout.PaletteRect(sw, sh, defs.Count);
-            UiClickGuard.Set("bottom_subrow", popup);
-            BottomBarStyle.DrawPopupBackground(popup);
-            int grown = Palette.Growth != null ? Palette.Growth.GrownCount : int.MaxValue;
-            for (int i = 0; i < defs.Count; i++)
-            {
-                BuildingDefinition def = defs[i];
-                if (def == null) continue;
-                float x = popup.x + i * (HudLayout.PaletteButtonWidth + HudLayout.ButtonGap);
-                Rect rect = new Rect(x, popup.y, HudLayout.PaletteButtonWidth, popup.height);
-                if (!UnlockPolicy.IsUnlocked(def, grown))
-                {
-                    BottomBarStyle.DrawDisabledButton(rect, def.DisplayName + " — " + UnlockPolicy.Remaining(def, grown) + " зд.");
-                    continue;
-                }
-                bool active = Palette.Placement != null && Palette.Placement.Definition == def;
-                if (BottomBarStyle.DrawButton(rect, def.DisplayName + " $" + def.ConstructionCost, active) && Palette.Placement != null)
-                {
-                    Palette.Placement.SetDefinition(def);
-                }
-            }
-        }
     }
 }
