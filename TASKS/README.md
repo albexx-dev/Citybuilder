@@ -33,7 +33,7 @@
 | #47 | [Криминал и полиция](EPIC-47-crime.md) | mechanics | not started |
 | #48 | [Квесты-вехи](EPIC-48-quests.md) | mechanics | not started |
 | #49 | [Налоги по типам зон](EPIC-49-zonal-taxes.md) | mechanics | not started |
-| #50 | [Блэкауты](EPIC-50-blackouts.md) | mechanics | not started |
+| #50 | [Блэкауты](EPIC-50-blackouts.md) | mechanics | **done** (task/188) |
 | #51 | [Апгрейд служб](EPIC-51-service-upgrades.md) | mechanics | not started |
 | #52 | [Мусоровозы](EPIC-52-garbage-trucks.md) | mechanics | not started |
 | #53 | [Баланс-проход v1.2](EPIC-53-balance-v12.md) | mechanics | not started |
@@ -41,14 +41,14 @@
 | #55 | [CREDITS.md](EPIC-55-credits.md) | content | **done** (task/163) |
 | #56 | [Деревья и декор](EPIC-56-decor.md) | content | **done** (task/165) |
 | #57 | [Земля и свет](EPIC-57-ground-light.md) | content | **done** (task/167) |
-| #58 | [День/ночь](EPIC-58-day-night.md) | ux | not started |
-| #59 | [Уровни зданий](EPIC-59-house-levels.md) | ux | not started |
+| #58 | [День/ночь](EPIC-58-day-night.md) | ux | **done** (task/184) |
+| #59 | [Уровни зданий](EPIC-59-house-levels.md) | ux | **done** (task/185) |
 | #60 | [Модели транспорта](EPIC-60-vehicle-models.md) | content | **done** (task/177) |
-| #61 | [Стройплощадки](EPIC-61-construction-sites.md) | content | not started |
-| #62 | [Оптимизация агентов](EPIC-62-agent-perf.md) | architecture | not started |
-| #63 | [Статистика-ядро](EPIC-63-metrics-core.md) | architecture | not started |
+| #61 | [Стройплощадки](EPIC-61-construction-sites.md) | content | **done** (task/186) |
+| #62 | [Оптимизация агентов](EPIC-62-agent-perf.md) | architecture | **done** (task/181) |
+| #63 | [Статистика-ядро](EPIC-63-metrics-core.md) | architecture | **done** (task/182; интеграция + гард в task/183) |
 | #64 | [Сейв v5](EPIC-64-save-v5.md) | architecture | not started |
-| #65 | [Техдолг #42 + сплиты](EPIC-65-tech-debt.md) | architecture | not started |
+| #65 | [Техдолг #42 + сплиты](EPIC-65-tech-debt.md) | architecture | **done** (task/183) |
 | #66 | [Иконки UI + тултипы](EPIC-66-ui-icons.md) | ux | not started |
 | #67 | [Мини-карта](EPIC-67-minimap.md) | ux | not started |
 | #68 | [Графики в инфоменю](EPIC-68-graphs.md) | ux | not started |
