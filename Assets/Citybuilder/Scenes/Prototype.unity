@@ -344,6 +344,7 @@ GameObject:
   - component: {fileID: 985593193}
   - component: {fileID: 985593195}
   - component: {fileID: 985593196}
+  - component: {fileID: 985593197}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -1091,6 +1092,23 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f754da2c829b92e4cbfefed16cf81c88, type: 2}
   RefreshInterval: 0.5
   placementActive: 1
+--- !u!114 &985593197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a5b8e8e95814ecfaf5300c34e16eabd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.HouseLevelController
+  Growth: {fileID: 985593158}
+  Services: {fileID: 985593181}
+  Power: {fileID: 985593170}
+  Water: {fileID: 985593172}
+  Waste: {fileID: 985593175}
 --- !u!1 &1069481158
 GameObject:
   m_ObjectHideFlags: 0
