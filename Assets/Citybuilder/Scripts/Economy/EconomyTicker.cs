@@ -21,10 +21,15 @@ namespace Citybuilder
         private EmploymentSystem employment;
         private TaxSystem tax;
         private readonly SoundCooldownPolicy soundPolicy = new SoundCooldownPolicy();
+        private readonly EventThrottlePolicy eventThrottle = new EventThrottlePolicy(10);
 
         public TaxSystem Tax { get { EnsureSystems(); return tax; } }
 
-        public void ResetSound() { soundPolicy.Reset(); }
+        public void ResetSound()
+        {
+            soundPolicy.Reset();
+            eventThrottle.Reset();
+        }
 
         public int PerWorker
         {
@@ -124,22 +129,31 @@ namespace Citybuilder
             if (EventLog == null) return;
             CityEventLog log = EventLog.Log;
             int before = log.Count;
-            if (Growth != null && Growth.SupplyGrowth != null) Growth.SupplyGrowth.ReportTick(log, tick);
-            if (Growth != null && Growth.Congestion != null && Growth.Congestion.GrowthTickMultiplier > 1)
+            // Троттлинг по виду события: сообщения с меняющимися числами («Энергия 46%»)
+            // обходят дедуп по строке — каждый вид проходит не чаще раза в 10 тиков.
+            if (Growth != null && Growth.SupplyGrowth != null
+                && eventThrottle.Allow(EventKind.Supply.ToString(), tick))
+            {
+                Growth.SupplyGrowth.ReportTick(log, tick);
+            }
+            if (Growth != null && Growth.Congestion != null && Growth.Congestion.GrowthTickMultiplier > 1
+                && eventThrottle.Allow(EventKind.Congestion.ToString(), tick))
             {
                 log.Add(EventKind.Congestion, "Пробки замедляют рост ×" + Growth.Congestion.GrowthTickMultiplier, tick);
             }
             if (Treasury != null && Treasury.Treasury != null && Treasury.Treasury.IsInDeficit
+                && eventThrottle.Allow(EventKind.Treasury.ToString(), tick)
                 && soundPolicy.ShouldPlayDeficit(Time.unscaledTime))
             {
                 log.Add(EventKind.Treasury, "Дефицит казны: баланс $" + Treasury.Treasury.Balance, tick);
             }
-            if (employment != null && Population.Population.TotalResidents > 0 && employment.EmploymentRate < Population.MinEmployment)
+            if (employment != null && Population.Population.TotalResidents > 0 && employment.EmploymentRate < Population.MinEmployment
+                && eventThrottle.Allow(EventKind.Employment.ToString(), tick))
             {
                 int pct = (int)Math.Round(employment.EmploymentRate * 100f);
                 log.Add(EventKind.Employment, "Высокая безработица: занятость " + pct + "%", tick);
             }
-            if (log.Count > before) AudioController.PlayPopGlobal();
+            if (log.Count > before && soundPolicy.ShouldPlayDeficit(Time.unscaledTime)) AudioController.PlayPopGlobal();
         }
 
         private void ClampLimits()
