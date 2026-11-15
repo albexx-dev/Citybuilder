@@ -223,6 +223,7 @@ GameObject:
   - component: {fileID: 985593192}
   - component: {fileID: 985593193}
   - component: {fileID: 985593195}
+  - component: {fileID: 985593196}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -343,6 +344,7 @@ MonoBehaviour:
   Roads: {fileID: 0}
   Zones: {fileID: 0}
   Growth: {fileID: 0}
+  Decor: {fileID: 985593196}
 --- !u!114 &985593158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -946,6 +948,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Citybuilder::Citybuilder.GridGroundBuilder
   Visualizer: {fileID: 0}
+--- !u!114 &985593196
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f38c48afd414b1d85bd719f44711f4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.DecorPlacementController
+  GridVisualizer: {fileID: 985593152}
+  ZonePainter: {fileID: 985593156}
+  Definitions:
+  - {fileID: 11400000, guid: 6d2e9922f9078e24c90561c028ad10dc, type: 2}
+  - {fileID: 11400000, guid: 9fed013971e19dd41b519a57c2371f58, type: 2}
+  - {fileID: 11400000, guid: 14c0b9ec31bcf7c4986a5c267f779e75, type: 2}
+  - {fileID: 11400000, guid: f754da2c829b92e4cbfefed16cf81c88, type: 2}
+  RefreshInterval: 0.5
+  placementActive: 1
 --- !u!1 &1069481158
 GameObject:
   m_ObjectHideFlags: 0

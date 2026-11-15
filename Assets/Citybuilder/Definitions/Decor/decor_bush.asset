@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55df654675d94c8aa705cf5e6e71b3e0, type: 3}
+  m_Name: decor_bush
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.DecorDefinition
+  Id: decor_bush
+  DisplayName: "\u041A\u0443\u0441\u0442"
+  Prefab: {fileID: 8137799578177506489, guid: 2ad2a4dfc4c533a41b8009cbbff8bb22, type: 3}

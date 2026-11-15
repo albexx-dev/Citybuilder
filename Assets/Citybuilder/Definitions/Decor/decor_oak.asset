@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55df654675d94c8aa705cf5e6e71b3e0, type: 3}
+  m_Name: decor_oak
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.DecorDefinition
+  Id: decor_oak
+  DisplayName: "\u0414\u0443\u0431"
+  Prefab: {fileID: 4470056959515818908, guid: 45ab2f8bed1f7284584b5c5af15381c4, type: 3}
