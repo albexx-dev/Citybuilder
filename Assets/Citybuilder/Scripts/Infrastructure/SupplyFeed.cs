@@ -55,12 +55,14 @@ namespace Citybuilder
         }
 
         // Одно здание в баланс: спрос и генерация только больше нуля.
+        // Генерация масштабируется уровнем здания (EPIC-51): ×1.5 за уровень, ceil.
         private void AddState(BuildingState state)
         {
             if (state == null || state.Definition == null) return;
             BuildingDefinition def = state.Definition;
             int demand = demandOf != null ? demandOf(def) : 0;
             int output = outputOf != null ? outputOf(def) : 0;
+            output = BuildingLevelPolicy.ScaledOutput(output, state.Level);
             if (demand > 0) balance.SetDemand(state.Id, demand);
             if (output > 0) balance.SetSupply(state.Id, output);
         }
