@@ -59,9 +59,10 @@ namespace Citybuilder
             BuildModeMenu.Mode[] modes =
             {
                 BuildModeMenu.Mode.Off, BuildModeMenu.Mode.Houses,
-                BuildModeMenu.Mode.Roads, BuildModeMenu.Mode.Zones, BuildModeMenu.Mode.Growth
+                BuildModeMenu.Mode.Roads, BuildModeMenu.Mode.Zones, BuildModeMenu.Mode.Growth,
+                BuildModeMenu.Mode.Decor
             };
-            string[] labels = { "Выкл [Esc]", "Дома [1]", "Дороги [2]", "Зоны [3]", "Рост [4]" };
+            string[] labels = { "Выкл [Esc]", "Дома [1]", "Дороги [2]", "Зоны [3]", "Рост [4]", "Декор [5]" };
             for (int i = 0; i < modes.Length; i++)
             {
                 float x = group.x + i * (HudLayout.ModeButtonWidth + HudLayout.ButtonGap);
@@ -98,6 +99,11 @@ namespace Citybuilder
             if (Menu != null && Menu.CurrentMode == BuildModeMenu.Mode.Zones)
             {
                 DrawZoneBrushes(sw, sh);
+                return;
+            }
+            if (Menu != null && Menu.CurrentMode == BuildModeMenu.Mode.Decor)
+            {
+                DecorPaletteRow.Draw(sw, sh, Menu.Decor);
                 return;
             }
             if (Menu != null && Menu.CurrentMode == BuildModeMenu.Mode.Houses && Palette != null && Palette.Definitions != null && Palette.Definitions.Count > 0)
