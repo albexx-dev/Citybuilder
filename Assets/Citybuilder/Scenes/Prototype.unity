@@ -222,6 +222,7 @@ GameObject:
   - component: {fileID: 985593191}
   - component: {fileID: 985593192}
   - component: {fileID: 985593193}
+  - component: {fileID: 985593194}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -289,6 +290,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a015210d728444709bd5dffec23d9e31, type: 2}
   - {fileID: 11400000, guid: 21bb42cf2b4f491eaa3f8285ddbabd97, type: 2}
   TreasuryView: {fileID: 2007715384}
+  Save: {fileID: 0}
+  placementActive: 1
 --- !u!114 &985593155
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -305,6 +308,7 @@ MonoBehaviour:
   Store: {fileID: 985593164}
   TreasuryView: {fileID: 2007715384}
   View: {fileID: 985593165}
+  Save: {fileID: 0}
   placementActive: 1
 --- !u!114 &985593156
 MonoBehaviour:
@@ -320,6 +324,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.ZonePaintingController
   GridVisualizer: {fileID: 985593152}
   View: {fileID: 985593159}
+  Save: {fileID: 0}
   Brush: 1
   placementActive: 1
 --- !u!114 &985593157
@@ -355,6 +360,7 @@ MonoBehaviour:
   View: {fileID: 0}
   Treasury: {fileID: 2007715384}
   Runner: {fileID: 1821543313}
+  Save: {fileID: 0}
   Congestion: {fileID: 985593173}
   SupplyGrowth: {fileID: 985593182}
   Definitions:
@@ -406,6 +412,8 @@ MonoBehaviour:
   Pause: {fileID: 0}
   Main: {fileID: 0}
   Save: {fileID: 0}
+  SaveMenu: {fileID: 0}
+  LoadMenu: {fileID: 0}
 --- !u!114 &985593162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -438,6 +446,11 @@ MonoBehaviour:
   Growth: {fileID: 985593158}
   View: {fileID: 0}
   PopulationSource: {fileID: 1069481159}
+  ModeMenu: {fileID: 0}
+  PauseMenu: {fileID: 0}
+  SaveMenu: {fileID: 0}
+  LoadMenu: {fileID: 0}
+  MainMenu: {fileID: 0}
 --- !u!114 &985593164
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -506,6 +519,7 @@ MonoBehaviour:
   Store: {fileID: 985593164}
   Growth: {fileID: 985593158}
   GridVisualizer: {fileID: 985593152}
+  Placement: {fileID: 0}
   RefreshIntervalSec: 2
 --- !u!114 &985593169
 MonoBehaviour:
@@ -867,6 +881,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Citybuilder::Citybuilder.SaveMenuView
   Save: {fileID: 1432023086}
+  Runner: {fileID: 0}
+  Pause: {fileID: 0}
 --- !u!114 &985593191
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -880,6 +896,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Citybuilder::Citybuilder.LoadMenuView
   Load: {fileID: 1432023088}
+  Runner: {fileID: 0}
+  Pause: {fileID: 0}
 --- !u!114 &985593192
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -915,6 +933,28 @@ MonoBehaviour:
   CoinClip: {fileID: 8300000, guid: 7b4e1a9d3c8542e09f1a6d2c8e4b5032, type: 3}
   PopClip: {fileID: 8300000, guid: 7b4e1a9d3c8542e09f1a6d2c8e4b5033, type: 3}
   SwooshClip: {fileID: 8300000, guid: 7b4e1a9d3c8542e09f1a6d2c8e4b5034, type: 3}
+--- !u!114 &985593194
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ceeeab625170a078b78904bc0f8dfe7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.DecorManager
+  Visualizer: {fileID: 985593152}
+  ZonePainter: {fileID: 985593156}
+  DecorPrefabs:
+  - {fileID: 4470056959515818908, guid: 45ab2f8bed1f7284584b5c5af15381c4, type: 3}
+  - {fileID: 8639678678474083894, guid: f033d722b1f7a0f41b745f9fd8aaeb44, type: 3}
+  - {fileID: 1933987435088256822, guid: 202e93482ddec3149bbcf37d2866f7f3, type: 3}
+  - {fileID: 8137799578177506489, guid: 2ad2a4dfc4c533a41b8009cbbff8bb22, type: 3}
+  Chance: 0.15
+  RefreshInterval: 0.5
+  DecorScale: 2
 --- !u!1 &1069481158
 GameObject:
   m_ObjectHideFlags: 0
@@ -948,6 +988,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.PopulationController
   Growth: {fileID: 985593158}
   View: {fileID: 0}
+  Runner: {fileID: 0}
   Power: {fileID: 985593170}
   Water: {fileID: 0}
   Waste: {fileID: 0}
@@ -1082,6 +1123,7 @@ MonoBehaviour:
   Roads: {fileID: 985593164}
   Policy: {fileID: 0}
   Placement: {fileID: 0}
+  Congestion: {fileID: 0}
 --- !u!114 &1432023089
 MonoBehaviour:
   m_ObjectHideFlags: 0
