@@ -37,10 +37,7 @@ namespace Citybuilder
 
         public AgentManager(CongestionSystem congestion) { this.congestion = congestion; }
 
-        public int ActiveCount
-        {
-            get { int count = 0; for (int i = 0; i < MaxAgents; i++) if (agents[i].Active) count++; return count; }
-        }
+        public int ActiveCount { get { int count = 0; for (int i = 0; i < MaxAgents; i++) if (agents[i].Active) count++; return count; } }
 
         // Агент по индексу слота 0..MaxAgents-1 (для видов). Вне диапазона — неактивный.
         public VehicleAgent AgentAt(int index)
@@ -52,8 +49,11 @@ namespace Citybuilder
         public void OnGameHour(int hour, IReadOnlyList<GridPosition> homes, IReadOnlyList<GridPosition> works, IReadOnlyList<GridPosition> roads)
         {
             if (hour >= MorningStart && hour < MorningEnd) SpawnBatch(homes, works, roads);
-            else if (hour >= EveningStart && hour < EveningEnd) SpawnBatch(works, homes, roads);
+            else if (IsSpawnHour(hour)) SpawnBatch(works, homes, roads);
         }
+
+        // Единая проверка окна спавна (утро 7-9 / вечер 17-19): читают OnGameHour и хост.
+        public static bool IsSpawnHour(int hour) { return (hour >= MorningStart && hour < MorningEnd) || (hour >= EveningStart && hour < EveningEnd); }
 
         // Партия поездок за час окна: пары целей по вращающемуся курсору.
         private void SpawnBatch(IReadOnlyList<GridPosition> fromOrigins, IReadOnlyList<GridPosition> toOrigins, IReadOnlyList<GridPosition> roads)

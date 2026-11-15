@@ -51,6 +51,15 @@ namespace Citybuilder
         }
 
         [Test]
+        public void IsSpawnHour_TrueOnlyInMorningAndEveningWindows()
+        {
+            int[] inside = { 7, 8, 17, 18 };
+            int[] outside = { 0, 6, 9, 12, 16, 19, 23 };
+            for (int i = 0; i < inside.Length; i++) Assert.IsTrue(AgentManager.IsSpawnHour(inside[i]));
+            for (int i = 0; i < outside.Length; i++) Assert.IsFalse(AgentManager.IsSpawnHour(outside[i]));
+        }
+
+        [Test]
         public void EveningWindow_SpawnsWorkToHome()
         {
             AgentManager manager = MakeManager(Walk);
