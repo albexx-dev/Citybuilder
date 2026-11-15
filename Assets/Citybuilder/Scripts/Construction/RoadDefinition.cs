@@ -17,6 +17,9 @@ namespace Citybuilder
         [Tooltip("Стоимость одной клетки дороги. Не может быть отрицательной.")]
         public int CostPerCell = 10;
 
+        [Tooltip("Категория каталога (задача 173). Дороги ставятся режимом «Дороги», поле — под будущую дорогу-карточку.")]
+        public BuildingCategory Category = BuildingCategory.Roads;
+
         private void OnValidate()
         {
             if (string.IsNullOrWhiteSpace(Id))

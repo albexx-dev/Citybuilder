@@ -15,3 +15,4 @@ MonoBehaviour:
   Id: asphalt
   DisplayName: Asphalt Road
   CostPerCell: 10
+  Category: 0
