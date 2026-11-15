@@ -58,7 +58,8 @@ namespace Citybuilder
                 Pan(right * moveStep, forward * moveStep);
             }
             float wheel = Input.GetAxis("Mouse ScrollWheel");
-            if (wheel != 0f)
+            // Колесо над меню (в т.ч. скролл каталога, задача 173) не должно зумить камеру.
+            if (wheel != 0f && !UiClickGuard.IsOverMenu(Input.mousePosition))
             {
                 Zoom(wheel * boost);
             }

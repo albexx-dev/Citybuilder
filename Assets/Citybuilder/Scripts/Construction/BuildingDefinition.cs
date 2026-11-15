@@ -3,6 +3,19 @@ using UnityEngine;
 
 namespace Citybuilder
 {
+    // Категория здания в каталоге постройки (задача 173). Порядок = порядок вкладок каталога,
+    // числовые значения совпадают с YAML-полем Category ассетов. Фабрика сознательно в Commercial:
+    // заводы — коммерческая экономика, отдельная вкладка «Промзона» под один тип не нужна.
+    public enum BuildingCategory
+    {
+        Roads = 0,
+        Residential = 1,
+        Commercial = 2,
+        Service = 3,
+        Decor = 4,
+        Transport = 5
+    }
+
     // Статическое описание типа здания (V1 + EPIC-01/02/04/17).
     [CreateAssetMenu(menuName = "Citybuilder/Building Definition")]
     public class BuildingDefinition : ScriptableObject
@@ -42,6 +55,9 @@ namespace Citybuilder
         [Tooltip("Число визуальных вариантов (EPIC-17). Минимум 1.")] public int VariantCount = 1;
         [Tooltip("Префаб здания. Может быть пустым до готовности арта.")] public GameObject Prefab;
 
+        [Header("Catalog")]
+        [Tooltip("Вкладка каталога постройки (задача 173).")] public BuildingCategory Category = BuildingCategory.Residential;
+
         private void OnValidate()
         {
             if (string.IsNullOrWhiteSpace(Id)) Debug.LogWarning("BuildingDefinition: id is empty.", this);
@@ -59,6 +75,7 @@ namespace Citybuilder
             WasteOutput = Clamp(WasteOutput, "waste output");
             WasteCapacity = Clamp(WasteCapacity, "waste capacity");
             UpkeepPerHour = Clamp(UpkeepPerHour, "upkeep");
+            Category = SanitizeCategory(Category);
             if (VariantCount < 1) VariantCount = 1;
         }
 
@@ -70,6 +87,12 @@ namespace Citybuilder
         public static ServiceKind SanitizeServiceKind(ServiceKind kind)
         {
             return System.Enum.IsDefined(typeof(ServiceKind), kind) ? kind : ServiceKind.None;
+        }
+
+        // Битая категория (вне диапазона enum) откатывается к Residential — безопасный дефолт каталога.
+        public static BuildingCategory SanitizeCategory(BuildingCategory category)
+        {
+            return System.Enum.IsDefined(typeof(BuildingCategory), category) ? category : BuildingCategory.Residential;
         }
 
         // Детерминированный выбор варианта по EntityId (EPIC-17 шаг 2).

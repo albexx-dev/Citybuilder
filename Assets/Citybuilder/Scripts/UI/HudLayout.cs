@@ -18,6 +18,11 @@ namespace Citybuilder
         public const float SubRowOffset = 34f;
         public const float InfoMenuTop = 10f;
         public const float InfoMenuBottomGap = 8f;
+        // Каталог постройки (задача 173): карточки фиксированной ширины, переполнение скроллит CatalogScroll.
+        public const float CatalogCardWidth = 112f;
+        public const float CatalogCardHeight = 96f;
+        public const float CatalogBottomGap = 4f;
+        public const float CatalogRowGap = 6f;
 
         private const float BottomMargin = 72f;
         private const float LineStep = 24f;
@@ -91,6 +96,23 @@ namespace Citybuilder
             float width = Mathf.Min(count * PaletteButtonWidth + (count - 1) * ButtonGap, maxWidth);
             float y = Mathf.Max(0f, BottomBarRect(screenWidth, screenHeight).y - SubRowOffset);
             return new Rect(mode.x, y, Mathf.Max(0f, width), ButtonHeight);
+        }
+
+        // Лента карточек каталога: ширина по содержимому (PaletteRect-образец), переполнение скроллится.
+        public static Rect CatalogCardsRect(float screenWidth, float screenHeight, int itemCount)
+        {
+            if (itemCount <= 0) return new Rect();
+            float content = itemCount * CatalogCardWidth + (itemCount - 1) * ButtonGap;
+            float width = Mathf.Min(content, Mathf.Max(0f, screenWidth - 2f * BarPadding));
+            float y = BottomBarRect(screenWidth, screenHeight).y - CatalogBottomGap - CatalogCardHeight;
+            return new Rect(BarPadding, y, width, CatalogCardHeight);
+        }
+
+        // Ряд вкладок категорий над лентой: полная ширина экрана; ярлыки, не поместившиеся, скроллятся.
+        public static Rect CatalogTabsRect(float screenWidth, float screenHeight)
+        {
+            float y = CatalogCardsRect(screenWidth, screenHeight, 1).y - CatalogRowGap - ButtonHeight;
+            return new Rect(BarPadding, y, Mathf.Max(0f, screenWidth - 2f * BarPadding), ButtonHeight);
         }
 
         // Информационное меню справа (~половина экрана), всегда выше нижней панели и её попапа.
