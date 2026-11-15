@@ -16,6 +16,7 @@ MonoBehaviour:
   DisplayName: Police Station
   Footprint: {x: 2, y: 2}
   ConstructionCost: 250
+  ConstructionTicks: 5
   UnlockBuildings: 0
   AllowedZone: 2
   ResidentCapacity: 0

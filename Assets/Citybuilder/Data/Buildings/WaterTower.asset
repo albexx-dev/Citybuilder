@@ -16,6 +16,7 @@ MonoBehaviour:
   DisplayName: Water Tower
   Footprint: {x: 2, y: 2}
   ConstructionCost: 250
+  ConstructionTicks: 4
   UnlockBuildings: 0
   AllowedZone: 3
   ResidentCapacity: 0

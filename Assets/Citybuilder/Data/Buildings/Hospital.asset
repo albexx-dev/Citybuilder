@@ -16,6 +16,7 @@ MonoBehaviour:
   DisplayName: Hospital
   Footprint: {x: 3, y: 3}
   ConstructionCost: 500
+  ConstructionTicks: 5
   UnlockBuildings: 12
   AllowedZone: 2
   ResidentCapacity: 0
