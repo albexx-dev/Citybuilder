@@ -96,33 +96,6 @@ namespace Citybuilder
             industrial = safe;
         }
 
-        // Подпись старой кнопки HUD: «Налог: обычный (4)». Временное: удалится с переработкой UI.
-        public string Label
-        {
-            get { return "Налог: " + NameOf(residential) + " (" + PerWorker + ")"; }
-        }
-
-        // Сбор за час по жилой ставке (старое поведение). Временное: удалится с переработкой UI.
-        public int Income(int employed)
-        {
-            if (employed <= 0) return 0;
-            return employed * PerWorker;
-        }
-
-        // Цикл уровня жилой зоны (старая кнопка). Временное: удалится с переработкой UI.
-        public Level Next()
-        {
-            SetZone(ZoneType.Residential, Step(residential, 1));
-            return residential;
-        }
-
-        // Обратный цикл жилой зоны. Временное: удалится с переработкой UI.
-        public Level Previous()
-        {
-            SetZone(ZoneType.Residential, Step(residential, -1));
-            return residential;
-        }
-
         private static Level Step(Level level, int delta)
         {
             Level safe = IsKnown(level) ? level : Level.Normal;
