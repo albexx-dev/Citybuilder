@@ -43,8 +43,20 @@ namespace Citybuilder
             info.WaterRate01 = Sanitize01(waterRate01);
             info.WasteRate01 = Sanitize01(wasteRate01);
             info.RoadConnected = isRoadConnected != null && isRoadConnected(state);
+            info.UpgradePrice = UpgradeController.PriceFor(def, state.Level);
+            info.Upgradeable = info.UpgradePrice > 0;
             FillServiceFields(ref info, state, grownHomes, services);
             return info;
+        }
+
+        // Состояние здания по клетке для команд над выбранной панелью (апгрейд, EPIC-51). Нет — null.
+        public static BuildingState FindStateAt(
+            GridPosition cell,
+            IReadOnlyList<BuildingState> grownHomes,
+            IReadOnlyList<BuildingState> manualBuildings)
+        {
+            bool isGrown;
+            return FindAt(cell, grownHomes, manualBuildings, out isGrown);
         }
 
         // Список клеток внутри сетки, покрытых кругом станции (единая математика через ServiceCoverage).
