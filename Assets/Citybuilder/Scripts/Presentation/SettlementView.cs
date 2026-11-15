@@ -12,12 +12,13 @@ namespace Citybuilder
 
         private readonly Dictionary<EntityId, GameObject> views = new Dictionary<EntityId, GameObject>();
 
-        // Ставит вид и запоминает по Id. При skipConstructionStage=true (сейв/лоад) здание сразу готовое.
-        public GameObject AddBuilding(BuildingState state, BuildingDefinition def, float cellSize, bool skipConstructionStage = false)
+        // Ставит вид по Id; skipConstructionStage=true — сразу готовое; powered=false — вид «обесточено».
+        public GameObject AddBuilding(BuildingState state, BuildingDefinition def, float cellSize,
+            bool skipConstructionStage = false, bool powered = true)
         {
             if (state == null || def == null) return null;
             RemoveBuilding(state);
-            GameObject go = SpawnView(state, def, cellSize, skipConstructionStage);
+            GameObject go = SpawnView(state, def, cellSize, skipConstructionStage, powered);
             if (go == null) return null;
             views[state.Id] = go;
             return go;
@@ -38,7 +39,7 @@ namespace Citybuilder
             views.Clear();
         }
 
-        private GameObject SpawnView(BuildingState state, BuildingDefinition def, float cellSize, bool skipConstructionStage)
+        private GameObject SpawnView(BuildingState state, BuildingDefinition def, float cellSize, bool skipConstructionStage, bool powered)
         {
             Vector3 at = FootprintCenter(state.Origin, def, cellSize, 0f);
             bool constructing = !skipConstructionStage && def.ConstructionTicks > 0;
@@ -48,14 +49,17 @@ namespace Citybuilder
                 {
                     return ConstructionSiteView.Spawn(transform, at, def, cellSize,
                         ConstructionSiteView.TargetScale(def, cellSize), null,
-                        delegate { AddBuilding(state, def, cellSize, true); }).gameObject;
+                        delegate { AddBuilding(state, def, cellSize, true, powered); }).gameObject;
                 }
                 GameObject prefab = Instantiate(def.Prefab, at, Quaternion.identity, transform);
                 float scale = LevelScale(state.Level, false);
                 prefab.transform.localScale = Vector3.Scale(def.Prefab.transform.localScale, new Vector3(scale, scale, scale));
+                if (!powered) BlackoutViewStyle.Apply(prefab);
                 return prefab;
             }
-            return BuildCube(state, def, cellSize, constructing);
+            GameObject cube = BuildCube(state, def, cellSize, constructing);
+            if (!powered) BlackoutViewStyle.Apply(cube);
+            return cube;
         }
 
         private GameObject BuildCube(BuildingState state, BuildingDefinition def, float cellSize, bool constructing)

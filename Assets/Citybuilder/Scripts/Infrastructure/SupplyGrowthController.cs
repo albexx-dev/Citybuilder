@@ -14,6 +14,7 @@ namespace Citybuilder
         [Tooltip("Лента событий города (EPIC-09). Пусто = ищется на этом же объекте.")] public EventLogView EventLog;
 
         private bool hadDeficit;
+        private int lastBlackoutCount;
 
         // Во сколько раз дольше растёт дом при худшем дефиците. Без ссылок — 1.
         public int GrowthTickMultiplier
@@ -36,6 +37,24 @@ namespace Citybuilder
             float g = Waste != null ? Waste.Rate01 : 1f;
             string line = EvaluateSupplyEvent(p, w, g, ref hadDeficit);
             if (!string.IsNullOrEmpty(line)) log.Add(EventKind.Supply, line, tick);
+        }
+
+        // Блэкаут (EPIC-50): в ленту только при изменении числа отключённых — дедуп по строке
+        // не спасает от меняющегося N (issue #63), поэтому гейт по изменению, без троттлинга.
+        public void ReportBlackout(CityEventLog log, int tick)
+        {
+            if (log == null || Power == null) return;
+            int count = Power.UnpoweredCount;
+            if (count == lastBlackoutCount) return;
+            lastBlackoutCount = count;
+            log.Add(EventKind.Blackout, BlackoutMessage(count), tick);
+        }
+
+        private static string BlackoutMessage(int count)
+        {
+            return count > 0
+                ? "Блэкаут: " + count + " зданий без энергии"
+                : "Электроснабжение восстановлено";
         }
 
         // Чистая логика формирования события снабжения.

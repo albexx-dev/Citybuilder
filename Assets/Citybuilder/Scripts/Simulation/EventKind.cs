@@ -8,6 +8,7 @@ namespace Citybuilder
         Employment = 2,
         Treasury = 3,
         Fire = 4,
-        Info = 5
+        Info = 5,
+        Blackout = 6
     }
 }

@@ -35,13 +35,17 @@ namespace Citybuilder
         public float Rate01 { get { EnsureFeed(); return feed.Rate01; } }
 
         // Дом без спроса считается питаемым. Нет снимка — false.
+        // Блэкаут (EPIC-50): отключён детерминированным набором — false, brownout — true.
         public bool IsHomePowered(BuildingState home)
         {
             if (home == null || home.Definition == null) return false;
             if (home.Definition.PowerDemand <= 0) return true;
             EnsureFeed();
-            return feed.IsSatisfied(home.Id);
+            return feed.IsPowered(home.Id);
         }
+
+        // Сколько зданий отключено блэкаутом (EPIC-50). Снимка нет — 0.
+        public int UnpoweredCount { get { EnsureFeed(); return feed.UnpoweredCount; } }
 
         private void Start()
         {
