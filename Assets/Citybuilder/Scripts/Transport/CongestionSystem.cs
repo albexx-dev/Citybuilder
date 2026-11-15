@@ -107,15 +107,25 @@ namespace Citybuilder
             return float.IsNaN(worst) ? 1f : worst;
         }
 
+        // Симметрично WorstMultiplier (задача 183): без сетки считаются recordedLoads, а не ноль.
         public int CongestedCellsCount()
         {
-            if (grid == null) return 0;
             int count = 0;
-            GridSize size = grid.Size;
-            for (int x = 0; x < size.Width; x++)
-            for (int y = 0; y < size.Height; y++)
+            if (grid != null)
             {
-                if (IsCongested(GetLoad(new GridPosition(x, y)))) count++;
+                GridSize size = grid.Size;
+                for (int x = 0; x < size.Width; x++)
+                for (int y = 0; y < size.Height; y++)
+                {
+                    if (IsCongested(GetLoad(new GridPosition(x, y)))) count++;
+                }
+            }
+            else
+            {
+                foreach (KeyValuePair<GridPosition, int> pair in recordedLoads)
+                {
+                    if (IsCongested(GetLoad(pair.Key))) count++;
+                }
             }
             return count;
         }
