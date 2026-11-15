@@ -1401,6 +1401,7 @@ GameObject:
   - component: {fileID: 1821543313}
   - component: {fileID: 1821543315}
   - component: {fileID: 1821543316}
+  - component: {fileID: 1821543317}
   m_Layer: 0
   m_Name: Simulation
   m_TagString: Untagged
@@ -1468,6 +1469,23 @@ MonoBehaviour:
   Runner: {fileID: 1821543313}
   Placement: {fileID: 985593154}
   View: {fileID: 165672928}
+--- !u!114 &1821543317
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1821543312}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bd94804e2e7423183236cace5552ab0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.DayNightController
+  Runner: {fileID: 1821543313}
+  DayNightEnabled: 1
+  MoonPitch: 48
+  MoonAzimuth: 30
+  MoonColor: {r: 0.58, g: 0.68, b: 1, a: 1}
 --- !u!1 &2007715383
 GameObject:
   m_ObjectHideFlags: 0
