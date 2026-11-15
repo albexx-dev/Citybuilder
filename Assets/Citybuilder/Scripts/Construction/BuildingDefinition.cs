@@ -27,6 +27,8 @@ namespace Citybuilder
         [Header("Construction")]
         [Tooltip("Размер здания в клетках. Минимум 1x1.")] public Vector2Int Footprint = new Vector2Int(2, 2);
         [Tooltip("Стоимость постройки. Не может быть отрицательной.")] public int ConstructionCost = 100;
+        [Tooltip("Тиков стройки после установки (EPIC-61). 0 — здание появляется мгновенно.")]
+        public int ConstructionTicks = 3;
 
         [Header("Progression")]
         [Tooltip("Нужно выросших зданий в городе. 0 — доступно сразу")] public int UnlockBuildings = 0;
@@ -63,6 +65,7 @@ namespace Citybuilder
             if (string.IsNullOrWhiteSpace(Id)) Debug.LogWarning("BuildingDefinition: id is empty.", this);
             ClampFootprint();
             ConstructionCost = Clamp(ConstructionCost, "cost");
+            ConstructionTicks = Clamp(ConstructionTicks, "construction ticks");
             UnlockBuildings = Clamp(UnlockBuildings, "unlock buildings");
             ResidentCapacity = Clamp(ResidentCapacity, "capacity");
             JobsProvided = Clamp(JobsProvided, "jobs");
