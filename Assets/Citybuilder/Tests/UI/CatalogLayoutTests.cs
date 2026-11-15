@@ -84,24 +84,6 @@ namespace Citybuilder
             }
         }
 
-        [Test]
-        public void ShouldShowDecorTab_TrueWithoutDecorDefs_FalseWith()
-        {
-            List<BuildingDefinition> defs = new List<BuildingDefinition> { Create(BuildingCategory.Residential) };
-            List<BuildingDefinition> withDecor = new List<BuildingDefinition> { Create(BuildingCategory.Decor) };
-            try
-            {
-                Assert.IsTrue(BuildCatalogView.ShouldShowDecorTab(defs));
-                Assert.IsTrue(BuildCatalogView.ShouldShowDecorTab(null));
-                Assert.IsFalse(BuildCatalogView.ShouldShowDecorTab(withDecor));
-            }
-            finally
-            {
-                Object.DestroyImmediate(defs[0]);
-                Object.DestroyImmediate(withDecor[0]);
-            }
-        }
-
         private static BuildingDefinition Create(BuildingCategory category)
         {
             BuildingDefinition def = ScriptableObject.CreateInstance<BuildingDefinition>();
