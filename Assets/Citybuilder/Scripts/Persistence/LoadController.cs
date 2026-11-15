@@ -89,6 +89,8 @@ namespace Citybuilder
             if (eventLog != null) eventLog.ClearLog();
             EconomyTicker ticker = FindFirstObjectByType<EconomyTicker>();
             if (ticker != null) ticker.ResetSound();
+            MetricsRecorder metricsRecorder = FindFirstObjectByType<MetricsRecorder>();
+            if (metricsRecorder != null) metricsRecorder.Clear();
         }
 
         private List<BuildingState> ApplyCity(CitySnapshot snapshot)

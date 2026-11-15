@@ -44,7 +44,13 @@ namespace Citybuilder
             // Тик = игровой час: пишем каждый тик, но только строго новые часы.
             // Не «hour == lastHour + 1»: после тихого RestoreTime загрузки записка
             // застряла бы навсегда; «строго больше» даёт тот же запрет повторов.
-            if (time.TickCount <= lastRecordedTick) return;
+            // Скачок времени назад (Новая игра / загрузка старого сейва): история
+            // начинается заново, иначе она замирает до отмотанного тика (issue #63).
+            if (time.TickCount < lastRecordedTick)
+            {
+                history.Clear();
+            }
+            if (time.TickCount == lastRecordedTick) return;
             lastRecordedTick = time.TickCount;
             Record((int)time.TickCount);
         }
