@@ -45,6 +45,9 @@ namespace Citybuilder
 
         private void ApplyTick(BuildingState home)
         {
+            // Уровень растёт только у жилых домов: службы апгрейдятся вручную (EPIC-51),
+            // магазины и заводы уровней не имеют. Сломанное состояние пропускается.
+            if (home == null || home.Definition == null || !HouseLevelPolicy.IsResidential(home.Definition)) return;
             HouseLevelPolicy.Verdict verdict = policy.Evaluate(home.Level, home.ComfortStreak, HomeComfort(home.Origin));
             home.ApplyHouseTick(verdict.Level, verdict.Streak);
             if (verdict.Action == HouseLevelPolicy.LevelAction.Hold) return;

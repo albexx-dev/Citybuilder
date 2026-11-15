@@ -15,6 +15,15 @@ namespace Citybuilder
         // Действие тика: Hold — ничего, Raise/Lower — смена уровня на 1.
         public enum LevelAction { Hold, Raise, Lower }
 
+        // Жилое ли здание: уровни по тикам комфорта растят только дома с жилой зоной
+        // и вместимостью. Службы апгрейдятся вручную (EPIC-51), коммерция уровней не имеет.
+        public static bool IsResidential(BuildingDefinition definition)
+        {
+            return definition != null
+                && definition.AllowedZone == ZoneType.Residential
+                && definition.ResidentCapacity > 0;
+        }
+
         // Итог тика: действие, уровень и серия после него (уровень уже клампнут 1..3).
         public struct Verdict
         {
