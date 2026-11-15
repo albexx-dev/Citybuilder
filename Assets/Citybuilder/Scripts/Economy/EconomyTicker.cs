@@ -144,6 +144,11 @@ namespace Citybuilder
             {
                 Growth.SupplyGrowth.ReportTick(log, tick);
             }
+            // Блэкаут (EPIC-50) вне троттлинга: сам гейтится изменением числа отключённых.
+            if (Growth != null && Growth.SupplyGrowth != null)
+            {
+                Growth.SupplyGrowth.ReportBlackout(log, tick);
+            }
             if (Growth != null && Growth.Congestion != null && Growth.Congestion.GrowthTickMultiplier > 1
                 && eventThrottle.Allow(EventKind.Congestion.ToString(), tick))
             {

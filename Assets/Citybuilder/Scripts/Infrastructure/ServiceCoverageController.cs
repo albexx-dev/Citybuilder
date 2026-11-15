@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Citybuilder
@@ -11,6 +12,8 @@ namespace Citybuilder
         public SettlementGrowthController Growth;
         [Tooltip("Ручная стройка. Обязательна: даёт поставленные станции.")]
         public BuildingPlacementController Placement;
+        [Tooltip("Электросеть. Пусто = станции не отключаются при блэкауте (EPIC-50).")]
+        public PowerController Power;
 
         [Header("Service")]
         [Tooltip("Вид службы по умолчанию для одиночных геттеров Stations/Covered/Rate01.")]
@@ -88,7 +91,20 @@ namespace Citybuilder
         {
             system.Clear();
             if (Growth == null || Placement == null) return;
-            system.BuildSnapshotFromStates(Placement.Placed, Growth.Homes);
+            system.BuildSnapshotFromStates(PoweredStations(Placement.Placed), Growth.Homes);
+        }
+
+        // Блэкаут (EPIC-50): обесточенная станция не даёт покрытия (выход 0).
+        private List<BuildingState> PoweredStations(List<BuildingState> stations)
+        {
+            if (Power == null || stations == null) return stations;
+            List<BuildingState> powered = new List<BuildingState>(stations.Count);
+            for (int i = 0; i < stations.Count; i++)
+            {
+                if (stations[i] != null && !Power.IsHomePowered(stations[i])) continue;
+                powered.Add(stations[i]);
+            }
+            return powered;
         }
 
         private bool EnsureReady()
