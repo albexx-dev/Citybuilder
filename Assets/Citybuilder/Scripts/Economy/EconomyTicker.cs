@@ -20,8 +20,11 @@ namespace Citybuilder
 
         private EmploymentSystem employment;
         private TaxSystem tax;
+        private readonly SoundCooldownPolicy soundPolicy = new SoundCooldownPolicy();
 
         public TaxSystem Tax { get { EnsureSystems(); return tax; } }
+
+        public void ResetSound() { soundPolicy.Reset(); }
 
         public int PerWorker
         {
@@ -105,7 +108,11 @@ namespace Citybuilder
         {
             EnsureSystems();
             if (tax == null) return;
-            if (tax.Collect(PerWorker).Success) AudioController.PlayCoinGlobal();
+            if (tax.Collect(PerWorker).Success
+                && soundPolicy.ShouldPlayCoin(Time.unscaledTime, Treasury.Treasury.Balance))
+            {
+                AudioController.PlayCoinGlobal();
+            }
             Treasury.Treasury.Charge(UpkeepPolicy.UpkeepPerHour(Growth.Homes,
                 Placement != null ? Placement.Placed : null));
             ReportCityEvents(tickCount);
@@ -122,7 +129,8 @@ namespace Citybuilder
             {
                 log.Add(EventKind.Congestion, "Пробки замедляют рост ×" + Growth.Congestion.GrowthTickMultiplier, tick);
             }
-            if (Treasury != null && Treasury.Treasury != null && Treasury.Treasury.IsInDeficit)
+            if (Treasury != null && Treasury.Treasury != null && Treasury.Treasury.IsInDeficit
+                && soundPolicy.ShouldPlayDeficit(Time.unscaledTime))
             {
                 log.Add(EventKind.Treasury, "Дефицит казны: баланс $" + Treasury.Treasury.Balance, tick);
             }
