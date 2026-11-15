@@ -148,7 +148,6 @@ namespace Citybuilder
                 system.BuildSnapshotFromStates(placed, grown);
                 Assert.AreEqual(1, system.TotalHomesCount());
                 Assert.AreEqual(0, system.CoveredHomesCount(ServiceKind.Fire));
-
                 station.ApplyUpgrade(); // уровень 2: радиус 3 → 4
                 system.BuildSnapshotFromStates(placed, grown);
                 Assert.AreEqual(1, system.CoveredHomesCount(ServiceKind.Fire));
