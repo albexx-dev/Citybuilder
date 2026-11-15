@@ -19,7 +19,7 @@ namespace Citybuilder
             {
                 float cellSize = grid.Grid.CellSize;
                 return ConstructionSiteView.Spawn(grid.transform, position, def, cellSize,
-                    ConstructionSiteView.TargetScale(def, cellSize), null, onCompleted);
+                    ConstructionSiteView.TargetScale(def, cellSize), null, onCompleted).gameObject;
             }
             if (def.Prefab != null)
             {

@@ -48,7 +48,7 @@ namespace Citybuilder
                 {
                     return ConstructionSiteView.Spawn(transform, at, def, cellSize,
                         ConstructionSiteView.TargetScale(def, cellSize), null,
-                        delegate { AddBuilding(state, def, cellSize, true); });
+                        delegate { AddBuilding(state, def, cellSize, true); }).gameObject;
                 }
                 GameObject prefab = Instantiate(def.Prefab, at, Quaternion.identity, transform);
                 float scale = LevelScale(state.Level, false);
