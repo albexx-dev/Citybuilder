@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Многошаговый туториал v2 с подсветкой кнопок нижней панели и кнопкой «Понятно» (EPIC-18 шаг 2).
-    // Заменяет StartHintView на объекте Grid.
+    // Туториал v3 (EPIC-70): баннер с текстом, кнопка «Понятно» и стрелка над целевой кнопкой.
+    // Логика шагов — TutorialPolicy (чистый C#), рамка и стрелка — TutorialArrowView.
     public class TutorialView : MonoBehaviour
     {
         [Header("References")]
@@ -12,67 +12,59 @@ namespace Citybuilder
         [Tooltip("Автовырастание домов. Пусто = ищется на этом же объекте.")] public SettlementGrowthController Growth;
         [Tooltip("Меню режимов. Пусто = ищется на этом же объекте.")] public BuildModeMenu Menu;
         [Tooltip("Ручная стройка зданий. Пусто = ищется на этом же объекте.")] public BuildingPlacementController Placement;
+        [Tooltip("Палитра типов зданий. Пусто = ищется на этом же объекте.")] public BuildPaletteView Palette;
 
         private bool dismissed;
 
         public TutorialPolicy.Step CurrentStep { get { return PickStep(); } }
-        public string CurrentText { get { return TutorialPolicy.FormatText(CurrentStep); } }
+        public string CurrentText { get { return TutorialPolicy.FormatText(CurrentStep, SelectedId()); } }
         public bool IsDismissed { get { return dismissed; } }
 
-        public void Dismiss()
-        {
-            dismissed = true;
-            UiClickGuard.Set("tutorial_dismiss", new Rect());
-        }
+        public void Dismiss() { dismissed = true; UiClickGuard.Set("tutorial_dismiss", new Rect()); }
 
-        public void ResetTutorial()
-        {
-            dismissed = false;
-        }
+        public void ResetTutorial() { dismissed = false; }
 
-        public void OnDisable()
-        {
-            UiClickGuard.Set("tutorial_dismiss", new Rect());
-        }
+        public void OnDisable() { UiClickGuard.Set("tutorial_dismiss", new Rect()); }
 
         private void OnGUI()
         {
             TutorialPolicy.Step step = CurrentStep;
-            string text = TutorialPolicy.FormatText(step);
-            if (string.IsNullOrEmpty(text))
+            string text = TutorialPolicy.FormatText(step, SelectedId());
+            if (string.IsNullOrEmpty(text)) { UiClickGuard.Set("tutorial_dismiss", new Rect()); return; }
+            DrawBanner(text);
+            TutorialArrowView.Draw(ArrowTarget(step), Time.unscaledTime);
+        }
+
+        private void DrawBanner(string text)
+        {
+            if (!HudLayout.IsHudRowVisible(430f, 1, Screen.height))
             {
                 UiClickGuard.Set("tutorial_dismiss", new Rect());
                 return;
             }
-            if (HudLayout.IsHudRowVisible(430f, 1, Screen.height))
-            {
-                float y = HudLayout.FixedOrBottom(430f, 1);
-                HudText.Draw(10f, y, text);
-                Rect btn = new Rect(460f, y - 2f, 90f, 24f);
-                UiClickGuard.Set("tutorial_dismiss", btn);
-                if (GUI.Button(btn, "Понятно")) Dismiss();
-            }
-            else
-            {
-                UiClickGuard.Set("tutorial_dismiss", new Rect());
-            }
-            DrawHighlight(TutorialPolicy.HighlightTarget(step));
+            float y = HudLayout.FixedOrBottom(430f, 1);
+            HudText.Draw(10f, y, text);
+            Rect btn = new Rect(Screen.width - 100f, y - 2f, 90f, 24f);
+            UiClickGuard.Set("tutorial_dismiss", btn);
+            if (GUI.Button(btn, "Понятно")) Dismiss();
         }
 
-        private void DrawHighlight(TutorialPolicy.TargetButton target)
+        // Цель стрелки: «x4» — кнопка скорости; шаги-стройки — кнопка здания в палитре
+        // над панелью, а пока палитра закрыта — кнопка «Дома [1]»; остальное — кнопка режима.
+        private Rect ArrowTarget(TutorialPolicy.Step step)
         {
-            if (target == TutorialPolicy.TargetButton.None) return;
-            Rect modeGroup = HudLayout.ModeGroupRect(Screen.width, Screen.height);
-            int index = target == TutorialPolicy.TargetButton.Houses ? 1
-                : target == TutorialPolicy.TargetButton.Zones ? 3
-                : target == TutorialPolicy.TargetButton.Growth ? 4 : -1;
-            if (index < 0) return;
-            float x = modeGroup.x + index * (HudLayout.ModeButtonWidth + HudLayout.ButtonGap);
-            Rect rect = new Rect(x - 2f, modeGroup.y - 2f, HudLayout.ModeButtonWidth + 4f, modeGroup.height + 4f);
-            Color prev = GUI.color;
-            GUI.color = new Color(1f, 0.85f, 0.1f, 0.9f);
-            GUI.Box(rect, GUIContent.none);
-            GUI.color = prev;
+            TutorialPolicy.TargetButton fallback = TutorialPolicy.HighlightTarget(step);
+            if (fallback == TutorialPolicy.TargetButton.Speed4)
+                return TutorialArrowView.SpeedButtonRect(Screen.width, Screen.height, TutorialArrowView.X4SpeedIndex);
+            string targetId = TutorialPolicy.TargetBuildingId(step);
+            if (targetId == null) return TutorialArrowView.ModeButtonRect(Screen.width, Screen.height, fallback);
+            if (TutorialPolicy.IsTypeSelected(step, SelectedId())) return new Rect();
+            int index = Palette != null && Palette.Definitions != null ? IndexOfId(Palette.Definitions, targetId) : -1;
+            if (index >= 0 && Menu != null && Menu.CurrentMode == BuildModeMenu.Mode.Houses)
+            {
+                return TutorialArrowView.PaletteButtonRect(Screen.width, Screen.height, index, Palette.Definitions.Count);
+            }
+            return TutorialArrowView.ModeButtonRect(Screen.width, Screen.height, fallback);
         }
 
         private TutorialPolicy.Step PickStep()
@@ -89,7 +81,8 @@ namespace Citybuilder
                 HasWasteDepot = HasPlaced("waste_depot"),
                 HasPark = HasPlaced("park"),
                 ParkAvailable = IsParkAvailable(grown),
-                Dismissed = dismissed
+                Dismissed = dismissed,
+                SelectedBuildingId = SelectedId()
             };
             return TutorialPolicy.Pick(s);
         }
@@ -97,10 +90,9 @@ namespace Citybuilder
         private bool HasPlaced(string id)
         {
             if (Placement == null || Placement.Placed == null) return false;
-            List<BuildingState> list = Placement.Placed;
-            for (int i = 0; i < list.Count; i++)
+            foreach (BuildingState b in Placement.Placed)
             {
-                if (list[i] != null && list[i].Definition != null && list[i].Definition.Id == id) return true;
+                if (b != null && b.Definition != null && b.Definition.Id == id) return true;
             }
             return false;
         }
@@ -108,9 +100,8 @@ namespace Citybuilder
         private bool IsParkAvailable(int grown)
         {
             if (Placement == null || Placement.Definitions == null) return false;
-            for (int i = 0; i < Placement.Definitions.Count; i++)
+            foreach (BuildingDefinition d in Placement.Definitions)
             {
-                BuildingDefinition d = Placement.Definitions[i];
                 if (d != null && d.Id == "park") return UnlockPolicy.IsUnlocked(d, grown);
             }
             return false;
@@ -122,6 +113,7 @@ namespace Citybuilder
             if (Growth == null) Growth = GetComponent<SettlementGrowthController>();
             if (Menu == null) Menu = GetComponent<BuildModeMenu>();
             if (Placement == null) Placement = GetComponent<BuildingPlacementController>();
+            if (Palette == null) Palette = GetComponent<BuildPaletteView>();
         }
 
         private int CountResidential()
@@ -130,11 +122,27 @@ namespace Citybuilder
             if (zones == null) return 0;
             List<KeyValuePair<GridPosition, ZoneType>> cells = zones.GetZonedCells();
             int count = 0;
-            for (int i = 0; i < cells.Count; i++)
+            foreach (KeyValuePair<GridPosition, ZoneType> cell in cells)
             {
-                if (cells[i].Value == ZoneType.Residential) count++;
+                if (cell.Value == ZoneType.Residential) count++;
             }
             return count;
+        }
+
+        // Ид выбранного в палитре типа (Placement.Definition), null если ничего не выбрано.
+        private string SelectedId()
+        {
+            ResolveRefs();
+            return Placement != null && Placement.Definition != null ? Placement.Definition.Id : null;
+        }
+
+        private static int IndexOfId(List<BuildingDefinition> definitions, string id)
+        {
+            for (int i = 0; i < definitions.Count; i++)
+            {
+                if (definitions[i] != null && definitions[i].Id == id) return i;
+            }
+            return -1;
         }
     }
 }
