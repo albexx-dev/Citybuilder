@@ -77,10 +77,10 @@ namespace Citybuilder
             return BudgetSummaryPolicy.Line(income, upkeep);
         }
 
-        // Доход за час по правилу TaxSystem: работающие × ставка.
+        // Доход за час по активной политике EconomyTicker: зональной (эпик #49) или фиксированной.
         private int IncomePerHour()
         {
-            return Economy.Tax.ComputeTax(Economy.PerWorker);
+            return Economy.IncomePerHour();
         }
 
         // Ссылки ищутся один раз: экономика и строка расхода живут на других объектах HUD.

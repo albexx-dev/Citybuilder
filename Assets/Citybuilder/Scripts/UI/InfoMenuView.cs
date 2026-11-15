@@ -20,7 +20,13 @@ namespace Citybuilder
         [Tooltip("Население города (для привлекательности). Пусто = ищется в сцене.")] public PopulationController Population;
 
         private const float RefreshIntervalSec = 0.5f;
-        private const float ContentHeight = 510f;
+        private const float ContentHeight = 570f;
+
+        // Порядок строк налогов в бюджете (эпик #49).
+        private static readonly ZoneType[] BudgetZones =
+        {
+            ZoneType.Residential, ZoneType.Commercial, ZoneType.Industrial
+        };
 
         private bool isOpen;
         private Vector2 scroll;
@@ -117,18 +123,27 @@ namespace Citybuilder
         private void DrawBudgetSection(ref float y, float width)
         {
             DrawHeader(ref y, "=== Бюджет ===");
-            if (Tax != null && GUI.Button(new Rect(4f, y, Mathf.Min(260f, width - 8f), 26f), Tax.CurrentLabel))
-            {
-                AudioController.PlayClickGlobal();
-                Tax.Policy.Next();
-                RebuildCache();
-            }
-            if (Tax != null) y += 30f;
+            if (Tax != null) DrawTaxRows(ref y, width);
             if (Upkeep != null)
             {
                 Color c = Upkeep.CurrentLook == UpkeepStatusPolicy.Look.Deficit ? UpkeepView.DeficitColor : Color.white;
                 HudText.Draw(12f, y, Upkeep.CurrentText, c);
                 y += 24f;
+            }
+        }
+
+        // Три строки налогов (эпик #49): клик циклит уровень своей зоны, подпись — фактический сбор.
+        private void DrawTaxRows(ref float y, float width)
+        {
+            for (int i = 0; i < BudgetZones.Length; i++)
+            {
+                if (GUI.Button(new Rect(4f, y, Mathf.Min(260f, width - 8f), 26f), Tax.LabelFor(BudgetZones[i])))
+                {
+                    AudioController.PlayClickGlobal();
+                    Tax.Policy.NextZone(BudgetZones[i]);
+                    RebuildCache();
+                }
+                y += 30f;
             }
         }
 

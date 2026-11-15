@@ -2,19 +2,20 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Налоговая политика города. Кнопка перенесена в InfoMenuView (EPIC-14 шаг 2).
+    // Зональная налоговая политика (эпик #49): подписи трёх строк бюджета инфоменю.
     // Вешать на объект HUD (Grid). Ссылок не требует: политика живёт в памяти.
     public class TaxPolicyView : MonoBehaviour
     {
         [Header("References")]
-        [Tooltip("Экономика: даёт число работающих для строки дохода. Пусто = ищется в сцене.")]
+        [Tooltip("Экономика: даёт занятых по зонам для строк дохода. Пусто = ищется в сцене.")]
         public EconomyTicker Economy;
 
-        // Создаётся лениво; уровень сохраняется в CitySnapshot.TaxLevel и восстанавливается LoadController.
+        // Создаётся лениво; уровни живут в памяти сцены (сейв v4 хранит только общий уровень,
+        // раздельное хранение ставок — сейв v5, эпик #64).
         private TaxPolicy policy;
         private bool economySearched;
 
-        // Ленивое создание: сцена не требует ссылок, по умолчанию обычный налог.
+        // Ленивое создание: сцена не требует ссылок, по умолчанию 4/4/4.
         public TaxPolicy Policy
         {
             get
@@ -27,22 +28,23 @@ namespace Citybuilder
             }
         }
 
-        // Подпись с фактическим сбором. Для InfoMenuView, E2E-моста и проверок.
-        public string CurrentLabel
+        // Строка бюджета зоны с фактическим сбором: «Жилая: обычный (4) +8 $/ч».
+        public string LabelFor(ZoneType zone)
         {
-            get { return Policy.Label + IncomeSuffix(); }
+            return Policy.ZoneLabel(zone, ZoneEmployed(zone));
         }
 
-        // Сколько капает в час при текущих работающих. Тикер ищется один раз.
-        private string IncomeSuffix()
+        // Занятые зоны: распределение общей занятости по долям рабочих мест (TaxSystem).
+        private int ZoneEmployed(ZoneType zone)
         {
             if (Economy == null && !economySearched)
             {
                 Economy = FindFirstObjectByType<EconomyTicker>();
                 economySearched = true;
             }
-            int employed = Economy != null && Economy.Tax != null ? Economy.Tax.Employed : 0;
-            return " +" + Policy.Income(employed) + " $/ч";
+            return Economy != null && Economy.Tax != null
+                ? Economy.Tax.EmployedPerZone().ByZone(zone)
+                : 0;
         }
     }
 }

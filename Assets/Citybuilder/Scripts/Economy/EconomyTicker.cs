@@ -31,9 +31,19 @@ namespace Citybuilder
             eventThrottle.Reset();
         }
 
-        public int PerWorker
+        // Фактический налоговый доход за час: зональная политика или фиксированная ставка.
+        public int IncomePerHour()
         {
-            get { return Policy != null ? Policy.Policy.PerWorker : TaxPerWorker; }
+            EnsureSystems();
+            if (tax == null) return 0;
+            return Policy != null ? tax.ComputeTax(Policy.Policy) : tax.ComputeTax(TaxPerWorker);
+        }
+
+        // Зональные рабочие места (эпик #49): выросшие здания и ручные постройки.
+        private ZonalJobs BuildZonalJobs()
+        {
+            return ZonalJobSource.Count(Growth != null ? Growth.Homes : null,
+                Placement != null ? Placement.Placed : null);
         }
 
         private void Start()
@@ -106,7 +116,7 @@ namespace Citybuilder
             if (Population.Population == null || Growth.Settlement == null || Treasury.Treasury == null) return;
             if (tax != null && tax.Treasury == Treasury.Treasury && employment != null) return;
             employment = new EmploymentSystem(Population.Population, Growth.Settlement, GetManualJobs);
-            tax = new TaxSystem(employment, Treasury.Treasury);
+            tax = new TaxSystem(employment, Treasury.Treasury, BuildZonalJobs);
         }
 
         private void Tick(int tickCount)
@@ -115,7 +125,8 @@ namespace Citybuilder
             // на единовременные награды (GoalView), лента — без звука на каждый тик.
             EnsureSystems();
             if (tax == null) return;
-            tax.Collect(PerWorker);
+            if (Policy != null) tax.Collect(Policy.Policy);
+            else tax.Collect(TaxPerWorker);
             Treasury.Treasury.Charge(UpkeepPolicy.UpkeepPerHour(Growth.Homes,
                 Placement != null ? Placement.Placed : null));
             ReportCityEvents(tickCount);
