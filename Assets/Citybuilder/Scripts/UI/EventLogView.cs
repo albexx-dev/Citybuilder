@@ -11,6 +11,7 @@ namespace Citybuilder
         private const float LineHeight = 24f;
 
         private readonly CityEventLog log = new CityEventLog();
+        private readonly SoundCooldownPolicy popCooldown = new SoundCooldownPolicy();
         private readonly List<string> cachedLines = new List<string>();
         private bool isOpen;
         private Vector2 scroll;
@@ -49,7 +50,7 @@ namespace Citybuilder
         {
             if (log.Add(kind, message, tick))
             {
-                AudioController.PlayPopGlobal();
+                if (popCooldown.ShouldPlayDeficit(Time.unscaledTime)) AudioController.PlayPopGlobal();
                 if (isOpen) RebuildCache();
             }
         }
