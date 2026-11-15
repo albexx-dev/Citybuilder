@@ -1,9 +1,9 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Citybuilder
 {
     // Дороги drag-отрезками: ЛКМ тянет, релиз строит, ПКМ сносит. Только старый Input.
+    // Состояние drag и превью вынесены в RoadDragState, геометрия отрезка — в RoadPlacementInput (задача 183).
     public class RoadPlacementController : MonoBehaviour
     {
         [Header("References")]
@@ -22,10 +22,7 @@ namespace Citybuilder
         [Tooltip("Режим стройки дорог. Выключите, когда строите дома.")]
         public bool placementActive = true;
 
-        private bool dragging;
-        private GridPosition dragStart;
-        private GridPosition lastHover;
-        private List<GridPosition> previewCells = new List<GridPosition>();
+        private readonly RoadDragState drag = new RoadDragState();
 
         private void Start()
         {
@@ -33,11 +30,9 @@ namespace Citybuilder
         }
 
         // Сброс drag при выключении: иначе висящее превью/коммит.
-        // View может быть не создан (ленивый), previewCells — гард на null.
         private void OnDisable()
         {
-            dragging = false;
-            if (previewCells != null) previewCells.Clear();
+            drag.Reset();
             if (View != null) View.HidePreview();
         }
 
@@ -62,55 +57,38 @@ namespace Citybuilder
         private void Update()
         {
             if (!EnsureReady()) return;
-            if (!placementActive)
-            {
-                CancelDrag();
-                return;
-            }
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (!placementActive || Input.GetKeyDown(KeyCode.Escape))
             {
                 CancelDrag();
                 return;
             }
             GridPosition cell;
             bool hovered = GridVisualizer.TryGetHoveredCell(out cell);
-            HandleDrag(cell, hovered);
-            if (Input.GetMouseButtonDown(1) && hovered && !UiClickGuard.IsOverMenu(Input.mousePosition)) TryDemolish(cell);
+            bool overMenu = UiClickGuard.IsOverMenu(Input.mousePosition);
+            if (drag.TryBegin(Input.GetMouseButtonDown(0), hovered, overMenu, cell)) ShowPreview();
+            else if (drag.TryPreview(Input.GetMouseButton(0), hovered, cell)) ShowPreview();
+            if (drag.ShouldCommit(Input.GetMouseButtonUp(0))) CommitDrag();
+            if (Input.GetMouseButtonDown(1) && hovered && !overMenu) TryDemolish(cell);
         }
 
-        private void HandleDrag(GridPosition cell, bool hovered)
+        private void ShowPreview()
         {
-            if (Input.GetMouseButtonDown(0) && hovered && !UiClickGuard.IsOverMenu(Input.mousePosition))
-            {
-                dragging = true;
-                dragStart = cell;
-                UpdatePreview(cell);
-            }
-            else if (dragging && Input.GetMouseButton(0) && hovered && cell != lastHover) UpdatePreview(cell);
-            if (dragging && Input.GetMouseButtonUp(0)) CommitDrag();
-        }
-
-        private void UpdatePreview(GridPosition hover)
-        {
-            lastHover = hover;
-            previewCells = RoadPlacementInput.GetLineCells(dragStart, hover);
-            View.ShowPreview(previewCells, GridVisualizer.Grid.CellSize, CheckCells());
+            View.ShowPreview(drag.PreviewCells, GridVisualizer.Grid.CellSize, CheckCells());
         }
 
         private void CancelDrag()
         {
-            dragging = false;
-            previewCells.Clear();
+            drag.Reset();
             View.HidePreview();
         }
 
-        // Коммит drag: проверка отрезка, оплата новых клеток, раскладка — отдельно.
+        // Коммит drag: drag гасим, превью оставляем до раскладки; оплата новых клеток — до PlacePreviewed.
         private void CommitDrag()
         {
-            dragging = false;
+            drag.Stop();
             View.HidePreview();
             if (!CheckCells()) return;
-            int total = RoadPlacementInput.CountNewCells(previewCells, Store.IsOwnRoadCell) * Store.CellCost();
+            int total = RoadPlacementInput.CountNewCells(drag.PreviewCells, Store.IsOwnRoadCell) * Store.CellCost();
             if (total > 0 && TreasuryView != null && TreasuryView.Treasury != null)
             {
                 Treasury.TransactionResult spent = TreasuryView.Treasury.TrySpend(total, "Road");
@@ -123,9 +101,9 @@ namespace Citybuilder
         public void PlacePreviewed()
         {
             int placed = 0;
-            for (int i = 0; i < previewCells.Count; i++)
+            for (int i = 0; i < drag.PreviewCells.Count; i++)
             {
-                if (!Store.IsOwnRoadCell(previewCells[i])) { Store.Place(previewCells[i]); placed++; }
+                if (!Store.IsOwnRoadCell(drag.PreviewCells[i])) { Store.Place(drag.PreviewCells[i]); placed++; }
             }
             Store.RefreshView();
             GridVisualizer.RefreshOccupied();
@@ -146,8 +124,8 @@ namespace Citybuilder
         public bool PlaceLine(GridPosition from, GridPosition to)
         {
             if (!EnsureReady()) return false;
-            dragStart = from;
-            UpdatePreview(to);
+            drag.BeginLine(from, to);
+            ShowPreview();
             if (!CheckCells()) { CancelDrag(); return false; }
             CommitDrag();
             return true;
@@ -156,7 +134,7 @@ namespace Citybuilder
         private bool CheckCells()
         {
             Treasury treasury = TreasuryView != null ? TreasuryView.Treasury : null;
-            return RoadPlacementInput.CanCommit(previewCells, Store.CanPlace, Store.IsOwnRoadCell, Store.CellCost(), treasury);
+            return RoadPlacementInput.CanCommit(drag.PreviewCells, Store.CanPlace, Store.IsOwnRoadCell, Store.CellCost(), treasury);
         }
     }
 }

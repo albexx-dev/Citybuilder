@@ -22,6 +22,8 @@ namespace Citybuilder
         private readonly PlacementGhostView ghostView = new PlacementGhostView();
         private BuildingSystem system;
         public bool placementActive = true;
+        // PascalCase-обёртка для кода: поле serialized в сцене, переименование тронуло бы Prototype.unity.
+        public bool PlacementActive { get { return placementActive; } set { placementActive = value; } }
 
         // Копия построенного: нужна покрытию, инфраструктуре и сохранениям.
         public List<BuildingState> Placed { get { return store.Placed; } }
