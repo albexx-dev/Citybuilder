@@ -87,6 +87,8 @@ namespace Citybuilder
             if (goal != null) goal.RestoreStage(0);
             EventLogView eventLog = FindFirstObjectByType<EventLogView>();
             if (eventLog != null) eventLog.ClearLog();
+            EconomyTicker ticker = FindFirstObjectByType<EconomyTicker>();
+            if (ticker != null) ticker.ResetSound();
         }
 
         private List<BuildingState> ApplyCity(CitySnapshot snapshot)

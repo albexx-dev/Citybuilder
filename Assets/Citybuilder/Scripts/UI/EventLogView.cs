@@ -58,6 +58,7 @@ namespace Citybuilder
         public void ClearLog()
         {
             log.Clear();
+            popCooldown.Reset();
             cachedLines.Clear();
         }
 

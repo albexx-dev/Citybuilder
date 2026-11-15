@@ -85,5 +85,28 @@ namespace Citybuilder
             Assert.IsTrue(policy.ShouldPlayCoin(5.0, 100));
             Assert.IsTrue(policy.ShouldPlayCoin(5.0, 200));
         }
+
+        // Симуляция «Новой игры»: после Reset монетка звучит сразу при новом балансе, без догоняния старого.
+        [Test]
+        public void Reset_CoinPlaysAtOnceWithNewBalance()
+        {
+            SoundCooldownPolicy policy = new SoundCooldownPolicy(2.5);
+            Assert.IsTrue(policy.ShouldPlayCoin(10.0, 5000));
+            Assert.IsFalse(policy.ShouldPlayCoin(11.0, 6000));
+            policy.Reset();
+            Assert.IsTrue(policy.ShouldPlayCoin(11.5, 1500));
+            Assert.IsFalse(policy.ShouldPlayCoin(11.6, 1600));
+        }
+
+        // Reset возвращает и дефицитный канал к состоянию «первого звука».
+        [Test]
+        public void Reset_DeficitPlaysAtOnce()
+        {
+            SoundCooldownPolicy policy = new SoundCooldownPolicy(2.5);
+            Assert.IsTrue(policy.ShouldPlayDeficit(0.0));
+            Assert.IsFalse(policy.ShouldPlayDeficit(0.1));
+            policy.Reset();
+            Assert.IsTrue(policy.ShouldPlayDeficit(0.2));
+        }
     }
 }

@@ -24,6 +24,8 @@ namespace Citybuilder
 
         public TaxSystem Tax { get { EnsureSystems(); return tax; } }
 
+        public void ResetSound() { soundPolicy.Reset(); }
+
         public int PerWorker
         {
             get { return Policy != null ? Policy.Policy.PerWorker : TaxPerWorker; }

@@ -61,5 +61,15 @@ namespace Citybuilder
             coinLastPlaySeconds = nowSeconds;
             coinLastBalance = balance;
         }
+
+        // Сброс к состоянию «первого звука»: после «Новой игры» и загрузки монетка и дефицит звучат сразу.
+        public void Reset()
+        {
+            coinPlayedOnce = false;
+            coinLastPlaySeconds = 0;
+            coinLastBalance = 0;
+            deficitPlayedOnce = false;
+            deficitLastPlaySeconds = 0;
+        }
     }
 }
