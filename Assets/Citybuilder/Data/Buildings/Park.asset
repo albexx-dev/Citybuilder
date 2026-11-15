@@ -16,6 +16,7 @@ MonoBehaviour:
   DisplayName: Park
   Footprint: {x: 2, y: 2}
   ConstructionCost: 150
+  ConstructionTicks: 3
   UnlockBuildings: 10
   AllowedZone: 1
   ResidentCapacity: 0

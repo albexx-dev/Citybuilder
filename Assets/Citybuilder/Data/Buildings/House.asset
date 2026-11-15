@@ -16,6 +16,7 @@ MonoBehaviour:
   DisplayName: House
   Footprint: {x: 2, y: 2}
   ConstructionCost: 100
+  ConstructionTicks: 3
   UnlockBuildings: 0
   AllowedZone: 1
   ResidentCapacity: 4
