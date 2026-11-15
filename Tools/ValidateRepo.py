@@ -56,6 +56,13 @@ if (ROOT / "HANDOFF.md").exists():
 if not (ROOT / "TASKS" / "README.md").is_file():
     fail("TASKS/README.md (epic queue) is required; see ONBOARDING.md")
 
+credits_text = read_text(ROOT / "CREDITS.md") if (ROOT / "CREDITS.md").is_file() else ""
+for path in files:
+    rel = path.relative_to(ROOT).as_posix()
+    if rel.startswith("Assets/Citybuilder/Models/") and path.suffix.lower() in (".fbx", ".png"):
+        if f"`{rel}`" not in credits_text and rel not in credits_text:
+            fail(f"{rel}: asset not listed in CREDITS.md")
+
 for path in files:
     rel = path.relative_to(ROOT).as_posix()
     if path.suffix != ".cs":
