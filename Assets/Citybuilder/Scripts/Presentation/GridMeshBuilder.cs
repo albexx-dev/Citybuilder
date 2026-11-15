@@ -123,7 +123,7 @@ namespace Citybuilder
             go.transform.SetParent(transform, false);
             MeshFilter filter = go.AddComponent<MeshFilter>();
             filter.mesh = new Mesh();
-            go.AddComponent<MeshRenderer>().material = BuildMaterial(Visualizer.LineColor);
+            go.AddComponent<MeshRenderer>().material = BuildMaterial(DimmedLineColor(Visualizer.LineColor));
             int vertical = Visualizer.Width + 1, horizontal = Visualizer.Height + 1;
             int count = (vertical + horizontal) * 2;
             Vector3[] vertices = new Vector3[count];
@@ -166,6 +166,13 @@ namespace Citybuilder
             Material material = new Material(shader);
             material.color = color;
             return material;
+        }
+
+        // Приглушение сетки (EPIC-57): линии уходят из белого в тёмную зелень травы,
+        // чтобы сетка не спорила с городом. Unlit/Color непрозрачен — гасим яркость.
+        private static Color DimmedLineColor(Color line)
+        {
+            return Color.Lerp(line, new Color(0.12f, 0.24f, 0.10f), 0.65f);
         }
     }
 }
