@@ -29,6 +29,15 @@ namespace Citybuilder
             Assert.IsFalse(mode.Overlaps(menu));
         }
 
+        [Test]
+        public void ModeGroupRect_FitsSixModeButtons_AtMinimumWidth()
+        {
+            Rect mode = HudLayout.ModeGroupRect(1024f, 600f);
+            Assert.AreEqual(6f * HudLayout.ModeButtonWidth + 5f * HudLayout.ButtonGap, mode.width, 0.01f);
+            Assert.LessOrEqual(mode.xMax, 1024f - HudLayout.BarPadding);
+            Assert.LessOrEqual(mode.xMax, HudLayout.MenuButtonsRect(1024f, 600f).x);
+        }
+
         [TestCase(1024f, 600f)]
         [TestCase(1920f, 1080f)]
         public void PalettePopup_StaysAboveBottomBar(float width, float height)

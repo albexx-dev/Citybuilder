@@ -12,6 +12,7 @@ namespace Citybuilder
         {
             Assert.AreEqual(BuildModeHotkeys.EscAction.None, BuildModeHotkeys.EvaluateEsc(true, false, BuildModeMenu.Mode.Houses)); Assert.AreEqual(BuildModeHotkeys.EscAction.ClosePause, BuildModeHotkeys.EvaluateEsc(false, true, BuildModeMenu.Mode.Off));
             Assert.AreEqual(BuildModeHotkeys.EscAction.TurnOffMode, BuildModeHotkeys.EvaluateEsc(false, false, BuildModeMenu.Mode.Roads)); Assert.AreEqual(BuildModeHotkeys.EscAction.OpenPause, BuildModeHotkeys.EvaluateEsc(false, false, BuildModeMenu.Mode.Off));
+            Assert.AreEqual(BuildModeHotkeys.EscAction.TurnOffMode, BuildModeHotkeys.EvaluateEsc(false, false, BuildModeMenu.Mode.Decor));
         }
 
         [Test]

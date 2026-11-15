@@ -15,6 +15,8 @@ namespace Citybuilder
         public ZonePaintingController Zones;
         [Tooltip("Автовырастание домов. Пусто = ищется на этом же объекте.")]
         public SettlementGrowthController Growth;
+        [Tooltip("Ручной декор: деревья без занятия клеток. Пусто = ищется на этом же объекте.")]
+        public DecorPlacementController Decor;
 
         public enum Mode
         {
@@ -22,7 +24,8 @@ namespace Citybuilder
             Houses,
             Roads,
             Zones,
-            Growth
+            Growth,
+            Decor
         }
 
         private Mode current = Mode.Off;
@@ -63,6 +66,11 @@ namespace Citybuilder
                 Growth.enabled = (mode == Mode.Growth);
                 Growth.placementActive = (mode == Mode.Growth);
             }
+            if (Decor != null)
+            {
+                Decor.enabled = (mode == Mode.Decor);
+                Decor.placementActive = (mode == Mode.Decor);
+            }
         }
 
         // Кисть зон. None и null ZonePainter — игнор. Публичный для E2E-моста.
@@ -80,6 +88,7 @@ namespace Citybuilder
             if (Roads == null) Roads = GetComponent<RoadPlacementController>();
             if (Zones == null) Zones = GetComponent<ZonePaintingController>();
             if (Growth == null) Growth = GetComponent<SettlementGrowthController>();
+            if (Decor == null) Decor = GetComponent<DecorPlacementController>();
         }
     }
 }
