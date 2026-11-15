@@ -8,7 +8,7 @@ namespace Citybuilder
     public class TaxSystemTests
     {
         [Test]
-        public void ComputeTax_HighPolicy_UsesTripleRate()
+        public void ComputeTax_HighPolicy_UsesHighRate()
         {
             GridSystem grid = new GridSystem(new GridSize(20, 20), 2f);
             SettlementSystem settlement = new SettlementSystem(grid, new ZoneSystem(grid), new BuildingSystem(grid));
@@ -23,7 +23,8 @@ namespace Citybuilder
             policy.Set(TaxPolicy.Level.High);
 
             Assert.AreEqual(4, employment.Employed);
-            Assert.AreEqual(12, tax.ComputeTax(policy.PerWorker));
+            // Высокая ставка после ребаланса 171: 4 работающих × 6 = 24.
+            Assert.AreEqual(24, tax.ComputeTax(policy.PerWorker));
         }
 
         [Test]

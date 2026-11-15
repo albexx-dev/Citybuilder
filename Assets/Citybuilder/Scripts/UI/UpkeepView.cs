@@ -54,7 +54,8 @@ namespace Citybuilder
             Debug.LogWarning("UpkeepView: нет SettlementGrowthController — строка расхода будет нулевой.", this);
         }
 
-        private int CurrentUpkeep()
+        // Фактическое содержание за час. Публично: строка бюджета в TreasuryView читает то же число.
+        public int CurrentUpkeep()
         {
             List<BuildingState> grown = Growth != null ? Growth.Homes : null;
             List<BuildingState> placed = Placement != null ? Placement.Placed : null;
