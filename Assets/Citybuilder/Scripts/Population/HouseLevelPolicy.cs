@@ -56,7 +56,8 @@ namespace Citybuilder
             return new Verdict { Action = LevelAction.Hold, Level = ClampLevel(level), Streak = streak };
         }
 
-        private static int ClampLevel(int level)
+        // Публичный: общий потолок уровней используют BuildingState и BuildingLevelPolicy (EPIC-51).
+        public static int ClampLevel(int level)
         {
             return level < MinLevel ? MinLevel : (level > MaxLevel ? MaxLevel : level);
         }

@@ -31,6 +31,7 @@ namespace Citybuilder
         }
 
         // Один проход по списку: null-список и null-здания пропускаются.
+        // Содержание масштабируется уровнем здания (EPIC-51): ×1.5 за уровень выше первого, ceil.
         private static int SumStates(List<BuildingState> states)
         {
             if (states == null)
@@ -45,7 +46,8 @@ namespace Citybuilder
                 {
                     continue;
                 }
-                total += BuildingDefinition.ClampNonNegative(state.Definition.UpkeepPerHour);
+                int baseUpkeep = BuildingDefinition.ClampNonNegative(state.Definition.UpkeepPerHour);
+                total += BuildingLevelPolicy.ScaledUpkeep(baseUpkeep, state.Level);
             }
             return total;
         }
