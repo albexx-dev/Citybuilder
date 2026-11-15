@@ -37,8 +37,8 @@
 | #51 | [Апгрейд служб](EPIC-51-service-upgrades.md) | mechanics | not started |
 | #52 | [Мусоровозы](EPIC-52-garbage-trucks.md) | mechanics | not started |
 | #53 | [Баланс-проход v1.2](EPIC-53-balance-v12.md) | mechanics | not started |
-| #54 | [Модели всех зданий](EPIC-54-building-models.md) | content | not started |
-| #55 | [CREDITS.md](EPIC-55-credits.md) | content | not started |
+| #54 | [Модели всех зданий](EPIC-54-building-models.md) | content | **done** (task/163) |
+| #55 | [CREDITS.md](EPIC-55-credits.md) | content | **done** (task/163) |
 | #56 | [Деревья и декор](EPIC-56-decor.md) | content | not started |
 | #57 | [Земля и свет](EPIC-57-ground-light.md) | content | not started |
 | #58 | [День/ночь](EPIC-58-day-night.md) | ux | not started |
