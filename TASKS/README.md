@@ -27,9 +27,9 @@
 | Issue | Эпик | Блок | Статус |
 |-------|------|------|--------|
 | #43 | [Пожары](EPIC-43-fires.md) | mechanics | not started |
-| #44 | [Машины-агенты](EPIC-44-vehicle-agents.md) | mechanics | not started |
-| #45 | [Пробки v2](EPIC-45-congestion-v2.md) | mechanics | not started |
-| #46 | [Пешеходы](EPIC-46-pedestrians.md) | mechanics | not started |
+| #44 | [Машины-агенты](EPIC-44-vehicle-agents.md) | mechanics | **done** (task/176) |
+| #45 | [Пробки v2](EPIC-45-congestion-v2.md) | mechanics | **done** (task/178) |
+| #46 | [Пешеходы](EPIC-46-pedestrians.md) | mechanics | **done** (task/179) |
 | #47 | [Криминал и полиция](EPIC-47-crime.md) | mechanics | not started |
 | #48 | [Квесты-вехи](EPIC-48-quests.md) | mechanics | not started |
 | #49 | [Налоги по типам зон](EPIC-49-zonal-taxes.md) | mechanics | not started |
@@ -40,10 +40,10 @@
 | #54 | [Модели всех зданий](EPIC-54-building-models.md) | content | **done** (task/163) |
 | #55 | [CREDITS.md](EPIC-55-credits.md) | content | **done** (task/163) |
 | #56 | [Деревья и декор](EPIC-56-decor.md) | content | **done** (task/165) |
-| #57 | [Земля и свет](EPIC-57-ground-light.md) | content | not started |
+| #57 | [Земля и свет](EPIC-57-ground-light.md) | content | **done** (task/167) |
 | #58 | [День/ночь](EPIC-58-day-night.md) | ux | not started |
 | #59 | [Уровни зданий](EPIC-59-house-levels.md) | ux | not started |
-| #60 | [Модели транспорта](EPIC-60-vehicle-models.md) | content | not started |
+| #60 | [Модели транспорта](EPIC-60-vehicle-models.md) | content | **done** (task/177) |
 | #61 | [Стройплощадки](EPIC-61-construction-sites.md) | content | not started |
 | #62 | [Оптимизация агентов](EPIC-62-agent-perf.md) | architecture | not started |
 | #63 | [Статистика-ядро](EPIC-63-metrics-core.md) | architecture | not started |
