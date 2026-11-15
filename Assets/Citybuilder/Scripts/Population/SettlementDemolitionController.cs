@@ -70,8 +70,12 @@ namespace Citybuilder
             if (PopulationSource == null) PopulationSource = GetComponent<PopulationController>();
             if (PopulationSource == null) PopulationSource = FindFirstObjectByType<PopulationController>();
         }
+        // Одноразовый поиск меню (задача 183): без флага FindFirstObjectByType сканировал сцену каждый кадр.
+        private bool menuRefsResolved;
         private void ResolveMenuRefs()
         {
+            if (menuRefsResolved) return;
+            menuRefsResolved = true;
             if (ModeMenu == null) ModeMenu = GetComponent<BuildModeMenu>();
             if (ModeMenu == null) ModeMenu = FindFirstObjectByType<BuildModeMenu>();
             if (PauseMenu == null) PauseMenu = GetComponent<PauseMenuView>();
