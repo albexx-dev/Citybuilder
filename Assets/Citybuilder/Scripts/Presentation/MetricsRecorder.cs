@@ -22,6 +22,9 @@ namespace Citybuilder
         // История для графиков (#68): читать через Snapshot(), запись — только здесь.
         public MetricsHistory History { get { return history; } }
 
+        // «Новая игра»/загрузка: история начинается заново (issue #63, шаг интеграции).
+        public void Clear() { history.Clear(); }
+
         private void OnEnable()
         {
             if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
