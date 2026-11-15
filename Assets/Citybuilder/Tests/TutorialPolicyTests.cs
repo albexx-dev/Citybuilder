@@ -2,7 +2,8 @@ using NUnit.Framework;
 
 namespace Citybuilder.Tests
 {
-    // Тесты многошаговой политики туториала v2 (EPIC-18 шаг 1, заменяет StartHintPolicyTests).
+    // Тесты политики туториала v3 (EPIC-70): матрица переходов, тексты-подсказки
+    // с точными названиями кнопок и состояние «тип уже выбран».
     public class TutorialPolicyTests
     {
         [Test]
@@ -70,6 +71,94 @@ namespace Citybuilder.Tests
                 ParkAvailable = false
             };
             Assert.AreEqual(TutorialPolicy.Step.Done, TutorialPolicy.Pick(allBuilt));
+        }
+
+        [Test]
+        public void EarlyStepTexts_NameExactButtons()
+        {
+            Assert.IsTrue(TutorialPolicy.FormatText(TutorialPolicy.Step.PaintZones).Contains("Зоны [3]"));
+            Assert.IsTrue(TutorialPolicy.FormatText(TutorialPolicy.Step.EnableGrowth).Contains("Рост [4]"));
+            Assert.IsTrue(TutorialPolicy.FormatText(TutorialPolicy.Step.WaitForHouse).Contains("x4"));
+        }
+
+        // Регрессия на UX-провал v2: владелец не понял, что станцию надо выбрать в палитре.
+        [Test]
+        public void PowerStepText_MentionsPaletteAboveTheBar()
+        {
+            string text = TutorialPolicy.FormatText(TutorialPolicy.Step.BuildPower);
+            Assert.IsTrue(text.Contains("палитре"), text);
+            Assert.IsTrue(text.Contains("НАД ПАНЕЛЬЮ"), text);
+            Assert.IsTrue(text.Contains("Power Station"), text);
+            Assert.IsTrue(text.Contains("Дома [1]"), text);
+        }
+
+        [Test]
+        public void EveryBuildStep_NamesPaletteAndExactDefinition()
+        {
+            AssertPaletteStep(TutorialPolicy.Step.BuildWater, "Water Tower");
+            AssertPaletteStep(TutorialPolicy.Step.BuildWaste, "Waste Depot");
+            AssertPaletteStep(TutorialPolicy.Step.BuildPark, "Park");
+        }
+
+        private static void AssertPaletteStep(TutorialPolicy.Step step, string displayName)
+        {
+            string text = TutorialPolicy.FormatText(step);
+            Assert.IsTrue(text.Contains("палитре"), step + ": " + text);
+            Assert.IsTrue(text.Contains("НАД ПАНЕЛЬЮ"), step + ": " + text);
+            Assert.IsTrue(text.Contains("Дома [1]"), step + ": " + text);
+            Assert.IsTrue(text.Contains(displayName), step + ": " + text);
+        }
+
+        [Test]
+        public void BuildSteps_TargetExactPaletteDefinitions()
+        {
+            Assert.AreEqual("power_station", TutorialPolicy.TargetBuildingId(TutorialPolicy.Step.BuildPower));
+            Assert.AreEqual("water_tower", TutorialPolicy.TargetBuildingId(TutorialPolicy.Step.BuildWater));
+            Assert.AreEqual("waste_depot", TutorialPolicy.TargetBuildingId(TutorialPolicy.Step.BuildWaste));
+            Assert.AreEqual("park", TutorialPolicy.TargetBuildingId(TutorialPolicy.Step.BuildPark));
+            Assert.IsNull(TutorialPolicy.TargetBuildingId(TutorialPolicy.Step.WaitForHouse));
+        }
+
+        [Test]
+        public void HighlightTargets_FollowBottomBarButtons()
+        {
+            Assert.AreEqual(TutorialPolicy.TargetButton.Zones, TutorialPolicy.HighlightTarget(TutorialPolicy.Step.PaintZones));
+            Assert.AreEqual(TutorialPolicy.TargetButton.Growth, TutorialPolicy.HighlightTarget(TutorialPolicy.Step.EnableGrowth));
+            Assert.AreEqual(TutorialPolicy.TargetButton.Speed4, TutorialPolicy.HighlightTarget(TutorialPolicy.Step.WaitForHouse));
+            Assert.AreEqual(TutorialPolicy.TargetButton.Houses, TutorialPolicy.HighlightTarget(TutorialPolicy.Step.BuildPower));
+            Assert.AreEqual(TutorialPolicy.TargetButton.None, TutorialPolicy.HighlightTarget(TutorialPolicy.Step.Done));
+        }
+
+        [Test]
+        public void SelectedTargetType_SwitchesBuildStepTextToClickMap()
+        {
+            Assert.AreEqual("Тип выбран: кликни по свободной клетке на карте",
+                TutorialPolicy.FormatText(TutorialPolicy.Step.BuildPower, "power_station"));
+        }
+
+        [Test]
+        public void TypeSelected_OnlyWhenDefinitionMatchesStepTarget()
+        {
+            Assert.IsTrue(TutorialPolicy.IsTypeSelected(TutorialPolicy.Step.BuildWater, "water_tower"));
+            Assert.IsFalse(TutorialPolicy.IsTypeSelected(TutorialPolicy.Step.BuildWater, "power_station"));
+            Assert.IsFalse(TutorialPolicy.IsTypeSelected(TutorialPolicy.Step.BuildWater, null));
+            Assert.IsFalse(TutorialPolicy.IsTypeSelected(TutorialPolicy.Step.BuildWater, ""));
+            Assert.IsFalse(TutorialPolicy.IsTypeSelected(TutorialPolicy.Step.WaitForHouse, "water_tower"));
+        }
+
+        [Test]
+        public void StateWithSelectedType_PicksSameStep_ButTextAsksToClickMap()
+        {
+            TutorialPolicy.State s = new TutorialPolicy.State
+            {
+                ResidentialCells = 16,
+                GrowthMode = true,
+                GrownCount = 1,
+                SelectedBuildingId = "power_station"
+            };
+            Assert.AreEqual(TutorialPolicy.Step.BuildPower, TutorialPolicy.Pick(s));
+            string text = TutorialPolicy.FormatText(TutorialPolicy.Pick(s), s.SelectedBuildingId);
+            Assert.IsTrue(text.Contains("Тип выбран"), text);
         }
     }
 }
