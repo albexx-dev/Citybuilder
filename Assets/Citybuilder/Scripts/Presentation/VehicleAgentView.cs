@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Виды машин-агентов (ADR-011, EPIC-44): пул примитивных автомобилей без коллайдеров.
-    // Вид [i] привязан к слоту агента [i]; неактивные и сверх лимита — скрыты (#62).
+    // Виды машин-агентов (ADR-011, EPIC-44): пул Kenney-машинок без коллайдеров (EPIC-60).
+    // Вид [i] привязан к слоту агента [i]; вариант модели детерминирован слотом.
     public class VehicleAgentView : MonoBehaviour
     {
         [Header("References")]
@@ -17,12 +17,15 @@ namespace Citybuilder
         [Tooltip("Высота корпуса над дорогой, метры.")]
         public float RideHeight = 0.05f;
 
-        private static readonly Color BodyColor = new Color(0.45f, 0.08f, 0.08f);
-        private static readonly Color CabinColor = new Color(0.30f, 0.05f, 0.05f);
+        [Header("Model")]
+        [Tooltip("FBX-модели машин (Kenney Racing). Пусто = машины без вида.")]
+        public GameObject[] CarModels;
+        [Tooltip("Доворот модели вокруг Y, градусы. Нос Kenney-машины смотрит по −Z: 180 выравнивает по ходу.")]
+        public float ModelYawOffset = 0f;
+        [Tooltip("Множитель масштаба поверх родного масштаба FBX (машина ~13.5 м: при CellSize 1 попробуйте 0.06).")]
+        public float ModelScale = 1f;
 
         private GameObject[] cars;
-        private Material bodyMaterial;
-        private Material cabinMaterial;
 
         // Обновить все виды из менеджера. Вызывается хостом каждый кадр после Advance.
         public void Sync(AgentManager manager)
@@ -39,9 +42,9 @@ namespace Citybuilder
             if (cars != null && cars.Length == count) return;
             ClearPool();
             cars = new GameObject[count];
-            bodyMaterial = BuildMaterial(BodyColor);
-            cabinMaterial = BuildMaterial(CabinColor);
-            for (int i = 0; i < count; i++) cars[i] = BuildCar();
+            if (CarModels == null || CarModels.Length == 0)
+                Debug.LogError("VehicleAgentView: задайте CarModels (FBX Kenney Racing) в Inspector.");
+            for (int i = 0; i < count; i++) cars[i] = BuildCar(i);
         }
 
         private void ClearPool()
@@ -51,26 +54,54 @@ namespace Citybuilder
             cars = null;
         }
 
-        // Временная модель: корпус + кабина из кубов (замена на Kenney — эпик #60).
-        private GameObject BuildCar()
+        // Вид слота: инстанс FBX-модели, вариант = slot % CarModels.Length (стабилен между кадрами).
+        private GameObject BuildCar(int slot)
         {
             GameObject car = new GameObject("Vehicle");
             car.transform.SetParent(transform, false);
-            BuildPart(car, "Body", new Vector3(0.45f, 0.2f, 0.85f), new Vector3(0f, 0.1f, 0f), bodyMaterial);
-            BuildPart(car, "Cabin", new Vector3(0.35f, 0.16f, 0.4f), new Vector3(0f, 0.28f, -0.08f), cabinMaterial);
+            if (CarModels != null && CarModels.Length > 0 && CarModels[slot % CarModels.Length] != null)
+            {
+                GameObject model = Instantiate(CarModels[slot % CarModels.Length]);
+                model.transform.SetParent(car.transform, false);
+                model.transform.localScale = model.transform.localScale * ModelScale;
+                AlignModel(model);
+            }
             car.SetActive(false);
             return car;
         }
 
-        private static void BuildPart(GameObject car, string partName, Vector3 size, Vector3 at, Material material)
+        // Kenney-ассет несёт сдвиг внутри FBX: центр по XZ и низ по Y выравниваем на ось вида.
+        private static void AlignModel(GameObject model)
         {
-            GameObject part = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            part.name = partName;
-            DestroySafe(part.GetComponent<Collider>());
-            part.GetComponent<MeshRenderer>().sharedMaterial = material;
-            part.transform.SetParent(car.transform, false);
-            part.transform.localScale = size;
-            part.transform.localPosition = at;
+            Vector3 min, max;
+            if (!TryModelBounds(model, out min, out max)) return;
+            Vector3 anchor = new Vector3((min.x + max.x) * 0.5f, min.y, (min.z + max.z) * 0.5f);
+            model.transform.localPosition = Vector3.Scale(-anchor, model.transform.localScale);
+        }
+
+        // Объединённый AABB всех мешей модели в системе координат её корня.
+        // bounds доступны и без Read/Write у меша, поэтому замер не требует настроек импорта.
+        private static bool TryModelBounds(GameObject model, out Vector3 min, out Vector3 max)
+        {
+            min = Vector3.positiveInfinity;
+            max = Vector3.negativeInfinity;
+            MeshFilter[] filters = model.GetComponentsInChildren<MeshFilter>(true);
+            for (int i = 0; i < filters.Length; i++)
+            {
+                Mesh mesh = filters[i].sharedMesh;
+                if (mesh == null) continue;
+                Matrix4x4 toRoot = model.transform.worldToLocalMatrix * filters[i].transform.localToWorldMatrix;
+                Vector3 center = mesh.bounds.center;
+                Vector3 ext = mesh.bounds.extents;
+                for (int c = 0; c < 8; c++)
+                {
+                    Vector3 corner = center + Vector3.Scale(ext, new Vector3((c & 1) * 2 - 1, (c & 2) - 1, (c & 4) / 2 - 1));
+                    corner = toRoot.MultiplyPoint3x4(corner);
+                    min = Vector3.Min(min, corner);
+                    max = Vector3.Max(max, corner);
+                }
+            }
+            return min.x <= max.x;
         }
 
         private void ShowCar(int index, AgentManager.VehicleAgent agent, float cellSize)
@@ -97,11 +128,10 @@ namespace Citybuilder
             car.transform.position = new Vector3(Mathf.Lerp(ax, bx, t), RideHeight, Mathf.Lerp(az, bz, t));
             float dx = bx - ax;
             float dz = bz - az;
-            if (Mathf.Abs(dx) + Mathf.Abs(dz) > 0.001f) car.transform.rotation = Quaternion.Euler(0f, Mathf.Atan2(dx, dz) * Mathf.Rad2Deg, 0f);
+            if (Mathf.Abs(dx) + Mathf.Abs(dz) > 0.001f)
+                car.transform.rotation = Quaternion.Euler(0f, Mathf.Atan2(dx, dz) * Mathf.Rad2Deg + ModelYawOffset, 0f);
             car.SetActive(true);
         }
-
-        private static Material BuildMaterial(Color color) => new Material(Shader.Find("Unlit/Color")) { color = color };
 
         private static void DestroySafe(Object obj)
         {
@@ -113,10 +143,6 @@ namespace Citybuilder
         private void OnDestroy()
         {
             ClearPool();
-            DestroySafe(bodyMaterial);
-            DestroySafe(cabinMaterial);
-            bodyMaterial = null;
-            cabinMaterial = null;
         }
     }
 }
