@@ -111,7 +111,8 @@ namespace Citybuilder
             if (state == null || state.Definition == null) return;
             BuildingDefinition def = state.Definition;
             if (def.ServiceKind == ServiceKind.None || def.ServiceRadius <= 0) return;
-            EnsureSourceList(def.ServiceKind).Add(new ServiceSource(state.Origin, def.ServiceRadius));
+            int radius = BuildingLevelPolicy.ServiceRadius(def.ServiceRadius, state.Level);
+            EnsureSourceList(def.ServiceKind).Add(new ServiceSource(state.Origin, radius));
         }
 
         private List<ServiceSource> EnsureSourceList(ServiceKind kind)

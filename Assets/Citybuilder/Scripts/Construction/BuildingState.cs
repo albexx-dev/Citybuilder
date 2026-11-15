@@ -33,5 +33,11 @@ namespace Citybuilder
             Level = level;
             ComfortStreak = comfortStreak;
         }
+
+        // Апгрейд станции или службы на следующий уровень (EPIC-51): только вручную, потолок общий 1..3.
+        public void ApplyUpgrade()
+        {
+            Level = HouseLevelPolicy.ClampLevel(Level + 1);
+        }
     }
 }

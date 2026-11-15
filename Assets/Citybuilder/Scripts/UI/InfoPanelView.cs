@@ -35,7 +35,20 @@ namespace Citybuilder
             ResolveRefs();
             if (GridVisualizer == null) return;
             if (Services != null) Services.RefreshNow();
-            BuildingInfo next = BuildingInfoQuery.Query(
+            BuildingInfo next = RunQuery(cell);
+            if (!next.Found || (current.Found && current.Origin == next.Origin && current.IsGrown == next.IsGrown))
+            {
+                Close();
+                return;
+            }
+            current = next;
+            ShowOverlay();
+        }
+
+        // Снимок выбранного здания: один источник запроса для клика и перерисовки после апгрейда.
+        private BuildingInfo RunQuery(GridPosition cell)
+        {
+            return BuildingInfoQuery.Query(
                 cell,
                 GridVisualizer.Grid.Size,
                 Growth != null ? Growth.Homes : null,
@@ -46,12 +59,11 @@ namespace Citybuilder
                 Water != null ? Water.Rate01 : 1f,
                 Waste != null ? Waste.Rate01 : 1f,
                 s => Connectivity != null && Connectivity.IsHomeConnected(s));
-            if (!next.Found || (current.Found && current.Origin == next.Origin && current.IsGrown == next.IsGrown))
-            {
-                Close();
-                return;
-            }
-            current = next;
+        }
+
+        // Оверлей радиуса службы: после апгрейда радиус вырос — перерисовать.
+        private void ShowOverlay()
+        {
             if (current.HasServiceRadius) GridVisualizer.ShowRadiusOverlay(current.Origin, current.ServiceRadius, current.ServiceKind);
             else GridVisualizer.ClearRadiusOverlay();
         }
@@ -83,6 +95,23 @@ namespace Citybuilder
             UiClickGuard.Set("info_panel", panel);
             BottomBarStyle.DrawBarBackground(panel);
             DrawLines(panel.x + 10f, panel.y + 8f);
+            if (InfoPanelUpgrade.Draw(panel, current)) OnUpgradeClicked();
+        }
+
+        // Кнопка «Улучшить» (EPIC-51): списание и пересчёт в InfoPanelUpgrade, панель перерисовывает снимок.
+        private void OnUpgradeClicked()
+        {
+            ResolveRefs();
+            if (Growth == null || Placement == null || !current.Found) return;
+            if (!InfoPanelUpgrade.TryUpgradeCurrent(current, Growth, Placement, Services).Success) return;
+            BuildingInfo next = RunQuery(current.Origin);
+            if (!next.Found)
+            {
+                Close();
+                return;
+            }
+            current = next;
+            ShowOverlay();
         }
 
         private void DrawLines(float x, float y)
@@ -109,6 +138,8 @@ namespace Citybuilder
                 HudText.Draw(x, y, "Радиус: " + current.ServiceRadius + " кл. • Покрыто домов: " + current.CoveredHomes + "/" + current.TotalHomes);
                 y += 24f;
             }
+            HudText.Draw(x, y, "Уровень: " + current.Level); // уровень станции (EPIC-51); у жилых строка выше
+            y += 24f;
             if (current.JobsProvided > 0) HudText.Draw(x, y, "Рабочих мест: " + current.JobsProvided);
         }
 

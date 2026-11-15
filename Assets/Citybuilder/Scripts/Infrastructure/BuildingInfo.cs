@@ -26,6 +26,8 @@ namespace Citybuilder
         public float HealthCoverage01;
         public float LeisureCoverage01;
         public bool RoadConnected;
+        public bool Upgradeable; // Кнопка «Улучшить» (EPIC-51): станция/служба не на максимуме.
+        public int UpgradePrice; // Цена следующего уровня; 0 — кнопки нет.
 
         public bool HasServiceRadius
         {

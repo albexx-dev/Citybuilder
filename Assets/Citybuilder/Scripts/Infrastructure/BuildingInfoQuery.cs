@@ -32,19 +32,32 @@ namespace Citybuilder
             info.DisplayName = string.IsNullOrEmpty(def.DisplayName) ? info.Id : def.DisplayName;
             info.Origin = state.Origin;
             info.Cost = def.ConstructionCost;
-            info.UpkeepPerHour = def.UpkeepPerHour < 0 ? 0 : def.UpkeepPerHour;
+            info.UpkeepPerHour = BuildingLevelPolicy.ScaledUpkeep(
+                def.UpkeepPerHour < 0 ? 0 : def.UpkeepPerHour, state.Level);
             info.Capacity = def.ResidentCapacity;
             info.Level = state.Level;
             info.JobsProvided = def.JobsProvided;
             info.Residents = isGrown && population != null ? population.ResidentsIn(state) : 0;
             info.ServiceKind = def.ServiceKind;
-            info.ServiceRadius = def.ServiceRadius > 0 ? def.ServiceRadius : 0;
+            info.ServiceRadius = BuildingLevelPolicy.ServiceRadius(def.ServiceRadius, state.Level);
             info.PowerRate01 = Sanitize01(powerRate01);
             info.WaterRate01 = Sanitize01(waterRate01);
             info.WasteRate01 = Sanitize01(wasteRate01);
             info.RoadConnected = isRoadConnected != null && isRoadConnected(state);
+            info.UpgradePrice = UpgradeController.PriceFor(def, state.Level);
+            info.Upgradeable = info.UpgradePrice > 0;
             FillServiceFields(ref info, state, grownHomes, services);
             return info;
+        }
+
+        // Состояние здания по клетке для команд над выбранной панелью (апгрейд, EPIC-51). Нет — null.
+        public static BuildingState FindStateAt(
+            GridPosition cell,
+            IReadOnlyList<BuildingState> grownHomes,
+            IReadOnlyList<BuildingState> manualBuildings)
+        {
+            bool isGrown;
+            return FindAt(cell, grownHomes, manualBuildings, out isGrown);
         }
 
         // Список клеток внутри сетки, покрытых кругом станции (единая математика через ServiceCoverage).

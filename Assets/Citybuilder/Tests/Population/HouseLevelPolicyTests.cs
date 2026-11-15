@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Citybuilder
 {
@@ -100,6 +101,34 @@ namespace Citybuilder
         {
             Assert.AreEqual(3, policy.Evaluate(9, 0, 0.5f).Level);
             Assert.AreEqual(1, policy.Evaluate(-2, 0, 0.5f).Level);
+        }
+
+        // EPIC-51: уровни по тикам комфорта растят только жилые дома —
+        // службы апгрейдятся вручную, коммерция и промзона уровней не имеют.
+        [Test]
+        public void IsResidential_ResidentialZoneWithCapacity_True()
+        {
+            BuildingDefinition home = ScriptableObject.CreateInstance<BuildingDefinition>();
+            home.AllowedZone = ZoneType.Residential;
+            home.ResidentCapacity = 4;
+            Assert.IsTrue(HouseLevelPolicy.IsResidential(home));
+            ScriptableObject.DestroyImmediate(home);
+        }
+
+        [Test]
+        public void IsResidential_StationShopAndNull_False()
+        {
+            BuildingDefinition station = ScriptableObject.CreateInstance<BuildingDefinition>();
+            station.AllowedZone = ZoneType.Residential;
+            station.ResidentCapacity = 0;
+            Assert.IsFalse(HouseLevelPolicy.IsResidential(station));
+            BuildingDefinition shop = ScriptableObject.CreateInstance<BuildingDefinition>();
+            shop.AllowedZone = ZoneType.Commercial;
+            shop.ResidentCapacity = 0;
+            Assert.IsFalse(HouseLevelPolicy.IsResidential(shop));
+            ScriptableObject.DestroyImmediate(station);
+            ScriptableObject.DestroyImmediate(shop);
+            Assert.IsFalse(HouseLevelPolicy.IsResidential(null));
         }
     }
 }

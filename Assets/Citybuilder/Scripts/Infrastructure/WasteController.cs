@@ -86,12 +86,14 @@ namespace Citybuilder
         }
 
         // Одно здание в баланс: спрос и утилизация только при значениях больше нуля.
+        // Ёмкость масштабируется уровнем здания (EPIC-51): ×1.5 за уровень, ceil.
         private void AddHome(SupplyBalance current, BuildingState home)
         {
             if (home == null || home.Definition == null) return;
             BuildingDefinition def = home.Definition;
             if (def.WasteOutput > 0) current.SetDemand(home.Id, def.WasteOutput);
-            if (def.WasteCapacity > 0) current.SetSupply(home.Id, def.WasteCapacity);
+            int capacity = BuildingLevelPolicy.ScaledOutput(def.WasteCapacity, home.Level);
+            if (capacity > 0) current.SetSupply(home.Id, capacity);
         }
 
         // Городская база — ленивый id, создаётся один раз на сессию.

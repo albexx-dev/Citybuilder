@@ -79,6 +79,32 @@ namespace Citybuilder
             Assert.AreEqual(0, UpkeepPolicy.UpkeepPerHour(null, placed));
         }
 
+        // EPIC-51: содержание масштабируется уровнем здания — ×1.5 за уровень, ceil.
+        [Test]
+        public void Upkeep_LevelTwo_MultipliesByOneAndHalfRoundedUp()
+        {
+            List<BuildingState> placed = new List<BuildingState>();
+            placed.Add(MakeState(5, 2));
+            placed.Add(MakeState(1, 2));
+            Assert.AreEqual(10, UpkeepPolicy.UpkeepPerHour(new List<BuildingState>(), placed));
+        }
+
+        [Test]
+        public void Upkeep_LevelThree_Doubles()
+        {
+            List<BuildingState> placed = new List<BuildingState>();
+            placed.Add(MakeState(5, 3));
+            Assert.AreEqual(10, UpkeepPolicy.UpkeepPerHour(new List<BuildingState>(), placed));
+        }
+
+        [Test]
+        public void Upkeep_LevelOne_KeepsBase()
+        {
+            List<BuildingState> placed = new List<BuildingState>();
+            placed.Add(MakeState(7, 1));
+            Assert.AreEqual(7, UpkeepPolicy.UpkeepPerHour(new List<BuildingState>(), placed));
+        }
+
         private static BuildingDefinition MakeDefinition(int upkeep)
         {
             BuildingDefinition definition = ScriptableObject.CreateInstance<BuildingDefinition>();
@@ -90,6 +116,13 @@ namespace Citybuilder
         {
             return new BuildingState(EntityId.New(), MakeDefinition(upkeep), new GridPosition(0, 0),
                 new List<GridPosition>());
+        }
+
+        private static BuildingState MakeState(int upkeep, int level)
+        {
+            BuildingState state = MakeState(upkeep);
+            for (int i = 1; i < level; i++) state.ApplyUpgrade();
+            return state;
         }
     }
 }
