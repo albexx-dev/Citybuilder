@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Хоткеи меню режимов и паузы (EPIC-16): Esc сначала гасит режим, при Выкл — открывает/закрывает паузу;
-    // открытые меню блокируют 1-4; переключение 1-4 переключает режим без изменения состояния города.
+    // открытые меню блокируют 1-5; переключение 1-5 переключает режим без изменения состояния города.
     public class BuildModeHotkeys : MonoBehaviour
     {
         [Header("References")]
@@ -72,6 +72,7 @@ namespace Citybuilder
             else if (Input.GetKeyDown(KeyCode.Alpha2)) SelectMode(menu, BuildModeMenu.Mode.Roads);
             else if (Input.GetKeyDown(KeyCode.Alpha3)) SelectMode(menu, BuildModeMenu.Mode.Zones);
             else if (Input.GetKeyDown(KeyCode.Alpha4)) SelectMode(menu, BuildModeMenu.Mode.Growth);
+            else if (Input.GetKeyDown(KeyCode.Alpha5)) SelectMode(menu, BuildModeMenu.Mode.Decor);
         }
 
         public void SelectMode(BuildModeMenu menu, BuildModeMenu.Mode mode)

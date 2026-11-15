@@ -62,7 +62,7 @@ namespace Citybuilder
         {
             Rect speed = SpeedGroupRect(screenWidth, screenHeight);
             float x = speed.xMax + GroupGap;
-            float width = 5f * ModeButtonWidth + 4f * ButtonGap;
+            float width = 6f * ModeButtonWidth + 5f * ButtonGap;
             return new Rect(x, speed.y, width, ButtonHeight);
         }
 
