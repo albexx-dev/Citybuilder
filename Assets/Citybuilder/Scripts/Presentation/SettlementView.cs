@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Виды выросших домов: детерминированные варианты (EPIC-17 шаг 2) и фаза стройки (EPIC-17 шаг 1).
+    // Виды зданий: детерминированные варианты кубов (EPIC-17), стройфаза всех типов (EPIC-61).
     public class SettlementView : MonoBehaviour
     {
         [Header("Fallback")]
@@ -34,27 +34,31 @@ namespace Citybuilder
 
         public void Clear()
         {
-            foreach (KeyValuePair<EntityId, GameObject> entry in views)
-            {
-                DestroySafe(entry.Value);
-            }
+            foreach (KeyValuePair<EntityId, GameObject> entry in views) DestroySafe(entry.Value);
             views.Clear();
         }
 
         private GameObject SpawnView(BuildingState state, BuildingDefinition def, float cellSize, bool skipConstructionStage)
         {
             Vector3 at = FootprintCenter(state.Origin, def, cellSize, 0f);
+            bool constructing = !skipConstructionStage && def.ConstructionTicks > 0;
             if (def.Prefab != null)
             {
+                if (constructing)
+                {
+                    return ConstructionSiteView.Spawn(transform, at, def, cellSize,
+                        ConstructionSiteView.TargetScale(def, cellSize), null,
+                        delegate { AddBuilding(state, def, cellSize, true); });
+                }
                 GameObject prefab = Instantiate(def.Prefab, at, Quaternion.identity, transform);
                 float scale = LevelScale(state.Level, false);
                 prefab.transform.localScale = Vector3.Scale(def.Prefab.transform.localScale, new Vector3(scale, scale, scale));
                 return prefab;
             }
-            return BuildCube(state, def, cellSize, skipConstructionStage);
+            return BuildCube(state, def, cellSize, constructing);
         }
 
-        private GameObject BuildCube(BuildingState state, BuildingDefinition def, float cellSize, bool skipConstructionStage)
+        private GameObject BuildCube(BuildingState state, BuildingDefinition def, float cellSize, bool constructing)
         {
             GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cube.transform.SetParent(transform, false);
@@ -71,10 +75,13 @@ namespace Citybuilder
             MeshRenderer renderer = cube.GetComponent<MeshRenderer>();
             renderer.sharedMaterial = BuildMaterial(wallColor);
             GameObject roof = BuildRoof(cube, h, variant, state.Level);
-            if (!skipConstructionStage)
+            if (constructing)
             {
-                GrowthStageView stage = cube.AddComponent<GrowthStageView>();
-                stage.BeginConstruction(renderer, roof, fullScale, groundCenter, wallColor);
+                renderer.sharedMaterial.color = new Color(0.5f, 0.5f, 0.5f);
+                roof.SetActive(false);
+                cube.AddComponent<ConstructionSiteView>().Begin(cube.transform, fullScale, groundCenter,
+                    def.Footprint, cellSize, def.ConstructionTicks,
+                    delegate { roof.SetActive(true); renderer.sharedMaterial.color = wallColor; });
             }
             return cube;
         }
@@ -118,9 +125,7 @@ namespace Citybuilder
 
         private static Material BuildMaterial(Color color)
         {
-            Material material = new Material(Shader.Find("Unlit/Color"));
-            material.color = color;
-            return material;
+            return new Material(Shader.Find("Unlit/Color")) { color = color };
         }
 
         private static void DestroySafe(Object obj)

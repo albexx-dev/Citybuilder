@@ -30,7 +30,6 @@ namespace Citybuilder
 
         private void Start() { EnsureReady(); }
         private void OnEnable() { placementActive = true; }
-        // Прячем призрак при выключении: иначе висящий куб.
         private void OnDisable() { ghostView.Hide(); }
 
         // Сменить тип и пересоздать призрак: иначе останется старый габарит.
@@ -97,7 +96,8 @@ namespace Citybuilder
             }
             BuildingState state = system.Place(Definition, cell);
             if (state == null) return false;
-            store.Add(state, BuildingViewFactory.CreateView(state, GridVisualizer));
+            store.Add(state, BuildingViewFactory.CreateView(state, GridVisualizer, true,
+                delegate { store.ReplaceWithReady(state, GridVisualizer); }));
             GridVisualizer.RefreshOccupied();
             if (Save != null) Save.MarkDirty();
             return true;
@@ -111,7 +111,7 @@ namespace Citybuilder
             if (def == null) return false;
             BuildingState state = system.Place(def, origin);
             if (state == null) return false;
-            store.Add(state, BuildingViewFactory.CreateView(state, GridVisualizer));
+            store.Add(state, BuildingViewFactory.CreateView(state, GridVisualizer, false, null));
             GridVisualizer.RefreshOccupied();
             return true;
         }

@@ -50,6 +50,16 @@ namespace Citybuilder
             return true;
         }
 
+        // Стройка завершилась (EPIC-61): площадка заменяется готовым видом, состояние не меняется.
+        public void ReplaceWithReady(BuildingState state, GridVisualizer grid)
+        {
+            int index = IndexOf(state);
+            if (index < 0) return;
+            GameObject ready = BuildingViewFactory.CreateView(state, grid, false, null);
+            if (views[index] != null) BuildingViewFactory.DestroySafe(views[index]);
+            views[index] = ready;
+        }
+
         // Снос всех ручных: клетки освобождаются, виды уничтожаются, списки пустеют.
         public void Clear(BuildingSystem system, GridVisualizer grid)
         {
