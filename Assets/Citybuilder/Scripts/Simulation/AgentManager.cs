@@ -18,6 +18,9 @@ namespace Citybuilder
         // Поставщик маршрутов: в сцене — RouteSystem.FindPath, в тестах — fake.
         public Func<GridPosition, GridPosition, List<GridPosition>> PathFinder;
 
+        // Поставщик множителя скорости клетки (EPIC-45): 1 — полная скорость, 0.3 — затор; null = полная.
+        public Func<GridPosition, float> CellSpeedFactor;
+
         // Агент: маршрут по дорогам, пройденные клетки и индекс текущей клетки (фид пробок).
         public struct VehicleAgent
         {
@@ -36,12 +39,7 @@ namespace Citybuilder
 
         public int ActiveCount
         {
-            get
-            {
-                int count = 0;
-                for (int i = 0; i < MaxAgents; i++) if (agents[i].Active) count++;
-                return count;
-            }
+            get { int count = 0; for (int i = 0; i < MaxAgents; i++) if (agents[i].Active) count++; return count; }
         }
 
         // Агент по индексу слота 0..MaxAgents-1 (для видов). Вне диапазона — неактивный.
@@ -120,7 +118,8 @@ namespace Citybuilder
             {
                 if (!agents[i].Active) continue;
                 VehicleAgent agent = agents[i];
-                agent.Progress += CellsPerSecond * deltaTime;
+                float factor = CellSpeedFactor != null ? CellSpeedFactor(agent.Path[agent.CellIndex]) : 1f;
+                agent.Progress += CellsPerSecond * factor * deltaTime;
                 int count = agent.Path.Count;
                 int cellIndex = (int)agent.Progress;
                 if (cellIndex > count - 1) cellIndex = count - 1;

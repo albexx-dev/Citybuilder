@@ -72,20 +72,24 @@ namespace Citybuilder
             routes.Rebuild(cells);
         }
 
+        // Синтетический фид (фолбэк, EPIC-45): при активных агентах не применяется — без двойного учёта.
+        // Агентный фид пишется напрямую в CongestionSystem (AgentManager), минуя этот вход.
         public void TrackTrip(IReadOnlyList<GridPosition> path)
         {
             if (path == null || path.Count == 0 || !EnsureReady()) return;
-            if (congestion != null) congestion.TrackTrip(path);
-            if (routes != null)
+            if (congestion != null && congestion.HasAgentFeed) return;
+            if (routes != null) TrackRouteLoad(path);
+        }
+
+        private void TrackRouteLoad(IReadOnlyList<GridPosition> path)
+        {
+            List<GridPosition> list = path as List<GridPosition>;
+            if (list == null)
             {
-                List<GridPosition> list = path as List<GridPosition>;
-                if (list == null)
-                {
-                    list = new List<GridPosition>(path.Count);
-                    for (int i = 0; i < path.Count; i++) list.Add(path[i]);
-                }
-                routes.TrackLoad(list);
+                list = new List<GridPosition>(path.Count);
+                for (int i = 0; i < path.Count; i++) list.Add(path[i]);
             }
+            routes.TrackLoad(list);
         }
 
         public void ClearLoads()

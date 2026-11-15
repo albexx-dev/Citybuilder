@@ -37,6 +37,14 @@ namespace Citybuilder
             }
             manager = new AgentManager(Congestion.System);
             manager.PathFinder = FindRoute;
+            manager.CellSpeedFactor = CellSpeed;
+        }
+
+        // Множитель скорости клетки (EPIC-45): загруженная клетка физически замедляет машину.
+        private float CellSpeed(GridPosition cell)
+        {
+            CongestionSystem congestion = Congestion.System;
+            return congestion != null ? CongestionSpeedPolicy.SpeedForLoad01(congestion.Load01(cell)) : 1f;
         }
 
         private void ResolveReferences()

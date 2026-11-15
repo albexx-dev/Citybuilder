@@ -51,6 +51,8 @@ namespace Citybuilder
         }
 
         public void ClearLoads() => recordedLoads.Clear();
+        // Агентный фид (EPIC-45): recordedLoads пишут только агенты; непусто в окне — источник агентный.
+        public bool HasAgentFeed { get { return recordedLoads.Count > 0; } }
 
         public int GetLoad(GridPosition cell)
         {
