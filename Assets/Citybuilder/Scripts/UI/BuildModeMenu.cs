@@ -49,7 +49,7 @@ namespace Citybuilder
             if (Houses != null)
             {
                 Houses.enabled = (mode == Mode.Houses);
-                Houses.placementActive = (mode == Mode.Houses);
+                Houses.PlacementActive = (mode == Mode.Houses);
             }
             if (Roads != null)
             {
