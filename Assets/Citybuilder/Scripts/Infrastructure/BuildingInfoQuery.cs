@@ -34,6 +34,7 @@ namespace Citybuilder
             info.Cost = def.ConstructionCost;
             info.UpkeepPerHour = def.UpkeepPerHour < 0 ? 0 : def.UpkeepPerHour;
             info.Capacity = def.ResidentCapacity;
+            info.Level = state.Level;
             info.JobsProvided = def.JobsProvided;
             info.Residents = isGrown && population != null ? population.ResidentsIn(state) : 0;
             info.ServiceKind = def.ServiceKind;
