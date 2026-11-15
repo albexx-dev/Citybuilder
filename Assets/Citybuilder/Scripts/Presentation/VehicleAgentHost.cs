@@ -72,9 +72,10 @@ namespace Citybuilder
         }
 
         // Граница игрового часа: обновить цели и дороги, спавн по окну расписания.
+        // Вне окон спавна пропускаем всё: OnGameHour там no-op, а сбор целей копирует списки.
         private void OnClockTick(SimulationTime time)
         {
-            if (manager == null) return;
+            if (manager == null || !AgentManager.IsSpawnHour(time.HourOfDay)) return;
             CollectTargets();
             CollectRoads();
             manager.OnGameHour(time.HourOfDay, homes, works, roads);
