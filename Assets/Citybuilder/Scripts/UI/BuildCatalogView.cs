@@ -52,7 +52,6 @@ namespace Citybuilder
                 if (def == null || tabs.Contains(def.Category)) continue;
                 tabs.Add(def.Category);
             }
-            if (ShouldShowDecorTab(defs)) tabs.Add(BuildingCategory.Decor);
         }
 
         private static void DrawTabs(float sw, float sh)
@@ -101,13 +100,6 @@ namespace Citybuilder
                 if (defs[i] != null && defs[i].Category == category) return true;
             }
             return false;
-        }
-
-        // Заглушка под будущий режим постройки декора: вкладка «Декор» видна, даже если зданий пока нет,
-        // и ведёт в пустую ленту вместо исчезающей вкладки.
-        public static bool ShouldShowDecorTab(List<BuildingDefinition> defs)
-        {
-            return !HasCategory(defs, BuildingCategory.Decor);
         }
     }
 }
