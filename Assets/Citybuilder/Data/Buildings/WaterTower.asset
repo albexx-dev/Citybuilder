@@ -12,8 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6806e511684bf264e962078ccaf5f775, type: 3}
   m_Name: WaterTower
   m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.BuildingDefinition
-  # Станции не потребляют энергию и воду намеренно: иначе при полном блэкауте
-  # нельзя построить станцию, которая его лечит (deadlock).
   Id: water_tower
   DisplayName: Water Tower
   Footprint: {x: 2, y: 2}
@@ -22,8 +20,8 @@ MonoBehaviour:
   AllowedZone: 3
   ResidentCapacity: 0
   JobsProvided: 1
-  ServiceRadius: 0
   ServiceKind: 0
+  ServiceRadius: 0
   PowerDemand: 0
   PowerOutput: 0
   WaterDemand: 0
@@ -31,4 +29,5 @@ MonoBehaviour:
   WasteOutput: 0
   WasteCapacity: 0
   UpkeepPerHour: 6
-  Prefab: {fileID: 0}
+  VariantCount: 1
+  Prefab: {fileID: 8099908136520659039, guid: 1d1a1d653ef28bd40a631fbd5831a198, type: 3}

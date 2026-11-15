@@ -20,6 +20,7 @@ MonoBehaviour:
   AllowedZone: 3
   ResidentCapacity: 0
   JobsProvided: 8
+  ServiceKind: 0
   ServiceRadius: 0
   PowerDemand: 1
   PowerOutput: 0
@@ -28,4 +29,5 @@ MonoBehaviour:
   WasteOutput: 3
   WasteCapacity: 0
   UpkeepPerHour: 2
-  Prefab: {fileID: 0}
+  VariantCount: 1
+  Prefab: {fileID: 8612412200041099302, guid: a18829284c22f6648b70cdae5f827e65, type: 3}

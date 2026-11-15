@@ -83,7 +83,8 @@ namespace Citybuilder
             Assert.AreEqual(ServiceKind.None, definition.ServiceKind, "kind");
             Assert.AreEqual(new Vector2Int(2, 2), definition.Footprint, "footprint");
             Assert.AreEqual(ZoneType.Industrial, definition.AllowedZone, "zone");
-            Assert.IsNull(definition.Prefab, "prefab");
+            // ADR-010: у всех зданий есть модель-префаб (кубы-заглушки убраны).
+            Assert.IsNotNull(definition.Prefab, "prefab");
         }
     }
 }
