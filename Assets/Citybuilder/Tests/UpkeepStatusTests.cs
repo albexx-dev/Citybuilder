@@ -40,12 +40,14 @@ namespace Citybuilder
         [TestCase("House", 0)]
         [TestCase("Shop", 1)]
         [TestCase("Factory", 2)]
-        [TestCase("PowerStation", 8)]
-        [TestCase("WaterTower", 6)]
-        [TestCase("WasteDepot", 5)]
-        [TestCase("FireStation", 6)]
-        [TestCase("PoliceStation", 6)]
-        public void AssetUpkeep_MatchesEpicValues(string name, int expected)
+        [TestCase("PowerStation", 4)]
+        [TestCase("WaterTower", 3)]
+        [TestCase("WasteDepot", 3)]
+        [TestCase("FireStation", 3)]
+        [TestCase("PoliceStation", 3)]
+        [TestCase("Hospital", 5)]
+        [TestCase("Park", 1)]
+        public void AssetUpkeep_MatchesRebalancedValues(string name, int expected)
         {
             Assert.AreEqual(expected, Load(name).UpkeepPerHour, name);
         }
@@ -61,9 +63,9 @@ namespace Citybuilder
             Assert.AreEqual(0, UpkeepPolicy.UpkeepPerHour(placed));
         }
 
-        // Девять зданий со значениями EPIC-04: 0+0+0 +1+1 +2 +8 +6 +5 = 23 $/ч и строка говорит 23.
+        // Девять зданий после ребаланса 171: 0+0+0 +1+1 +2 +4 +3 +3 = 14 $/ч и строка говорит 14.
         [Test]
-        public void CityOfEpicBuildings_LineShowsRealSum()
+        public void CityOfRebalancedBuildings_LineShowsRealSum()
         {
             List<BuildingDefinition> placed = new List<BuildingDefinition>
             {
@@ -72,8 +74,8 @@ namespace Citybuilder
                 Load("Factory"), Load("PowerStation"), Load("WaterTower"), Load("WasteDepot")
             };
             int upkeep = UpkeepPolicy.UpkeepPerHour(placed);
-            Assert.AreEqual(23, upkeep);
-            Assert.AreEqual("Расход: 23 $/ч", UpkeepStatusPolicy.Text(upkeep));
+            Assert.AreEqual(14, upkeep);
+            Assert.AreEqual("Расход: 14 $/ч", UpkeepStatusPolicy.Text(upkeep));
         }
 
         private static BuildingDefinition Load(string name)
