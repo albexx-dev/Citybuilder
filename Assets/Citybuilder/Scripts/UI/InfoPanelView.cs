@@ -95,6 +95,8 @@ namespace Citybuilder
             {
                 HudText.Draw(x, y, "Жители: " + current.Residents + "/" + current.Capacity + " • Дорога: " + (current.RoadConnected ? "да" : "нет"));
                 y += 24f;
+                HudText.Draw(x, y, "Уровень: " + current.Level);
+                y += 24f;
                 HudText.Draw(x, y, "Свет " + Pct(current.PowerRate01) + "% • Вода " + Pct(current.WaterRate01) + "% • Мусор " + Pct(current.WasteRate01) + "%");
                 y += 24f;
                 HudText.Draw(x, y, "Пожарные " + Pct(current.FireCoverage01) + "% • Полиция " + Pct(current.PoliceCoverage01) + "%");

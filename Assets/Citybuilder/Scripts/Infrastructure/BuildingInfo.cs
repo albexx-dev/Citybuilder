@@ -12,6 +12,7 @@ namespace Citybuilder
         public int UpkeepPerHour;
         public int Residents;
         public int Capacity;
+        public int Level; // Уровень дома 1..3 (EPIC-59); у не-жилых зданий всегда 1.
         public int JobsProvided;
         public ServiceKind ServiceKind;
         public int ServiceRadius;
