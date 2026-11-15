@@ -2,95 +2,104 @@ using NUnit.Framework;
 
 namespace Citybuilder
 {
-    // Налоговая политика: ставки (2/4/6 после ребаланса 171), переключение по кругу, фолбэк. Без Unity API.
+    // Налоговая политика v2 (эпик #49): три зональные лестницы 2/4/6, дефолт 4/4/4,
+    // независимые циклы зон, формат строки бюджета, фолбэки. Без Unity API.
     public class TaxPolicyTests
     {
         [Test]
-        public void Default_IsNormalFour()
+        public void Default_EachZone_IsNormalFour()
         {
             TaxPolicy policy = new TaxPolicy();
+            Assert.AreEqual(TaxPolicy.Level.Normal, policy.LevelFor(ZoneType.Residential));
+            Assert.AreEqual(TaxPolicy.Level.Normal, policy.LevelFor(ZoneType.Commercial));
+            Assert.AreEqual(TaxPolicy.Level.Normal, policy.LevelFor(ZoneType.Industrial));
+            Assert.AreEqual(4, policy.RateFor(ZoneType.Residential));
+            Assert.AreEqual(4, policy.RateFor(ZoneType.Commercial));
+            Assert.AreEqual(4, policy.RateFor(ZoneType.Industrial));
+            Assert.AreEqual(4, policy.PerWorker);
             Assert.AreEqual(TaxPolicy.Level.Normal, policy.Current);
-            Assert.AreEqual(4, policy.PerWorker);
-            Assert.AreEqual("Налог: обычный (4)", policy.Label);
         }
 
         [Test]
-        public void Next_CyclesHighLowNormal()
+        public void RateFor_FollowsLadder_PerZone()
         {
             TaxPolicy policy = new TaxPolicy();
-            Assert.AreEqual(TaxPolicy.Level.High, policy.Next());
-            Assert.AreEqual(6, policy.PerWorker);
-            Assert.AreEqual(TaxPolicy.Level.Low, policy.Next());
-            Assert.AreEqual(2, policy.PerWorker);
-            Assert.AreEqual(TaxPolicy.Level.Normal, policy.Next());
-            Assert.AreEqual(4, policy.PerWorker);
+            policy.SetZone(ZoneType.Residential, TaxPolicy.Level.Low);
+            policy.SetZone(ZoneType.Commercial, TaxPolicy.Level.High);
+            Assert.AreEqual(2, policy.RateFor(ZoneType.Residential));
+            Assert.AreEqual(6, policy.RateFor(ZoneType.Commercial));
+            Assert.AreEqual(4, policy.RateFor(ZoneType.Industrial));
         }
 
         [Test]
-        public void Previous_CyclesLowHighNormal()
+        public void NextZone_CyclesEachZoneIndependently()
         {
             TaxPolicy policy = new TaxPolicy();
-            Assert.AreEqual(TaxPolicy.Level.Low, policy.Previous());
-            Assert.AreEqual(2, policy.PerWorker);
-            Assert.AreEqual(TaxPolicy.Level.High, policy.Previous());
-            Assert.AreEqual(6, policy.PerWorker);
-            Assert.AreEqual(TaxPolicy.Level.Normal, policy.Previous());
-            Assert.AreEqual(4, policy.PerWorker);
+            Assert.AreEqual(TaxPolicy.Level.High, policy.NextZone(ZoneType.Commercial));
+            Assert.AreEqual(TaxPolicy.Level.Low, policy.NextZone(ZoneType.Commercial));
+            Assert.AreEqual(2, policy.RateFor(ZoneType.Commercial));
+            Assert.AreEqual(TaxPolicy.Level.Normal, policy.LevelFor(ZoneType.Residential));
+            Assert.AreEqual(TaxPolicy.Level.Normal, policy.LevelFor(ZoneType.Industrial));
         }
 
         [Test]
-        public void Set_Unknown_FallsBackToNormal()
+        public void NextZone_UnknownZone_KeepsRates()
+        {
+            TaxPolicy policy = new TaxPolicy();
+            policy.SetZone(ZoneType.Industrial, TaxPolicy.Level.High);
+            Assert.AreEqual(TaxPolicy.Level.Normal, policy.NextZone((ZoneType)99));
+            Assert.AreEqual(4, policy.RateFor(ZoneType.Residential));
+            Assert.AreEqual(6, policy.RateFor(ZoneType.Industrial));
+        }
+
+        [Test]
+        public void SetZone_UnknownLevel_FallsBackToNormal()
+        {
+            TaxPolicy policy = new TaxPolicy();
+            policy.SetZone(ZoneType.Industrial, (TaxPolicy.Level)99);
+            Assert.AreEqual(TaxPolicy.Level.Normal, policy.LevelFor(ZoneType.Industrial));
+            Assert.AreEqual(4, policy.RateFor(ZoneType.Industrial));
+        }
+
+        [Test]
+        public void Set_AppliesOneLevelToAllZones()
         {
             TaxPolicy policy = new TaxPolicy();
             policy.Set(TaxPolicy.Level.High);
+            Assert.AreEqual(6, policy.RateFor(ZoneType.Residential));
+            Assert.AreEqual(6, policy.RateFor(ZoneType.Commercial));
+            Assert.AreEqual(6, policy.RateFor(ZoneType.Industrial));
             policy.Set((TaxPolicy.Level)99);
-            Assert.AreEqual(TaxPolicy.Level.Normal, policy.Current);
             Assert.AreEqual(4, policy.PerWorker);
         }
 
         [Test]
-        public void Set_EachLevel_SetsRate()
+        public void RateFor_NoneZone_IsZero()
         {
             TaxPolicy policy = new TaxPolicy();
-            policy.Set(TaxPolicy.Level.Low);
-            Assert.AreEqual(2, policy.PerWorker);
-            Assert.AreEqual("Налог: низкий (2)", policy.Label);
             policy.Set(TaxPolicy.Level.High);
-            Assert.AreEqual(6, policy.PerWorker);
-            Assert.AreEqual("Налог: высокий (6)", policy.Label);
+            Assert.AreEqual(0, policy.RateFor(ZoneType.None));
         }
 
         [Test]
-        public void Income_ScalesWithLevelAndWorkers()
+        public void IncomeForZone_ScalesWithWorkersAndRate()
         {
             TaxPolicy policy = new TaxPolicy();
-            policy.Set(TaxPolicy.Level.Low);
-            Assert.AreEqual(8, policy.Income(4));
-            policy.Set(TaxPolicy.Level.Normal);
-            Assert.AreEqual(16, policy.Income(4));
-            policy.Set(TaxPolicy.Level.High);
-            Assert.AreEqual(24, policy.Income(4));
+            policy.SetZone(ZoneType.Commercial, TaxPolicy.Level.High);
+            Assert.AreEqual(18, policy.IncomeForZone(ZoneType.Commercial, 3));
+            Assert.AreEqual(0, policy.IncomeForZone(ZoneType.Commercial, 0));
+            Assert.AreEqual(0, policy.IncomeForZone(ZoneType.Commercial, -2));
+            Assert.AreEqual(0, policy.IncomeForZone(ZoneType.None, 5));
         }
 
         [Test]
-        public void Income_WithoutWorkers_IsZero()
+        public void ZoneLabel_ShowsZoneLevelRateAndIncome()
         {
             TaxPolicy policy = new TaxPolicy();
-            policy.Set(TaxPolicy.Level.High);
-            Assert.AreEqual(0, policy.Income(0));
-            Assert.AreEqual(0, policy.Income(-3));
-        }
-
-        [Test]
-        public void Label_ContainsRate()
-        {
-            TaxPolicy policy = new TaxPolicy();
-            policy.Set(TaxPolicy.Level.Low);
-            StringAssert.Contains("(2)", policy.Label);
-            policy.Set(TaxPolicy.Level.Normal);
-            StringAssert.Contains("(4)", policy.Label);
-            policy.Set(TaxPolicy.Level.High);
-            StringAssert.Contains("(6)", policy.Label);
+            Assert.AreEqual("Жилая: обычный (4) +8 $/ч", policy.ZoneLabel(ZoneType.Residential, 2));
+            policy.SetZone(ZoneType.Commercial, TaxPolicy.Level.High);
+            Assert.AreEqual("Коммерция: высокий (6) +18 $/ч", policy.ZoneLabel(ZoneType.Commercial, 3));
+            Assert.AreEqual("Промзона: обычный (4) +0 $/ч", policy.ZoneLabel(ZoneType.Industrial, 0));
         }
     }
 }
