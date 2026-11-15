@@ -16,6 +16,7 @@ MonoBehaviour:
   DisplayName: Fire Station
   Footprint: {x: 2, y: 2}
   ConstructionCost: 300
+  ConstructionTicks: 5
   UnlockBuildings: 0
   AllowedZone: 2
   ResidentCapacity: 0

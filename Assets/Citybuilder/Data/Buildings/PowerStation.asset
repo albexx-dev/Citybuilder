@@ -16,6 +16,7 @@ MonoBehaviour:
   DisplayName: Power Station
   Footprint: {x: 2, y: 2}
   ConstructionCost: 300
+  ConstructionTicks: 4
   UnlockBuildings: 0
   AllowedZone: 3
   ResidentCapacity: 0

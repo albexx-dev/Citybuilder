@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Тесты детерминированного выбора вариантов, фазы стройки 3 тика и сноса в стройке (EPIC-17).
+    // Тесты детерминированного выбора вариантов и стройфазы куба (EPIC-17 → EPIC-61).
     public class GrowthStageTests
     {
         [Test]
@@ -20,7 +20,7 @@ namespace Citybuilder
         }
 
         [Test]
-        public void ConstructionPhase_FinishesAfterThreeTicks_AndDemolishDuringPhaseCleansUp()
+        public void ConstructionPhase_GrowsCubeByTicks_AndDemolishDuringPhaseCleansUp()
         {
             GameObject host = new GameObject("TestSettlementView");
             try
@@ -29,29 +29,35 @@ namespace Citybuilder
                 BuildingDefinition def = ScriptableObject.CreateInstance<BuildingDefinition>();
                 def.Footprint = new Vector2Int(2, 2);
                 def.VariantCount = 3;
+                def.ConstructionTicks = 3;
                 BuildingState state = new BuildingState(
                     EntityId.New(), def, new GridPosition(0, 0),
                     new List<GridPosition> { new GridPosition(0, 0) });
 
                 GameObject go = view.AddBuilding(state, def, 1f, false);
                 Assert.IsNotNull(go);
-                GrowthStageView stage = go.GetComponent<GrowthStageView>();
-                Assert.IsNotNull(stage);
-                Assert.IsTrue(stage.IsConstructing);
-                Assert.AreEqual(3, stage.TicksRemaining);
+                ConstructionSiteView site = go.GetComponent<ConstructionSiteView>();
+                Assert.IsNotNull(site);
+                Assert.IsTrue(site.IsConstructing);
+                Assert.AreEqual(0, site.TicksElapsed);
+                Assert.Less(go.transform.localScale.y, 0.01f);
+                Assert.IsFalse(go.transform.GetChild(0).gameObject.activeSelf);
 
-                stage.OnClockTick(new SimulationTime(1));
-                stage.OnClockTick(new SimulationTime(2));
-                Assert.IsTrue(stage.IsConstructing);
-                stage.OnClockTick(new SimulationTime(3));
-                Assert.IsFalse(stage.IsConstructing);
+                site.OnClockTick(new SimulationTime(1));
+                Assert.Greater(go.transform.localScale.y, 0.01f);
+                site.OnClockTick(new SimulationTime(2));
+                Assert.IsTrue(site.IsConstructing);
+                site.OnClockTick(new SimulationTime(3));
+                Assert.IsFalse(site.IsConstructing);
+                Assert.Greater(go.transform.localScale.y, 0.9f);
+                Assert.IsTrue(go.transform.GetChild(0).gameObject.activeSelf);
 
                 // Восстановление из сейва пропускает фазу стройки.
                 BuildingState restored = new BuildingState(
                     EntityId.New(), def, new GridPosition(4, 4),
                     new List<GridPosition> { new GridPosition(4, 4) });
                 GameObject restoredGo = view.AddBuilding(restored, def, 1f, true);
-                Assert.IsNull(restoredGo.GetComponent<GrowthStageView>());
+                Assert.IsNull(restoredGo.GetComponent<ConstructionSiteView>());
 
                 // Снос в фазе стройки не бросает исключений.
                 BuildingState midBuild = new BuildingState(

@@ -5,8 +5,9 @@ namespace Citybuilder
     // Презентация зданий: вид, призрак и материал. Все габариты — из BuildingDefinition.
     public static class BuildingViewFactory
     {
-        // Построенный вид: префаб из типа или куб по габариту.
-        public static GameObject CreateView(BuildingState state, GridVisualizer grid)
+        // Построенный вид: префаб из типа или куб по габариту. При startConstruction — стройплощадка (EPIC-61),
+        // по завершении которой колбэк заменяет её готовым видом.
+        public static GameObject CreateView(BuildingState state, GridVisualizer grid, bool startConstruction, System.Action onCompleted)
         {
             if (state == null || state.Definition == null || grid == null)
             {
@@ -14,6 +15,12 @@ namespace Citybuilder
             }
             BuildingDefinition def = state.Definition;
             Vector3 position = FootprintCenter(def, state.Origin, 0f, grid);
+            if (startConstruction && def.ConstructionTicks > 0)
+            {
+                float cellSize = grid.Grid.CellSize;
+                return ConstructionSiteView.Spawn(grid.transform, position, def, cellSize,
+                    ConstructionSiteView.TargetScale(def, cellSize), null, onCompleted).gameObject;
+            }
             if (def.Prefab != null)
             {
                 return Object.Instantiate(def.Prefab, position, Quaternion.identity);
