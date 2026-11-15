@@ -36,6 +36,12 @@ namespace Citybuilder
         // Проверка по id из снимка: дом без спроса или вне снимка — false.
         public bool IsSatisfied(EntityId id) { return balance.IsSatisfied(id); }
 
+        // Питается ли здание (EPIC-50): отключён блэкаутом — false, остальное — true.
+        public bool IsPowered(EntityId id) { return balance.IsPowered(id); }
+
+        // Сколько потребителей отключено блэкаутом. Снимка нет — 0.
+        public int UnpoweredCount { get { return balance.UnpoweredCount; } }
+
         public void Clear() { balance.Clear(); }
 
         // Пересчёт с нуля: снос здания исчезает сам.
@@ -63,7 +69,11 @@ namespace Citybuilder
             int demand = demandOf != null ? demandOf(def) : 0;
             int output = outputOf != null ? outputOf(def) : 0;
             output = BuildingLevelPolicy.ScaledOutput(output, state.Level);
-            if (demand > 0) balance.SetDemand(state.Id, demand);
+            // Блэкаут (EPIC-50): жилые отключаются последними — службы и станции первыми.
+            int tier = HouseLevelPolicy.IsResidential(def)
+                ? SupplyBalance.TierResidential
+                : SupplyBalance.TierService;
+            if (demand > 0) balance.SetDemand(state.Id, demand, tier);
             if (output > 0) balance.SetSupply(state.Id, output);
         }
 
