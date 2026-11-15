@@ -108,29 +108,26 @@ namespace Citybuilder
         [Test]
         public void IsResidential_ResidentialZoneWithCapacity_True()
         {
-            using (BuildingDefinition home = ScriptableObject.CreateInstance<BuildingDefinition>())
-            {
-                home.AllowedZone = ZoneType.Residential;
-                home.ResidentCapacity = 4;
-                Assert.IsTrue(HouseLevelPolicy.IsResidential(home));
-            }
+            BuildingDefinition home = ScriptableObject.CreateInstance<BuildingDefinition>();
+            home.AllowedZone = ZoneType.Residential;
+            home.ResidentCapacity = 4;
+            Assert.IsTrue(HouseLevelPolicy.IsResidential(home));
+            ScriptableObject.DestroyImmediate(home);
         }
 
         [Test]
         public void IsResidential_StationShopAndNull_False()
         {
-            using (BuildingDefinition station = ScriptableObject.CreateInstance<BuildingDefinition>())
-            {
-                station.AllowedZone = ZoneType.Residential;
-                station.ResidentCapacity = 0;
-                Assert.IsFalse(HouseLevelPolicy.IsResidential(station));
-            }
-            using (BuildingDefinition shop = ScriptableObject.CreateInstance<BuildingDefinition>())
-            {
-                shop.AllowedZone = ZoneType.Commercial;
-                shop.ResidentCapacity = 0;
-                Assert.IsFalse(HouseLevelPolicy.IsResidential(shop));
-            }
+            BuildingDefinition station = ScriptableObject.CreateInstance<BuildingDefinition>();
+            station.AllowedZone = ZoneType.Residential;
+            station.ResidentCapacity = 0;
+            Assert.IsFalse(HouseLevelPolicy.IsResidential(station));
+            BuildingDefinition shop = ScriptableObject.CreateInstance<BuildingDefinition>();
+            shop.AllowedZone = ZoneType.Commercial;
+            shop.ResidentCapacity = 0;
+            Assert.IsFalse(HouseLevelPolicy.IsResidential(shop));
+            ScriptableObject.DestroyImmediate(station);
+            ScriptableObject.DestroyImmediate(shop);
             Assert.IsFalse(HouseLevelPolicy.IsResidential(null));
         }
     }
