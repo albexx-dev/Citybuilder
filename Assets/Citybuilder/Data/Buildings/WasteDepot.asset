@@ -31,3 +31,4 @@ MonoBehaviour:
   UpkeepPerHour: 3
   VariantCount: 1
   Prefab: {fileID: 2313926773184460456, guid: a1aae247096627442b93599e993bf044, type: 3}
+  Category: 3
