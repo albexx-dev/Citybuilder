@@ -7,6 +7,7 @@
 | City Kit (Commercial) | Kenney | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | https://kenney.nl/assets/city-kit-commercial | `Assets/Citybuilder/Models/Kenney/building-a.fbx`, `Assets/Citybuilder/Models/Kenney/fire-station.fbx`, `Assets/Citybuilder/Models/Kenney/police-station.fbx`, `Assets/Citybuilder/Models/Kenney/Textures/colormap.png` |
 | City Kit (Suburban) | Kenney | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | https://kenney.nl/assets/city-kit-suburban | `Assets/Citybuilder/Models/Kenney/Suburban/house-a.fbx`, `Assets/Citybuilder/Models/Kenney/Suburban/Textures/colormap.png` |
 | City Kit (Industrial) | Kenney | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | https://kenney.nl/assets/city-kit-industrial | `Assets/Citybuilder/Models/Kenney/Industrial/factory-a.fbx`, `Assets/Citybuilder/Models/Kenney/Industrial/power-solar.fbx`, `Assets/Citybuilder/Models/Kenney/Industrial/water-tower.fbx`, `Assets/Citybuilder/Models/Kenney/Industrial/waste-container.fbx`, `Assets/Citybuilder/Models/Kenney/Industrial/Textures/colormap.png` |
+| Nature Kit | Kenney | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | https://kenney.nl/assets/nature-kit | `Assets/Citybuilder/Models/Kenney/Nature/tree_default.fbx`, `Assets/Citybuilder/Models/Kenney/Nature/tree_cone.fbx`, `Assets/Citybuilder/Models/Kenney/Nature/tree_detailed.fbx`, `Assets/Citybuilder/Models/Kenney/Nature/plant_bush.fbx` |
 
 ## Собственные ассеты
 
