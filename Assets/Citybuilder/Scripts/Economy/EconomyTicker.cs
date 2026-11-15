@@ -7,10 +7,10 @@ namespace Citybuilder
     public class EconomyTicker : MonoBehaviour
     {
         [Header("References")]
-        [Tooltip("Население. Обязателен: даёт PopulationSystem для занятости.")] public PopulationController Population;
-        [Tooltip("Рост поселений. Обязателен: даёт SettlementSystem для рабочих мест.")] public SettlementGrowthController Growth;
-        [Tooltip("Вид казны. Обязателен: даёт Treasury для зачисления налогов.")] public TreasuryView Treasury;
-        [Tooltip("Драйвер часов. Обязателен: даёт тики часов для сбора налогов.")] public SimulationRunner Runner;
+        [Tooltip("Население: даёт PopulationSystem для занятости. Пусто = ищется в сцене.")] public PopulationController Population;
+        [Tooltip("Рост поселений: даёт SettlementSystem для рабочих мест. Пусто = ищется в сцене.")] public SettlementGrowthController Growth;
+        [Tooltip("Вид казны: даёт Treasury для зачисления налогов. Пусто = ищется в сцене.")] public TreasuryView Treasury;
+        [Tooltip("Драйвер часов: даёт тики для сбора налогов. Пусто = ищется в сцене.")] public SimulationRunner Runner;
         [Tooltip("Ручная стройка. Пусто = ищется в сцене.")] public BuildingPlacementController Placement;
         [Tooltip("Лента событий города (EPIC-09). Пусто = ищется в сцене.")] public EventLogView EventLog;
         [Header("Taxes")]

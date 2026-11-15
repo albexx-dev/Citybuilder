@@ -8,7 +8,7 @@ namespace Citybuilder
     public class PopulationController : MonoBehaviour
     {
         [Header("References")]
-        [Tooltip("Рост поселений. Обязателен: даёт выросшие дома для заселения.")] public SettlementGrowthController Growth;
+        [Tooltip("Рост поселений: даёт выросшие дома для заселения. Пусто = ищется в сцене.")] public SettlementGrowthController Growth;
         [Tooltip("Вид населения. Пусто = создастся на этом же объекте.")] public PopulationView View;
         [Tooltip("Драйвер часов.")] public SimulationRunner Runner;
         [Tooltip("Энергия города. Пусто = ищется на объекте Growth.")] public PowerController Power;
