@@ -15,7 +15,7 @@ namespace Citybuilder
         [Tooltip("Лента событий города (EPIC-09). Пусто = ищется в сцене.")] public EventLogView EventLog;
         [Header("Taxes")]
         [Tooltip("Налоговая политика из HUD. Пусто = фиксированная ставка TaxPerWorker.")] public TaxPolicyView Policy;
-        [Tooltip("Налог с одного работающего за тик. 0 выключает сбор. Минимум 0.")] public int TaxPerWorker = 2;
+        [Tooltip("Налог с одного работающего за тик. 0 выключает сбор. Минимум 0.")] public int TaxPerWorker = 4;
         [Tooltip("Режим автосбора. Выключите для ручного сбора.")] public bool placementActive = true;
 
         private EmploymentSystem employment;

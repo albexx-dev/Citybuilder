@@ -21,7 +21,7 @@ namespace Citybuilder
             get { return current; }
         }
 
-        // Ставка за одного работающего за час: низкий 1, обычный 2, высокий 3.
+        // Ставка за одного работающего за час: низкий 2, обычный 4, высокий 6 (ребаланс 171).
         public int PerWorker
         {
             get
@@ -29,11 +29,11 @@ namespace Citybuilder
                 switch (current)
                 {
                     case Level.Low:
-                        return 1;
-                    case Level.High:
-                        return 3;
-                    default:
                         return 2;
+                    case Level.High:
+                        return 6;
+                    default:
+                        return 4;
                 }
             }
         }
