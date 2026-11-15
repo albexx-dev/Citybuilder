@@ -111,13 +111,11 @@ namespace Citybuilder
 
         private void Tick(int tickCount)
         {
+            // Пассивный доход беззвучен (спецификация владельца): монетка — только
+            // на единовременные награды (GoalView), лента — без звука на каждый тик.
             EnsureSystems();
             if (tax == null) return;
-            if (tax.Collect(PerWorker).Success
-                && soundPolicy.ShouldPlayCoin(Time.unscaledTime, Treasury.Treasury.Balance))
-            {
-                AudioController.PlayCoinGlobal();
-            }
+            tax.Collect(PerWorker);
             Treasury.Treasury.Charge(UpkeepPolicy.UpkeepPerHour(Growth.Homes,
                 Placement != null ? Placement.Placed : null));
             ReportCityEvents(tickCount);
@@ -128,7 +126,6 @@ namespace Citybuilder
             if (EventLog == null) EventLog = FindFirstObjectByType<EventLogView>();
             if (EventLog == null) return;
             CityEventLog log = EventLog.Log;
-            int before = log.Count;
             // Троттлинг по виду события: сообщения с меняющимися числами («Энергия 46%»)
             // обходят дедуп по строке — каждый вид проходит не чаще раза в 10 тиков.
             if (Growth != null && Growth.SupplyGrowth != null
@@ -153,7 +150,9 @@ namespace Citybuilder
                 int pct = (int)Math.Round(employment.EmploymentRate * 100f);
                 log.Add(EventKind.Employment, "Высокая безработица: занятость " + pct + "%", tick);
             }
-            if (log.Count > before && soundPolicy.ShouldPlayDeficit(Time.unscaledTime)) AudioController.PlayPopGlobal();
+            // Звука на тиковые события нет: лента читаема (троттлинг по виду),
+            // поп-спам устранён (жалоба владельца). Единовременные события
+            // (награды целей) звучат в GoalView.
         }
 
         private void ClampLimits()

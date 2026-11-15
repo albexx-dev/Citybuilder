@@ -119,6 +119,53 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &165672927
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 165672929}
+  - component: {fileID: 165672928}
+  m_Layer: 0
+  m_Name: Vehicles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &165672928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165672927}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d61ba4f5dea0009dfff364b3fea880a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.VehicleAgentView
+  Visualizer: {fileID: 985593152}
+  MaxViews: 24
+  RideHeight: 0.05
+--- !u!4 &165672929
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165672927}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1821543314}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &594737063
 GameObject:
   m_ObjectHideFlags: 0
@@ -764,6 +811,7 @@ MonoBehaviour:
   Growth: {fileID: 0}
   Menu: {fileID: 0}
   Placement: {fileID: 0}
+  Palette: {fileID: 0}
 --- !u!114 &985593184
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1278,6 +1326,7 @@ GameObject:
   - component: {fileID: 1821543314}
   - component: {fileID: 1821543313}
   - component: {fileID: 1821543315}
+  - component: {fileID: 1821543316}
   m_Layer: 0
   m_Name: Simulation
   m_TagString: Untagged
@@ -1310,7 +1359,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 165672929}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1821543315
@@ -1326,6 +1376,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.ClockView
   Runner: {fileID: 0}
+--- !u!114 &1821543316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1821543312}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41fbfac7236728c8c7da814bf4c386c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.VehicleAgentHost
+  GridVisualizer: {fileID: 985593152}
+  Congestion: {fileID: 985593173}
+  Growth: {fileID: 985593158}
+  Runner: {fileID: 1821543313}
+  Placement: {fileID: 985593154}
+  View: {fileID: 165672928}
 --- !u!1 &2007715383
 GameObject:
   m_ObjectHideFlags: 0
@@ -1356,6 +1424,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.TreasuryView
   StartingBalance: 1500
+  Economy: {fileID: 0}
+  Upkeep: {fileID: 0}
 --- !u!4 &2007715385
 Transform:
   m_ObjectHideFlags: 0

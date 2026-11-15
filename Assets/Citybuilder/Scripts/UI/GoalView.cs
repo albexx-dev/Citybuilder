@@ -57,7 +57,12 @@ namespace Citybuilder
             TreasuryView treasury = ResolveTreasury();
             if (goals == null || treasury == null) return;
             // Ступень хранится в слоте v4: после загрузки награда повторно не начисляется.
-            rewards.Claim(goals, stages, treasury.Treasury);
+            // Монетка звучит только на единовременные награды — пассивный сбор беззвучен.
+            int reward = rewards.Claim(goals, stages, treasury.Treasury);
+            if (reward > 0)
+            {
+                AudioController.PlayCoinGlobal();
+            }
         }
 
         // Ленивый кеш: казна может жить на отдельном объекте, а поле в сцене пустое.
