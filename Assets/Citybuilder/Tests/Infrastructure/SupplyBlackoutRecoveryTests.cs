@@ -1,11 +1,14 @@
-using NUnit.Framework;
 using System.Collections.Generic;
+using NUnit.Framework;
+using static Citybuilder.SupplyBlackoutTestSupport;
 
 namespace Citybuilder
 {
     // Восстановление питания и граничные случаи блэкаута (EPIC-50, продолжение SupplyBlackoutTests).
     public class SupplyBlackoutRecoveryTests
     {
+        private const float Tolerance = 0.0001f;
+
         [Test]
         public void Recovery_NewSupply_AllPowered()
         {
@@ -98,5 +101,6 @@ namespace Citybuilder
             balance.Clear();
             Assert.AreEqual(0, balance.UnpoweredCount);
             Assert.IsTrue(balance.IsPowered(ids[0]));
+        }
     }
 }

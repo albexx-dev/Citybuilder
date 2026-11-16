@@ -1,36 +1,12 @@
 using System.Collections.Generic;
 using NUnit.Framework;
+using static Citybuilder.SupplyBlackoutTestSupport;
 
 namespace Citybuilder
 {
     // Блэкаут (EPIC-50): детерминированное отключение при дефиците. Чистый C#, без Unity API.
     public class SupplyBlackoutTests
     {
-        private const float Tolerance = 0.0001f;
-
-        private static SupplyBalance MakeUnitCity(int homes, float supply, List<EntityId> ids)
-        {
-            SupplyBalance balance = new SupplyBalance();
-            balance.SetSupply(EntityId.New(), supply);
-            for (int i = 0; i < homes; i++)
-            {
-                EntityId id = EntityId.New();
-                ids.Add(id);
-                balance.SetDemand(id, 1f, SupplyBalance.TierResidential);
-            }
-            return balance;
-        }
-
-        private static int CountPowered(SupplyBalance balance, List<EntityId> ids)
-        {
-            int powered = 0;
-            for (int i = 0; i < ids.Count; i++)
-            {
-                if (balance.IsPowered(ids[i])) powered++;
-            }
-            return powered;
-        }
-
         [Test]
         public void NoShortage_AllPowered()
         {
@@ -117,5 +93,6 @@ namespace Citybuilder
             Assert.AreEqual(2, cutoff.Count);
             Assert.AreEqual(station, cutoff[0]); // служба всегда раньше жилых
             Assert.AreEqual(5, CountPowered(balance, homes));
+        }
     }
 }
