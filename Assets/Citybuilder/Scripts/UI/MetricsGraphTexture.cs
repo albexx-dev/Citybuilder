@@ -73,20 +73,32 @@ namespace Citybuilder
             textures[index].Apply();
         }
 
-        // Столбик на точку + вертикальный пролёт от предыдущей точки: линия без разрывов.
+        // Ступенчатая линия: горизонтальный пролёт от прошлой точки и вертикальный подъём
+        // к новой. Так серия из 8 точек не выглядит редкими столбиками, а линия непрерывна.
         private static void PlotLine(float[] values, int count, Color color, float min, float max)
         {
-            int previous = -1;
+            int previousX = -1;
+            int previousY = 0;
             for (int i = 0; i < count && i < Width; i++)
             {
                 int x = count == 1 ? 0 : i * (Width - 1) / (count - 1);
                 float fraction = GraphMath.Normalize(values[i], min, max);
                 int y = Mathf.Clamp((int)(fraction * (Height - 1)), 0, Height - 1);
-                int from = previous < 0 ? y : Mathf.Min(previous, y);
-                int to = previous < 0 ? y : Mathf.Max(previous, y);
-                for (int row = from; row <= to; row++) buffer[row * Width + x] = color;
-                previous = y;
+                if (previousX >= 0) PaintSpan(previousX, x, previousY, color);
+                PaintColumn(x, Mathf.Min(previousX >= 0 ? previousY : y, y), Mathf.Max(previousX >= 0 ? previousY : y, y), color);
+                previousX = x;
+                previousY = y;
             }
+        }
+
+        private static void PaintSpan(int fromX, int toX, int row, Color color)
+        {
+            for (int x = fromX; x <= toX && x < Width; x++) buffer[row * Width + x] = color;
+        }
+
+        private static void PaintColumn(int x, int fromRow, int toRow, Color color)
+        {
+            for (int row = fromRow; row <= toRow; row++) buffer[row * Width + x] = color;
         }
 
         private static float ValueAt(int index, MetricsSnapshot snapshot)
