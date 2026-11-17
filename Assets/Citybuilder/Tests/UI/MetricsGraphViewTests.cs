@@ -84,14 +84,16 @@ namespace Citybuilder
         {
             MetricsHistory history = History(8, 1, 0);
             Assert.IsTrue(MetricsGraphTexture.RefreshIfDue(history));
-            int before = TopRow(MetricsGraphTexture.At(0), MetricsGraphTexture.Width - 1);
+            int middle = MetricsGraphTexture.Width / 2;
+            int before = TopRow(MetricsGraphTexture.At(0), middle);
             history.Record(new MetricsSnapshot(99, 900, 0, 0f, 0f, 0f, 0f, 0f));
             Time.unscaledTime += 0.4f;
             Assert.IsFalse(MetricsGraphTexture.RefreshIfDue(history));
-            Assert.AreEqual(before, TopRow(MetricsGraphTexture.At(0), MetricsGraphTexture.Width - 1));
+            Assert.AreEqual(before, TopRow(MetricsGraphTexture.At(0), middle));
             Time.unscaledTime += 0.2f;
             Assert.IsTrue(MetricsGraphTexture.RefreshIfDue(history));
-            Assert.Greater(TopRow(MetricsGraphTexture.At(0), MetricsGraphTexture.Width - 1), before);
+            // Всплеск 900 растянул ось: середина серии опустилась к нулю.
+            Assert.Less(TopRow(MetricsGraphTexture.At(0), middle), before);
         }
 
         [Test]
