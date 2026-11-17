@@ -21,23 +21,17 @@ namespace Citybuilder
         // Чистим только свои ключи: чужие настройки (звук и др.) в прогоне не трогаем.
         private static void ClearKeys()
         {
-            PlayerPrefs.DeleteKey(GameSettingsStore.VolumeKey);
-            PlayerPrefs.DeleteKey(GameSettingsStore.MuteKey);
-            PlayerPrefs.DeleteKey(GameSettingsStore.AgentLimitKey);
-            PlayerPrefs.DeleteKey(GameSettingsStore.DecorKey);
-            PlayerPrefs.DeleteKey(GameSettingsStore.DayNightKey);
-            PlayerPrefs.DeleteKey(GameSettingsStore.AutosaveHoursKey);
+            PlayerPrefs.DeleteKey(GameSettingsStore.VolumeKey); PlayerPrefs.DeleteKey(GameSettingsStore.MuteKey);
+            PlayerPrefs.DeleteKey(GameSettingsStore.AgentLimitKey); PlayerPrefs.DeleteKey(GameSettingsStore.DecorKey);
+            PlayerPrefs.DeleteKey(GameSettingsStore.DayNightKey); PlayerPrefs.DeleteKey(GameSettingsStore.AutosaveHoursKey);
         }
 
         [Test]
         public void Defaults_MatchCurrentGameConstants()
         {
-            Assert.AreEqual(AudioController.DefaultVolume, settings.Volume, 0.001f);
-            Assert.IsFalse(settings.Muted);
-            Assert.AreEqual(40, settings.AgentLimit);
-            Assert.IsTrue(settings.DecorEnabled);
-            Assert.IsTrue(settings.DayNightEnabled);
-            Assert.AreEqual(AutosaveController.AutosaveIntervalTicks, settings.AutosaveHours);
+            Assert.AreEqual(AudioController.DefaultVolume, settings.Volume, 0.001f); Assert.IsFalse(settings.Muted);
+            Assert.AreEqual(40, settings.AgentLimit); Assert.IsTrue(settings.DecorEnabled);
+            Assert.IsTrue(settings.DayNightEnabled); Assert.AreEqual(AutosaveController.AutosaveIntervalTicks, settings.AutosaveHours);
             Assert.AreEqual(0, changes);
         }
 
@@ -46,8 +40,7 @@ namespace Citybuilder
         {
             settings.Volume = 2f;
             Assert.AreEqual(1f, settings.Volume, 0.001f); settings.Volume = -3f;
-            Assert.AreEqual(0f, settings.Volume, 0.001f); settings.Volume = float.NaN;
-            Assert.AreEqual(0f, settings.Volume, 0.001f);
+            Assert.AreEqual(0f, settings.Volume, 0.001f); settings.Volume = float.NaN; Assert.AreEqual(0f, settings.Volume, 0.001f);
         }
 
         [Test]
@@ -94,8 +87,7 @@ namespace Citybuilder
             settings.AutosaveHours = 60;
             changes = 0;
             settings.ResetToDefaults();
-            Assert.AreEqual(1, changes);
-            Assert.AreEqual(GameSettings.DefaultVolume, settings.Volume, 0.001f);
+            Assert.AreEqual(1, changes); Assert.AreEqual(GameSettings.DefaultVolume, settings.Volume, 0.001f);
             Assert.IsFalse(settings.Muted); Assert.IsTrue(settings.DecorEnabled); Assert.IsTrue(settings.DayNightEnabled);
             Assert.AreEqual(GameSettings.DefaultAgentLimit, settings.AgentLimit);
             Assert.AreEqual(GameSettings.DefaultAutosaveHours, settings.AutosaveHours);
@@ -115,10 +107,8 @@ namespace Citybuilder
             GameSettingsStore.Save(settings);
             GameSettings loaded = new GameSettings();
             GameSettingsStore.Load(loaded);
-            Assert.AreEqual(0.25f, loaded.Volume, 0.001f); Assert.IsTrue(loaded.Muted);
-            Assert.AreEqual(90, loaded.AgentLimit);
-            Assert.IsFalse(loaded.DecorEnabled); Assert.IsFalse(loaded.DayNightEnabled);
-            Assert.AreEqual(30, loaded.AutosaveHours);
+            Assert.AreEqual(0.25f, loaded.Volume, 0.001f); Assert.IsTrue(loaded.Muted); Assert.AreEqual(90, loaded.AgentLimit);
+            Assert.IsFalse(loaded.DecorEnabled); Assert.IsFalse(loaded.DayNightEnabled); Assert.AreEqual(30, loaded.AutosaveHours);
         }
 
         [Test]
@@ -127,8 +117,7 @@ namespace Citybuilder
             GameSettingsStore.Load(settings);
             Assert.AreEqual(GameSettings.DefaultVolume, settings.Volume, 0.001f);
             Assert.AreEqual(GameSettings.DefaultAgentLimit, settings.AgentLimit);
-            Assert.AreEqual(GameSettings.DefaultAutosaveHours, settings.AutosaveHours);
-            Assert.IsTrue(settings.DecorEnabled);
+            Assert.AreEqual(GameSettings.DefaultAutosaveHours, settings.AutosaveHours); Assert.IsTrue(settings.DecorEnabled);
         }
 
         [Test]
@@ -138,8 +127,7 @@ namespace Citybuilder
             PlayerPrefs.SetInt(GameSettingsStore.AgentLimitKey, -40);
             PlayerPrefs.SetInt(GameSettingsStore.AutosaveHoursKey, 10000);
             GameSettingsStore.Load(settings);
-            Assert.AreEqual(1f, settings.Volume, 0.001f);
-            Assert.AreEqual(GameSettings.MinAgentLimit, settings.AgentLimit);
+            Assert.AreEqual(1f, settings.Volume, 0.001f); Assert.AreEqual(GameSettings.MinAgentLimit, settings.AgentLimit);
             Assert.AreEqual(GameSettings.MaxAutosaveHours, settings.AutosaveHours);
         }
 
