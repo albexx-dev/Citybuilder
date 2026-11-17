@@ -47,6 +47,18 @@ namespace Citybuilder
             return new Rect(x, padding, size, size);
         }
 
+        // GUI-точка внутри rect'а мини-карты → координаты текстуры (клик, EPIC-67 шаг 2).
+        // Конвенция ориентации фиксирована: GUI.DrawTexture рисует v=0 в НИЖНЕЙ строке rect'а,
+        // а GUI-координаты Y растут ВНИЗ, поэтому Y инвертируется. Верх rect'а → последний ряд
+        // сетки (максимальный Y, мир +Z = «север»), низ rect'а → первый ряд (Y = 0).
+        // Выход за стороны rect'а зажимается в крайние клетки; нулевая сторона даёт 0.
+        public static void RectToPixel(Rect rect, float guiX, float guiY, int textureSize,
+            out float pixelX, out float pixelY)
+        {
+            pixelX = InsideFraction(guiX - rect.x, rect.width) * SafeSize(textureSize);
+            pixelY = (1f - InsideFraction(guiY - rect.y, rect.height)) * SafeSize(textureSize);
+        }
+
         // Правый верх занят инфоменю и лентой событий (EPIC-14/EPIC-09), поэтому мини-карта
         // показывается, только когда оба окна закрыты. Чистая функция — спрашивать каждый кадр.
         public static bool IsMinimapVisible(bool infoMenuOpen, bool eventLogOpen)
@@ -75,6 +87,13 @@ namespace Citybuilder
                 return grid - 1;
             }
             return ClampIndex((int)Math.Floor(pixel * ((float)grid / texture)), grid);
+        }
+
+        // Доля 0..1 внутри стороны rect'а: выход за границу зажимается, нулевая сторона даёт 0.
+        private static float InsideFraction(float value, float size)
+        {
+            if (size <= 0f || float.IsNaN(value)) return 0f;
+            return Mathf.Clamp01(value / size);
         }
 
         private static int ClampIndex(int index, int size)
