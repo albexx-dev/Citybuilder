@@ -40,7 +40,10 @@ namespace Citybuilder
             Treasury treasury = growth.Treasury != null ? growth.Treasury.Treasury : null;
             UpgradeController controller = new UpgradeController(
                 delegate { if (services != null) services.RefreshNow(); });
-            return controller.TryUpgrade(state, treasury);
+            UpgradeController.Result result = controller.TryUpgrade(state, treasury);
+            // Успех меняет уровень и казну: без флага «грязный» автосейв и F5 не заметят улучшение (EPIC-51 шаг 3).
+            if (result.Success && placement.Save != null) placement.Save.MarkDirty();
+            return result;
         }
     }
 }
