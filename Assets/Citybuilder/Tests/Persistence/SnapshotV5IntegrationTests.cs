@@ -7,6 +7,7 @@ namespace Citybuilder
 {
     // EPIC-64 шаг 3: интеграция сейва v5 на реальном пути F9 — LoadController.LoadNow читает слот с диска
     // (Application.persistentDataPath), возвращает уровни, три ставки и пересобранный вид дома 2+ уровня.
+    // Чужие сейвы в persistentDataPath защищает PersistentSlotBackup: содержимое слотов возвращается байт-в-байт.
     public class SnapshotV5IntegrationTests
     {
         private static readonly GridPosition Home = new GridPosition(0, 0), Extra = new GridPosition(1, 0);
@@ -16,13 +17,13 @@ namespace Citybuilder
         private SettlementGrowthController growth; private BuildingPlacementController placement;
         private TaxPolicyView tax; private SaveController save; private LoadController load;
         private AutosaveController autosave; private BuildingDefinition houseDef, plantDef;
-        private readonly List<string> foreign = new List<string>();
+        private PersistentSlotBackup backup;
 
         [SetUp]
         public void SetUp()
         {
             dir = Application.persistentDataPath;
-            Directory.CreateDirectory(dir); foreign.AddRange(Directory.GetFiles(dir));
+            Directory.CreateDirectory(dir); backup = new PersistentSlotBackup(dir); backup.Take();
             host = new GameObject("V5Integration"); view = new GameObject("V5View").AddComponent<SettlementView>();
             GridVisualizer viz = host.AddComponent<GridVisualizer>(); ZonePaintingController zones = host.AddComponent<ZonePaintingController>();
             zones.GridVisualizer = viz; houseDef = NewDef("house_v5", ZoneType.Residential); plantDef = NewDef("plant_v5", ZoneType.None);
@@ -38,12 +39,11 @@ namespace Citybuilder
             BuildCity();
         }
 
-        // Удаляются только слоты, которых не было до теста: реальные сейвы в Editor остаются в покое.
         [TearDown]
         public void TearDown()
         {
             Object.DestroyImmediate(host); Object.DestroyImmediate(view.gameObject); Object.DestroyImmediate(houseDef); Object.DestroyImmediate(plantDef);
-            foreach (string file in Directory.GetFiles(dir)) if (!foreign.Contains(file)) File.Delete(file);
+            backup.Restore();
         }
 
         // Город игрока: дом 2 уровня, станция 3 уровня, Жилая низкая, Коммерция высокая, Промзона обычная.
