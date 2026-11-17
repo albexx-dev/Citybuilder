@@ -25,7 +25,7 @@ namespace Citybuilder
             if (!MinimapMapping.IsMinimapVisible(infoMenuOpen, eventLogOpen)) { Hide(); return; }
             EnsureRefs();
             GridSystem grid = visualizer != null ? visualizer.Grid : null;
-            if (grid == null) { Hide(); return; }
+            if (grid == null || camera == null) { Hide(); return; }
             MinimapTexture.RefreshIfDue(grid, ZoneSystemOrNull(),
                 roads != null ? roads.Roads : null,
                 growth != null ? growth.Homes : null,
