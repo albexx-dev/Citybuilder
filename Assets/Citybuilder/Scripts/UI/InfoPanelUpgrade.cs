@@ -41,7 +41,7 @@ namespace Citybuilder
             UpgradeController controller = new UpgradeController(
                 delegate { if (services != null) services.RefreshNow(); });
             UpgradeController.Result result = controller.TryUpgrade(state, treasury);
-            // Успех меняет уровень и казну: без флага «грязный» автосейв и F5 не заметят улучшение (EPIC-51 шаг 3).
+            // Успех меняет уровень и казну: флаг «грязный» нужен диалогу выхода без сохранения (EPIC-51).
             if (result.Success && placement.Save != null) placement.Save.MarkDirty();
             return result;
         }
