@@ -7,6 +7,14 @@ namespace Citybuilder
     // Level = 0 (слот v4) и битые значения клампятся HouseLevelPolicy в 1..3.
     public static class SnapshotLevels
     {
+        // Полный проход после загрузки одним вызовом — им пользуется LoadController: выросшие дома
+        // там восстанавливает Growth.RestoreGrown, а не LoadSystem, и оба списка нужны сразу.
+        public static void ApplyAll(CitySnapshot snapshot, List<BuildingState> homes, List<BuildingState> placed)
+        {
+            ApplyHomes(snapshot, homes);
+            ApplyManual(snapshot, placed);
+        }
+
         // Выросшие дома: тот же список, что вернули LoadSystem.ApplyBuildings или Growth.RestoreGrown.
         public static void ApplyHomes(CitySnapshot snapshot, List<BuildingState> homes)
         {

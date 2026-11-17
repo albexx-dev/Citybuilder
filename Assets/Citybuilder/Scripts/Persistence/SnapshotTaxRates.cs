@@ -62,6 +62,23 @@ namespace Citybuilder
             return rates == null || rates.Length == 0 || IsSet(rates);
         }
 
+        // Применение ставок политике после загрузки (EPIC-64 шаг 2): политики нет — ничего не делаем.
+        // Годный набор — раздельные ставки по зонам; пустой или битый (слот v4) — одна TaxLevel на все зоны.
+        public static void ApplyTo(CitySnapshot snapshot, TaxPolicy policy)
+        {
+            if (policy == null) return;
+            int[] rates = snapshot == null ? null : snapshot.TaxRates;
+            if (!IsSet(rates))
+            {
+                policy.Set(SaveSystem.DecodeTaxLevel(snapshot == null ? 0 : snapshot.TaxLevel));
+                return;
+            }
+            Levels levels = Read(snapshot);
+            policy.SetZone(ZoneType.Residential, levels.Residential);
+            policy.SetZone(ZoneType.Commercial, levels.Commercial);
+            policy.SetZone(ZoneType.Industrial, levels.Industrial);
+        }
+
         // Годный набор из трёх ставок: только тогда зоны читаются раздельно.
         private static bool IsSet(int[] rates)
         {
