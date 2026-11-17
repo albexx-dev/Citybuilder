@@ -79,12 +79,8 @@ namespace Citybuilder
         [Test]
         public void ResetToDefaults_RestoresEverythingAndFiresOnce()
         {
-            settings.Volume = 0.9f;
-            settings.Muted = true;
-            settings.AgentLimit = 100;
-            settings.DecorEnabled = false;
-            settings.DayNightEnabled = false;
-            settings.AutosaveHours = 60;
+            settings.Volume = 0.9f; settings.Muted = true; settings.AgentLimit = 100;
+            settings.DecorEnabled = false; settings.DayNightEnabled = false; settings.AutosaveHours = 60;
             changes = 0;
             settings.ResetToDefaults();
             Assert.AreEqual(1, changes); Assert.AreEqual(GameSettings.DefaultVolume, settings.Volume, 0.001f);
