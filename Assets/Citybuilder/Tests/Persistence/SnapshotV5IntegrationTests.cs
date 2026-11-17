@@ -42,8 +42,7 @@ namespace Citybuilder
         [TearDown]
         public void TearDown()
         {
-            Object.DestroyImmediate(host); Object.DestroyImmediate(view);
-            Object.DestroyImmediate(houseDef); Object.DestroyImmediate(plantDef);
+            Object.DestroyImmediate(host); Object.DestroyImmediate(view.gameObject); Object.DestroyImmediate(houseDef); Object.DestroyImmediate(plantDef);
             foreach (string file in Directory.GetFiles(dir)) if (!foreign.Contains(file)) File.Delete(file);
         }
 
