@@ -1,0 +1,108 @@
+using UnityEngine;
+
+namespace Citybuilder
+{
+    // Текстуры графиков инфоменю (EPIC-68 шаг 2): население, казна, нужды, энергия.
+    // Линия рисуется в пиксельный буфер (IMGUI не умеет DrawLine), поэтому OnGUI только
+    // выводит готовую текстуру: пересчёт не чаще раза в 0.5 с и только при открытом меню.
+    // Прореживание и оси — GraphMath; история — MetricsHistory (#63), в сейв не пишется.
+    public static class MetricsGraphTexture
+    {
+        public const int Width = 64;
+        public const int Height = 32;
+        public const int SeriesCount = 4;
+
+        private const float RefreshIntervalSec = 0.5f;
+
+        private static readonly Color Background = new Color(0.13f, 0.15f, 0.17f);
+        private static readonly Color[] LineColors =
+        {
+            new Color(0.45f, 0.85f, 0.45f), // население
+            new Color(0.95f, 0.8f, 0.35f),  // казна
+            new Color(0.5f, 0.8f, 0.95f),   // нужды
+            new Color(0.95f, 0.6f, 0.3f)    // энергия
+        };
+        private static readonly string[] Names = { "Население", "Казна", "Нужды", "Энергия" };
+
+        private static readonly Texture2D[] textures = new Texture2D[SeriesCount];
+        private static readonly float[] source = new float[MetricsHistory.Capacity];
+        private static readonly float[] points = new float[GraphMath.DefaultMaxPoints];
+        private static readonly Color[] buffer = new Color[Width * Height];
+        private static float nextRefreshTime;
+
+        // Пересчитать, если пора. Возвращает true при перерисовке; пустая история — false.
+        public static bool RefreshIfDue(MetricsHistory history)
+        {
+            if (history == null || history.Count == 0) return false;
+            if (Time.unscaledTime < nextRefreshTime) return false;
+            nextRefreshTime = Time.unscaledTime + RefreshIntervalSec;
+            MetricsSnapshot[] snapshots = history.Snapshot();
+            for (int i = 0; i < SeriesCount; i++) Repaint(snapshots, i);
+            return true;
+        }
+
+        // График серии; null, пока история пуста.
+        public static Texture2D At(int index)
+        {
+            if (index < 0 || index >= SeriesCount) return null;
+            return textures[index];
+        }
+
+        // Подпись строки: имя и последнее значение («Казна: 320»).
+        public static string LabelAt(int index, MetricsHistory history)
+        {
+            if (index < 0 || index >= SeriesCount) return string.Empty;
+            MetricsSnapshot latest = history != null ? history.Latest() : default(MetricsSnapshot);
+            return Names[index] + ": " + ValueAt(index, latest).ToString("0");
+        }
+
+        // Забыть таймер (тесты, «Новая игра»): следующий вызов пересчитает сразу.
+        public static void Reset() { nextRefreshTime = 0f; }
+
+        private static void Repaint(MetricsSnapshot[] snapshots, int index)
+        {
+            int count = snapshots.Length > source.Length ? source.Length : snapshots.Length;
+            for (int i = 0; i < count; i++) source[i] = ValueAt(index, snapshots[i]);
+            int written = GraphMath.Decimate(source, count, points, Width);
+            float min, max;
+            GraphMath.Axes(points, written, out min, out max);
+            for (int i = 0; i < buffer.Length; i++) buffer[i] = Background;
+            PlotLine(points, written, LineColors[index], min, max);
+            EnsureTexture(index);
+            textures[index].SetPixels(buffer);
+            textures[index].Apply();
+        }
+
+        // Столбик на точку + вертикальный пролёт от предыдущей точки: линия без разрывов.
+        private static void PlotLine(float[] values, int count, Color color, float min, float max)
+        {
+            int previous = -1;
+            for (int i = 0; i < count && i < Width; i++)
+            {
+                int x = count == 1 ? 0 : i * (Width - 1) / (count - 1);
+                float fraction = GraphMath.Normalize(values[i], min, max);
+                int y = Mathf.Clamp((int)(fraction * (Height - 1)), 0, Height - 1);
+                int from = previous < 0 ? y : Mathf.Min(previous, y);
+                int to = previous < 0 ? y : Mathf.Max(previous, y);
+                for (int row = from; row <= to; row++) buffer[row * Width + x] = color;
+                previous = y;
+            }
+        }
+
+        private static float ValueAt(int index, MetricsSnapshot snapshot)
+        {
+            if (index == 0) return snapshot.Population;
+            if (index == 1) return snapshot.Balance;
+            if (index == 2) return snapshot.NeedsAvg;
+            return snapshot.PowerPercent;
+        }
+
+        private static void EnsureTexture(int index)
+        {
+            if (textures[index] != null) return;
+            textures[index] = new Texture2D(Width, Height, TextureFormat.RGBA32, false);
+            textures[index].filterMode = FilterMode.Point;
+            textures[index].wrapMode = TextureWrapMode.Clamp;
+        }
+    }
+}
