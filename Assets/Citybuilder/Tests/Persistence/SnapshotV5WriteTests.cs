@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Сейв v5 (EPIC-64 шаг 1): уровни зданий и три налоговые ставки в JSON слота. Без сцены и файлов.
+    // Сейв v5 (EPIC-64 шаг 1): уровни зданий и три ставки пишутся в JSON слота. Без сцены и файлов.
+    // Битые значения полей проверяет SnapshotV5ValidationTests.
     public class SnapshotV5WriteTests
     {
         private readonly List<Object> assets = new List<Object>();
@@ -87,29 +88,6 @@ namespace Citybuilder
             Assert.AreEqual(TaxPolicy.Level.Low, levels.Residential);
             Assert.AreEqual(TaxPolicy.Level.Low, levels.Commercial);
             Assert.AreEqual(TaxPolicy.Level.Low, levels.Industrial);
-        }
-
-        [Test]
-        public void Validate_RejectsLevelOutOfRange_InBothBuildingLists()
-        {
-            CitySnapshot snapshot = SaveSystem.BuildSnapshot(null, null, null, 0, 0, null);
-            snapshot.ManualBuildings.Add(new CitySnapshot.BuildingEntry { DefId = "station", X = 1, Y = 1, Level = 9 });
-            Assert.IsFalse(SaveSlotStorage.Validate(snapshot));
-            snapshot.ManualBuildings.Clear();
-            snapshot.Buildings.Add(new CitySnapshot.BuildingEntry { DefId = "house", X = 1, Y = 1, Level = 7 });
-            Assert.IsFalse(SaveSlotStorage.Validate(snapshot));
-            snapshot.Buildings[0].Level = 3;
-            Assert.IsTrue(SaveSlotStorage.Validate(snapshot));
-        }
-
-        [Test]
-        public void Validate_RejectsBrokenTaxRates()
-        {
-            CitySnapshot snapshot = SaveSystem.BuildSnapshot(null, null, null, 0, 0, null);
-            snapshot.TaxRates = new int[] { 1, 3 };
-            Assert.IsFalse(SaveSlotStorage.Validate(snapshot));
-            snapshot.TaxRates = new int[] { 1, 9, 2 };
-            Assert.IsFalse(SaveSlotStorage.Validate(snapshot));
         }
 
         [Test]
