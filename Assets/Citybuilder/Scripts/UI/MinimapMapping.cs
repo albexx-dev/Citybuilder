@@ -40,8 +40,8 @@ namespace Citybuilder
         // В низком/узлом окне сторона ужимается, чтобы rect целиком остался на экране.
         public static Rect MinimapRect(float screenWidth, float screenHeight, float padding)
         {
-            float byWidth = Positive(screenWidth - 2f * padding);
-            float byHeight = Positive(screenHeight - 2f * padding);
+            float byWidth = Mathf.Max(0f, screenWidth - 2f * padding);
+            float byHeight = Mathf.Max(0f, screenHeight - 2f * padding);
             float size = Mathf.Min(SidePixels, Mathf.Min(byWidth, byHeight));
             float x = Mathf.Max(padding, screenWidth - size - padding);
             return new Rect(x, padding, size, size);
@@ -52,11 +52,6 @@ namespace Citybuilder
         public static bool IsMinimapVisible(bool infoMenuOpen, bool eventLogOpen)
         {
             return !infoMenuOpen && !eventLogOpen;
-        }
-
-        private static float Positive(float value)
-        {
-            return value > 0f ? value : 0f;
         }
 
         private static int CellToAxis(int cell, int gridSize, int textureSize)
