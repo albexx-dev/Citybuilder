@@ -36,6 +36,7 @@ namespace Citybuilder
             List<BuildingState> homes = ApplyCity(snapshot);
             int manual = ApplyManual(snapshot);
             SnapshotLevels.ApplyAll(snapshot, homes, Placement == null ? null : Placement.Placed);
+            LoadedHouseViewRefresh.Apply(Growth, homes);
             ApplyMeta(snapshot);
             SaveController save = GetComponent<SaveController>();
             if (save != null) save.ClearDirty();
