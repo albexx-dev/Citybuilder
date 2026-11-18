@@ -25,11 +25,15 @@ namespace Citybuilder
         private readonly SoundCooldownPolicy soundPolicy = new SoundCooldownPolicy();
         private readonly EventThrottlePolicy eventThrottle = new EventThrottlePolicy(10);
         private readonly FireTicker fireTicker = new FireTicker();
+        private readonly CrimeTicker crimeTicker = new CrimeTicker();
 
         public TaxSystem Tax { get { EnsureSystems(); return tax; } }
 
         // Снимок пожара для FireOverlayView (EPIC-43).
         public FireSystem Fires { get { return fireTicker.Fires; } }
+
+        // Кражи (EPIC-47) для InfoMenuView: уровень преступности и модификаторы досуга домов.
+        public CrimeSystem Crimes { get { return crimeTicker.Crimes; } }
 
         public void ResetSound()
         {
@@ -110,9 +114,7 @@ namespace Citybuilder
             {
                 var building = list[i];
                 if (building != null && building.Definition != null)
-                {
                     total += Math.Max(0, building.Definition.JobsProvided);
-                }
             }
             return total;
         }
@@ -128,8 +130,7 @@ namespace Citybuilder
 
         private void Tick(int tickCount)
         {
-            // Пассивный доход беззвучен (спецификация владельца): монетка — только
-            // на единовременные награды (GoalView), лента — без звука на каждый тик.
+            // Пассивный доход беззвучен (спецификация владельца): монетка — только награды GoalView.
             EnsureSystems();
             if (tax == null) return;
             if (Policy != null) tax.Collect(Policy.Policy);
@@ -138,6 +139,7 @@ namespace Citybuilder
                 Placement != null ? Placement.Placed : null));
             ReportCityEvents(tickCount);
             TickFires(tickCount);
+            TickCrimes(tickCount);
         }
 
         private void ReportCityEvents(int tick)
@@ -145,8 +147,7 @@ namespace Citybuilder
             if (EventLog == null) EventLog = FindFirstObjectByType<EventLogView>();
             if (EventLog == null) return;
             CityEventLog log = EventLog.Log;
-            // Троттлинг по виду события: сообщения с меняющимися числами («Энергия 46%»)
-            // обходят дедуп по строке — каждый вид проходит не чаще раза в 10 тиков.
+            // Троттлинг по виду: сообщения с меняющимися числами («Энергия 46%») обходят дедуп.
             if (Growth != null && Growth.SupplyGrowth != null
                 && eventThrottle.Allow(EventKind.Supply.ToString(), tick))
             {
@@ -174,9 +175,7 @@ namespace Citybuilder
                 int pct = (int)Math.Round(employment.EmploymentRate * 100f);
                 log.Add(EventKind.Employment, "Высокая безработица: занятость " + pct + "%", tick);
             }
-            // Звука на тиковые события нет: лента читаема (троттлинг по виду),
-            // поп-спам устранён (жалоба владельца). Единовременные события
-            // (награды целей) звучат в GoalView.
+            // Звука на тиковые события нет: лента читаема (троттлинг), награды целей звучат в GoalView.
         }
 
         // Пожары (EPIC-43, ADR-009): тик FireSystem по домам, разрушение и лента.
@@ -188,9 +187,14 @@ namespace Citybuilder
                 Population != null ? Population.Population : null, Growth.DemolishState);
         }
 
-        private void ClampLimits()
+        // Кражи (EPIC-47): дома без покрытия полиции воруют — штраф казне и событие в ленту.
+        private void TickCrimes(int tick)
         {
-            if (TaxPerWorker < 0) TaxPerWorker = 0;
+            crimeTicker.Tick(tick, Growth != null ? Growth.Homes : null,
+                Coverage != null ? Coverage.System : null, EventLog != null ? EventLog.Log : null,
+                Treasury.Treasury);
         }
+
+        private void ClampLimits() { if (TaxPerWorker < 0) TaxPerWorker = 0; }
     }
 }
