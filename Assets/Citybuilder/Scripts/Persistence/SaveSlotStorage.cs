@@ -28,6 +28,7 @@ namespace Citybuilder
             if (snapshot == null || !IsSupportedVersion(snapshot.Version)) return false;
             if (snapshot.TickCount < 0) return false;
             if (snapshot.TaxLevel < 0 || snapshot.TaxLevel > 3) return false;
+            if (!SnapshotTaxRates.IsValid(snapshot.TaxRates)) return false;
             if (snapshot.GoalStage < 0 || snapshot.GoalStage > GoalStages.StageCount) return false;
             if (snapshot.Zones == null || snapshot.Buildings == null) return false;
             if (snapshot.Households == null || snapshot.Roads == null) return false;
@@ -62,6 +63,7 @@ namespace Citybuilder
             return Load(baseDir, slot) != null;
         }
 
+        // Поддерживаются слоты v1..SaveSystem.CurrentVersion: старое читается, будущее — нет.
         private static bool IsSupportedVersion(int version)
         {
             return version >= 1 && version <= SaveSystem.CurrentVersion;
@@ -101,6 +103,8 @@ namespace Citybuilder
             {
                 if (buildings[i] == null || string.IsNullOrEmpty(buildings[i].DefId)) return false;
                 if (!InMap(buildings[i].X, buildings[i].Y)) return false;
+                // v5: Level 0 — старый слот v4 (не задано), 1..3 — заданный уровень.
+                if (buildings[i].Level < 0 || buildings[i].Level > HouseLevelPolicy.MaxLevel) return false;
             }
             return true;
         }

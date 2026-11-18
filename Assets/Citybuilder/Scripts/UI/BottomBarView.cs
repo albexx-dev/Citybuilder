@@ -31,6 +31,7 @@ namespace Citybuilder
             DrawMenuGroup(HudLayout.MenuButtonsRect(sw, sh));
             BuildCatalogView.ResetGuards();
             DrawSubRow(sw, sh);
+            MinimapView.Draw(InfoMenu != null && InfoMenu.IsOpen, EventLog != null && EventLog.IsOpen);
         }
 
         private void ResolveRefs()

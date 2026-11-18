@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Геометрия HUD, нижней панели действий (EPIC-13), инфоменю (EPIC-14) и ленты событий (EPIC-09).
+    // Геометрия HUD, нижней панели действий (EPIC-13), инфоменю (EPIC-14), ленты событий (EPIC-09) и мини-карты (EPIC-67).
     // Единственный источник прямоугольников: отсюда рисуются группы и регистрируется UiClickGuard.
     public static class HudLayout
     {
@@ -130,6 +130,9 @@ namespace Citybuilder
         {
             return InfoMenuRect(screenWidth, screenHeight);
         }
+
+        public static Rect MinimapRect(float screenWidth, float screenHeight) => MinimapMapping.MinimapRect(screenWidth, screenHeight, BarPadding); // EPIC-67: геометрию и видимость считает MinimapMapping
+        public static bool IsMinimapVisible(bool infoMenuOpen, bool eventLogOpen) => MinimapMapping.IsMinimapVisible(infoMenuOpen, eventLogOpen);
 
         // Инфопанель выбранного здания в правом нижнем углу над нижней панелью (EPIC-12 шаг 2).
         public static Rect InfoPanelRect(float screenWidth, float screenHeight)

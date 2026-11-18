@@ -54,8 +54,11 @@ namespace Citybuilder
         {
             ResolveRefs();
             int goalStage = Goal == null ? 0 : Goal.Stage;
-            return SaveSystem.BuildSnapshot(CollectHomes(), CollectHouseholds(), CollectZones(),
+            CitySnapshot snapshot = SaveSystem.BuildSnapshot(CollectHomes(), CollectHouseholds(), CollectZones(),
                 ReadBalance(), ReadTicks(), CollectRoads(), ReadTaxLevel(), CollectManual(), goalStage);
+            // v5: раздельные ставки трёх зон пишутся из политики, уровни зданий уже в снапшоте.
+            SnapshotTaxRates.Write(snapshot, Policy == null ? null : Policy.Policy);
+            return snapshot;
         }
 
         private void ResolveRefs()

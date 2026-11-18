@@ -6,11 +6,11 @@ namespace Citybuilder
     public class TaxSaveTests
     {
         [Test]
-        public void Snapshot_Defaults_ZeroTaxAndVersionFour()
+        public void Snapshot_Defaults_ZeroTaxAndCurrentVersion()
         {
             CitySnapshot snapshot = new CitySnapshot();
             Assert.AreEqual(0, snapshot.TaxLevel);
-            Assert.AreEqual(4, snapshot.Version);
+            Assert.AreEqual(SaveSystem.CurrentVersion, snapshot.Version);
         }
 
         [Test]
@@ -20,7 +20,7 @@ namespace Citybuilder
             snapshot.TaxLevel = 3;
             CitySnapshot restored = SaveSlotStorage.FromJson(SaveSlotStorage.ToJson(snapshot));
             Assert.AreEqual(3, restored.TaxLevel);
-            Assert.AreEqual(4, restored.Version);
+            Assert.AreEqual(SaveSystem.CurrentVersion, restored.Version);
             Assert.IsTrue(SaveSlotStorage.Validate(restored));
         }
 
@@ -29,7 +29,7 @@ namespace Citybuilder
         {
             CitySnapshot snapshot = SaveSystem.BuildSnapshot(null, null, null, 100, 5, null);
             Assert.AreEqual(0, snapshot.TaxLevel);
-            Assert.AreEqual(4, snapshot.Version);
+            Assert.AreEqual(SaveSystem.CurrentVersion, snapshot.Version);
         }
 
         [Test]

@@ -95,6 +95,20 @@ namespace Citybuilder
             camera.transform.position += camera.transform.forward * steps * Mathf.Max(ZoomSpeed, 1f);
             ClampPosition(camera);
         }
+        // Прыжок камеры над мировой точкой (клик по мини-карте, EPIC-67 шаг 1): высота и yaw остаются, границы карты — ClampPosition.
+        public void FocusOn(float worldX, float worldZ)
+        {
+            Camera camera = Target != null ? Target : Camera.main;
+            if (camera == null)
+            {
+                return;
+            }
+            Vector3 point = camera.transform.position;
+            point.x = worldX;
+            point.z = worldZ;
+            camera.transform.position = point;
+            ClampPosition(camera);
+        }
         // Поворот в градусах вокруг мировой оси Y, крен всегда 0.
         public void AddYaw(float degrees)
         {
