@@ -94,7 +94,7 @@ namespace Citybuilder
         private static HashSet<string> MakeCompletedStarters()
         {
             HashSet<string> completed = new HashSet<string>();
-            for (int i = 0; i < QuestCatalog.Starters.Length; i++) completed.Add(QuestCatalog.Starters[i].Id);
+            for (int i = 0; i < QuestCatalog.Starters.Count; i++) completed.Add(QuestCatalog.Starters[i].Id);
             completed.Add("q_services_all");
             return completed;
         }
