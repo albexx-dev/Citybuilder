@@ -32,7 +32,7 @@ namespace Citybuilder
         private bool isOpen;
         private Vector2 scroll;
         private float nextRefreshTime;
-        private readonly string[] cachedLines = new string[11];
+        private readonly string[] cachedLines = new string[12];
 
         public bool IsOpen { get { return isOpen; } }
 
