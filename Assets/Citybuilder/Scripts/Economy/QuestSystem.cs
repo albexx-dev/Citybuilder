@@ -32,14 +32,30 @@ namespace Citybuilder
         // Граница тика: проверить активные, начислить награды, добрать задачи из каталога.
         public void Tick(int tick, QuestContext context, Treasury treasury, CityEventLog log)
         {
+            // Буфер выполненных: событие стреляет после всех мутаций списка,
+            // чтобы подписчик (например, вызвавший Reset) не сломал обход.
+            List<QuestDefinition> finished = null;
             for (int i = active.Count - 1; i >= 0; i--)
             {
                 QuestDefinition quest = active[i];
                 if (!quest.IsSatisfied(context)) continue;
                 Complete(tick, quest, treasury, log);
                 active.RemoveAt(i);
+                if (finished == null) finished = new List<QuestDefinition>();
+                finished.Add(quest);
             }
             Fill(context);
+            FireCompleted(finished);
+        }
+
+        // События после Fill: подписчик может сбросить или пополнить список задач.
+        private void FireCompleted(List<QuestDefinition> finished)
+        {
+            if (finished == null) return;
+            for (int i = 0; i < finished.Count; i++)
+            {
+                if (QuestCompleted != null) QuestCompleted(finished[i]);
+            }
         }
 
         // Сброс «Новая игра»: активные и выполненные очищаются, задачи выдаются заново.
@@ -50,6 +66,7 @@ namespace Citybuilder
         }
 
         // Выполнение ровно один раз: id в выполненные, награда казне, событие в ленту.
+        // Само событие QuestCompleted стреляет позже — из FireCompleted после мутаций.
         private void Complete(int tick, QuestDefinition quest, Treasury treasury, CityEventLog log)
         {
             completed.Add(quest.Id);
@@ -59,7 +76,6 @@ namespace Citybuilder
                 log.Add(EventKind.Treasury,
                     "Задача выполнена: " + quest.Title + " (+" + quest.Reward + "$)", tick);
             }
-            if (QuestCompleted != null) QuestCompleted(quest);
         }
 
         // Добрать активные до лимита: генератор скипает выполненные и недоступные.

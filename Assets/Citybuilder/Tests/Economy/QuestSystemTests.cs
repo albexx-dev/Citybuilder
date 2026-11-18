@@ -93,6 +93,19 @@ namespace Citybuilder
             Assert.AreEqual(200, treasury.Balance);
         }
 
+        // Событие стреляет после мутаций Tick: Reset внутри подписчика не ломает обход.
+        [Test]
+        public void Tick_SubscriberResetsInsideEvent_StateStaysConsistent()
+        {
+            QuestSystem quests = new QuestSystem();
+            Treasury treasury = new Treasury(0);
+            quests.QuestCompleted += delegate { quests.Reset(); };
+            quests.Tick(1, MakeContext(0, 0), treasury, null);
+            quests.Tick(2, MakeContext(10, 0), treasury, null);
+            Assert.AreEqual(200, treasury.Balance);
+            Assert.AreEqual(0, quests.CompletedCount);
+        }
+
         private static QuestContext MakeContext(int residents, int buildings)
         {
             QuestContext context = new QuestContext();
