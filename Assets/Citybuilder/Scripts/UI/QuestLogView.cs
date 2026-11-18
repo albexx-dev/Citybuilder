@@ -15,6 +15,7 @@ namespace Citybuilder
         public EconomyTicker Economy;
 
         private readonly QuestTicker questTicker = new QuestTicker();
+        private bool subscribed;
         private bool isOpen;
         private Vector2 scroll;
 
@@ -41,23 +42,32 @@ namespace Citybuilder
             if (!isOpen) UiClickGuard.Set("quest_log", new Rect());
         }
 
-        private void OnEnable()
+        private void OnEnable() { TrySubscribe(); }
+
+        private void OnDisable() { Unsubscribe(); }
+
+        // Update: повторная подписка, если Economy или Runner не были готовы.
+        private void Update()
         {
-            ResolveRefs();
-            if (Quests != null) Quests.QuestCompleted += OnQuestCompleted;
-            if (Economy != null && Economy.Runner != null && Economy.Runner.Clock != null)
-            {
-                Economy.Runner.Clock.TickCompleted += OnClockTick;
-            }
+            if (!subscribed) TrySubscribe();
         }
 
-        private void OnDisable()
+        private void TrySubscribe()
         {
-            if (Quests != null) Quests.QuestCompleted -= OnQuestCompleted;
-            if (Economy != null && Economy.Runner != null && Economy.Runner.Clock != null)
-            {
-                Economy.Runner.Clock.TickCompleted -= OnClockTick;
-            }
+            ResolveRefs();
+            if (subscribed) return;
+            if (Economy == null || Economy.Runner == null || Economy.Runner.Clock == null) return;
+            Economy.Runner.Clock.TickCompleted += OnClockTick;
+            Quests.QuestCompleted += OnQuestCompleted;
+            subscribed = true;
+        }
+
+        private void Unsubscribe()
+        {
+            if (!subscribed) return;
+            Economy.Runner.Clock.TickCompleted -= OnClockTick;
+            Quests.QuestCompleted -= OnQuestCompleted;
+            subscribed = false;
         }
 
         // Граница тика: снимок города, проверка активных задач, награды и лента.
