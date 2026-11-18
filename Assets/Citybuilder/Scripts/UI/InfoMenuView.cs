@@ -21,7 +21,7 @@ namespace Citybuilder
         [Tooltip("Экономика города: кражи и преступность (EPIC-47). Пусто = ищется в сцене.")] public EconomyTicker Economy;
 
         private const float RefreshIntervalSec = 0.5f;
-        private const float ContentHeight = 570f;
+        private const float ContentHeight = 810f; // + секция «История» (EPIC-68)
 
         // Порядок строк налогов в бюджете (эпик #49).
         private static readonly ZoneType[] BudgetZones =
@@ -141,6 +141,7 @@ namespace Citybuilder
             DrawHeader(ref y, "=== Развитие ===");
             DrawLine(ref y, cachedLines[9]);
             DrawLine(ref y, cachedLines[10]);
+            MetricsGraphView.Draw(ref y, width);
         }
 
         private void DrawBudgetSection(ref float y, float width)

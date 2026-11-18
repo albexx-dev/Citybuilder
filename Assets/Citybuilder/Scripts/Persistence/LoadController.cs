@@ -35,6 +35,8 @@ namespace Citybuilder
             ClearAll();
             List<BuildingState> homes = ApplyCity(snapshot);
             int manual = ApplyManual(snapshot);
+            SnapshotLevels.ApplyAll(snapshot, homes, Placement == null ? null : Placement.Placed);
+            LoadedHouseViewRefresh.Apply(Growth, homes);
             ApplyMeta(snapshot);
             SaveController save = GetComponent<SaveController>();
             if (save != null) save.ClearDirty();
@@ -143,7 +145,7 @@ namespace Citybuilder
         {
             if (Treasury != null) Treasury.ResetBalance(snapshot.Balance);
             if (Runner != null && Runner.Clock != null) Runner.Clock.RestoreTime(snapshot.TickCount);
-            if (Policy != null) Policy.Policy.Set(SaveSystem.DecodeTaxLevel(snapshot.TaxLevel));
+            if (Policy != null) SnapshotTaxRates.ApplyTo(snapshot, Policy.Policy);
             GoalView goal = FindFirstObjectByType<GoalView>();
             if (goal != null) goal.RestoreStage(snapshot.GoalStage);
         }

@@ -10,8 +10,9 @@ namespace Citybuilder
         public GridPosition Origin { get; private set; }
         public List<GridPosition> Cells { get; private set; }
 
-        // Уровень дома 1..3 (EPIC-59). ВАЖНО: в снапшоте сейва v4 НЕ сериализуется
-        // (v5 готовит #64) — после загрузки дома снова уровня 1.
+        // Уровень дома 1..3 (EPIC-59). С сейва v5 (#64) сериализуется в BuildingEntry.Level
+        // и восстанавливается при загрузке SnapshotLevels.ApplyAll. В слоте v4 поля нет —
+        // после загрузки такого дома уровень остаётся 1.
         public int Level { get; private set; }
         // Серия тиков комфорта для гистерезиса HouseLevelPolicy: >0 хороших подряд, <0 плохих.
         public int ComfortStreak { get; private set; }

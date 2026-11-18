@@ -6,7 +6,7 @@ namespace Citybuilder
     // Строит снапшот города из живых систем. Чистый C#, без Unity.
     public static class SaveSystem
     {
-        public const int CurrentVersion = 4;
+        public const int CurrentVersion = 5;
 
         // Слот без налога (старая сигнатура): TaxLevel = 0, при чтении это «обычный».
         public static CitySnapshot BuildSnapshot(List<BuildingState> homes, List<HouseholdState> households,
@@ -15,7 +15,7 @@ namespace Citybuilder
             return BuildSnapshot(homes, households, zones, balance, tickCount, roads, 0);
         }
 
-        // Слот с налогом, без ручных зданий: ручных ноль, версия всё равно 4.
+        // Слот с налогом, без ручных зданий: ручных ноль, версия всё равно текущая.
         public static CitySnapshot BuildSnapshot(List<BuildingState> homes, List<HouseholdState> households,
             List<KeyValuePair<GridPosition, ZoneType>> zones, int balance, long tickCount, List<RoadState> roads,
             int taxLevel)
@@ -31,7 +31,7 @@ namespace Citybuilder
             return BuildSnapshot(homes, households, zones, balance, tickCount, roads, taxLevel, manualBuildings, 0);
         }
 
-        // Полная сигнатура (v4): последним аргументом идёт ступень цели.
+        // Полная сигнатура: последним аргументом идёт ступень цели (слоты v4 и v5).
         public static CitySnapshot BuildSnapshot(List<BuildingState> homes, List<HouseholdState> households,
             List<KeyValuePair<GridPosition, ZoneType>> zones, int balance, long tickCount, List<RoadState> roads,
             int taxLevel, List<BuildingState> manualBuildings, int goalStage)
@@ -129,6 +129,8 @@ namespace Citybuilder
             entry.DefId = state.Definition.Id;
             entry.X = state.Origin.X;
             entry.Y = state.Origin.Y;
+            // v5: уровень 1..3 пишется как есть — у выросшего дома и у улучшенной станции.
+            entry.Level = state.Level;
             return entry;
         }
     }

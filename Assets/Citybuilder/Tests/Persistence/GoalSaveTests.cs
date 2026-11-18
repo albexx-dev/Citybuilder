@@ -2,14 +2,14 @@ using NUnit.Framework;
 
 namespace Citybuilder
 {
-    // Ступень цели в слоте v4: запись, JSON-roundtrip, старые перегрузки и восстановление.
+    // Ступень цели в слоте: запись, JSON-roundtrip, старые перегрузки и восстановление.
     public class GoalSaveTests
     {
         [Test]
-        public void BuildSnapshot_WithGoalStage_WritesVersionFour()
+        public void BuildSnapshot_WithGoalStage_WritesCurrentVersion()
         {
             CitySnapshot snapshot = SaveSystem.BuildSnapshot(null, null, null, 100, 5, null, 2, null, 2);
-            Assert.AreEqual(4, snapshot.Version);
+            Assert.AreEqual(SaveSystem.CurrentVersion, snapshot.Version);
             Assert.AreEqual(2, snapshot.GoalStage);
             Assert.IsTrue(SaveSlotStorage.Validate(snapshot));
         }
@@ -20,7 +20,7 @@ namespace Citybuilder
             CitySnapshot snapshot = new CitySnapshot();
             snapshot.GoalStage = 2;
             CitySnapshot restored = SaveSlotStorage.FromJson(SaveSlotStorage.ToJson(snapshot));
-            Assert.AreEqual(4, restored.Version);
+            Assert.AreEqual(SaveSystem.CurrentVersion, restored.Version);
             Assert.AreEqual(2, restored.GoalStage);
             Assert.IsTrue(SaveSlotStorage.Validate(restored));
         }
@@ -39,9 +39,9 @@ namespace Citybuilder
         {
             CitySnapshot six = SaveSystem.BuildSnapshot(null, null, null, 0, 0, null);
             CitySnapshot eight = SaveSystem.BuildSnapshot(null, null, null, 0, 0, null, 1, null);
-            Assert.AreEqual(4, six.Version);
+            Assert.AreEqual(SaveSystem.CurrentVersion, six.Version);
             Assert.AreEqual(0, six.GoalStage);
-            Assert.AreEqual(4, eight.Version);
+            Assert.AreEqual(SaveSystem.CurrentVersion, eight.Version);
             Assert.AreEqual(0, eight.GoalStage);
         }
 
@@ -55,10 +55,10 @@ namespace Citybuilder
         }
 
         [Test]
-        public void Validate_VersionsOneToFour_Pass()
+        public void Validate_KnownVersions_Pass()
         {
             CitySnapshot snapshot = new CitySnapshot();
-            for (int version = 1; version <= 4; version++)
+            for (int version = 1; version <= SaveSystem.CurrentVersion; version++)
             {
                 snapshot.Version = version;
                 Assert.IsTrue(SaveSlotStorage.Validate(snapshot), "version=" + version);
@@ -66,10 +66,10 @@ namespace Citybuilder
         }
 
         [Test]
-        public void Validate_VersionFive_Fails()
+        public void Validate_FutureVersion_Fails()
         {
             CitySnapshot snapshot = new CitySnapshot();
-            snapshot.Version = 5;
+            snapshot.Version = SaveSystem.CurrentVersion + 1;
             Assert.IsFalse(SaveSlotStorage.Validate(snapshot));
         }
 

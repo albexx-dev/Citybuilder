@@ -88,6 +88,8 @@ namespace Citybuilder
                     homes.Add(state);
                 }
             }
+            // v5: уровень каждого восстановленного дома — из слота, по координатам (EPIC-64 шаг 2).
+            SnapshotLevels.ApplyHomes(snapshot, homes);
         }
 
         public static void ApplyHouseholds(CitySnapshot snapshot, PopulationSystem population, List<BuildingState> homes)
