@@ -26,7 +26,7 @@ namespace Citybuilder
             grid = new GridSystem(new GridSize(Cells, Cells), Step); zones = new ZoneSystem(grid);
             roads.Clear(); homes.Clear(); placed.Clear();
             window = HudLayout.MinimapRect(1920f, 1080f);
-            Time.time = 200f; MinimapTexture.Reset();
+            MinimapTexture.Reset();
             go = new GameObject("MinimapViewCamera");
             camera = go.AddComponent<Camera>(); cam = go.AddComponent<FreeCameraController>();
             cam.Target = camera; cam.MapWidth = Cells * Step; cam.MapHeight = Cells * Step;
@@ -46,7 +46,7 @@ namespace Citybuilder
         private void ClickAt(float guiX, float guiY, int button)
         {
             Event click = new Event();
-            click.type = EventType.MouseDown; click.mouseButton = button;
+            click.type = EventType.MouseDown; click.button = button;
             click.mousePosition = new Vector2(guiX, guiY);
             MinimapView.Draw(window, grid, zones, roads, homes, placed, cam, click);
         }
@@ -85,11 +85,9 @@ namespace Citybuilder
         {
             Refresh();
             zones.SetZone(new GridPosition(5, 6), ZoneType.Residential);
-            Time.time = 200.4f;
-            Assert.IsFalse(MinimapTexture.RefreshIfDue(grid, zones, roads, homes, placed), "до 0.5 с перекраски нет");
+            Assert.IsFalse(MinimapTexture.RefreshIfDue(grid, zones, roads, homes, placed, 0.1f), "до 0.5 с перекраски нет");
             Assert.AreEqual(MinimapTexture.BackgroundColor, PixelOfCell(5, 6));
-            Time.time = 200.6f;
-            Assert.IsTrue(MinimapTexture.RefreshIfDue(grid, zones, roads, homes, placed), "после 0.5 с есть");
+            Assert.IsTrue(MinimapTexture.RefreshIfDue(grid, zones, roads, homes, placed, 100f), "после 0.5 с есть");
             Assert.AreEqual(MinimapTexture.ResidentialColor, PixelOfCell(5, 6));
         }
 
