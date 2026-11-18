@@ -9,6 +9,7 @@ namespace Citybuilder
         Treasury = 3,
         Fire = 4,
         Info = 5,
-        Blackout = 6
+        Blackout = 6,
+        Crime = 7
     }
 }
