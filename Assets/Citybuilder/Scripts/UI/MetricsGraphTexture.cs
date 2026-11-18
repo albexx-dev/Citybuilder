@@ -31,11 +31,13 @@ namespace Citybuilder
         private static float nextRefreshTime;
 
         // Пересчитать, если пора. Возвращает true при перерисовке; пустая история — false.
-        public static bool RefreshIfDue(MetricsHistory history)
+        // clockOverride >= 0 подменяет часы (шов для EditMode-тестов: Time не подставить напрямую).
+        public static bool RefreshIfDue(MetricsHistory history, float clockOverride = -1f)
         {
             if (history == null || history.Count == 0) return false;
-            if (Time.unscaledTime < nextRefreshTime) return false;
-            nextRefreshTime = Time.unscaledTime + RefreshIntervalSec;
+            float now = clockOverride >= 0f ? clockOverride : Time.unscaledTime;
+            if (now < nextRefreshTime) return false;
+            nextRefreshTime = now + RefreshIntervalSec;
             MetricsSnapshot[] snapshots = history.Snapshot();
             for (int i = 0; i < SeriesCount; i++) Repaint(snapshots, i);
             return true;

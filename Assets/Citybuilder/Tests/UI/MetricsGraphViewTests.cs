@@ -10,7 +10,6 @@ namespace Citybuilder
         public void SetUp()
         {
             MetricsGraphTexture.Reset();
-            Time.unscaledTime = 10f;
         }
 
         private static MetricsHistory History(int count, int populationStep, int balanceStart)
@@ -83,15 +82,13 @@ namespace Citybuilder
         public void Refresh_WithinHalfSecond_KeepsPreviousPixels()
         {
             MetricsHistory history = History(8, 1, 0);
-            Assert.IsTrue(MetricsGraphTexture.RefreshIfDue(history));
+            Assert.IsTrue(MetricsGraphTexture.RefreshIfDue(history, 10f));
             int middle = MetricsGraphTexture.Width / 2;
             int before = TopRow(MetricsGraphTexture.At(0), middle);
             history.Record(new MetricsSnapshot(99, 900, 0, 0f, 0f, 0f, 0f, 0f));
-            Time.unscaledTime += 0.4f;
-            Assert.IsFalse(MetricsGraphTexture.RefreshIfDue(history));
+            Assert.IsFalse(MetricsGraphTexture.RefreshIfDue(history, 10.4f));
             Assert.AreEqual(before, TopRow(MetricsGraphTexture.At(0), middle));
-            Time.unscaledTime += 0.2f;
-            Assert.IsTrue(MetricsGraphTexture.RefreshIfDue(history));
+            Assert.IsTrue(MetricsGraphTexture.RefreshIfDue(history, 10.6f));
             // Всплеск 900 растянул ось: середина серии опустилась к нулю.
             Assert.Less(TopRow(MetricsGraphTexture.At(0), middle), before);
         }
