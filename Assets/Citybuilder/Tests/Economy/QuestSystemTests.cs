@@ -106,6 +106,19 @@ namespace Citybuilder
             Assert.AreEqual(0, quests.CompletedCount);
         }
 
+        [Test]
+        public void ProgressLine_ResidentsAndCoverage_FromContext()
+        {
+            QuestSystem quests = new QuestSystem();
+            quests.Tick(1, MakeContext(12, 0), null, null);
+            QuestDefinition residents = new QuestDefinition("q_res_50", "Т", "О", 1, c => false);
+            Assert.AreEqual("Жители 12/50", QuestSystem.ProgressLine(residents, quests.LastContext));
+            QuestContext covered = MakeContext(10, 5);
+            covered.FireCoverage = 0.6f;
+            QuestDefinition fire = new QuestDefinition("q_fire_cover", "Т", "О", 1, c => false);
+            Assert.AreEqual("Пожарные 60/100", QuestSystem.ProgressLine(fire, covered));
+        }
+
         private static QuestContext MakeContext(int residents, int buildings)
         {
             QuestContext context = new QuestContext();

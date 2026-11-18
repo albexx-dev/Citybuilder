@@ -13,10 +13,10 @@ namespace Citybuilder
         public const int BalanceMilestoneFrom = 5000;
         public const int BalanceCityBuildings = 10;
 
-        private const string FireCoverId = "q_fire_cover";
-        private const string PoliceCoverId = "q_police_cover";
-        private const string HealthCoverId = "q_health_cover";
-        private const string ServicesAllId = "q_services_all";
+        public const string FireCoverId = "q_fire_cover";
+        public const string PoliceCoverId = "q_police_cover";
+        public const string HealthCoverId = "q_health_cover";
+        public const string ServicesAllId = "q_services_all";
 
         // Стартовые квесты в порядке приоритета: жители, рост, парки, службы.
         public static readonly QuestDefinition[] Starters =

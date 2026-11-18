@@ -92,11 +92,22 @@ namespace Citybuilder
             BottomBarStyle.DrawBarBackground(panel);
             Rect inner = new Rect(panel.x + 10f, panel.y + 8f, panel.width - 20f, panel.height - 16f);
             QuestSystem quests = Quests;
-            int lines = 1 + (quests != null ? quests.Active.Count * 2 : 0);
-            Rect view = new Rect(0f, 0f, inner.width - 20f, lines * LineHeight + 8f);
+            Rect view = new Rect(0f, 0f, inner.width - 20f, QuestLines(quests) * LineHeight + 8f);
             scroll = GUI.BeginScrollView(inner, scroll, view);
             DrawQuests(quests);
             GUI.EndScrollView();
+        }
+
+        // Высота содержимого: шапка + 2 строки на задачу и 3 для задач с прогрессом.
+        private static int QuestLines(QuestSystem quests)
+        {
+            if (quests == null) return 1;
+            int lines = 1;
+            for (int i = 0; i < quests.Active.Count; i++)
+            {
+                lines += QuestSystem.ProgressLine(quests.Active[i], quests.LastContext) != null ? 3 : 2;
+            }
+            return lines;
         }
 
         private void DrawQuests(QuestSystem quests)
@@ -111,16 +122,19 @@ namespace Citybuilder
             }
             for (int i = 0; i < quests.Active.Count; i++)
             {
-                y = DrawQuest(y, quests.Active[i]);
+                y = DrawQuest(y, quests.Active[i], quests.LastContext);
             }
         }
 
-        // Строка задачи: титул с наградой и описание с целью.
-        private static float DrawQuest(float y, QuestDefinition quest)
+        // Строка задачи: титул с наградой, описание и прогресс («Жители 12/50»).
+        private static float DrawQuest(float y, QuestDefinition quest, QuestContext context)
         {
             HudText.Draw(12f, y, quest.Title + "  (+" + quest.Reward + "$)");
             HudText.Draw(20f, y + LineHeight, quest.Description);
-            return y + LineHeight * 2f;
+            string progress = QuestSystem.ProgressLine(quest, context);
+            if (progress == null) return y + LineHeight * 2f;
+            HudText.Draw(20f, y + LineHeight * 2f, progress);
+            return y + LineHeight * 3f;
         }
     }
 }
