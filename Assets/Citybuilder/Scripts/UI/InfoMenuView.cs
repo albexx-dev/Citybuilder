@@ -18,6 +18,7 @@ namespace Citybuilder
         [Tooltip("Содержание зданий. Пусто = ищется на этом же объекте.")] public UpkeepView Upkeep;
         [Tooltip("Прогрессия разблокировок. Пусто = ищется на этом же объекте.")] public ProgressionView Progression;
         [Tooltip("Население города (для привлекательности). Пусто = ищется в сцене.")] public PopulationController Population;
+        [Tooltip("Экономика города: кражи и преступность (EPIC-47). Пусто = ищется в сцене.")] public EconomyTicker Economy;
 
         private const float RefreshIntervalSec = 0.5f;
         private const float ContentHeight = 570f;
@@ -31,7 +32,7 @@ namespace Citybuilder
         private bool isOpen;
         private Vector2 scroll;
         private float nextRefreshTime;
-        private readonly string[] cachedLines = new string[11];
+        private readonly string[] cachedLines = new string[12];
 
         public bool IsOpen { get { return isOpen; } }
 
@@ -85,6 +86,7 @@ namespace Citybuilder
             if (Needs == null) Needs = FindFirstObjectByType<NeedsView>();
             if (Goal == null) Goal = FindFirstObjectByType<GoalView>();
             if (Population == null) Population = FindFirstObjectByType<PopulationController>();
+            if (Economy == null) Economy = FindFirstObjectByType<EconomyTicker>();
         }
 
         private void RebuildCache()
@@ -102,6 +104,13 @@ namespace Citybuilder
             cachedLines[9] = Progression != null ? Progression.CurrentText : string.Empty;
             float attr = Population != null ? Population.CurrentAttractiveness : 1f;
             cachedLines[10] = AttractivenessPolicy.FormatLine(attr);
+            cachedLines[11] = Economy != null ? CrimeLine(Economy.Crimes) : string.Empty;
+        }
+
+        // Строка преступности (EPIC-47): процент = 1 − покрытие полиции города.
+        private static string CrimeLine(CrimeSystem crimes)
+        {
+            return "Преступность: " + Mathf.RoundToInt(crimes.CrimeLevel01 * 100f) + "%";
         }
 
         private void DrawCachedSections(float width)
@@ -114,6 +123,7 @@ namespace Citybuilder
             DrawHeader(ref y, "=== Службы ===");
             DrawLine(ref y, cachedLines[7]);
             DrawLine(ref y, cachedLines[8]);
+            DrawLine(ref y, cachedLines[11]);
             DrawBudgetSection(ref y, width);
             DrawHeader(ref y, "=== Развитие ===");
             DrawLine(ref y, cachedLines[9]);
