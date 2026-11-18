@@ -55,7 +55,7 @@ namespace Citybuilder
         private static void HandleClick(Event click, Rect rect, GridSystem grid, FreeCameraController target)
         {
             if (click == null || target == null) return;
-            if (click.type != EventType.MouseDown || click.mouseButton != 0) return;
+            if (click.type != EventType.MouseDown || click.button != 0) return;
             if (!rect.Contains(click.mousePosition)) return;
             float pixelX, pixelY, worldX, worldZ;
             MinimapMapping.RectToPixel(rect, click.mousePosition.x, click.mousePosition.y,

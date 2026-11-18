@@ -30,6 +30,13 @@ namespace Citybuilder
             get { return isOpen; }
         }
 
+        // Сброс цепочки (новая игра/загрузка слота) — зовётся из LoadController.ClearAll.
+        public void ResetQuests()
+        {
+            Quests.Reset();
+            scroll = Vector2.zero;
+        }
+
         public void Toggle()
         {
             SetOpen(!isOpen);
