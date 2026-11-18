@@ -77,7 +77,7 @@ namespace Citybuilder
         {
             if (context.Residents < MilestoneFromResidents) return default(QuestDefinition);
             int threshold = MilestoneFromResidents + MilestoneStep;
-            while (threshold <= context.Residents) threshold += MilestoneStep;
+            while (threshold <= context.Residents && threshold <= int.MaxValue - MilestoneStep) threshold += MilestoneStep;
             return new QuestDefinition("q_res_ms_" + threshold, "Веха роста",
                 "Достигни " + threshold + " жителей.", 200 + threshold, c => c.Residents >= threshold);
         }
