@@ -13,7 +13,7 @@ namespace Citybuilder
         public const float BarPadding = 8f;
         public const float SpeedButtonWidth = 56f;
         public const float ModeButtonWidth = 84f;
-        public const float MenuButtonWidth = 92f;
+        public const float MenuButtonWidth = 84f;
         public const float PaletteButtonWidth = 128f;
         public const float SubRowOffset = 34f;
         public const float InfoMenuTop = 10f;
@@ -74,7 +74,7 @@ namespace Citybuilder
         public static Rect MenuButtonsRect(float screenWidth, float screenHeight)
         {
             Rect speed = SpeedGroupRect(screenWidth, screenHeight);
-            float width = 2f * MenuButtonWidth + ButtonGap;
+            float width = 3f * MenuButtonWidth + 2f * ButtonGap;
             float x = Mathf.Max(ModeGroupRect(screenWidth, screenHeight).xMax + GroupGap, screenWidth - width - BarPadding);
             return new Rect(x, speed.y, width, ButtonHeight);
         }
@@ -130,6 +130,9 @@ namespace Citybuilder
         {
             return InfoMenuRect(screenWidth, screenHeight);
         }
+
+        // Окно задач-вех (EPIC-48): та же зона, панели взаимоисключающие.
+        public static Rect QuestLogRect(float screenWidth, float screenHeight) => InfoMenuRect(screenWidth, screenHeight);
 
         public static Rect MinimapRect(float screenWidth, float screenHeight) => MinimapMapping.MinimapRect(screenWidth, screenHeight, BarPadding); // EPIC-67: геометрию и видимость считает MinimapMapping
         public static bool IsMinimapVisible(bool infoMenuOpen, bool eventLogOpen) => MinimapMapping.IsMinimapVisible(infoMenuOpen, eventLogOpen);

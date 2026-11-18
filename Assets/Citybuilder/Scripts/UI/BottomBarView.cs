@@ -13,6 +13,7 @@ namespace Citybuilder
         [Tooltip("Палитра типов зданий. Пусто = ищется на этом же объекте.")] public BuildPaletteView Palette;
         [Tooltip("Информационное меню статистики (EPIC-14). Пусто = ищется на этом же объекте.")] public InfoMenuView InfoMenu;
         [Tooltip("Событийная лента города (EPIC-09). Пусто = ищется на этом же объекте.")] public EventLogView EventLog;
+        [Tooltip("Панель задач-вех (EPIC-48). Пусто = ищется на этом же объекте.")] public QuestLogView QuestLog;
 
         // Доступность зарезервированных кнопок меню (включатся в EPIC-14 и EPIC-09).
         public bool StatsEnabled;
@@ -40,6 +41,7 @@ namespace Citybuilder
             if (Palette == null) Palette = GetComponent<BuildPaletteView>();
             if (InfoMenu == null) InfoMenu = GetComponent<InfoMenuView>();
             if (EventLog == null) EventLog = GetComponent<EventLogView>();
+            if (QuestLog == null) QuestLog = GetComponent<QuestLogView>();
             if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
         }
 
@@ -78,22 +80,33 @@ namespace Citybuilder
         {
             Rect stats = new Rect(group.x, group.y, HudLayout.MenuButtonWidth, group.height);
             Rect log = new Rect(stats.xMax + HudLayout.ButtonGap, group.y, HudLayout.MenuButtonWidth, group.height);
-            bool hasStats = InfoMenu != null || StatsEnabled;
-            bool statsOpen = InfoMenu != null && InfoMenu.IsOpen;
-            if (!hasStats) BottomBarStyle.DrawDisabledButton(stats, "Статистика");
-            else if (BottomBarStyle.DrawButton(stats, "Статистика", statsOpen) && InfoMenu != null)
+            Rect quests = new Rect(log.xMax + HudLayout.ButtonGap, group.y, HudLayout.MenuButtonWidth, group.height);
+            if (InfoMenu == null && !StatsEnabled) BottomBarStyle.DrawDisabledButton(stats, "Статистика");
+            else if (BottomBarStyle.DrawButton(stats, "Статистика", InfoMenu != null && InfoMenu.IsOpen) && InfoMenu != null)
             {
-                if (EventLog != null && !statsOpen) EventLog.SetOpen(false);
+                ClosePanels(false, true, true);
                 InfoMenu.Toggle();
             }
-            bool hasLog = EventLog != null || EventLogEnabled;
-            bool logOpen = EventLog != null && EventLog.IsOpen;
-            if (!hasLog) BottomBarStyle.DrawDisabledButton(log, "Лента");
-            else if (BottomBarStyle.DrawButton(log, "Лента", logOpen) && EventLog != null)
+            if (EventLog == null && !EventLogEnabled) BottomBarStyle.DrawDisabledButton(log, "Лента");
+            else if (BottomBarStyle.DrawButton(log, "Лента", EventLog != null && EventLog.IsOpen) && EventLog != null)
             {
-                if (InfoMenu != null && !logOpen) InfoMenu.SetOpen(false);
+                ClosePanels(true, false, true);
                 EventLog.Toggle();
             }
+            if (QuestLog == null) BottomBarStyle.DrawDisabledButton(quests, "Задачи");
+            else if (BottomBarStyle.DrawButton(quests, "Задачи", QuestLog.IsOpen))
+            {
+                ClosePanels(true, true, false);
+                QuestLog.Toggle();
+            }
+        }
+
+        // Панели меню взаимоисключающие (EPIC-14/09/48): открытие одной закрывает остальные.
+        private void ClosePanels(bool stats, bool log, bool quests)
+        {
+            if (stats && InfoMenu != null) InfoMenu.SetOpen(false);
+            if (log && EventLog != null) EventLog.SetOpen(false);
+            if (quests && QuestLog != null) QuestLog.SetOpen(false);
         }
 
         private void DrawSubRow(float sw, float sh)

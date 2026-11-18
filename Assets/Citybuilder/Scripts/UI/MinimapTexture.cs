@@ -34,11 +34,13 @@ namespace Citybuilder
 
         // Перезаполнить не чаще раза в 0.5 с реального времени (Time.unscaledTime — прецедент InfoMenuView).
         // Возвращает true, если перекрасили; без сетки молча пропускает.
+        // clockOverride >= 0 подменяет часы (шов для EditMode-тестов: Time не подставить напрямую).
         public static bool RefreshIfDue(GridSystem grid, ZoneSystem zones, List<RoadState> roads,
-            List<BuildingState> homes, List<BuildingState> placed)
+            List<BuildingState> homes, List<BuildingState> placed, float clockOverride = -1f)
         {
-            if (grid == null || Time.unscaledTime < nextRefreshTime) return false;
-            nextRefreshTime = Time.unscaledTime + RefreshIntervalSec;
+            float now = clockOverride >= 0f ? clockOverride : Time.unscaledTime;
+            if (grid == null || now < nextRefreshTime) return false;
+            nextRefreshTime = now + RefreshIntervalSec;
             Repaint(grid, zones, roads, homes, placed);
             return true;
         }

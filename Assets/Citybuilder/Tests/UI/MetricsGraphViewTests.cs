@@ -10,7 +10,6 @@ namespace Citybuilder
         public void SetUp()
         {
             MetricsGraphTexture.Reset();
-            Time.unscaledTime = 10f;
         }
 
         private static MetricsHistory History(int count, int populationStep, int balanceStart)
@@ -24,12 +23,18 @@ namespace Citybuilder
             return history;
         }
 
+        // RGBA32 квантует каналы: сравнение с допуском (1/255 дрейф) вместо точного Color.
+        private static bool Close(Color a, Color b)
+        {
+            return Mathf.Abs(a.r - b.r) < 0.004f && Mathf.Abs(a.g - b.g) < 0.004f && Mathf.Abs(a.b - b.b) < 0.004f;
+        }
+
         // Высота строки линии в столбце x: -1, если столбик пуст.
         private static int TopRow(Texture2D graph, int x)
         {
             for (int y = MetricsGraphTexture.Height - 1; y >= 0; y--)
             {
-                if (graph.GetPixel(x, y) != new Color(0.13f, 0.15f, 0.17f)) return y;
+                if (!Close(graph.GetPixel(x, y), new Color(0.13f, 0.15f, 0.17f))) return y;
             }
             return -1;
         }
@@ -83,15 +88,13 @@ namespace Citybuilder
         public void Refresh_WithinHalfSecond_KeepsPreviousPixels()
         {
             MetricsHistory history = History(8, 1, 0);
-            Assert.IsTrue(MetricsGraphTexture.RefreshIfDue(history));
+            Assert.IsTrue(MetricsGraphTexture.RefreshIfDue(history, 10f));
             int middle = MetricsGraphTexture.Width / 2;
             int before = TopRow(MetricsGraphTexture.At(0), middle);
             history.Record(new MetricsSnapshot(99, 900, 0, 0f, 0f, 0f, 0f, 0f));
-            Time.unscaledTime += 0.4f;
-            Assert.IsFalse(MetricsGraphTexture.RefreshIfDue(history));
+            Assert.IsFalse(MetricsGraphTexture.RefreshIfDue(history, 10.4f));
             Assert.AreEqual(before, TopRow(MetricsGraphTexture.At(0), middle));
-            Time.unscaledTime += 0.2f;
-            Assert.IsTrue(MetricsGraphTexture.RefreshIfDue(history));
+            Assert.IsTrue(MetricsGraphTexture.RefreshIfDue(history, 10.6f));
             // Всплеск 900 растянул ось: середина серии опустилась к нулю.
             Assert.Less(TopRow(MetricsGraphTexture.At(0), middle), before);
         }
@@ -114,32 +117,29 @@ namespace Citybuilder
         }
 
         [Test]
-        public void Draw_EmptyHistory_ReservesHintHeightOnly()
+        public void Advance_EmptyHistory_ReservesHintHeightOnly()
         {
-            float y = 0f;
-            MetricsGraphView.Draw(ref y, 300f, new MetricsHistory());
+            float y = MetricsGraphView.Advance(new MetricsHistory());
             Assert.AreEqual(MetricsGraphView.EmptyHeight, y, 0.001f);
             Assert.AreEqual(MetricsGraphView.EmptyHeight, MetricsGraphView.SectionHeight(null), 0.001f);
         }
 
         [Test]
-        public void Draw_WithHistory_AdvancesByFourRows()
+        public void Advance_WithHistory_AdvancesByFourRows()
         {
             MetricsHistory history = History(20, 1, 0);
-            float y = 0f;
-            MetricsGraphView.Draw(ref y, 300f, history);
+            float y = MetricsGraphView.Advance(history);
             float expected = MetricsGraphView.HeaderHeight + MetricsGraphTexture.SeriesCount * MetricsGraphView.RowHeight;
             Assert.AreEqual(expected, y, 0.001f);
             Assert.AreEqual(expected, MetricsGraphView.SectionHeight(history), 0.001f);
         }
 
         [Test]
-        public void Draw_NarrowMenu_KeepsGraphInsideWidth()
+        public void NarrowMenu_KeepsGraphInsideWidth()
         {
             MetricsHistory history = History(6, 1, 0);
-            float y = 0f;
-            MetricsGraphView.Draw(ref y, 80f, history);
-            Assert.Greater(y, 0f);
+            Assert.AreEqual(64f, MetricsGraphView.GraphWidth(80f), 0.001f);
+            Assert.Greater(MetricsGraphView.Advance(history), 0f);
             Assert.IsNotNull(MetricsGraphTexture.At(0));
         }
     }

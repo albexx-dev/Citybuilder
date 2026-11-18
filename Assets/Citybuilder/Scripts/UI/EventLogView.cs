@@ -64,8 +64,21 @@ namespace Citybuilder
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.L)) Toggle();
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                if (!isOpen) CloseSiblingPanels();
+                Toggle();
+            }
             if (isOpen && Time.unscaledTime >= nextRefreshTime) RebuildCache();
+        }
+
+        // Хоткей открывает ленту поверх других: инфоменю и задачи закрываются (EPIC-09/14/48).
+        private void CloseSiblingPanels()
+        {
+            InfoMenuView menu = FindFirstObjectByType<InfoMenuView>();
+            QuestLogView quests = FindFirstObjectByType<QuestLogView>();
+            if (menu != null) menu.SetOpen(false);
+            if (quests != null) quests.SetOpen(false);
         }
 
         private void OnGUI()
