@@ -32,9 +32,9 @@
 | #46 | [Пешеходы](EPIC-46-pedestrians.md) | mechanics | **done** (task/179) |
 | #47 | [Криминал и полиция](EPIC-47-crime.md) | mechanics | not started |
 | #48 | [Квесты-вехи](EPIC-48-quests.md) | mechanics | not started |
-| #49 | [Налоги по типам зон](EPIC-49-zonal-taxes.md) | mechanics | not started |
+| #49 | [Налоги по типам зон](EPIC-49-zonal-taxes.md) | mechanics | **done** (task/186; хвост «3 ставки в сейве» → #64) |
 | #50 | [Блэкауты](EPIC-50-blackouts.md) | mechanics | **done** (task/188) |
-| #51 | [Апгрейд служб](EPIC-51-service-upgrades.md) | mechanics | not started |
+| #51 | [Апгрейд служб](EPIC-51-service-upgrades.md) | mechanics | **done** (task/187; хвосты: MarkDirty → task/192, уровень в сейве → #64) |
 | #52 | [Мусоровозы](EPIC-52-garbage-trucks.md) | mechanics | not started |
 | #53 | [Баланс-проход v1.2](EPIC-53-balance-v12.md) | mechanics | not started |
 | #54 | [Модели всех зданий](EPIC-54-building-models.md) | content | **done** (task/163) |
