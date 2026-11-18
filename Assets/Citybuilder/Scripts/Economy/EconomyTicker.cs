@@ -17,13 +17,19 @@ namespace Citybuilder
         [Tooltip("Налоговая политика из HUD. Пусто = фиксированная ставка TaxPerWorker.")] public TaxPolicyView Policy;
         [Tooltip("Налог с одного работающего за тик. 0 выключает сбор. Минимум 0.")] public int TaxPerWorker = 4;
         [Tooltip("Режим автосбора. Выключите для ручного сбора.")] public bool placementActive = true;
+        [Header("Fires")]
+        [Tooltip("Снимок покрытия служб. Пусто = ищется в сцене; без него дома считаются защищёнными.")] public ServiceCoverageController Coverage;
 
         private EmploymentSystem employment;
         private TaxSystem tax;
         private readonly SoundCooldownPolicy soundPolicy = new SoundCooldownPolicy();
         private readonly EventThrottlePolicy eventThrottle = new EventThrottlePolicy(10);
+        private readonly FireTicker fireTicker = new FireTicker();
 
         public TaxSystem Tax { get { EnsureSystems(); return tax; } }
+
+        // Снимок пожара для FireOverlayView (EPIC-43).
+        public FireSystem Fires { get { return fireTicker.Fires; } }
 
         public void ResetSound()
         {
@@ -92,6 +98,7 @@ namespace Citybuilder
             if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
             if (Placement == null) Placement = FindFirstObjectByType<BuildingPlacementController>();
             if (EventLog == null) EventLog = FindFirstObjectByType<EventLogView>();
+            if (Coverage == null) Coverage = FindFirstObjectByType<ServiceCoverageController>();
         }
 
         private int GetManualJobs()
@@ -130,6 +137,7 @@ namespace Citybuilder
             Treasury.Treasury.Charge(UpkeepPolicy.UpkeepPerHour(Growth.Homes,
                 Placement != null ? Placement.Placed : null));
             ReportCityEvents(tickCount);
+            TickFires(tickCount);
         }
 
         private void ReportCityEvents(int tick)
@@ -169,6 +177,15 @@ namespace Citybuilder
             // Звука на тиковые события нет: лента читаема (троттлинг по виду),
             // поп-спам устранён (жалоба владельца). Единовременные события
             // (награды целей) звучат в GoalView.
+        }
+
+        // Пожары (EPIC-43, ADR-009): тик FireSystem по домам, разрушение и лента.
+        private void TickFires(int tick)
+        {
+            if (Growth == null) return;
+            fireTicker.Tick(tick, Growth.Homes, Coverage != null ? Coverage.System : null,
+                EventLog != null ? EventLog.Log : null,
+                Population != null ? Population.Population : null, Growth.DemolishState);
         }
 
         private void ClampLimits()
