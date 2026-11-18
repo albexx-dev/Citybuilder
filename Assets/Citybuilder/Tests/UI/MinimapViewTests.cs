@@ -35,6 +35,12 @@ namespace Citybuilder
         [TearDown]
         public void TearDown() { MinimapView.Draw(true, false); Object.DestroyImmediate(go); }
         private void Refresh() { MinimapTexture.RefreshIfDue(grid, zones, roads, homes, placed); }
+        // RGBA32 квантует каналы: сравнение с допуском (1/255 дрейф) вместо точного Color.
+        private static bool Same(Color pixel, Color expected)
+        {
+            return Mathf.Abs(pixel.r - expected.r) < 0.004f && Mathf.Abs(pixel.g - expected.g) < 0.004f
+                && Mathf.Abs(pixel.b - expected.b) < 0.004f;
+        }
 
         // Пиксель клетки по тому же маппингу, что и клик: CellToPixel даёт центр её блока.
         private Color PixelOfCell(int cellX, int cellY)
@@ -63,13 +69,13 @@ namespace Citybuilder
             homes.Add(new BuildingState(EntityId.New(), null, new GridPosition(20, 21), footprint));
             placed.Add(new BuildingState(EntityId.New(), null, new GridPosition(22, 23), footprint));
             Refresh();
-            Assert.AreEqual(new Color(0.1f, 0.45f, 0.1f), PixelOfCell(7, 11), "жилая зона");
-            Assert.AreEqual(new Color(0.1f, 0.2f, 0.6f), PixelOfCell(8, 12), "коммерция");
-            Assert.AreEqual(new Color(0.6f, 0.3f, 0.05f), PixelOfCell(9, 13), "промзона");
-            Assert.AreEqual(new Color(0.45f, 0.45f, 0.45f), PixelOfCell(3, 40), "дорога — серый без тона");
-            Assert.AreEqual(MinimapTexture.BuildingColor, PixelOfCell(20, 21), "выросший дом");
-            Assert.AreEqual(MinimapTexture.BuildingColor, PixelOfCell(22, 23), "построенное вручную");
-            Assert.AreEqual(MinimapTexture.BackgroundColor, PixelOfCell(21, 22), "соседняя клетка осталась фоном");
+            Assert.IsTrue(Same(PixelOfCell(7, 11), new Color(0.1f, 0.45f, 0.1f)), "жилая зона");
+            Assert.IsTrue(Same(PixelOfCell(8, 12), new Color(0.1f, 0.2f, 0.6f)), "коммерция");
+            Assert.IsTrue(Same(PixelOfCell(9, 13), new Color(0.6f, 0.3f, 0.05f)), "промзона");
+            Assert.IsTrue(Same(PixelOfCell(3, 40), new Color(0.45f, 0.45f, 0.45f)), "дорога — серый без тона");
+            Assert.IsTrue(Same(PixelOfCell(20, 21), MinimapTexture.BuildingColor), "выросший дом");
+            Assert.IsTrue(Same(PixelOfCell(22, 23), MinimapTexture.BuildingColor), "построенное вручную");
+            Assert.IsTrue(Same(PixelOfCell(21, 22), MinimapTexture.BackgroundColor), "соседняя клетка осталась фоном");
         }
         [Test]
         public void Refresh_EmptyCity_LeavesOnlyBackground()
@@ -77,7 +83,7 @@ namespace Citybuilder
             Refresh();
             Color[] pixels = MinimapTexture.Current.GetPixels();
             int wrong = 0;
-            for (int i = 0; i < pixels.Length; i++) if (!pixels[i].Equals(MinimapTexture.BackgroundColor)) wrong++;
+            for (int i = 0; i < pixels.Length; i++) if (!Same(pixels[i], MinimapTexture.BackgroundColor)) wrong++;
             Assert.AreEqual(0, wrong, "в пустом городе чужих пикселей нет");
         }
         [Test]
@@ -86,9 +92,9 @@ namespace Citybuilder
             Refresh();
             zones.SetZone(new GridPosition(5, 6), ZoneType.Residential);
             Assert.IsFalse(MinimapTexture.RefreshIfDue(grid, zones, roads, homes, placed, 0.1f), "до 0.5 с перекраски нет");
-            Assert.AreEqual(MinimapTexture.BackgroundColor, PixelOfCell(5, 6));
+            Assert.IsTrue(Same(PixelOfCell(5, 6), MinimapTexture.BackgroundColor), "фон");
             Assert.IsTrue(MinimapTexture.RefreshIfDue(grid, zones, roads, homes, placed, 100f), "после 0.5 с есть");
-            Assert.AreEqual(MinimapTexture.ResidentialColor, PixelOfCell(5, 6));
+            Assert.IsTrue(Same(PixelOfCell(5, 6), MinimapTexture.ResidentialColor), "жилая");
         }
 
         // Конвенция Y (ловит переворот): верх окна — последний ряд сетки (+Z = 99), низ — первый (+Z = 1).

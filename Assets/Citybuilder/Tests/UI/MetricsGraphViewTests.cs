@@ -23,12 +23,18 @@ namespace Citybuilder
             return history;
         }
 
+        // RGBA32 квантует каналы: сравнение с допуском (1/255 дрейф) вместо точного Color.
+        private static bool Close(Color a, Color b)
+        {
+            return Mathf.Abs(a.r - b.r) < 0.004f && Mathf.Abs(a.g - b.g) < 0.004f && Mathf.Abs(a.b - b.b) < 0.004f;
+        }
+
         // Высота строки линии в столбце x: -1, если столбик пуст.
         private static int TopRow(Texture2D graph, int x)
         {
             for (int y = MetricsGraphTexture.Height - 1; y >= 0; y--)
             {
-                if (graph.GetPixel(x, y) != new Color(0.13f, 0.15f, 0.17f)) return y;
+                if (!Close(graph.GetPixel(x, y), new Color(0.13f, 0.15f, 0.17f))) return y;
             }
             return -1;
         }
