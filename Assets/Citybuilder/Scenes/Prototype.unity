@@ -277,6 +277,7 @@ MonoBehaviour:
   Policy: {fileID: 985593176}
   TaxPerWorker: 2
   placementActive: 1
+  Coverage: {fileID: 0}
 --- !u!4 &594737065
 Transform:
   m_ObjectHideFlags: 0
@@ -345,6 +346,7 @@ GameObject:
   - component: {fileID: 985593195}
   - component: {fileID: 985593196}
   - component: {fileID: 985593197}
+  - component: {fileID: 985593198}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -817,6 +819,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Citybuilder::Citybuilder.ServiceCoverageController
   Growth: {fileID: 985593158}
   Placement: {fileID: 985593154}
+  Power: {fileID: 0}
   Kind: 1
   RefreshIntervalSec: 2
 --- !u!114 &985593180
@@ -852,6 +855,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Citybuilder::Citybuilder.ServiceCoverageController
   Growth: {fileID: 985593158}
   Placement: {fileID: 985593154}
+  Power: {fileID: 0}
   Kind: 2
   RefreshIntervalSec: 2
 --- !u!114 &985593182
@@ -933,6 +937,7 @@ MonoBehaviour:
   Palette: {fileID: 0}
   InfoMenu: {fileID: 985593187}
   EventLog: {fileID: 985593188}
+  QuestLog: {fileID: 0}
   StatsEnabled: 1
   EventLogEnabled: 1
 --- !u!114 &985593187
@@ -959,6 +964,7 @@ MonoBehaviour:
   Upkeep: {fileID: 0}
   Progression: {fileID: 0}
   Population: {fileID: 0}
+  Economy: {fileID: 0}
 --- !u!114 &985593188
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1109,6 +1115,19 @@ MonoBehaviour:
   Power: {fileID: 985593170}
   Water: {fileID: 985593172}
   Waste: {fileID: 985593175}
+--- !u!114 &985593198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 867a47a5f280446db94021237b27342b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.QuestLogView
+  Economy: {fileID: 594737064}
 --- !u!1 &1069481158
 GameObject:
   m_ObjectHideFlags: 0
