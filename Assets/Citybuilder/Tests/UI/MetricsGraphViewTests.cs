@@ -117,32 +117,29 @@ namespace Citybuilder
         }
 
         [Test]
-        public void Draw_EmptyHistory_ReservesHintHeightOnly()
+        public void Advance_EmptyHistory_ReservesHintHeightOnly()
         {
-            float y = 0f;
-            MetricsGraphView.Draw(ref y, 300f, new MetricsHistory());
+            float y = MetricsGraphView.Advance(new MetricsHistory());
             Assert.AreEqual(MetricsGraphView.EmptyHeight, y, 0.001f);
             Assert.AreEqual(MetricsGraphView.EmptyHeight, MetricsGraphView.SectionHeight(null), 0.001f);
         }
 
         [Test]
-        public void Draw_WithHistory_AdvancesByFourRows()
+        public void Advance_WithHistory_AdvancesByFourRows()
         {
             MetricsHistory history = History(20, 1, 0);
-            float y = 0f;
-            MetricsGraphView.Draw(ref y, 300f, history);
+            float y = MetricsGraphView.Advance(history);
             float expected = MetricsGraphView.HeaderHeight + MetricsGraphTexture.SeriesCount * MetricsGraphView.RowHeight;
             Assert.AreEqual(expected, y, 0.001f);
             Assert.AreEqual(expected, MetricsGraphView.SectionHeight(history), 0.001f);
         }
 
         [Test]
-        public void Draw_NarrowMenu_KeepsGraphInsideWidth()
+        public void NarrowMenu_KeepsGraphInsideWidth()
         {
             MetricsHistory history = History(6, 1, 0);
-            float y = 0f;
-            MetricsGraphView.Draw(ref y, 80f, history);
-            Assert.Greater(y, 0f);
+            Assert.AreEqual(64f, MetricsGraphView.GraphWidth(80f), 0.001f);
+            Assert.Greater(MetricsGraphView.Advance(history), 0f);
             Assert.IsNotNull(MetricsGraphTexture.At(0));
         }
     }

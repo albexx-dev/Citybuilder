@@ -48,6 +48,12 @@ namespace Citybuilder
             Texture2D map = MinimapTexture.Current;
             if (map == null) { Hide(); return; }
             GUI.DrawTexture(rect, map);
+            ProcessClick(click, rect, grid, target);
+        }
+
+        // Тестируемый шов без IMGUI (GUI доступен только в OnGUI): гард + клик, без отрисовки.
+        public static void ProcessClick(Event click, Rect rect, GridSystem grid, FreeCameraController target)
+        {
             UiClickGuard.Set(GuardKey, rect);
             HandleClick(click, rect, grid, target);
         }
@@ -69,7 +75,7 @@ namespace Citybuilder
         }
 
         // Окно скрыто: гард обнуляется, иначе прошлый rect навсегда закрыл бы клики по миру.
-        private static void Hide()
+        public static void Hide()
         {
             UiClickGuard.Set(GuardKey, new Rect());
         }

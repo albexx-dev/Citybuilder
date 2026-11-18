@@ -41,11 +41,25 @@ namespace Citybuilder
                 return;
             }
             MetricsGraphTexture.RefreshIfDue(history);
-            float graphWidth = Mathf.Min(260f, Mathf.Max(64f, width - 24f));
+            float graphWidth = GraphWidth(width);
             for (int i = 0; i < MetricsGraphTexture.SeriesCount; i++)
             {
                 DrawRow(ref y, graphWidth, history, i);
             }
+        }
+
+        // Ширина графика под шириной меню: не шире 260 и не уже 64.
+        public static float GraphWidth(float width)
+        {
+            return Mathf.Min(260f, Mathf.Max(64f, width - 24f));
+        }
+
+        // Тестируемый шов без IMGUI (GUI доступен только в OnGUI): то же продвижение y, что в Draw.
+        public static float Advance(MetricsHistory history)
+        {
+            if (history == null || history.Count == 0) return EmptyHeight;
+            MetricsGraphTexture.RefreshIfDue(history);
+            return HeaderHeight + MetricsGraphTexture.SeriesCount * RowHeight;
         }
 
         private static void DrawRow(ref float y, float graphWidth, MetricsHistory history, int index)

@@ -4,9 +4,8 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Окно мини-карты целиком (EPIC-67 шаг 2): заполнение схемы, клик-телепорт с конвенцией Y, гард кликов
-    // и поведение без систем. В headless Object.FindFirstObjectByType пуст, поэтому окно проверяется через
-    // публичный шов Draw(rect, …, Event). Второй тестовый файл не заведён: не хватает лимита диффа ветки.
+    // Окно мини-карты целиком (EPIC-67 шаг 2): заполнение схемы, клик-телепорт с конвенцией Y, гард кликов.
+    // GUI доступен только внутри OnGUI, поэтому клики идут через шов ProcessClick, скрытие — через Hide.
     public class MinimapViewTests
     {
         private const int Cells = 50;
@@ -33,7 +32,7 @@ namespace Citybuilder
             camera.transform.position = new Vector3(1f, 40f, 1f);
         }
         [TearDown]
-        public void TearDown() { MinimapView.Draw(true, false); Object.DestroyImmediate(go); }
+        public void TearDown() { MinimapView.Hide(); Object.DestroyImmediate(go); }
         private void Refresh() { MinimapTexture.RefreshIfDue(grid, zones, roads, homes, placed); }
         // RGBA32 квантует каналы: сравнение с допуском (1/255 дрейф) вместо точного Color.
         private static bool Same(Color pixel, Color expected)
@@ -54,7 +53,7 @@ namespace Citybuilder
             Event click = new Event();
             click.type = EventType.MouseDown; click.button = button;
             click.mousePosition = new Vector2(guiX, guiY);
-            MinimapView.Draw(window, grid, zones, roads, homes, placed, cam, click);
+            MinimapView.ProcessClick(click, window, grid, cam);
         }
 
         // RGB зон взяты из 3D-кистей ZoneView.cs:50-52, а не из констант теста: цвет не уедет незамеченным.
@@ -123,13 +122,13 @@ namespace Citybuilder
             Vector2 screen = new Vector2(window.center.x, Screen.height - window.center.y);
             ClickAt(window.center.x, window.center.y, -1);
             Assert.IsTrue(UiClickGuard.IsOverMenu(screen), "под окном мир не кликается");
-            MinimapView.Draw(true, false);
+            MinimapView.Hide();
             Assert.IsFalse(UiClickGuard.IsOverMenu(screen), "со скрытым окном мир кликается");
         }
         [Test]
         public void Draw_WithoutSceneSystems_HidesWindowAndThrowsNothing()
         {
-            MinimapView.Draw(false, false);
+            MinimapView.Hide();
             Assert.IsFalse(UiClickGuard.IsOverMenu(new Vector2(window.center.x, Screen.height - window.center.y)));
         }
         [Test]
