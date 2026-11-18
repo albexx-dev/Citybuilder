@@ -18,7 +18,7 @@ namespace Citybuilder
         private bool isOpen;
         private Vector2 scroll;
 
-        // Домен квестов: для сброса «Новая игра» (LoadController) и тестов.
+        // Домен квестов: сброс из LoadController.ClearAll (новая игра/загрузка) и тесты.
         public QuestSystem Quests
         {
             get { return questTicker.Quests; }

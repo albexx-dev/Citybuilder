@@ -91,6 +91,8 @@ namespace Citybuilder
             if (ticker != null) ticker.ResetSound();
             MetricsRecorder metricsRecorder = FindFirstObjectByType<MetricsRecorder>();
             if (metricsRecorder != null) metricsRecorder.Clear();
+            QuestLogView questLog = FindFirstObjectByType<QuestLogView>();
+            if (questLog != null) questLog.ResetQuests();
         }
 
         private List<BuildingState> ApplyCity(CitySnapshot snapshot)

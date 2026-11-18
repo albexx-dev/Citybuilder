@@ -28,7 +28,8 @@ namespace Citybuilder
             quests.Tick(tick, BuildContext(population, buildings, coverage, treasury), treasury, log);
         }
 
-        // Явный сброс «Новая игра» (резервный путь, без отмотки времени).
+        // Сброс по команде QuestLogView (LoadController.ClearAll); также срабатывает
+        // при отмотке времени назад — квесты не сериализуются до v5 (#64).
         public void Reset()
         {
             quests.Reset();
