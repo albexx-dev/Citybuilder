@@ -24,8 +24,8 @@ namespace Citybuilder
             policy.Set(TaxPolicy.Level.High);
 
             Assert.AreEqual(4, employment.Employed);
-            // Высокая ставка после ребаланса 171: 4 работающих × 6 = 24.
-            Assert.AreEqual(24, tax.ComputeTax(policy.PerWorker));
+            // Высокая ставка после баланса v1.2 (эпик #53): 4 работающих × 4 = 16.
+            Assert.AreEqual(16, tax.ComputeTax(policy.PerWorker));
         }
 
         [Test]
