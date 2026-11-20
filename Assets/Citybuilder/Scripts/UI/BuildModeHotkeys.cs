@@ -17,6 +17,7 @@ namespace Citybuilder
         public SaveController Save;
         [Tooltip("Меню сохранения.")] public SaveMenuView SaveMenu;
         [Tooltip("Меню загрузки.")] public LoadMenuView LoadMenu;
+        [Tooltip("Окно настроек (EPIC-69).")] public SettingsView Settings;
 
         public enum EscAction
         {
@@ -46,7 +47,8 @@ namespace Citybuilder
             return (Pause != null && Pause.IsOpen)
                 || (SaveMenu != null && SaveMenu.IsOpen)
                 || (LoadMenu != null && LoadMenu.IsOpen)
-                || (Main != null && Main.IsOpen);
+                || (Main != null && Main.IsOpen)
+                || (Settings != null && Settings.IsOpen);
         }
 
         private void Update()
@@ -55,7 +57,7 @@ namespace Citybuilder
             BuildModeMenu menu = ResolveMenu();
             if (menu == null) return;
             ResolveModalRefs();
-            if ((SaveMenu != null && SaveMenu.IsOpen) || (LoadMenu != null && LoadMenu.IsOpen)) return;
+            if ((SaveMenu != null && SaveMenu.IsOpen) || (LoadMenu != null && LoadMenu.IsOpen) || (Settings != null && Settings.IsOpen)) return;
             bool mainOpen = Main != null && Main.IsOpen;
             bool pauseOpen = Pause != null && Pause.IsOpen;
 
@@ -86,6 +88,7 @@ namespace Citybuilder
             if (Main == null) Main = GetComponent<MainMenu>() ?? FindFirstObjectByType<MainMenu>();
             if (SaveMenu == null) SaveMenu = GetComponent<SaveMenuView>() ?? FindFirstObjectByType<SaveMenuView>();
             if (LoadMenu == null) LoadMenu = GetComponent<LoadMenuView>() ?? FindFirstObjectByType<LoadMenuView>();
+            if (Settings == null) Settings = GetComponent<SettingsView>() ?? FindFirstObjectByType<SettingsView>();
         }
 
         private BuildModeMenu ResolveMenu()
