@@ -3,8 +3,7 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Нижняя панель действий (EPIC-13): скорости, режимы, кисти зон и кнопки меню.
-    // Вешать на Grid. Все прямоугольники берутся из HudLayout и регистрируются в UiClickGuard.
-    // Каталог зданий (задача 173) вынесен в BuildCatalogView.
+    // Вешать на Grid; прямоугольники из HudLayout, иконки/тултипы из BottomBarIcons (EPIC-66).
     public class BottomBarView : MonoBehaviour
     {
         [Header("References")]
@@ -54,25 +53,22 @@ namespace Citybuilder
                 float x = group.x + i * (HudLayout.SpeedButtonWidth + HudLayout.ButtonGap);
                 Rect rect = new Rect(x, group.y, HudLayout.SpeedButtonWidth, group.height);
                 bool active = Runner != null && Runner.Speed == speeds[i];
-                if (BottomBarStyle.DrawButton(rect, labels[i], active) && Runner != null) Runner.SetSpeed(speeds[i]);
+                if (BottomBarStyle.DrawButton(rect, IconBook.Get(BottomBarIcons.SpeedKeys[i]), labels[i], BottomBarIcons.SpeedTips[i], active) && Runner != null) Runner.SetSpeed(speeds[i]);
             }
         }
 
         private void DrawModeGroup(Rect group)
         {
             BuildModeMenu.Mode[] modes =
-            {
-                BuildModeMenu.Mode.Off, BuildModeMenu.Mode.Houses,
-                BuildModeMenu.Mode.Roads, BuildModeMenu.Mode.Zones, BuildModeMenu.Mode.Growth,
-                BuildModeMenu.Mode.Decor
-            };
+                { BuildModeMenu.Mode.Off, BuildModeMenu.Mode.Houses, BuildModeMenu.Mode.Roads,
+                  BuildModeMenu.Mode.Zones, BuildModeMenu.Mode.Growth, BuildModeMenu.Mode.Decor };
             string[] labels = { "Выкл [Esc]", "Дома [1]", "Дороги [2]", "Зоны [3]", "Рост [4]", "Декор [5]" };
             for (int i = 0; i < modes.Length; i++)
             {
                 float x = group.x + i * (HudLayout.ModeButtonWidth + HudLayout.ButtonGap);
                 Rect rect = new Rect(x, group.y, HudLayout.ModeButtonWidth, group.height);
                 bool active = Menu != null && Menu.CurrentMode == modes[i];
-                if (BottomBarStyle.DrawButton(rect, labels[i], active) && Menu != null) Menu.SetMode(modes[i]);
+                if (BottomBarStyle.DrawButton(rect, IconBook.Get(BottomBarIcons.ModeKeys[i]), labels[i], BottomBarIcons.ModeTips[i], active) && Menu != null) Menu.SetMode(modes[i]);
             }
         }
 
@@ -82,19 +78,19 @@ namespace Citybuilder
             Rect log = new Rect(stats.xMax + HudLayout.ButtonGap, group.y, HudLayout.MenuButtonWidth, group.height);
             Rect quests = new Rect(log.xMax + HudLayout.ButtonGap, group.y, HudLayout.MenuButtonWidth, group.height);
             if (InfoMenu == null && !StatsEnabled) BottomBarStyle.DrawDisabledButton(stats, "Статистика");
-            else if (BottomBarStyle.DrawButton(stats, "Статистика", InfoMenu != null && InfoMenu.IsOpen) && InfoMenu != null)
+            else if (BottomBarStyle.DrawButton(stats, IconBook.Get(BottomBarIcons.MenuKeys[0]), "Статистика", BottomBarIcons.MenuTips[0], InfoMenu != null && InfoMenu.IsOpen) && InfoMenu != null)
             {
                 ClosePanels(false, true, true);
                 InfoMenu.Toggle();
             }
             if (EventLog == null && !EventLogEnabled) BottomBarStyle.DrawDisabledButton(log, "Лента");
-            else if (BottomBarStyle.DrawButton(log, "Лента", EventLog != null && EventLog.IsOpen) && EventLog != null)
+            else if (BottomBarStyle.DrawButton(log, IconBook.Get(BottomBarIcons.MenuKeys[1]), "Лента", BottomBarIcons.MenuTips[1], EventLog != null && EventLog.IsOpen) && EventLog != null)
             {
                 ClosePanels(true, false, true);
                 EventLog.Toggle();
             }
             if (QuestLog == null) BottomBarStyle.DrawDisabledButton(quests, "Задачи");
-            else if (BottomBarStyle.DrawButton(quests, "Задачи", QuestLog.IsOpen))
+            else if (BottomBarStyle.DrawButton(quests, IconBook.Get(BottomBarIcons.MenuKeys[2]), "Задачи", BottomBarIcons.MenuTips[2], QuestLog.IsOpen))
             {
                 ClosePanels(true, true, false);
                 QuestLog.Toggle();
@@ -143,9 +139,8 @@ namespace Citybuilder
                 float x = popup.x + i * (HudLayout.PaletteButtonWidth + HudLayout.ButtonGap);
                 Rect rect = new Rect(x, popup.y, HudLayout.PaletteButtonWidth, popup.height);
                 bool active = Menu.Zones != null && Menu.Zones.Brush == brushes[i];
-                if (BottomBarStyle.DrawButton(rect, labels[i], active)) Menu.SetBrush(brushes[i]);
+                if (BottomBarStyle.DrawButton(rect, IconBook.Get(BottomBarIcons.BrushKeys[i]), labels[i], BottomBarIcons.BrushTips[i], active)) Menu.SetBrush(brushes[i]);
             }
         }
-
     }
 }
