@@ -19,9 +19,10 @@ namespace Citybuilder
         [Tooltip("Прогрессия разблокировок. Пусто = ищется на этом же объекте.")] public ProgressionView Progression;
         [Tooltip("Население города (для привлекательности). Пусто = ищется в сцене.")] public PopulationController Population;
         [Tooltip("Экономика города: кражи и преступность (EPIC-47). Пусто = ищется в сцене.")] public EconomyTicker Economy;
+        [Tooltip("Мусоровозы (эпик #52). Пусто = ищется в сцене.")] public GarbageTruckView Garbage;
 
         private const float RefreshIntervalSec = 0.5f;
-        private const float ContentHeight = 810f; // + секция «История» (EPIC-68)
+        private const float ContentHeight = 834f; // + секция «История» (EPIC-68) и строка вывоза мусора
 
         // Порядок строк налогов в бюджете (эпик #49).
         private static readonly ZoneType[] BudgetZones =
@@ -32,7 +33,7 @@ namespace Citybuilder
         private bool isOpen;
         private Vector2 scroll;
         private float nextRefreshTime;
-        private readonly string[] cachedLines = new string[12];
+        private readonly string[] cachedLines = new string[13];
 
         public bool IsOpen { get { return isOpen; } }
 
@@ -100,6 +101,7 @@ namespace Citybuilder
             if (Goal == null) Goal = FindFirstObjectByType<GoalView>();
             if (Population == null) Population = FindFirstObjectByType<PopulationController>();
             if (Economy == null) Economy = FindFirstObjectByType<EconomyTicker>();
+            if (Garbage == null) Garbage = FindFirstObjectByType<GarbageTruckView>();
         }
 
         private void RebuildCache()
@@ -118,6 +120,7 @@ namespace Citybuilder
             float attr = Population != null ? Population.CurrentAttractiveness : 1f;
             cachedLines[10] = AttractivenessPolicy.FormatLine(attr);
             cachedLines[11] = Economy != null ? CrimeLine(Economy.Crimes) : string.Empty;
+            cachedLines[12] = Garbage != null ? Garbage.ServiceText : string.Empty;
         }
 
         // Строка преступности (EPIC-47): процент = 1 − покрытие полиции города.
@@ -137,6 +140,7 @@ namespace Citybuilder
             DrawLine(ref y, cachedLines[7]);
             DrawLine(ref y, cachedLines[8]);
             DrawLine(ref y, cachedLines[11]);
+            DrawLine(ref y, cachedLines[12]);
             DrawBudgetSection(ref y, width);
             DrawHeader(ref y, "=== Развитие ===");
             DrawLine(ref y, cachedLines[9]);
