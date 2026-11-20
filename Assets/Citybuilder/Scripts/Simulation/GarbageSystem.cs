@@ -108,6 +108,7 @@ namespace Citybuilder
             hash = MixByte(hash, (byte)(value >> 8));
             hash = MixByte(hash, (byte)(value >> 16));
             hash = MixByte(hash, (byte)(value >> 24));
+            hash = MixByte(hash, Salt); // замыкающая соль: полная декорреляция от пожарного потока
             return hash;
         }
 

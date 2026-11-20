@@ -61,6 +61,7 @@ namespace Citybuilder
         }
 
         // Движение по секундам: у дома зовётся picked, на финальном полигоне слот гаснет.
+        // Подбор приблизительный — по номеру ноги маршрута, а не по позиции дома (v1).
         public void Advance(float deltaTime, Action<EntityId> picked)
         {
             if (deltaTime <= 0f) return;

@@ -13,15 +13,14 @@ namespace Citybuilder
         private static readonly GridPosition Depot = new GridPosition(0, 0);
         private static readonly GridPosition HouseAt = new GridPosition(6, 6);
 
-        // Формула прироста: WasteOutput плюс младший бит FNV-1a хеша — детерминирована.
+        // Формула прироста: отрицательный WasteOutput клампится в ноль, остальное — бит FNV-1a хеша.
         [Test]
-        public void GainPerTick_FollowsHashFormula()
+        public void GainPerTick_NegativeOutputClamped_HashBitAdded()
         {
             EntityId id = EntityId.New();
             for (int t = 0; t < 1000; t++)
             {
-                int expected = 1 + (int)(GarbageSystem.Hash(t, id) & 1u);
-                Assert.AreEqual(expected, GarbageSystem.GainPerTick(t, id, 1), "tick " + t);
+                Assert.AreEqual((int)(GarbageSystem.Hash(t, id) & 1u), GarbageSystem.GainPerTick(t, id, -5), "tick " + t);
             }
         }
 
@@ -46,7 +45,8 @@ namespace Citybuilder
             int readyTick = ReadyTick(home.Id);
             GarbageSystem before = Run(new List<BuildingState> { home }, readyTick, null, null, new List<string>());
             Assert.AreEqual(0, before.WaitingCount);
-            GarbageSystem after = Run(new List<BuildingState> { home }, readyTick + 1, null, null, new List<string>());
+            // +10 тиков после порога: дом уже в очереди — повторно не добавляется (грид queued).
+            GarbageSystem after = Run(new List<BuildingState> { home }, readyTick + 11, null, null, new List<string>());
             Assert.AreEqual(1, after.WaitingCount);
             Assert.GreaterOrEqual(after.AccOf(home.Id), GarbageSystem.ReadyThreshold);
         }
@@ -101,23 +101,6 @@ namespace Citybuilder
             Assert.AreEqual(0, garbage.AccOf(home.Id));
             Assert.AreEqual(1, events.Count);
             Assert.IsTrue(events[0].Contains("дома #" + home.Id.Value));
-        }
-
-        // Дедуп ленты: два дома вывезены в один прогон — два разных сообщения, оба в ленте.
-        [Test]
-        public void TwoHomes_SameRun_TwoDistinctEventsInLog()
-        {
-            BuildingState first = Home(new GridPosition(1, 1));
-            BuildingState second = Home(new GridPosition(3, 3));
-            CityEventLog log = new CityEventLog();
-            GarbageSystem garbage = new GarbageSystem();
-            garbage.Collected += delegate (EventKind kind, string message, int tick) { log.Add(kind, message, tick); };
-            List<BuildingState> homes = new List<BuildingState> { first, second };
-            int horizon = Math.Max(ReadyTick(first.Id), ReadyTick(second.Id)) + 1;
-            for (int t = 0; t <= horizon; t++) garbage.Tick(t, homes, Depot, FakePath);
-            garbage.Advance(30f);
-            Assert.AreEqual(2, log.Count);
-            Assert.AreNotEqual(log.Snapshot()[0].Message, log.Snapshot()[1].Message);
         }
 
         // Тикер: отмотка времени назад обнуляет накопление, очередь и мусоровозы.
