@@ -12,6 +12,7 @@ namespace Citybuilder
         private static readonly GridPosition Depot = new GridPosition(0, 0);
 
         // Рейс берёт не больше HousesPerRun домов; остаток очереди ждёт следующего выезда.
+        // Очередь копится БЕЗ полигона, депо появляется после — один Dispatch разбирает очередь.
         [Test]
         public void Dispatch_TakesAtMostHousesPerRun()
         {
@@ -23,7 +24,9 @@ namespace Citybuilder
                 homes.Add(home);
                 horizon = Math.Max(horizon, ReadyTick(home.Id));
             }
-            GarbageSystem garbage = Run(homes, horizon + 1, Depot, FakePath);
+            GarbageSystem garbage = Run(homes, horizon + 1, null, null);
+            Assert.AreEqual(5, garbage.WaitingCount, "без полигона все ждут");
+            garbage.Tick(horizon + 1, homes, Depot, FakePath);
             Assert.AreEqual(1, garbage.ActiveTrucks);
             GarbageTrucks.Truck truck = garbage.TruckAt(0);
             Assert.AreEqual(GarbageTrucks.HousesPerRun, truck.Houses.Count, "лимит домов на рейс");
