@@ -65,8 +65,8 @@ namespace Citybuilder
         private void AssertRestored()
         {
             Assert.AreEqual(2, growth.FindStateAt(Home).Level); Assert.AreEqual(3, placement.Placed[0].Level);
-            Assert.AreEqual(2, tax.Policy.RateFor(ZoneType.Residential)); Assert.AreEqual(6, tax.Policy.RateFor(ZoneType.Commercial));
-            Assert.AreEqual(4, tax.Policy.RateFor(ZoneType.Industrial));
+            Assert.AreEqual(1, tax.Policy.RateFor(ZoneType.Residential)); Assert.AreEqual(4, tax.Policy.RateFor(ZoneType.Commercial));
+            Assert.AreEqual(2, tax.Policy.RateFor(ZoneType.Industrial));
         }
 
         private Transform CubeAt(GridPosition origin)
