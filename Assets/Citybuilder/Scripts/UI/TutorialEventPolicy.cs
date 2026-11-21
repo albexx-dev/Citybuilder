@@ -41,13 +41,13 @@ namespace Citybuilder
             switch (kind)
             {
                 case Kind.FirstFire:
-                    return "Пожар! Построй пожарную станцию: открой вкладку «Службы» и выбери карточку в каталоге над панелью.";
+                    return Localization.T("tutorial_event_fire");
                 case Kind.QuestReward:
-                    return "Задача выполнена — награда зачислена в казну. Так город растёт дальше.";
+                    return Localization.T("tutorial_event_reward");
                 case Kind.FirstWaste:
-                    return "Мусор впервые вывезен: мусоровоз забрал его из дома. Следи за очередью в статистике.";
+                    return Localization.T("tutorial_event_waste");
                 case Kind.FirstNight:
-                    return "Наступила ночь! Город живёт по часам — проверь часы в HUD.";
+                    return Localization.T("tutorial_event_night");
                 default:
                     return string.Empty;
             }

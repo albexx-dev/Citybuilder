@@ -44,10 +44,19 @@ namespace Citybuilder.Tests
         [Test]
         public void EventTexts_NameTheMechanic()
         {
-            Assert.IsTrue(TutorialEventPolicy.FormatText(TutorialEventPolicy.Kind.FirstFire).Contains("Пожар!"));
-            Assert.IsTrue(TutorialEventPolicy.FormatText(TutorialEventPolicy.Kind.QuestReward).Contains("награда"));
-            Assert.IsTrue(TutorialEventPolicy.FormatText(TutorialEventPolicy.Kind.FirstWaste).Contains("Мусор"));
-            Assert.IsTrue(TutorialEventPolicy.FormatText(TutorialEventPolicy.Kind.FirstNight).Contains("ночь"));
+            Language previous = Localization.Language;
+            try
+            {
+                Localization.SetLanguage(Language.Ru);
+                Assert.AreEqual(Localization.T("tutorial_event_fire"), TutorialEventPolicy.FormatText(TutorialEventPolicy.Kind.FirstFire));
+                Assert.AreEqual(Localization.T("tutorial_event_reward"), TutorialEventPolicy.FormatText(TutorialEventPolicy.Kind.QuestReward));
+                Assert.AreEqual(Localization.T("tutorial_event_waste"), TutorialEventPolicy.FormatText(TutorialEventPolicy.Kind.FirstWaste));
+                Assert.AreEqual(Localization.T("tutorial_event_night"), TutorialEventPolicy.FormatText(TutorialEventPolicy.Kind.FirstNight));
+                Localization.SetLanguage(Language.En);
+                Assert.IsTrue(TutorialEventPolicy.FormatText(TutorialEventPolicy.Kind.FirstFire).Contains("Fire!"));
+                Assert.IsFalse(TutorialEventPolicy.FormatText(TutorialEventPolicy.Kind.FirstFire).Contains("Пожар"));
+            }
+            finally { Localization.SetLanguage(previous); }
         }
 
         [Test]

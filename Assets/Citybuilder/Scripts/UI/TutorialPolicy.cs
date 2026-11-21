@@ -79,24 +79,24 @@ namespace Citybuilder
         {
             if (IsTypeSelected(step, selectedBuildingId))
             {
-                return "Тип выбран: кликни по свободной клетке на карте";
+                return Localization.T("tutorial_select");
             }
             switch (step)
             {
                 case Step.PaintZones:
-                    return "Шаг 1/7. Нажми кнопку «Зоны [3]» на нижней панели, выбери кисть «Жилая» и закрась участок около 4×4 клетки на карте.";
+                    return Localization.T("tutorial_step_1");
                 case Step.EnableGrowth:
-                    return "Шаг 2/7. Нажми кнопку «Рост [4]» на нижней панели: дома на закрашенных клетках вырастут сами.";
+                    return Localization.T("tutorial_step_2");
                 case Step.WaitForHouse:
-                    return "Шаг 3/7. Дождись, когда вырастет первый дом. Кнопка «x4» на нижней панели ускоряет время.";
+                    return Localization.T("tutorial_step_3");
                 case Step.BuildPower:
-                    return "Шаг 4/7. Нажми кнопку «Дома [1]», выбери " + Localization.T("building_power_station") + " в палитре НАД ПАНЕЛЬЮ и кликни свободную клетку на карте.";
+                    return Localization.T("tutorial_step_4", Localization.T("building_power_station"));
                 case Step.BuildWater:
-                    return "Шаг 5/7. Нажми кнопку «Дома [1]», выбери " + Localization.T("building_water_tower") + " в палитре НАД ПАНЕЛЬЮ и кликни свободную клетку на карте.";
+                    return Localization.T("tutorial_step_5", Localization.T("building_water_tower"));
                 case Step.BuildWaste:
-                    return "Шаг 6/7. Нажми кнопку «Дома [1]», выбери " + Localization.T("building_waste_depot") + " в палитре НАД ПАНЕЛЬЮ и кликни свободную клетку на карте.";
+                    return Localization.T("tutorial_step_6", Localization.T("building_waste_depot"));
                 case Step.BuildPark:
-                    return "Шаг 7/7. Нажми кнопку «Дома [1]», выбери " + Localization.T("building_park") + " в палитре НАД ПАНЕЛЬЮ и кликни свободную клетку на карте — людям приятнее жить.";
+                    return Localization.T("tutorial_step_7", Localization.T("building_park"));
                 default:
                     return string.Empty;
             }
