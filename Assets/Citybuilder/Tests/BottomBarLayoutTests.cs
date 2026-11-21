@@ -36,6 +36,17 @@ namespace Citybuilder
             Assert.LessOrEqual(mode.xMax, 1024f - HudLayout.BarPadding);
             Assert.LessOrEqual(mode.xMax, SettingsLayout.MenuButtonsRect(1024f, 600f).x);
         }
+        [TestCase(800f, 420f)]
+        [TestCase(1100f, 420f)]
+        public void ModeLabels_FitOneLine_AtNarrowWidth(float width, float height)
+        {
+            float textWidth = BottomBarStyle.LabelWidth(HudLayout.ModeButtonWidth, HudLayout.ButtonHeight);
+            string[] labels = { "Выкл [Esc]", "Здания [1]", "Дороги [2]", "Зоны [3]", "Рост [4]", "Декор [5]",
+                "Off [Esc]", "Buildings [1]", "Roads [2]", "Zones [3]", "Growth [4]", "Decor [5]" };
+            for (int i = 0; i < labels.Length; i++)
+                Assert.LessOrEqual(BottomBarStyle.EstimateLabelWidth(labels[i], BottomBarStyle.ButtonFontSize), textWidth, labels[i]);
+            Assert.LessOrEqual(SettingsLayout.MenuButtonRect(width, height, 0).xMax, width);
+        }
         [TestCase(1024f, 600f)]
         [TestCase(1920f, 1080f)]
         public void PalettePopup_StaysAboveBottomBar(float width, float height)

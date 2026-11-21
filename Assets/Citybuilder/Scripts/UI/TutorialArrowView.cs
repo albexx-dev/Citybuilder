@@ -74,7 +74,7 @@ namespace Citybuilder
             return new Rect(x, strip.y, HudLayout.CatalogCardWidth, strip.height);
         }
 
-        // Индекс кнопки режима: «Дома [1]», «Зоны [3]», «Рост [4]» — порядок из BottomBarView.
+        // Индекс кнопки режима: «Здания [1]», «Зоны [3]», «Рост [4]» — порядок из BottomBarView.
         public static int ModeIndex(TutorialPolicy.TargetButton target)
         {
             switch (target)
