@@ -21,15 +21,15 @@ namespace Citybuilder
 
         [TestCase(1024f, 768f)]
         [TestCase(1920f, 1080f)]
-                public void MenuButtonsRect_WithQuestsButton_FitsInsideBar(float width, float height)
+        public void MenuButtonsRect_WithQuestsButton_FitsInsideBar(float width, float height)
         {
             Rect menu = SettingsLayout.MenuButtonsRect(width, height);
 
             // На узких окнах ряд сжимается — ширина не больше натуральной, но панель не наезжает.
             float natural = SettingsLayout.MenuButtonCount * HudLayout.MenuButtonWidth
                 + (SettingsLayout.MenuButtonCount - 1) * HudLayout.ButtonGap;
-            Assert.LessOrEqual(menu.width, natural, 0.01f);
-            Assert.LessOrEqual(menu.xMax, width - HudLayout.BarPadding);
+            Assert.That(menu.width, Is.LessThanOrEqualTo(natural).Within(0.01f));
+            Assert.That(menu.xMax, Is.LessThanOrEqualTo(width - HudLayout.BarPadding).Within(0.01f));
             Assert.Less(HudLayout.ModeGroupRect(width, height).xMax, menu.x);
         }
     }
