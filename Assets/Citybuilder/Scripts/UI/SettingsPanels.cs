@@ -15,6 +15,10 @@ namespace Citybuilder
             float next = GUI.HorizontalSlider(new Rect(x + 150f, y + 6f, 240f, 20f), s.Volume, 0f, 1f);
             if (Mathf.Abs(next - s.Volume) > 0.001f) s.Volume = next;
             y += 28f;
+            HudText.Draw(x, y, SettingsLayout.AmbientLabel(s.AmbientVolume));
+            float ambient = GUI.HorizontalSlider(new Rect(x + 150f, y + 6f, 240f, 20f), s.AmbientVolume, 0f, 1f);
+            if (Mathf.Abs(ambient - s.AmbientVolume) > 0.001f) s.AmbientVolume = ambient;
+            y += 28f;
             bool muted = GUI.Toggle(new Rect(x, y, 220f, 22f), s.Muted, " Без звука");
             if (muted != s.Muted) s.Muted = muted;
             y += 28f;

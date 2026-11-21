@@ -10,7 +10,8 @@ namespace Citybuilder
     public static class SettingsLayout
     {
         public const float PanelWidth = 460f;
-        public const float PanelHeight = 340f;
+        // 340 -> 372: строка слайдера «Эмбиент» в блоке «Звук» (хвост #71).
+        public const float PanelHeight = 372f;
         public const int AgentStep = 8;
         public const int AutosaveStep = 5;
         // Ряд кнопок меню нижней панели: «Статистика/Лента/Задачи/Настройки» (4-я — EPIC-69).
@@ -52,6 +53,12 @@ namespace Citybuilder
         public static string VolumeLabel(float volume)
         {
             return "Громкость: " + Mathf.RoundToInt(volume * 100f) + "%";
+        }
+
+        // Подпись слайдера эмбиента: тот же формат 0..100%, что у общей громкости (хвост #71).
+        public static string AmbientLabel(float ambientVolume)
+        {
+            return "Эмбиент: " + Mathf.RoundToInt(ambientVolume * 100f) + "%";
         }
 
         public static string AgentLimitLabel(int limit)
