@@ -10,37 +10,30 @@ namespace Citybuilder
     {
         public const int ReadyThreshold = 20;
         private const byte Salt = 0x5A;
-
         // Дом готов к вывозу: id и его клетка на момент постановки в очередь.
         public struct Pickup
         {
             public EntityId Id;
             public GridPosition At;
         }
-
         // Событие для ленты города: вид, уникальное по дому сообщение, тик.
         public event Action<EventKind, string, int> Collected;
-
         private readonly GarbageTrucks fleet = new GarbageTrucks();
         private readonly Dictionary<EntityId, int> accumulated = new Dictionary<EntityId, int>();
         private readonly Dictionary<EntityId, GridPosition> origins = new Dictionary<EntityId, GridPosition>();
         private readonly List<Pickup> ready = new List<Pickup>();
         private readonly HashSet<EntityId> queued = new HashSet<EntityId>();
         private int lastTick;
-
         // Домов ждёт вывоза (HUD-строка и тесты).
         public int WaitingCount { get { return ready.Count; } }
-
         // Мусоровозов в пути прямо сейчас.
         public int ActiveTrucks { get { return fleet.ActiveCount; } }
-
         // Накопление дома (после вывоза — 0). Для оверлея переполнения и тестов.
         public int AccOf(EntityId id)
         {
             int value;
             return accumulated.TryGetValue(id, out value) ? value : 0;
         }
-
         // Мусоровоз по индексу слота (для видов). Вне диапазона — неактивный.
         public GarbageTrucks.Truck TruckAt(int index)
         {
@@ -73,55 +66,33 @@ namespace Citybuilder
             fleet.Reset();
         }
 
-        // Снимок v6: координаты дома и накопленный мусор; готовые очереди идут первыми.
+        // Снимок v6 вынесен в GarbageSnapshot (один класс на файл); швы ниже — для хостов.
         public void CollectSnapshot(List<CitySnapshot.GarbageQueueEntry> entries)
         {
-            if (entries == null) return;
-            for (int i = 0; i < ready.Count; i++) AddEntry(entries, ready[i].Id, ready[i].At);
-            foreach (KeyValuePair<EntityId, int> pair in accumulated)
-            {
-                GridPosition at;
-                if (origins.TryGetValue(pair.Key, out at)) AddEntry(entries, pair.Key, at);
-            }
+            GarbageSnapshot.Collect(this, entries);
         }
-
-        private void AddEntry(List<CitySnapshot.GarbageQueueEntry> entries, EntityId id, GridPosition at)
-        {
-            for (int i = 0; i < entries.Count; i++)
-            {
-                if (entries[i].X != at.X || entries[i].Y != at.Y) continue;
-                entries[i].Accumulated = AccOf(id);
-                return;
-            }
-            entries.Add(new CitySnapshot.GarbageQueueEntry { X = at.X, Y = at.Y, Accumulated = AccOf(id) });
-        }
-
-        // Восстановление v6 по координатам: очередь готовых без событий, штрафов и наград.
         public void Restore(List<CitySnapshot.GarbageQueueEntry> entries, List<BuildingState> homes)
         {
-            if (entries == null || homes == null) return;
-            for (int i = 0; i < entries.Count; i++)
-            {
-                CitySnapshot.GarbageQueueEntry entry = entries[i];
-                if (entry == null || entry.Accumulated < 0) continue;
-                BuildingState home = FindHome(homes, entry.X, entry.Y);
-                if (home == null || queued.Contains(home.Id)) continue;
-                accumulated[home.Id] = entry.Accumulated;
-                origins[home.Id] = home.Origin;
-                if (entry.Accumulated < ReadyThreshold) continue;
-                queued.Add(home.Id);
-                ready.Add(new Pickup { Id = home.Id, At = home.Origin });
-            }
+            GarbageSnapshot.Restore(this, entries, homes);
         }
 
-        private static BuildingState FindHome(List<BuildingState> homes, int x, int y)
+        internal List<Pickup> Ready { get { return ready; } }
+        internal IEnumerable<KeyValuePair<EntityId, int>> Accumulated { get { return accumulated; } }
+        internal bool IsQueued(EntityId id) { return queued.Contains(id); }
+        internal GridPosition OriginOf(EntityId id)
         {
-            for (int i = 0; i < homes.Count; i++)
-            {
-                BuildingState home = homes[i];
-                if (home != null && home.Origin.X == x && home.Origin.Y == y) return home;
-            }
-            return null;
+            GridPosition at;
+            return origins.TryGetValue(id, out at) ? at : new GridPosition(-1, -1);
+        }
+        internal void SetAccumulated(BuildingState home, int value)
+        {
+            accumulated[home.Id] = value;
+            origins[home.Id] = home.Origin;
+        }
+        internal void Queue(BuildingState home)
+        {
+            queued.Add(home.Id);
+            ready.Add(new Pickup { Id = home.Id, At = home.Origin });
         }
 
         // Накопление дома: WasteOutput здания плюс детерминированный бит хеша (0..1).

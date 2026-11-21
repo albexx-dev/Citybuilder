@@ -31,13 +31,16 @@ namespace Citybuilder
         [Test]
         public void LegacySlot_WithoutV6Fields_ReadsWithDefaults()
         {
-            CitySnapshot slot = SaveSlotStorage.FromJson("{\"Version\":5,\"Balance\":7,"
-                + "\"Buildings\":[{\"DefId\":\"house\",\"X\":0,\"Y\":0}]}");
-            Assert.IsTrue(SaveSlotStorage.Validate(slot));
-            Assert.AreEqual(0, SaveV6Snapshot.ReadThefts(slot));
-            Assert.AreEqual(0, SaveV6Snapshot.ReadGarbage(slot).Count);
-            Assert.AreEqual(0, SaveV6Snapshot.ReadSites(slot).Count);
-            Assert.AreEqual(0, SaveV6Snapshot.ReadStreak(slot, 0, 0));
+            for (int version = 1; version <= 5; version++)
+            {
+                CitySnapshot slot = SaveSlotStorage.FromJson("{\"Version\":" + version
+                    + ",\"Balance\":7,\"Buildings\":[{\"DefId\":\"house\",\"X\":0,\"Y\":0}]}");
+                Assert.IsTrue(SaveSlotStorage.Validate(slot), "version=" + version);
+                Assert.AreEqual(0, SaveV6Snapshot.ReadThefts(slot), "version=" + version);
+                Assert.AreEqual(0, SaveV6Snapshot.ReadGarbage(slot).Count, "version=" + version);
+                Assert.AreEqual(0, SaveV6Snapshot.ReadSites(slot).Count, "version=" + version);
+                Assert.AreEqual(0, SaveV6Snapshot.ReadStreak(slot, 0, 0), "version=" + version);
+            }
         }
 
         // Битые записи отбрасываются, дубли по клетке оставляют последнюю, счётчик не уходит в минус.
@@ -48,24 +51,29 @@ namespace Citybuilder
             slot.TheftCounter = -7;
             slot.GarbageQueue.Add(null);
             slot.GarbageQueue.Add(new CitySnapshot.GarbageQueueEntry { X = -1, Y = 0, Accumulated = 5 });
-            slot.GarbageQueue.Add(new CitySnapshot.GarbageQueueEntry { X = 2, Y = 2, Accumulated = 1 });
-            slot.GarbageQueue.Add(new CitySnapshot.GarbageQueueEntry { X = 2, Y = 2, Accumulated = 8 });
+            slot.GarbageQueue.Add(new CitySnapshot.GarbageQueueEntry { X = 2, Y = 2, Accumulated = 1 }); // A
+            slot.GarbageQueue.Add(new CitySnapshot.GarbageQueueEntry { X = 3, Y = 3, Accumulated = 4 }); // B
+            slot.GarbageQueue.Add(new CitySnapshot.GarbageQueueEntry { X = 2, Y = 2, Accumulated = 8 }); // A
             slot.ConstructionProgress.Add(new CitySnapshot.ConstructionProgressEntry
                 { X = 4, Y = 4, DefId = "", TicksElapsed = 1 });
             slot.ConstructionProgress.Add(new CitySnapshot.ConstructionProgressEntry
-                { X = 4, Y = 4, DefId = "shop", TicksElapsed = 999999 });
+                { X = 5, Y = 5, DefId = "shop", TicksElapsed = 2 });
             slot.ConstructionProgress.Add(new CitySnapshot.ConstructionProgressEntry
                 { X = 4, Y = 4, DefId = "shop", TicksElapsed = 3 });
             slot.ComfortStreak.Add(new CitySnapshot.ComfortStreakEntry { X = 1, Y = 1, Streak = 20000 });
+            slot.ComfortStreak.Add(new CitySnapshot.ComfortStreakEntry { X = 2, Y = 2, Streak = 3 });
             slot.ComfortStreak.Add(new CitySnapshot.ComfortStreakEntry { X = 1, Y = 1, Streak = 6 });
             SaveV6Snapshot.Normalize(slot);
             Assert.AreEqual(0, slot.TheftCounter);
-            Assert.AreEqual(1, slot.GarbageQueue.Count);
-            Assert.AreEqual(8, slot.GarbageQueue[0].Accumulated);
-            Assert.AreEqual(1, slot.ConstructionProgress.Count);
-            Assert.AreEqual(3, slot.ConstructionProgress[0].TicksElapsed);
-            Assert.AreEqual(1, slot.ComfortStreak.Count);
-            Assert.AreEqual(6, slot.ComfortStreak[0].Streak);
+            Assert.AreEqual(2, slot.GarbageQueue.Count);
+            Assert.AreEqual(8, slot.GarbageQueue.Find(e => e.X == 2 && e.Y == 2).Accumulated);
+            Assert.AreEqual(4, slot.GarbageQueue.Find(e => e.X == 3 && e.Y == 3).Accumulated);
+            Assert.AreEqual(2, slot.ConstructionProgress.Count);
+            Assert.AreEqual(3, slot.ConstructionProgress.Find(e => e.X == 4 && e.Y == 4).TicksElapsed);
+            Assert.AreEqual(2, slot.ConstructionProgress.Find(e => e.X == 5 && e.Y == 5).TicksElapsed);
+            Assert.AreEqual(2, slot.ComfortStreak.Count);
+            Assert.AreEqual(6, slot.ComfortStreak.Find(e => e.X == 1 && e.Y == 1).Streak);
+            Assert.AreEqual(3, slot.ComfortStreak.Find(e => e.X == 2 && e.Y == 2).Streak);
         }
 
         // Повторная загрузка не перепроигрывает квесты, кражи и события ленты.

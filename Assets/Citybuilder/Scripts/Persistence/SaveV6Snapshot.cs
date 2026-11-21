@@ -51,20 +51,18 @@ namespace Citybuilder
             snapshot.ComfortStreak = NormalizeStreaks(snapshot.ComfortStreak);
             if (snapshot.TheftCounter < 0) snapshot.TheftCounter = 0;
         }
-
         private static List<CitySnapshot.GarbageQueueEntry> NormalizeGarbage(
             List<CitySnapshot.GarbageQueueEntry> source)
         {
             List<CitySnapshot.GarbageQueueEntry> result = new List<CitySnapshot.GarbageQueueEntry>();
+            Dictionary<long, int> indexByCell = new Dictionary<long, int>();
             if (source == null) return result;
             int limit = MapCells * MapCells;
-            for (int i = 0; i < source.Count && result.Count < limit; i++)
+            for (int i = 0; i < source.Count; i++)
             {
                 CitySnapshot.GarbageQueueEntry entry = source[i];
                 if (entry == null || !InMap(entry.X, entry.Y) || entry.Accumulated < 0) continue;
-                if (result.Count > 0 && result[result.Count - 1].X == entry.X && result[result.Count - 1].Y == entry.Y)
-                    result.RemoveAt(result.Count - 1);
-                result.Add(entry);
+                ReplaceOrAdd(result, indexByCell, entry, entry.X, entry.Y, limit);
             }
             return result;
         }
@@ -73,16 +71,15 @@ namespace Citybuilder
             List<CitySnapshot.ConstructionProgressEntry> source)
         {
             List<CitySnapshot.ConstructionProgressEntry> result = new List<CitySnapshot.ConstructionProgressEntry>();
+            Dictionary<long, int> indexByCell = new Dictionary<long, int>();
             if (source == null) return result;
             int limit = MapCells * MapCells;
-            for (int i = 0; i < source.Count && result.Count < limit; i++)
+            for (int i = 0; i < source.Count; i++)
             {
                 CitySnapshot.ConstructionProgressEntry entry = source[i];
                 if (entry == null || !InMap(entry.X, entry.Y) || string.IsNullOrEmpty(entry.DefId)) continue;
                 if (entry.TicksElapsed < 0 || entry.TicksElapsed > MaxConstructionTicks) continue;
-                if (result.Count > 0 && result[result.Count - 1].X == entry.X && result[result.Count - 1].Y == entry.Y)
-                    result.RemoveAt(result.Count - 1);
-                result.Add(entry);
+                ReplaceOrAdd(result, indexByCell, entry, entry.X, entry.Y, limit);
             }
             return result;
         }
@@ -91,25 +88,33 @@ namespace Citybuilder
             List<CitySnapshot.ComfortStreakEntry> source)
         {
             List<CitySnapshot.ComfortStreakEntry> result = new List<CitySnapshot.ComfortStreakEntry>();
+            Dictionary<long, int> indexByCell = new Dictionary<long, int>();
             if (source == null) return result;
             int limit = MapCells * MapCells;
-            for (int i = 0; i < source.Count && result.Count < limit; i++)
+            for (int i = 0; i < source.Count; i++)
             {
                 CitySnapshot.ComfortStreakEntry entry = source[i];
                 if (entry == null || !InMap(entry.X, entry.Y) || entry.Streak < -MaxStreakMagnitude
                     || entry.Streak > MaxStreakMagnitude) continue;
-                if (result.Count > 0 && result[result.Count - 1].X == entry.X && result[result.Count - 1].Y == entry.Y)
-                    result.RemoveAt(result.Count - 1);
-                result.Add(entry);
+                ReplaceOrAdd(result, indexByCell, entry, entry.X, entry.Y, limit);
             }
             return result;
         }
-
+        // Повтор по клетке заменяет прежнюю запись: в списке остаётся последняя.
+        private static void ReplaceOrAdd<T>(List<T> result, Dictionary<long, int> indexByCell,
+            T entry, int x, int y, int limit)
+        {
+            long key = (long)x * MapCells + y;
+            int index;
+            if (indexByCell.TryGetValue(key, out index)) { result[index] = entry; return; }
+            if (result.Count >= limit) return;
+            indexByCell.Add(key, result.Count);
+            result.Add(entry);
+        }
         private static bool InMap(int x, int y)
         {
             return x >= 0 && y >= 0 && x < MapCells && y < MapCells;
         }
-
         // Чтение: null-списки старых слотов заменяются пустыми, счётчик не уходит в минус.
         public static List<CitySnapshot.GarbageQueueEntry> ReadGarbage(CitySnapshot snapshot)
         {
