@@ -64,9 +64,9 @@ namespace Citybuilder
             if (treasury != null) treasury.Charge(CrimeSystem.FinePerTheft);
         }
 
-        private void OnCrimeEvent(EventKind kind, string message, int tick)
+        private void OnCrimeEvent(CityEvent cityEvent)
         {
-            if (log != null) log.Add(kind, message, tick);
+            if (log != null) log.Add(cityEvent);
         }
     }
 }

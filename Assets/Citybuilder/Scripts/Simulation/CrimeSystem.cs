@@ -21,8 +21,8 @@ namespace Citybuilder
         private readonly Dictionary<EntityId, int> robbedAt = new Dictionary<EntityId, int>();
         private int totalThefts;
 
-        // Событие для ленты города: вид, сообщение с номером дома и днём, тик.
-        public event Action<EventKind, string, int> Fired;
+        // Событие для ленты города: ключ кражи и аргументы (номер дома, день), тик.
+        public event Action<CityEvent> Fired;
 
         // Уровень преступности города 0..1 = 1 − Coverage01(Police); обновляется каждый тик.
         public float CrimeLevel01 { get; private set; }
@@ -110,8 +110,8 @@ namespace Citybuilder
             robbedAt[home.Id] = tick;
             totalThefts++;
             if (steal != null) steal(home);
-            Emit(EventKind.Crime,
-                "Кража в доме #" + home.Id.Value + " (День " + tick / SimulationTime.TicksPerDay + ")", tick);
+            Emit(new CityEvent(EventKind.Crime, EventMessageCatalog.CrimeTheft,
+                new object[] { home.Id.Value, tick / SimulationTime.TicksPerDay }, tick));
         }
 
         // NaN в покрытии — безопасная сторона: дом считается накрытым (план тестов эпика).
@@ -122,9 +122,9 @@ namespace Citybuilder
             return float.IsNaN(value) || value >= SafeCoverage;
         }
 
-        private void Emit(EventKind kind, string message, int tick)
+        private void Emit(CityEvent cityEvent)
         {
-            if (Fired != null) Fired(kind, message, tick);
+            if (Fired != null) Fired(cityEvent);
         }
 
         private static uint MixByte(uint hash, byte value)

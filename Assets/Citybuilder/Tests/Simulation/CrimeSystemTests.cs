@@ -17,8 +17,8 @@ namespace Citybuilder
         {
             BuildingState home = Home(new GridPosition(5, 5));
             int robTick = FindRobTick(home.Id);
-            List<string> firstEvents = new List<string>();
-            List<string> secondEvents = new List<string>();
+            List<CityEvent> firstEvents = new List<CityEvent>();
+            List<CityEvent> secondEvents = new List<CityEvent>();
             CrimeSystem first = Run(home, robTick, 3, 0f, firstEvents);
             CrimeSystem second = Run(home, robTick, 3, 0f, secondEvents);
             Assert.AreEqual(1, first.TotalThefts);
@@ -56,7 +56,7 @@ namespace Citybuilder
         {
             BuildingState home = Home(new GridPosition(6, 6));
             int robTick = FindRobTick(home.Id);
-            CrimeSystem crimes = Run(home, robTick, 20, 0.5f, new List<string>());
+            CrimeSystem crimes = Run(home, robTick, 20, 0.5f, new List<CityEvent>());
             Assert.AreEqual(0, crimes.TotalThefts);
         }
 
@@ -66,7 +66,7 @@ namespace Citybuilder
         {
             BuildingState home = Home(new GridPosition(7, 7));
             int robTick = FindRobTick(home.Id);
-            CrimeSystem crimes = Run(home, robTick, 20, float.NaN, new List<string>());
+            CrimeSystem crimes = Run(home, robTick, 20, float.NaN, new List<CityEvent>());
             Assert.AreEqual(0, crimes.TotalThefts);
         }
 
@@ -87,8 +87,8 @@ namespace Citybuilder
         {
             BuildingState home = Home(new GridPosition(8, 8));
             CrimeSystem crimes = new CrimeSystem();
-            List<string> messages = new List<string>();
-            crimes.Fired += delegate (EventKind kind, string message, int tick) { messages.Add(message); };
+            List<CityEvent> messages = new List<CityEvent>();
+            crimes.Fired += delegate (CityEvent cityEvent) { messages.Add(cityEvent); };
             crimes.ForceSteal(home, 100, delegate { });
             crimes.ForceSteal(home, 105, delegate { });
             Assert.AreEqual(1, crimes.TotalThefts);
@@ -131,10 +131,10 @@ namespace Citybuilder
 
         // Прогон дома тиков с заданным покрытием; события собираются в список.
         private static CrimeSystem Run(BuildingState home, int startTick, int ticks, float coverage,
-            List<string> events)
+            List<CityEvent> events)
         {
             CrimeSystem crimes = new CrimeSystem();
-            crimes.Fired += delegate (EventKind kind, string message, int tick) { events.Add(message); };
+            crimes.Fired += delegate (CityEvent cityEvent) { events.Add(cityEvent); };
             List<BuildingState> homes = new List<BuildingState> { home };
             for (int t = startTick; t < startTick + ticks; t++)
             {
