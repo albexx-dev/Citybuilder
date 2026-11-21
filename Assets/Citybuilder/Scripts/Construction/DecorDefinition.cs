@@ -10,6 +10,7 @@ namespace Citybuilder
         [Header("Identity")]
         [Tooltip("Уникальный id вида декора, латиницей без пробелов.")] public string Id;
         [Tooltip("Имя для UI.")] public string DisplayName;
+        [Tooltip("Ключ имени в реестре RU/EN. Пусто — DisplayName.")] public string DisplayNameKey;
 
         [Header("Presentation")]
         [Tooltip("Префаб дерева или куста. Пусто = рисуется куб-заглушка.")] public GameObject Prefab;

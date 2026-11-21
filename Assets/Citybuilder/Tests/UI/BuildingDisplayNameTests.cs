@@ -91,6 +91,20 @@ namespace Citybuilder
         }
 
         [Test]
+        public void DecorDefinition_WithKey_SwitchingLanguage_ChangesName()
+        {
+            DecorDefinition def = ScriptableObject.CreateInstance<DecorDefinition>();
+            def.Id = "decor_oak";
+            def.DisplayName = "Дуб";
+            def.DisplayNameKey = "decor_oak";
+
+            Assert.AreEqual("Дуб", BuildingDisplayName.Of(def));
+            Localization.SetLanguage(Language.En);
+            Assert.AreEqual("Oak", BuildingDisplayName.Of(def));
+            Object.DestroyImmediate(def);
+        }
+
+        [Test]
         public void NullDefinition_ReturnsEmptyString()
         {
             Assert.AreEqual(string.Empty, BuildingDisplayName.Of((BuildingDefinition)null));

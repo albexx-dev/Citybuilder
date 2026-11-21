@@ -94,7 +94,11 @@ namespace Citybuilder
             { "building_power_station", new[] { "Электростанция", "Power Station" } },
             { "building_shop", new[] { "Магазин", "Shop" } },
             { "building_waste_depot", new[] { "Мусорный склад", "Waste Depot" } },
-            { "building_water_tower", new[] { "Водонапорная башня", "Water Tower" } }
+            { "building_water_tower", new[] { "Водонапорная башня", "Water Tower" } },
+            { "decor_bush", new[] { "Куст", "Bush" } },
+            { "decor_detailed", new[] { "Дерево (детальное)", "Tree (detailed)" } },
+            { "decor_oak", new[] { "Дуб", "Oak" } },
+            { "decor_pine", new[] { "Сосна", "Pine" } }
         };
 
         // Есть ли ключ в таблице: фолбэк имени здания на DisplayName, если перевода нет.

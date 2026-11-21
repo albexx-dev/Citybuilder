@@ -14,6 +14,12 @@ namespace Citybuilder
             return Resolve(info.DisplayNameKey, info.DisplayName, info.Id);
         }
 
+        public static string Of(DecorDefinition def)
+        {
+            if (def == null) return string.Empty;
+            return Resolve(def.DisplayNameKey, def.DisplayName, def.Id);
+        }
+
         private static string Resolve(string key, string fallback, string id)
         {
             if (!string.IsNullOrEmpty(key) && Localization.Has(key)) return Localization.T(key);
