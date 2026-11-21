@@ -59,7 +59,7 @@ namespace Citybuilder
         }
 
         [Test]
-        public void RuOutput_ByteIdenticalToLegacyMessages()
+        public void RuOutput_EconomyMessages_ByteIdenticalToLegacy()
         {
             Localization.SetLanguage(Language.Ru);
             CityEventLog log = new CityEventLog();
@@ -71,6 +71,14 @@ namespace Citybuilder
                 "День 3, 09:00 — Высокая безработица: занятость 38%");
             Check(log, EventMessageCatalog.QuestCompleted, new object[] { "Первые жители", 200 },
                 "День 3, 09:00 — Задача выполнена: Первые жители (+200$)");
+            Assert.AreEqual(4, log.Count);
+        }
+
+        [Test]
+        public void RuOutput_SupplyAndSimulationMessages_ByteIdenticalToLegacy()
+        {
+            Localization.SetLanguage(Language.Ru);
+            CityEventLog log = new CityEventLog();
             Check(log, EventMessageCatalog.SupplyPowerDeficit, new object[] { 46 },
                 "День 3, 09:00 — Энергия 46%: рост замедлен");
             Check(log, EventMessageCatalog.SupplyWaterDeficit, new object[] { 52 },
@@ -93,7 +101,7 @@ namespace Citybuilder
                 "День 3, 09:00 — Кража в доме #9 (День 4)");
             Check(log, EventMessageCatalog.GarbageCollected, new object[] { 21 },
                 "День 3, 09:00 — Мусоровоз вывез мусор из дома #21");
-            Assert.AreEqual(EventKeys.Length, log.Count);
+            Assert.AreEqual(11, log.Count);
         }
 
         [Test]
