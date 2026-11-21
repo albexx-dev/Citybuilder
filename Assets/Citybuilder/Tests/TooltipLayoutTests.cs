@@ -9,8 +9,8 @@ namespace Citybuilder
     {
         private static Rect MenuButtonAt(float width, float height)
         {
-            Rect group = HudLayout.MenuButtonsRect(width, height);
-            return new Rect(group.x, group.y, HudLayout.MenuButtonWidth, HudLayout.ButtonHeight);
+            Rect group = SettingsLayout.MenuButtonsRect(width, height);
+            return SettingsLayout.MenuButtonRect(group, 0);
         }
 
         [TestCase(1024f, 600f)]
