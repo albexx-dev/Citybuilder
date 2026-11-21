@@ -50,6 +50,8 @@ namespace Citybuilder
         [Tooltip("Сколько воды производит одно здание.")] public int WaterOutput = 0;
         [Tooltip("Сколько мусора производит одно здание.")] public int WasteOutput = 1;
         [Tooltip("Сколько мусора утилизирует одно здание.")] public int WasteCapacity = 0;
+        [Tooltip("Депо вывоза мусора: задаёт старт рейса мусоровоза (issue #90).")]
+        public bool IsWasteDepot = false;
 
         [Header("Economy")]
         [Tooltip("Содержание здания в час. Не может быть отрицательным.")] public int UpkeepPerHour = 0;
