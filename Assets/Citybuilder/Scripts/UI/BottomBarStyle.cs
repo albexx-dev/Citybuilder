@@ -11,7 +11,15 @@ namespace Citybuilder
         private static readonly Color SubBarBackground = new Color(0f, 0f, 0f, 0.58f);
         private static readonly Color IconTint = new Color(0.12f, 0.12f, 0.12f, 0.92f);
         private const float TooltipGap = 4f;
+        // Подписи кнопок: 10 px без переноса — «Дороги [2]» не уходит на вторую строку.
+        public const int ButtonFontSize = 10;
+        private const float IconInset = 2f, IconGap = 2f;
+        private const float TextRightInset = 1f;
+        private const float IconSizeReduction = 12f;
 
+        // Стиль создаётся лениво из OnGUI-пути: шрифт и wordWrap общие для всех кнопок панели.
+        private static GUIStyle buttonLabel;
+        private static GUIStyle ButtonLabel => buttonLabel ?? (buttonLabel = new GUIStyle(GUI.skin.label) { fontSize = ButtonFontSize, wordWrap = false });
         // Время наведения по кнопке (ключ — Rect): заполнение ведёт TooltipHoverPolicy.Track.
         private static readonly Dictionary<Rect, float> hoverStarts = new Dictionary<Rect, float>();
 
@@ -90,22 +98,44 @@ namespace Citybuilder
             return new Rect(x, y, tipWidth, tipHeight);
         }
 
+        // Ширина зоны текста в кнопке: иконка и отступы вычитаются из ширины кнопки (для тестов без IMGUI).
+        public static float LabelWidth(float buttonWidth, float buttonHeight)
+        {
+            float iconSize = Mathf.Max(0f, buttonHeight - IconSizeReduction);
+            return Mathf.Max(0f, buttonWidth - IconInset - iconSize - IconGap - TextRightInset);
+        }
+
+        // Оценка ширины строки без IMGUI: 0.5 em на букву, пробел 0.28, цифра 0.56, скобка 0.34.
+        public static float EstimateLabelWidth(string label, int fontSize)
+        {
+            if (string.IsNullOrEmpty(label)) return 0f;
+            float em = 0f;
+            for (int i = 0; i < label.Length; i++)
+            {
+                char c = label[i];
+                if (c == ' ') em += 0.28f;
+                else if (c == '[' || c == ']') em += 0.34f;
+                else if (c >= '0' && c <= '9') em += 0.56f;
+                else em += 0.5f;
+            }
+            return em * fontSize;
+        }
+
         // Белый Kenney-глиф тонируется через GUI.color под цвет текста темы.
         private static void DrawIconAndLabel(Rect rect, Texture2D icon, string label)
         {
             if (icon == null)
             {
-                GUI.Label(rect, label);
+                GUI.Label(rect, label, ButtonLabel);
                 return;
             }
-            float iconSize = rect.height - 6f;
-            Rect iconRect = new Rect(rect.x + 4f, rect.y + 3f, iconSize, iconSize);
+            float iconSize = Mathf.Max(0f, rect.height - IconSizeReduction);
+            Rect iconRect = new Rect(rect.x + IconInset, rect.y + (rect.height - iconSize) * 0.5f, iconSize, iconSize);
             Color saved = GUI.color;
             GUI.color = IconTint;
             GUI.DrawTexture(iconRect, icon, ScaleMode.ScaleToFit);
             GUI.color = saved;
-            float textX = iconRect.xMax + 4f;
-            GUI.Label(new Rect(textX, rect.y, Mathf.Max(0f, rect.xMax - textX - 2f), rect.height), label);
+            GUI.Label(new Rect(iconRect.xMax + IconGap, rect.y, LabelWidth(rect.width, rect.height), rect.height), label, ButtonLabel);
         }
 
         // Неактивная кнопка (заблокированное здание или зарезервированный эпик).

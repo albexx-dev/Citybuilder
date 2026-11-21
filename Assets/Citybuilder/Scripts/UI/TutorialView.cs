@@ -95,7 +95,7 @@ namespace Citybuilder
         }
 
         // Цель стрелки: «x4» — кнопка скорости; шаги-стройки — кнопка здания в палитре
-        // над панелью, а пока палитра закрыта — кнопка «Дома [1]»; остальное — кнопка режима.
+        // над панелью, а пока палитра закрыта — кнопка «Здания [1]»; остальное — кнопка режима.
         private Rect ArrowTarget(TutorialPolicy.Step step)
         {
             TutorialPolicy.TargetButton fallback = TutorialPolicy.HighlightTarget(step);
