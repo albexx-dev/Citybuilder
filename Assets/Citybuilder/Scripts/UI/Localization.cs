@@ -98,6 +98,7 @@ namespace Citybuilder
             { "building_power_station", new[] { "Электростанция", "Power Station" } },
             { "building_shop", new[] { "Магазин", "Shop" } },
             { "building_waste_depot", new[] { "Мусорный склад", "Waste Depot" } },
+            { "building_compost_station", new[] { "Компостная станция", "Compost Station" } },
             { "building_water_tower", new[] { "Водонапорная башня", "Water Tower" } },
             { "decor_bush", new[] { "Куст", "Bush" } },
             { "decor_detailed", new[] { "Дерево (детальное)", "Tree (detailed)" } },
