@@ -118,6 +118,7 @@ v1.1 systems (see v1.1.0 scope history in git) plus the v1.2 «Living city» mil
 ### Persistence
 
 - **Save v5 (EPIC-64):** building levels, per-zone tax rates, quest chain ids; validation on load.
+- **Save v6 (planned, v1.3, issue #93, ADR-014):** optional garbage/theft/comfort/construction fields with v5 fallback, validation in `SaveSlotStorage`, v1–v5 slots stay loadable. Fires and vehicle agents stay non-serialized (ADR-009/ADR-011) and are out of scope. Specified in ADR-014; code lands in later v1.3 steps.
 
 ### Balance (EPIC-53)
 
@@ -126,4 +127,4 @@ v1.1 systems (see v1.1.0 scope history in git) plus the v1.2 «Living city» mil
 
 ## 16. Future decisions (v1.3+)
 
-Event-log localization (domain strings), catalog display names from assets, garbage depot variants, per-building ambient occlusion — candidates for the next milestone.
+Event-log localization (domain strings), catalog display names from assets, garbage depot variants, per-building ambient occlusion — candidates for the next milestone. Save v6 is specified in `DECISIONS/ADR-014-save-v6.md` (issue #93); fires/agents remain ephemeral per ADR-009/ADR-011.
