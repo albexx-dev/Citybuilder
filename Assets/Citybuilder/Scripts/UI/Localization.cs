@@ -82,7 +82,11 @@ namespace Citybuilder
             { "load_load", new[] { "Загрузить", "Load" } },
             { "load_close", new[] { "Закрыть", "Close" } },
             { "load_slot_empty", new[] { "{0} — пусто", "{0} — empty" } },
-            { "load_slot_info", new[] { "{0} — День {1} ({2})", "{0} — Day {1} ({2})" } }
+            { "load_slot_info", new[] { "{0} — День {1} ({2})", "{0} — Day {1} ({2})" } },
+            // Лента событий (ADR-013, issue #87): заголовок, пустое состояние и префикс строки.
+            { "event_log_title", new[] { "=== События города ===", "=== City events ===" } },
+            { "event_log_empty", new[] { "Событий пока нет.", "No events yet." } },
+            { "event_log_prefix", new[] { "День {0}, {1:00}:00 — ", "Day {0}, {1:00}:00 — " } }
         };
 
         // Текущий язык интерфейса. По умолчанию русский; выбор игрока подтягивает LoadSaved.
