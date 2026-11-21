@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 
@@ -6,6 +7,29 @@ namespace Citybuilder
     // Тесты кольцевого буфера, дедупликации, очистки и источников CityEventLog (EPIC-09 шаги 1-3).
     public class CityEventLogTests
     {
+        private Func<string> savedLoad;
+        private Action<string> savedSave;
+        private string stored;
+
+        [SetUp]
+        public void InjectMemoryStore()
+        {
+            savedLoad = Localization.LoadPreference;
+            savedSave = Localization.SavePreference;
+            stored = string.Empty;
+            Localization.LoadPreference = () => stored;
+            Localization.SavePreference = value => stored = value;
+            Localization.SetLanguage(Language.Ru);
+        }
+
+        [TearDown]
+        public void RestoreDefaults()
+        {
+            Localization.SetLanguage(Language.Ru);
+            Localization.LoadPreference = savedLoad;
+            Localization.SavePreference = savedSave;
+        }
+
         [Test]
         public void RingBuffer_Add60Events_KeepsLast50OldestToNewest()
         {
@@ -52,12 +76,34 @@ namespace Citybuilder
         {
             CityEventLog log = new CityEventLog();
             log.Add(EventKind.Employment, "Высокая безработица: занятость 38%", 81);
-            Assert.AreEqual("День 3, 09:00 — Высокая безработица: занятость 38%", log.Snapshot()[0].FormatLine());
+            Assert.AreEqual("День 3, 09:00 — Высокая безработица: занятость 38%",
+                EventLogView.FormatLine(log.Snapshot()[0]));
 
             log.Clear();
             Assert.AreEqual(0, log.Count);
             Assert.IsTrue(log.Add(EventKind.Employment, "Высокая безработица: занятость 38%", 82));
             Assert.AreEqual(1, log.Count);
+        }
+
+        [Test]
+        public void FormatLine_EnglishLanguage_UsesEnglishPrefix()
+        {
+            CityEvent e = new CityEvent(EventKind.Employment, "High unemployment: employment 38%", 81);
+            Localization.SetLanguage(Language.En);
+            Assert.AreEqual("Day 3, 09:00 — High unemployment: employment 38%", EventLogView.FormatLine(e));
+        }
+
+        [Test]
+        public void EventLogKeys_HaveLegacyRuAndExpectedEn()
+        {
+            Localization.SetLanguage(Language.Ru);
+            Assert.AreEqual("=== События города ===", Localization.T("event_log_title"));
+            Assert.AreEqual("Событий пока нет.", Localization.T("event_log_empty"));
+            Assert.AreEqual("День 3, 09:00 — ", Localization.T("event_log_prefix", 3, 9));
+            Localization.SetLanguage(Language.En);
+            Assert.AreEqual("=== City events ===", Localization.T("event_log_title"));
+            Assert.AreEqual("No events yet.", Localization.T("event_log_empty"));
+            Assert.AreEqual("Day 3, 09:00 — ", Localization.T("event_log_prefix", 3, 9));
         }
 
         [Test]

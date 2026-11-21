@@ -3,8 +3,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Окно событийной ленты города по кнопке «Лента» или клавише L (EPIC-09 шаг 2, ADR-007, EPIC-19).
-    // В закрытом состоянии ничего не рисует; снимок строк пересобирается при открытии и раз в полсекунды.
+    // Окно ленты по кнопке «Лента»/клавише L (EPIC-09 шаг 2, ADR-007, EPIC-19): в закрытом виде ничего не рисует; кеш строк пересобирается при открытии и раз в полсекунды.
     public class EventLogView : MonoBehaviour
     {
         private const float RefreshIntervalSec = 0.5f;
@@ -25,6 +24,30 @@ namespace Citybuilder
         public bool IsOpen
         {
             get { return isOpen; }
+        }
+
+        // Сборка строки ленты только во view: домен хранит сообщение и тик (ADR-007/013).
+        public static string FormatLine(CityEvent e)
+        {
+            int day = e.Tick / SimulationTime.TicksPerDay;
+            int hour = e.Tick % SimulationTime.TicksPerDay;
+            return Localization.T("event_log_prefix", day, hour) + e.Message;
+        }
+
+        // Смена языка пересобирает кеш уже существующих записей, без вызовов Add (ADR-013).
+        private void OnLanguageChanged()
+        {
+            if (isOpen) RebuildCache();
+        }
+
+        private void OnEnable()
+        {
+            Localization.LanguageChanged += OnLanguageChanged;
+        }
+
+        private void OnDisable()
+        {
+            Localization.LanguageChanged -= OnLanguageChanged;
         }
 
         public void Toggle()
@@ -103,18 +126,18 @@ namespace Citybuilder
             IReadOnlyList<CityEvent> snap = log.Snapshot();
             for (int i = snap.Count - 1; i >= 0; i--)
             {
-                cachedLines.Add(snap[i].FormatLine());
+                cachedLines.Add(FormatLine(snap[i]));
             }
         }
 
         private void DrawLines()
         {
             float y = 4f;
-            HudText.Draw(4f, y, "=== События города ===");
+            HudText.Draw(4f, y, Localization.T("event_log_title"));
             y += LineHeight;
             if (cachedLines.Count == 0)
             {
-                HudText.Draw(12f, y, "Событий пока нет.");
+                HudText.Draw(12f, y, Localization.T("event_log_empty"));
                 return;
             }
             for (int i = 0; i < cachedLines.Count; i++)
