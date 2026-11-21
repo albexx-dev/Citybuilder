@@ -26,7 +26,7 @@ namespace Citybuilder
                 float x = popup.x + i * (HudLayout.PaletteButtonWidth + HudLayout.ButtonGap);
                 Rect rect = new Rect(x, popup.y, HudLayout.PaletteButtonWidth, popup.height);
                 bool active = decor.Selected == def;
-                if (BottomBarStyle.DrawButton(rect, def.DisplayName, active)) decor.SetSelected(def);
+                if (BottomBarStyle.DrawButton(rect, BuildingDisplayName.Of(def), active)) decor.SetSelected(def);
             }
         }
     }

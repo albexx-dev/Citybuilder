@@ -30,6 +30,7 @@ namespace Citybuilder
             info.IsGrown = isGrown;
             info.Id = def.Id ?? string.Empty;
             info.DisplayName = string.IsNullOrEmpty(def.DisplayName) ? info.Id : def.DisplayName;
+            info.DisplayNameKey = def.DisplayNameKey ?? string.Empty;
             info.Origin = state.Origin;
             info.Cost = def.ConstructionCost;
             info.UpkeepPerHour = BuildingLevelPolicy.ScaledUpkeep(
@@ -59,7 +60,6 @@ namespace Citybuilder
             bool isGrown;
             return FindAt(cell, grownHomes, manualBuildings, out isGrown);
         }
-
         // Список клеток внутри сетки, покрытых кругом станции (единая математика через ServiceCoverage).
         public static List<GridPosition> GetRadiusCells(GridPosition center, int radius, GridSize gridSize)
         {

@@ -86,8 +86,30 @@ namespace Citybuilder
             // Лента событий (ADR-013, issue #87): заголовок, пустое состояние и префикс строки.
             { "event_log_title", new[] { "=== События города ===", "=== City events ===" } },
             { "event_log_empty", new[] { "Событий пока нет.", "No events yet." } },
-            { "event_log_prefix", new[] { "День {0}, {1:00}:00 — ", "Day {0}, {1:00}:00 — " } }
+            { "event_log_prefix", new[] { "День {0}, {1:00}:00 — ", "Day {0}, {1:00}:00 — " } },
+            // Имена зданий каталога из ассетов BuildingDefinition.DisplayNameKey (задача 89).
+            { "building_asphalt", new[] { "Асфальтовая дорога", "Asphalt Road" } },
+            { "building_factory", new[] { "Завод", "Factory" } },
+            { "building_fire_station", new[] { "Пожарная станция", "Fire Station" } },
+            { "building_hospital", new[] { "Больница", "Hospital" } },
+            { "building_house", new[] { "Дом", "House" } },
+            { "building_park", new[] { "Парк", "Park" } },
+            { "building_police_station", new[] { "Полицейская станция", "Police Station" } },
+            { "building_power_station", new[] { "Электростанция", "Power Station" } },
+            { "building_shop", new[] { "Магазин", "Shop" } },
+            { "building_waste_depot", new[] { "Мусорный склад", "Waste Depot" } },
+            { "building_water_tower", new[] { "Водонапорная башня", "Water Tower" } },
+            { "decor_bush", new[] { "Куст", "Bush" } },
+            { "decor_detailed", new[] { "Дерево (детальное)", "Tree (detailed)" } },
+            { "decor_oak", new[] { "Дуб", "Oak" } },
+            { "decor_pine", new[] { "Сосна", "Pine" } }
         };
+
+        // Есть ли ключ в таблице: фолбэк имени здания на DisplayName, если перевода нет.
+        public static bool Has(string key)
+        {
+            return table.ContainsKey(key);
+        }
 
         // Текущий язык интерфейса. По умолчанию русский; выбор игрока подтягивает LoadSaved.
         public static Language Language

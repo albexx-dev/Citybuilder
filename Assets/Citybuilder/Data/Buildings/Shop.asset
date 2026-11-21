@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.BuildingDefinition
   Id: shop
   DisplayName: Shop
+  DisplayNameKey: building_shop
   Footprint: {x: 2, y: 2}
   ConstructionCost: 150
   ConstructionTicks: 4

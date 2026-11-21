@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.BuildingDefinition
   Id: fire_station
   DisplayName: Fire Station
+  DisplayNameKey: building_fire_station
   Footprint: {x: 2, y: 2}
   ConstructionCost: 300
   ConstructionTicks: 5

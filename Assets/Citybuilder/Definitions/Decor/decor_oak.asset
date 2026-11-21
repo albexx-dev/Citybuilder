@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Citybuilder::Citybuilder.DecorDefinition
   Id: decor_oak
   DisplayName: "\u0414\u0443\u0431"
+  DisplayNameKey: decor_oak
   Prefab: {fileID: 4470056959515818908, guid: 45ab2f8bed1f7284584b5c5af15381c4, type: 3}

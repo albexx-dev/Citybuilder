@@ -7,6 +7,7 @@ namespace Citybuilder
         public bool IsGrown;
         public string Id;
         public string DisplayName;
+        public string DisplayNameKey;
         public GridPosition Origin;
         public int Cost;
         public int UpkeepPerHour;
