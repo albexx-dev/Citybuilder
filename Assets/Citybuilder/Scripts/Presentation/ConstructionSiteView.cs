@@ -3,17 +3,13 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Универсальная стройплощадка (EPIC-61): леса-каркас (ConstructionScaffold) поверх фундамента
-    // + «прорастание» здания по высоте. Прогресс = прошедшие тики / ConstructionTicks. Два режима:
-    // sprout — растёт готовый вид (куб без префаба); sprout = null — растёт блок-заглушка, по завершении
-    // колбэк заменяет площадку готовым видом (путь префаба). Домен и сейвы не трогает.
+    // Стройплощадка (EPIC-61): рост по тикам; снимок v6 — в ConstructionSnapshot.
     public class ConstructionSiteView : MonoBehaviour
     {
         public const float TargetHeight = 2f;
         public const float TargetWidthFactor = 0.9f;
         private const float MinHeight = 0.001f;
         private static readonly Color FillColor = new Color(0.5f, 0.5f, 0.5f);
-
         private readonly ConstructionScaffold scaffold = new ConstructionScaffold();
         private SimulationRunner runner;
         private Transform sprout;
@@ -23,20 +19,20 @@ namespace Citybuilder
         private int totalTicks;
         private int ticksElapsed;
         private bool isConstructing;
+        private bool hasOrigin;
+        private GridPosition origin;
+        private string defId;
         private Action onCompleted;
-
         public bool IsConstructing { get { return isConstructing; } }
         public int TicksElapsed { get { return ticksElapsed; } }
-
-        // Габарит цели, когда высота префаба неизвестна: фундамент ×0.9 и номинальная высота.
+        public GridPosition Origin { get { return origin; } }
+        public string DefId { get { return defId; } }
         public static Vector3 TargetScale(BuildingDefinition def, float cellSize)
         {
             float w = def.Footprint.x * cellSize * TargetWidthFactor;
             float d = def.Footprint.y * cellSize * TargetWidthFactor;
             return new Vector3(w, TargetHeight, d);
         }
-
-        // Площадка-оверлей вместо готового вида: для ручных построек (BuildingViewFactory).
         public static ConstructionSiteView Spawn(Transform parent, Vector3 groundCenter, BuildingDefinition def,
             float cellSize, Vector3 targetScale, Transform sprout, Action onCompleted)
         {
@@ -44,28 +40,40 @@ namespace Citybuilder
             host.transform.SetParent(parent, false);
             host.transform.localPosition = new Vector3(groundCenter.x, 0f, groundCenter.z);
             ConstructionSiteView site = host.AddComponent<ConstructionSiteView>();
-            site.Begin(sprout, targetScale, Vector3.zero, def.Footprint, cellSize, def.ConstructionTicks, onCompleted);
+            float cell = cellSize > 0f ? cellSize : 1f;
+            site.origin = new GridPosition(Mathf.RoundToInt(groundCenter.x / cell - def.Footprint.x * 0.5f),
+                Mathf.RoundToInt(groundCenter.z / cell - def.Footprint.y * 0.5f));
+            site.hasOrigin = true;
+            site.Begin(sprout, targetScale, Vector3.zero, def.Footprint, cellSize, def.ConstructionTicks,
+                onCompleted, 0, def.Id);
             return site;
         }
-
-        // targetScale — полная шкала цели; ground — её основание в координатах родителя лесов.
-        public void Begin(Transform target, Vector3 fullScale, Vector3 ground, Vector2Int footprint, float cellSize, int ticks, Action completed)
+        public void Begin(Transform target, Vector3 fullScale, Vector3 ground, Vector2Int footprint, float cellSize,
+            int ticks, Action completed, int elapsed = 0, string definitionId = null)
         {
             sprout = target;
             targetScale = fullScale;
             groundCenter = ground;
             totalTicks = ConstructionProgress.ClampTicks(ticks);
-            ticksElapsed = 0;
+            ticksElapsed = ConstructionProgress.ClampTicks(elapsed);
+            if (ticksElapsed > totalTicks) ticksElapsed = totalTicks;
             onCompleted = completed;
-            if (totalTicks <= 0) { Finish(); return; }
+            if (definitionId != null) defId = definitionId;
+            if (!hasOrigin && cellSize > 0f)
+            {
+                origin = new GridPosition(Mathf.RoundToInt(ground.x / cellSize - footprint.x * 0.5f),
+                    Mathf.RoundToInt(ground.z / cellSize - footprint.y * 0.5f));
+                hasOrigin = true;
+            }
+            if (ConstructionProgress.IsDone(ticksElapsed, totalTicks)) { Finish(); return; }
             isConstructing = true;
+            ConstructionSnapshot.Register(this);
             Transform frameRoot = target != null && target.parent != null ? target.parent : transform;
             scaffold.Build(frameRoot, new Vector3(ground.x, 0f, ground.z), footprint, cellSize, fullScale.y);
             if (sprout == null) BuildFill();
             ApplyProgress();
             SubscribeClock();
         }
-
         public void OnClockTick(SimulationTime time)
         {
             if (!isConstructing) return;
@@ -73,11 +81,10 @@ namespace Citybuilder
             if (ConstructionProgress.IsDone(ticksElapsed, totalTicks)) Finish();
             else ApplyProgress();
         }
-
-        // Колбэк зовётся последним: он может пересоздать вид (снос площадки — Destroy/DestroyImmediate).
         private void Finish()
         {
             isConstructing = false;
+            ConstructionSnapshot.Unregister(this);
             UnsubscribeClock();
             scaffold.Clear();
             BuildingViewFactory.DestroySafe(fillBlock);
@@ -85,15 +92,12 @@ namespace Citybuilder
             ApplyReadyScale();
             if (onCompleted != null) onCompleted();
         }
-
         private void ApplyReadyScale()
         {
             if (sprout == null) return;
             sprout.localScale = targetScale;
             sprout.localPosition = new Vector3(groundCenter.x, targetScale.y * 0.5f, groundCenter.z);
         }
-
-        // Цель прорастает по высоте: локальный Scale.y 0→1 по прогрессу, основание стоит на земле.
         private void ApplyProgress()
         {
             float height = targetScale.y * ConstructionProgress.Progress(ticksElapsed, totalTicks);
@@ -109,8 +113,6 @@ namespace Citybuilder
                 fillBlock.transform.localPosition = new Vector3(0f, height * 0.5f, 0f);
             }
         }
-
-        // Блок-заглушка: силуэт «растущего» здания, пока префаб ещё не стоит (путь префаба).
         private void BuildFill()
         {
             fillBlock = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -119,20 +121,28 @@ namespace Citybuilder
             fillBlock.GetComponent<MeshRenderer>().sharedMaterial =
                 new Material(Shader.Find("Unlit/Color")) { color = FillColor };
         }
-
         private void SubscribeClock()
         {
             if (runner == null) runner = FindFirstObjectByType<SimulationRunner>();
             if (runner != null && runner.Clock != null) runner.Clock.TickCompleted += OnClockTick;
         }
-
         private void UnsubscribeClock()
         {
             if (runner != null && runner.Clock != null) runner.Clock.TickCompleted -= OnClockTick;
         }
 
+        // Скачок к накопленным тикам v6 без перепроигрывания событий.
+        public void SetElapsed(int ticks)
+        {
+            if (!isConstructing) return;
+            ticksElapsed = ConstructionProgress.ClampTicks(ticks);
+            if (ticksElapsed > totalTicks) ticksElapsed = totalTicks;
+            if (ConstructionProgress.IsDone(ticksElapsed, totalTicks)) Finish();
+            else ApplyProgress();
+        }
         private void OnDestroy()
         {
+            ConstructionSnapshot.Unregister(this);
             UnsubscribeClock();
             scaffold.Clear();
         }

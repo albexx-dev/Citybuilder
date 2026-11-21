@@ -85,7 +85,7 @@ namespace Citybuilder
                 roof.SetActive(false);
                 cube.AddComponent<ConstructionSiteView>().Begin(cube.transform, fullScale, groundCenter,
                     def.Footprint, cellSize, def.ConstructionTicks,
-                    delegate { roof.SetActive(true); renderer.sharedMaterial.color = wallColor; });
+                    delegate { roof.SetActive(true); renderer.sharedMaterial.color = wallColor; }, 0, def.Id);
             }
             return cube;
         }
