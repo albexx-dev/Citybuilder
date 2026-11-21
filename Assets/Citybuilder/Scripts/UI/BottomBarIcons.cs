@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Ключи IconBook и тексты подсказок кнопок нижней панели (EPIC-66).
+    // Ключи IconBook и тексты кнопок нижней панели (EPIC-66): подсказки и подписи.
     // Порядок массивов соответствует порядку кнопок в BottomBarView.
     public static class BottomBarIcons
     {
@@ -25,5 +25,12 @@ namespace Citybuilder
         // Кисти зон: жилая, коммерция, промзона.
         public static readonly string[] BrushKeys = { "house", "shop", "factory" };
         public static readonly string[] BrushTips = { "Жилая зона: растут дома", "Коммерция: магазины", "Промзона: заводы" };
+
+        // Подписи кистей зон из реестра локализации (EPIC-72 шаг 2): вычисляются при вызове,
+        // потому что язык может смениться между кадрами.
+        public static string[] ZoneBrushLabels()
+        {
+            return new[] { Localization.T("zone_residential"), Localization.T("zone_commercial"), Localization.T("zone_industrial") };
+        }
     }
 }

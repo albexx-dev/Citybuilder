@@ -136,7 +136,7 @@ namespace Citybuilder
         private void DrawZoneBrushes(float sw, float sh)
         {
             ZoneType[] brushes = { ZoneType.Residential, ZoneType.Commercial, ZoneType.Industrial };
-            string[] labels = { "Жилая", "Коммерция", "Промзона" };
+            string[] labels = BottomBarIcons.ZoneBrushLabels();
             Rect popup = HudLayout.PaletteRect(sw, sh, brushes.Length);
             UiClickGuard.Set("bottom_subrow", popup);
             BottomBarStyle.DrawPopupBackground(popup);

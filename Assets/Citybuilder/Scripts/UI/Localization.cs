@@ -51,7 +51,38 @@ namespace Citybuilder
             { "catalog_tab_services", new[] { "Службы", "Services" } },
             { "catalog_tab_decor", new[] { "Декор", "Decor" } },
             { "catalog_tab_transport", new[] { "Транспорт", "Transport" } },
-            { "catalog_locked", new[] { "\n— {0} зд.", "\n— {0} locked" } }
+            { "catalog_locked", new[] { "\n— {0} зд.", "\n— {0} locked" } },
+            // Меню паузы: заголовок, кнопки, звук и подтверждение выхода (шаг 2).
+            { "pause_title", new[] { "=== Пауза ===", "=== Pause ===" } },
+            { "pause_resume", new[] { "Продолжить [Esc]", "Resume [Esc]" } },
+            { "pause_save", new[] { "Сохранить", "Save" } },
+            { "pause_load", new[] { "Загрузить", "Load" } },
+            { "pause_settings", new[] { "Настройки", "Settings" } },
+            { "pause_main_menu", new[] { "В главное меню", "Main menu" } },
+            { "pause_volume", new[] { "Громкость: {0}%", "Volume: {0}%" } },
+            { "pause_mute", new[] { "Без звука", "Mute" } },
+            { "pause_confirm_title", new[] { "Сохранить перед выходом?", "Save before exiting?" } },
+            { "pause_confirm_yes", new[] { "Да (сохранить и выйти)", "Yes (save and exit)" } },
+            { "pause_confirm_no", new[] { "Нет (выйти без сохранения)", "No (exit without saving)" } },
+            { "pause_confirm_cancel", new[] { "Отмена", "Cancel" } },
+            // Главное меню поверх живого города: строки «Продолжить/Новая игра/Загрузить/Выход».
+            { "main_menu_title", new[] { "=== Citybuilder ===", "=== Citybuilder ===" } },
+            { "main_menu_continue", new[] { "Продолжить", "Continue" } },
+            { "main_menu_new_game", new[] { "Новая игра", "New game" } },
+            { "main_menu_load", new[] { "Загрузить", "Load" } },
+            { "main_menu_exit", new[] { "Выход", "Exit" } },
+            // Меню сохранения в слоты: заголовок, кнопка, пустой слот и строка метаинформации.
+            { "save_title", new[] { "=== Сохранить город ===", "=== Save city ===" } },
+            { "save_save", new[] { "Сохранить", "Save" } },
+            { "save_close", new[] { "Закрыть", "Close" } },
+            { "save_slot_empty", new[] { "пусто", "empty" } },
+            { "save_slot_info", new[] { "День {0} • {1}", "Day {0} • {1}" } },
+            // Меню загрузки из слотов: заголовок, кнопка, пустой слот и строка метаинформации.
+            { "load_title", new[] { "=== Загрузить город ===", "=== Load city ===" } },
+            { "load_load", new[] { "Загрузить", "Load" } },
+            { "load_close", new[] { "Закрыть", "Close" } },
+            { "load_slot_empty", new[] { "{0} — пусто", "{0} — empty" } },
+            { "load_slot_info", new[] { "{0} — День {1} ({2})", "{0} — Day {1} ({2})" } }
         };
 
         // Текущий язык интерфейса. По умолчанию русский; выбор игрока подтягивает LoadSaved.
