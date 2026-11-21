@@ -27,6 +27,7 @@ namespace Citybuilder
 
         // Копия построенного: нужна покрытию, инфраструктуре и сохранениям.
         public List<BuildingState> Placed { get { return store.Placed; } }
+        public int PlacedRevision { get; private set; }
 
         private void Start() { EnsureReady(); }
         private void OnEnable() { placementActive = true; }
@@ -55,7 +56,6 @@ namespace Citybuilder
             return true;
         }
 
-        // Система стройки нужна и восстановлению из слота, где Definition не обязателен.
         private bool EnsureSystem()
         {
             if (GridVisualizer == null) return false;
@@ -98,12 +98,12 @@ namespace Citybuilder
             if (state == null) return false;
             store.Add(state, BuildingViewFactory.CreateView(state, GridVisualizer, true,
                 delegate { store.ReplaceWithReady(state, GridVisualizer); }));
-            GridVisualizer.RefreshOccupied();
+            GridVisualizer.RefreshOccupied(); PlacedRevision++;
             if (Save != null) Save.MarkDirty();
             return true;
         }
 
-        // Восстановление из слота: без списания денег. Неизвестный тип — false.
+        // Восстановление из слота: без списания денег.
         public bool RestoreManual(string defId, GridPosition origin)
         {
             if (string.IsNullOrEmpty(defId) || !EnsureSystem()) return false;
@@ -112,14 +112,14 @@ namespace Citybuilder
             BuildingState state = system.Place(def, origin);
             if (state == null) return false;
             store.Add(state, BuildingViewFactory.CreateView(state, GridVisualizer, false, null));
-            GridVisualizer.RefreshOccupied();
+            GridVisualizer.RefreshOccupied(); PlacedRevision++;
             return true;
         }
 
         // Новая игра и загрузка: ручные сносятся без выселения (V1 их не заселяет).
         public void ClearPlaced()
         {
-            store.Clear(system, GridVisualizer);
+            store.Clear(system, GridVisualizer); PlacedRevision++;
         }
 
         public bool TryDemolish(GridPosition cell)
@@ -128,7 +128,7 @@ namespace Citybuilder
             if (state == null) return false;
             system.Demolish(state);
             store.Demolish(state);
-            GridVisualizer.RefreshOccupied();
+            GridVisualizer.RefreshOccupied(); PlacedRevision++;
             if (Save != null) Save.MarkDirty();
             return true;
         }

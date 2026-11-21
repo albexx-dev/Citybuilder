@@ -30,13 +30,12 @@ namespace Citybuilder
         private GarbageTruckPool pool;
         private bool subscribed;
         private GridPosition? cachedDepot;
+        private int placedRevision;
 
         // Строка HUD для InfoMenuView (эпик #52): очередь вывоза и мусоровозы в пути.
         public string ServiceText => "Вывоз мусора: ждут домов " + ticker.Garbage.WaitingCount + ", в пути " + ticker.Garbage.ActiveTrucks;
 
-        // Домен вывоза для записи/восстановления v6 (ADR-014) и оверлея #94.
         public GarbageSystem Garbage { get { return ticker.Garbage; } }
-        // Кэш: FindDepot allocates List и сканирует Placed, а HasDepot зовётся каждый кадр оверлеем.
         public bool HasDepot { get { return cachedDepot.HasValue; } }
 
         // Сброс по команде LoadController.ClearAll; также срабатывает при отмотке часов.
@@ -46,7 +45,11 @@ namespace Citybuilder
             RefreshDepot();
         }
 
-        public void RefreshDepot() { cachedDepot = FindDepot(); }
+        public void RefreshDepot()
+        {
+            cachedDepot = FindDepot();
+            if (Economy != null && Economy.Placement != null) placedRevision = Economy.Placement.PlacedRevision;
+        }
 
         private void OnEnable()
         {
@@ -66,13 +69,12 @@ namespace Citybuilder
             if (pool != null) pool.DestroyAll();
         }
 
-        // Update: повторная подписка, если Economy или Runner не были готовы (как QuestLogView),
-        // затем движение по реальным секундам и перерисовка. На паузе часов — только рисуем.
         private void Update()
         {
             if (!subscribed) TrySubscribe();
             SimulationClock clock = Economy != null && Economy.Runner != null ? Economy.Runner.Clock : null;
             if (clock == null) return;
+            if (Economy != null && Economy.Placement != null && placedRevision != Economy.Placement.PlacedRevision) RefreshDepot();
             if (clock.Speed != SimulationSpeed.Paused) ticker.Garbage.Advance(Time.deltaTime);
             if (pool != null) pool.Sync(ticker.Garbage, Visualizer);
         }
@@ -91,7 +93,6 @@ namespace Citybuilder
             subscribed = true;
         }
 
-        // Граница игрового часа: дома, выбранное депо, лента и делегат дорог — в тикер.
         private void OnClockTick(SimulationTime time)
         {
             if (Economy == null || Economy.Growth == null) return;
@@ -100,7 +101,6 @@ namespace Citybuilder
                 Economy.EventLog != null ? Economy.EventLog.Log : null, RouteFinder());
         }
 
-        // Концы ноги маппятся на ближайшие дорожные клетки: FindPath требует дорог (ревью task/214).
         // Нет конгестиона — null-делегат, GarbageTrucks считает прямой L-маршрут.
         private Func<GridPosition, GridPosition, List<GridPosition>> RouteFinder()
         {
