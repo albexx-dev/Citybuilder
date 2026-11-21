@@ -82,7 +82,12 @@ namespace Citybuilder
             { "load_load", new[] { "Загрузить", "Load" } },
             { "load_close", new[] { "Закрыть", "Close" } },
             { "load_slot_empty", new[] { "{0} — пусто", "{0} — empty" } },
-            { "load_slot_info", new[] { "{0} — День {1} ({2})", "{0} — Day {1} ({2})" } }
+            { "load_slot_info", new[] { "{0} — День {1} ({2})", "{0} — Day {1} ({2})" } },
+            // Типы зданий в подсказках туториала (эпик 97): RU-имена вместо англонимов.
+            { "building_power_station", new[] { "Электростанция", "Power Station" } },
+            { "building_water_tower", new[] { "Водонапорная башня", "Water Tower" } },
+            { "building_waste_depot", new[] { "Мусорный полигон", "Waste Depot" } },
+            { "building_park", new[] { "Парк", "Park" } }
         };
 
         // Текущий язык интерфейса. По умолчанию русский; выбор игрока подтягивает LoadSaved.

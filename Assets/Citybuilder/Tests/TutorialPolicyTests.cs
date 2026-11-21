@@ -88,16 +88,16 @@ namespace Citybuilder.Tests
             string text = TutorialPolicy.FormatText(TutorialPolicy.Step.BuildPower);
             Assert.IsTrue(text.Contains("палитре"), text);
             Assert.IsTrue(text.Contains("НАД ПАНЕЛЬЮ"), text);
-            Assert.IsTrue(text.Contains("Power Station"), text);
+            Assert.IsTrue(text.Contains(Localization.T("building_power_station")), text);
             Assert.IsTrue(text.Contains("Дома [1]"), text);
         }
 
         [Test]
         public void EveryBuildStep_NamesPaletteAndExactDefinition()
         {
-            AssertPaletteStep(TutorialPolicy.Step.BuildWater, "Water Tower");
-            AssertPaletteStep(TutorialPolicy.Step.BuildWaste, "Waste Depot");
-            AssertPaletteStep(TutorialPolicy.Step.BuildPark, "Park");
+            AssertPaletteStep(TutorialPolicy.Step.BuildWater, Localization.T("building_water_tower"));
+            AssertPaletteStep(TutorialPolicy.Step.BuildWaste, Localization.T("building_waste_depot"));
+            AssertPaletteStep(TutorialPolicy.Step.BuildPark, Localization.T("building_park"));
         }
 
         private static void AssertPaletteStep(TutorialPolicy.Step step, string displayName)
@@ -107,6 +107,19 @@ namespace Citybuilder.Tests
             Assert.IsTrue(text.Contains("НАД ПАНЕЛЬЮ"), step + ": " + text);
             Assert.IsTrue(text.Contains("Дома [1]"), step + ": " + text);
             Assert.IsTrue(text.Contains(displayName), step + ": " + text);
+        }
+
+        // RU-подсказки называют типы по-русски, имя берётся из реестра локализации (эпик 97).
+        [Test]
+        public void BuildStepTexts_UseLocalizedRussianTypeNames()
+        {
+            Language previous = Localization.Language;
+            Localization.SetLanguage(Language.Ru);
+            Assert.IsTrue(TutorialPolicy.FormatText(TutorialPolicy.Step.BuildPower).Contains("Электростанция"));
+            Assert.IsTrue(TutorialPolicy.FormatText(TutorialPolicy.Step.BuildWater).Contains("Водонапорная башня"));
+            Assert.IsTrue(TutorialPolicy.FormatText(TutorialPolicy.Step.BuildWaste).Contains("Мусорный полигон"));
+            Assert.IsTrue(TutorialPolicy.FormatText(TutorialPolicy.Step.BuildPark).Contains("Парк"));
+            Localization.SetLanguage(previous);
         }
 
         [Test]

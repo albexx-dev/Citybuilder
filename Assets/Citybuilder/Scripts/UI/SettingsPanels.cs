@@ -53,10 +53,16 @@ namespace Citybuilder
             y += 32f;
         }
 
-        public static void DrawFooter(GameSettings s, SettingsView view, float x, float y)
+        public static void DrawFooter(GameSettings s, SettingsView view, TutorialView tutorial, float x, float y)
         {
             if (BottomBarStyle.DrawButton(new Rect(x, y, 200f, 30f), "По умолчанию", false)) s.ResetToDefaults();
             if (BottomBarStyle.DrawButton(new Rect(x + 216f, y, 200f, 30f), "Назад в паузу [Esc]", false)) view.ReturnToPause();
+            if (BottomBarStyle.DrawButton(new Rect(x, y + 38f, 240f, 30f), "Повторить обучение", false))
+            {
+                if (tutorial != null) tutorial.ResetTutorial();
+                view.Close();
+            }
+            HudText.Draw(x, y + 76f, "Управление: WASD / Q E / колесо / ЛКМ");
         }
     }
 }
