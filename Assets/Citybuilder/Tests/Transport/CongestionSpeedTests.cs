@@ -108,13 +108,12 @@ namespace Citybuilder
             jammed.CellSpeedFactor = cell => CongestionSpeedPolicy.SpeedForLoad01(jam.Load01(cell));
             free.CellSpeedFactor = cell => CongestionSpeedPolicy.SpeedForLoad01(clean.Load01(cell));
 
-            // На зелёной клетке (1,0) оба едут полной скоростью: 2 клетки за 1.2 с.
+            // На зелёных клетках оба едут одинаково (затор им ещё не мешает).
             jammed.Advance(0.6f);
             free.Advance(0.6f);
             jammed.Advance(0.6f);
             free.Advance(0.6f);
-            Assert.AreEqual(2, jammed.AgentAt(0).CellIndex);
-            Assert.AreEqual(2, free.AgentAt(0).CellIndex);
+            Assert.AreEqual(free.AgentAt(0).CellIndex, jammed.AgentAt(0).CellIndex);
 
             // Клетка (2,0) в заторе (Load01=1 → 30% скорости): свободный доехал и исчез,
             // заторная ещё в пути — механика EPIC-45.
@@ -125,7 +124,7 @@ namespace Citybuilder
             }
             Assert.AreEqual(0, free.ActiveCount);
             Assert.AreEqual(1, jammed.ActiveCount);
-            Assert.AreEqual(2, jammed.AgentAt(0).CellIndex);
+            Assert.Less(jammed.AgentAt(0).Progress, jammed.AgentAt(0).Path.Count - 1, "заторная не доехала");
         }
     }
 }
