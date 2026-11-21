@@ -8,7 +8,9 @@ namespace Citybuilder
     // VehicleAgentView: интерполяция позиции и поворота по прогрессу между клетками.
     public class GarbageTruckPool
     {
+        public const float TruckLengthCells = 1.8f;
         private readonly GameObject[] cars;
+        private readonly float cellSize;
         private readonly float yawOffset;
         private readonly float rideHeight;
 
