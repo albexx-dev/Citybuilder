@@ -3,8 +3,7 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Нижняя панель действий (EPIC-13): скорости, режимы, кисти зон и кнопки меню.
-    // Вешать на Grid. Все прямоугольники берутся из HudLayout и регистрируются в UiClickGuard.
-    // Каталог зданий (задача 173) вынесен в BuildCatalogView.
+    // Вешать на Grid; прямоугольники из HudLayout, иконки/тултипы из BottomBarIcons (EPIC-66).
     public class BottomBarView : MonoBehaviour
     {
         [Header("References")]
@@ -56,25 +55,22 @@ namespace Citybuilder
                 float x = group.x + i * (HudLayout.SpeedButtonWidth + HudLayout.ButtonGap);
                 Rect rect = new Rect(x, group.y, HudLayout.SpeedButtonWidth, group.height);
                 bool active = Runner != null && Runner.Speed == speeds[i];
-                if (BottomBarStyle.DrawButton(rect, labels[i], active) && Runner != null) Runner.SetSpeed(speeds[i]);
+                if (BottomBarStyle.DrawButton(rect, IconBook.Get(BottomBarIcons.SpeedKeys[i]), labels[i], BottomBarIcons.SpeedTips[i], active) && Runner != null) Runner.SetSpeed(speeds[i]);
             }
         }
 
         private void DrawModeGroup(Rect group)
         {
             BuildModeMenu.Mode[] modes =
-            {
-                BuildModeMenu.Mode.Off, BuildModeMenu.Mode.Houses,
-                BuildModeMenu.Mode.Roads, BuildModeMenu.Mode.Zones, BuildModeMenu.Mode.Growth,
-                BuildModeMenu.Mode.Decor
-            };
+                { BuildModeMenu.Mode.Off, BuildModeMenu.Mode.Houses, BuildModeMenu.Mode.Roads,
+                  BuildModeMenu.Mode.Zones, BuildModeMenu.Mode.Growth, BuildModeMenu.Mode.Decor };
             string[] labels = { "Выкл [Esc]", "Дома [1]", "Дороги [2]", "Зоны [3]", "Рост [4]", "Декор [5]" };
             for (int i = 0; i < modes.Length; i++)
             {
                 float x = group.x + i * (HudLayout.ModeButtonWidth + HudLayout.ButtonGap);
                 Rect rect = new Rect(x, group.y, HudLayout.ModeButtonWidth, group.height);
                 bool active = Menu != null && Menu.CurrentMode == modes[i];
-                if (BottomBarStyle.DrawButton(rect, labels[i], active) && Menu != null) Menu.SetMode(modes[i]);
+                if (BottomBarStyle.DrawButton(rect, IconBook.Get(BottomBarIcons.ModeKeys[i]), labels[i], BottomBarIcons.ModeTips[i], active) && Menu != null) Menu.SetMode(modes[i]);
             }
         }
 
@@ -90,12 +86,14 @@ namespace Citybuilder
                 () => { if (!Settings.IsOpen) ClosePanels(true, true, true); Settings.Toggle(); });
         }
 
-        // Кнопка меню нижней панели: без компонента неактивна, открытие одной гасит остальные (образец «Задачи», EPIC-48).
+        // Кнопка меню нижней панели: без компонента неактивна, открытие одной гасит остальные (EPIC-48/69),
+        // иконка + тултип из IconBook (EPIC-66).
         private static void DrawMenuButton(int index, Rect group, string label, bool disabled, bool open, System.Action action)
         {
             Rect rect = SettingsLayout.MenuButtonRect(group, index);
             if (disabled) { BottomBarStyle.DrawDisabledButton(rect, label); return; }
-            if (BottomBarStyle.DrawButton(rect, label, open) && action != null) action();
+            if (BottomBarStyle.DrawButton(rect, IconBook.Get(BottomBarIcons.MenuKeys[index]), label,
+                BottomBarIcons.MenuTips[index], open) && action != null) action();
         }
 
         // Панели меню взаимоисключающие (EPIC-14/09/48/69): открытие одной закрывает остальные и настройки.
@@ -141,9 +139,8 @@ namespace Citybuilder
                 float x = popup.x + i * (HudLayout.PaletteButtonWidth + HudLayout.ButtonGap);
                 Rect rect = new Rect(x, popup.y, HudLayout.PaletteButtonWidth, popup.height);
                 bool active = Menu.Zones != null && Menu.Zones.Brush == brushes[i];
-                if (BottomBarStyle.DrawButton(rect, labels[i], active)) Menu.SetBrush(brushes[i]);
+                if (BottomBarStyle.DrawButton(rect, IconBook.Get(BottomBarIcons.BrushKeys[i]), labels[i], BottomBarIcons.BrushTips[i], active)) Menu.SetBrush(brushes[i]);
             }
         }
-
     }
 }
