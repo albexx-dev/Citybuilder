@@ -99,6 +99,8 @@ namespace Citybuilder
             if (questLog != null) questLog.ResetQuests();
             GarbageTruckView garbage = FindFirstObjectByType<GarbageTruckView>();
             if (garbage != null) garbage.ResetGarbage();
+            PedestrianAgentHost pedestrians = FindFirstObjectByType<PedestrianAgentHost>();
+            if (pedestrians != null) pedestrians.ResetAgents();
         }
 
         private List<BuildingState> ApplyCity(CitySnapshot snapshot)
