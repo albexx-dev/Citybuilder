@@ -2,9 +2,9 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Общая выравнивающая утилита Kenney-моделей машин (EPIC-44/52): ассет несёт сдвиг
-    // внутри FBX — центр по XZ и низ по Y выравниваются на ось вида-хоста. Выделено
-    // из VehicleAgentView для вида мусоровозов (EPIC-52), чтобы не дублировать замер.
+    // Общая утилита Kenney-моделей машин (EPIC-44/52): авто-масштаб под клетку дороги
+    // (Fit) и выравнивание центра по оси вида-хоста (Align). Выделено из VehicleAgentView
+    // для вида мусоровозов (EPIC-52), чтобы не дублировать замер. Порядок: Fit -> Align.
     public static class VehicleModelUtils
     {
         // Сдвинуть модель так, чтобы её объединённый AABB стоял центром на оси корня.
@@ -14,6 +14,21 @@ namespace Citybuilder
             if (!TryBounds(model, out min, out max)) return;
             Vector3 anchor = new Vector3((min.x + max.x) * 0.5f, min.y, (min.z + max.z) * 0.5f);
             model.transform.localPosition = Vector3.Scale(-anchor, model.transform.localScale);
+        }
+
+        // Авто-масштаб под клетку: длина модели по Z становится targetLength (метры мира),
+        // затем выравнивание — порядок важен: Align считает сдвиг уже под новым масштабом.
+        // Возвращает применённый множитель (для тестов); модель-заглушка без мешей — 1.
+        public static float Fit(GameObject model, float targetLength)
+        {
+            Vector3 min, max;
+            if (!TryBounds(model, out min, out max)) return 1f;
+            float length = max.z - min.z;
+            if (length <= 0.001f) return 1f;
+            float scale = targetLength / length;
+            model.transform.localScale = model.transform.localScale * scale;
+            Align(model);
+            return scale;
         }
 
         // Объединённый AABB всех мешей модели в системе координат её корня.

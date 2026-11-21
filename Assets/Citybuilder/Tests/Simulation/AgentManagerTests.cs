@@ -104,12 +104,23 @@ namespace Citybuilder
         public void PoolLimit_CapsAtMaxAgents()
         {
             AgentManager manager = MakeManager(Walk);
+            manager.SetActiveLimit(AgentManager.MaxAgents);
             for (int hour = 0; hour < 5; hour++)
             {
                 manager.OnGameHour(7, Homes, Works, Roads);
             }
             manager.OnGameHour(8, Homes, Works, Roads);
             Assert.AreEqual(AgentManager.MaxAgents, manager.ActiveCount);
+        }
+
+        [Test]
+        public void ActiveLimit_CapsSpawning()
+        {
+            AgentManager manager = MakeManager(Walk);
+            manager.SetActiveLimit(AgentManager.SpawnsPerHour + 4);
+            for (int hour = 0; hour < 5; hour++) manager.OnGameHour(7, Homes, Works, Roads);
+            Assert.AreEqual(AgentManager.SpawnsPerHour + 4, manager.ActiveCount);
+            Assert.Less(manager.ActiveCount, AgentManager.MaxAgents);
         }
 
         [Test]

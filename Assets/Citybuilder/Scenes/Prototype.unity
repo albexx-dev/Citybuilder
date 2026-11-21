@@ -215,14 +215,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Citybuilder::Citybuilder.VehicleAgentView
   Visualizer: {fileID: 985593152}
-  MaxViews: 24
+  MaxViews: 12
   RideHeight: 0.05
   CarModels:
   - {fileID: 919132149155446097, guid: fac1405327d21a4499d7bf674c077c92, type: 3}
   - {fileID: 919132149155446097, guid: 747ee18022037544bb7d598d2fdb9d26, type: 3}
   - {fileID: 919132149155446097, guid: a8ee77dac45d81544a80ed7222ff34d8, type: 3}
   - {fileID: 919132149155446097, guid: cb25afbd33857da44a686ca07abeb969, type: 3}
-  ModelYawOffset: 0
+  ModelYawOffset: 180
   ModelScale: 1
 --- !u!4 &165672929
 Transform:
@@ -328,7 +328,7 @@ MonoBehaviour:
   - {fileID: 919132149155446097, guid: fac1405327d21a4499d7bf674c077c92, type: 3}
   - {fileID: 919132149155446097, guid: 747ee18022037544bb7d598d2fdb9d26, type: 3}
   ModelYawOffset: 180
-  ModelScale: 0.06
+  ModelScale: 1
   RideHeight: 0.05
 --- !u!4 &751421547
 Transform:

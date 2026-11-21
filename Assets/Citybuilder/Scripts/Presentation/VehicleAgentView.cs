@@ -13,15 +13,17 @@ namespace Citybuilder
 
         [Header("Pool")]
         [Tooltip("Максимум видимых машин (1..40). Агенты сверх лимита ездят без вида.")]
-        public int MaxViews = 24;
+        public int MaxViews = 12;
         [Tooltip("Высота корпуса над дорогой, метры.")]
         public float RideHeight = 0.05f;
+        [Tooltip("Целевая длина машины в клетках: авто-фит масштаба по AABB модели.")]
+        public const float CarLengthCells = 1.6f;
 
         [Header("Model")]
         [Tooltip("FBX-модели машин (Kenney Racing). Пусто = машины без вида.")]
         public GameObject[] CarModels;
         [Tooltip("Доворот модели вокруг Y, градусы. Нос Kenney-машины смотрит по −Z: 180 выравнивает по ходу.")]
-        public float ModelYawOffset = 0f;
+        public float ModelYawOffset = 180f;
         [Tooltip("Множитель масштаба поверх родного масштаба FBX (машина ~13.5 м: при CellSize 1 попробуйте 0.06).")]
         public float ModelScale = 1f;
 
@@ -63,8 +65,9 @@ namespace Citybuilder
             {
                 GameObject model = Instantiate(CarModels[slot % CarModels.Length]);
                 model.transform.SetParent(car.transform, false);
-                model.transform.localScale = model.transform.localScale * ModelScale;
-                VehicleModelUtils.Align(model);
+                // Авто-фит под клетку (длина ~1.6 клетки), ModelScale — ручной множитель поверх.
+                float target = Visualizer.Grid.CellSize * CarLengthCells * Mathf.Max(0.01f, ModelScale);
+                VehicleModelUtils.Fit(model, target);
             }
             car.SetActive(false);
             return car;
@@ -90,7 +93,6 @@ namespace Citybuilder
             float ax, az, bx, bz;
             Visualizer.Grid.GridToWorld(path[index], out ax, out az);
             Visualizer.Grid.GridToWorld(path[next], out bx, out bz);
-            car.transform.localScale = Vector3.one * (cellSize * 0.5f);
             car.transform.position = new Vector3(Mathf.Lerp(ax, bx, t), RideHeight, Mathf.Lerp(az, bz, t));
             float dx = bx - ax;
             float dz = bz - az;

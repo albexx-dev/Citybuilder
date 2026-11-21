@@ -8,7 +8,7 @@ namespace Citybuilder
     public class GameSettings
     {
         public const float DefaultVolume = 0.5f;
-        public const int DefaultAgentLimit = 40;
+        public const int DefaultAgentLimit = 12;
         public const int MinAgentLimit = 8;
         public const int MaxAgentLimit = 120;
         public const int DefaultAutosaveHours = 24;

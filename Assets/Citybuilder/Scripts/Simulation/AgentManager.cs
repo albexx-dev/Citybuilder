@@ -9,6 +9,7 @@ namespace Citybuilder
     {
         public const int MaxAgents = 40;
         public const int SpawnsPerHour = 8;
+        public const int DefaultActiveLimit = 12;
         public const float CellsPerSecond = 2f;
         public const int MorningStart = 7;
         public const int MorningEnd = 9;
@@ -34,6 +35,7 @@ namespace Citybuilder
         private readonly CongestionSystem congestion;
         private readonly List<GridPosition> tripCell = new List<GridPosition>(1);
         private long spawnCursor;
+        private int activeLimit = DefaultActiveLimit;
 
         public AgentManager(CongestionSystem congestion) { this.congestion = congestion; }
 
@@ -56,8 +58,20 @@ namespace Citybuilder
         public static bool IsSpawnHour(int hour) { return (hour >= MorningStart && hour < MorningEnd) || (hour >= EveningStart && hour < EveningEnd); }
 
         // Партия поездок за час окна: пары целей по вращающемуся курсору.
+        // Лимит одновременных машин: настройки игрока (Настройки → Лимит машин) и жалоба
+        // владельца на «слишком много» — спавн останавливается на пределе.
+        public void SetActiveLimit(int value)
+        {
+            if (value < 1) value = 1;
+            if (value > MaxAgents) value = MaxAgents;
+            activeLimit = value;
+        }
+
+        public int ActiveLimit { get { return activeLimit; } }
+
         private void SpawnBatch(IReadOnlyList<GridPosition> fromOrigins, IReadOnlyList<GridPosition> toOrigins, IReadOnlyList<GridPosition> roads)
         {
+            if (ActiveCount >= activeLimit) return;
             if (IsEmpty(fromOrigins) || IsEmpty(toOrigins) || IsEmpty(roads)) return;
             for (int i = 0; i < SpawnsPerHour; i++)
             {

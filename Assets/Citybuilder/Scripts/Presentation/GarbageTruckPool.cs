@@ -13,10 +13,11 @@ namespace Citybuilder
         private readonly float rideHeight;
 
         public GarbageTruckPool(Transform parent, GameObject[] models, int count,
-            float modelScale, float yawOffset, float rideHeight)
+            float modelScale, float yawOffset, float rideHeight, float cellSize)
         {
             this.yawOffset = yawOffset;
             this.rideHeight = rideHeight;
+            this.cellSize = cellSize > 0.001f ? cellSize : 1f;
             if (models == null || models.Length == 0)
                 Debug.LogWarning("GarbageTruckView: задайте TruckModels (FBX Kenney Racing) в Inspector.");
             cars = new GameObject[count];
@@ -32,8 +33,9 @@ namespace Citybuilder
             {
                 GameObject model = Object.Instantiate(models[slot % models.Length]);
                 model.transform.SetParent(car.transform, false);
-                model.transform.localScale = model.transform.localScale * modelScale;
-                VehicleModelUtils.Align(model);
+                // Авто-фит под клетку (длина ~1.8 клетки у мусоровоза), modelScale — множитель поверх.
+                float target = this.cellSize * TruckLengthCells * Mathf.Max(0.01f, modelScale);
+                VehicleModelUtils.Fit(model, target);
             }
             car.SetActive(false);
             return car;
@@ -63,7 +65,6 @@ namespace Citybuilder
             float ax, az, bx, bz;
             visualizer.Grid.GridToWorld(route[cell], out ax, out az);
             visualizer.Grid.GridToWorld(route[next], out bx, out bz);
-            car.transform.localScale = Vector3.one * (cellSize * 0.5f);
             car.transform.position = new Vector3(Mathf.Lerp(ax, bx, t), rideHeight, Mathf.Lerp(az, bz, t));
             float dx = bx - ax;
             float dz = bz - az;

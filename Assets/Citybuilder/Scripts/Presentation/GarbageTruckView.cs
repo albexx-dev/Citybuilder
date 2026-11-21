@@ -20,7 +20,7 @@ namespace Citybuilder
         [Tooltip("Доворот модели вокруг Y, градусы. Нос Kenney-машины смотрит по −Z: 180 выравнивает по ходу.")]
         public float ModelYawOffset = 180f;
         [Tooltip("Множитель масштаба поверх родного масштаба FBX (машина ~13.5 м: при CellSize 1 попробуйте 0.06).")]
-        public float ModelScale = 0.06f;
+        public float ModelScale = 1f;
         [Tooltip("Высота корпуса над землёй, метры.")] public float RideHeight = 0.05f;
 
         private readonly GarbageTicker ticker = new GarbageTicker();
@@ -74,7 +74,7 @@ namespace Citybuilder
             if (Visualizer == null) Visualizer = FindFirstObjectByType<GridVisualizer>();
             if (Visualizer == null) return;
             if (pool == null) pool = new GarbageTruckPool(transform, TruckModels,
-                GarbageTrucks.MaxTrucks, ModelScale, ModelYawOffset, RideHeight);
+                GarbageTrucks.MaxTrucks, ModelScale, ModelYawOffset, RideHeight, Visualizer.Grid.CellSize);
             SimulationClock clock = Economy != null && Economy.Runner != null ? Economy.Runner.Clock : null;
             if (subscribed || clock == null) return;
             clock.TickCompleted += OnClockTick;

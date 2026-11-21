@@ -20,6 +20,8 @@ namespace Citybuilder
         public BuildingPlacementController Placement;
         [Tooltip("Вид машин. Пусто = ищется в сцене.")]
         public VehicleAgentView View;
+        [Tooltip("Настройки (EPIC-69): лимит машин применяется на лету. Пусто = ищется в сцене.")]
+        public SettingsView Settings;
 
         private AgentManager manager;
         private readonly List<GridPosition> homes = new List<GridPosition>();
@@ -52,6 +54,7 @@ namespace Citybuilder
             if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
             if (Placement == null) Placement = FindFirstObjectByType<BuildingPlacementController>();
             if (View == null) View = FindFirstObjectByType<VehicleAgentView>();
+            if (Settings == null) Settings = FindFirstObjectByType<SettingsView>();
         }
 
         private List<GridPosition> FindRoute(GridPosition from, GridPosition to)
@@ -84,6 +87,7 @@ namespace Citybuilder
         private void Update()
         {
             if (manager == null || Runner == null || Runner.Clock == null) return;
+            if (Settings != null && Settings.Settings != null) manager.SetActiveLimit(Settings.Settings.AgentLimit);
             if (Runner.Clock.Speed == SimulationSpeed.Paused) return;
             manager.Advance(Time.deltaTime);
             if (View != null) View.Sync(manager);
