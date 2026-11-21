@@ -35,7 +35,6 @@ namespace Citybuilder
         // Кражи (EPIC-47) для InfoMenuView: уровень преступности и модификаторы досуга домов.
         public CrimeSystem Crimes { get { return crimeTicker.Crimes; } }
 
-        // Полный сброс несериализуемых состояний перед «Новая игра»/загрузкой.
         public void ResetSimulation()
         {
             soundPolicy.Reset(); eventThrottle.Reset();

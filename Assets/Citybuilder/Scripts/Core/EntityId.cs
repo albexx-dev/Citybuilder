@@ -22,6 +22,9 @@ namespace Citybuilder
             return id;
         }
 
+        // Сброс при «Новая игра»/загрузке: восстановленные здания получают те же ID.
+        public static void Reset() { nextValue = 1; }
+
         public bool IsValid
         {
             get { return Value > 0; }
