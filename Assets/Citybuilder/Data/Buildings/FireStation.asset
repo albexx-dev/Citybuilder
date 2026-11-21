@@ -31,5 +31,5 @@ MonoBehaviour:
   WasteCapacity: 0
   UpkeepPerHour: 6
   VariantCount: 1
-  Prefab: {fileID: 5143048915528205344, guid: 0b8936cc39269da4aa62fcfdf8a1371f, type: 3}
+  Prefab: {fileID: 8094770879869248881, guid: 321a997ea7a891c43a5026130b6b3304, type: 3}
   Category: 3
