@@ -57,7 +57,7 @@ namespace Citybuilder
         {
             if (!UnlockPolicy.IsUnlocked(def, grown))
             {
-                BottomBarStyle.DrawDisabledButton(card, def.DisplayName + "\n— " + UnlockPolicy.Remaining(def, grown) + " зд.");
+                BottomBarStyle.DrawDisabledButton(card, def.DisplayName + Localization.T("catalog_locked", UnlockPolicy.Remaining(def, grown)));
                 return;
             }
             bool selected = placement != null && placement.Definition == def;

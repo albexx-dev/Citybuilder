@@ -66,11 +66,11 @@ namespace Citybuilder
             return zoneEmployed * RateFor(zone);
         }
 
-        // Строка бюджета для зоны: «Жилая: обычный (4) +8 $/ч».
+        // Строка бюджета для зоны: «Жилая: обычный (4) +8 $/ч». Имена зон и уровней — из локализации.
         public string ZoneLabel(ZoneType zone, int zoneEmployed)
         {
-            return ZoneName(zone) + ": " + NameOf(LevelFor(zone)) + " (" + RateFor(zone) + ") "
-                + "+" + IncomeForZone(zone, zoneEmployed) + " $/ч";
+            return Localization.T("zone_tax_label", ZoneName(zone), NameOf(LevelFor(zone)),
+                RateFor(zone), IncomeForZone(zone, zoneEmployed));
         }
 
         // === Совместимость с одной ставкой (сейв v4 и старый HUD) ===
@@ -109,16 +109,16 @@ namespace Citybuilder
 
         private static string NameOf(Level level)
         {
-            if (level == Level.Low) return "низкий";
-            if (level == Level.High) return "высокий";
-            return "обычный";
+            if (level == Level.Low) return Localization.T("tax_level_low");
+            if (level == Level.High) return Localization.T("tax_level_high");
+            return Localization.T("tax_level_normal");
         }
 
         private static string ZoneName(ZoneType zone)
         {
-            if (zone == ZoneType.Commercial) return "Коммерция";
-            if (zone == ZoneType.Industrial) return "Промзона";
-            return "Жилая";
+            if (zone == ZoneType.Commercial) return Localization.T("zone_commercial");
+            if (zone == ZoneType.Industrial) return Localization.T("zone_industrial");
+            return Localization.T("zone_residential");
         }
     }
 }
