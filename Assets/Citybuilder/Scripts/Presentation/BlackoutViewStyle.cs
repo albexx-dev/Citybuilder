@@ -9,12 +9,11 @@ namespace Citybuilder
     {
         public const float DarkenFactor = 0.45f;
 
-        // Затемнить все материалы вида; bucket — учёт копий для последующего Destroy.
+        // Затемнить все материалы вида; копии добавляются в bucket к исходникам, владелец уничтожит все сразу.
         public static void Apply(GameObject view, List<Material> bucket = null)
         {
             if (view == null) return;
             MeshRenderer[] renderers = view.GetComponentsInChildren<MeshRenderer>();
-            if (bucket != null) DestroyTracked(bucket);
             for (int i = 0; i < renderers.Length; i++)
             {
                 Material mat = renderers[i].material;
@@ -22,18 +21,6 @@ namespace Citybuilder
                 mat.color = Darken(mat.color);
                 if (bucket != null) bucket.Add(mat);
             }
-        }
-
-        private static void DestroyTracked(List<Material> bucket)
-        {
-            for (int i = 0; i < bucket.Count; i++)
-            {
-                Material mat = bucket[i];
-                if (mat == null) continue;
-                if (Application.isPlaying) Object.Destroy(mat);
-                else Object.DestroyImmediate(mat);
-            }
-            bucket.Clear();
         }
 
         // Приглушённый цвет для материалов, создающихся при сборке вида.
