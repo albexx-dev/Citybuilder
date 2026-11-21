@@ -4,9 +4,8 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Вид мусоровозов (EPIC-52): GarbageTicker + пул GarbageTruckPool, тик даёт дома, депо,
-    // ленту и делегат дорог RouteSystem.FindPath. Полигон — ручная постройка с IsWasteDepot
-    // (issue #90); нет полигона — вывоза нет, из нескольких депо берётся самое ёмкое.
+    // Вид мусоровозов (EPIC-52): GarbageTicker + пул, тик даёт дома, депо, ленту и RouteSystem.
+    // Полигон — ручная постройка с IsWasteDepot (issue #90); из депо берётся самое ёмкое.
     public class GarbageTruckView : MonoBehaviour
     {
         [Header("References")]
@@ -25,6 +24,7 @@ namespace Citybuilder
         [Tooltip("Множитель масштаба поверх родного масштаба FBX (машина ~13.5 м: при CellSize 1 попробуйте 0.06).")]
         public float ModelScale = 1f;
         [Tooltip("Высота корпуса над землёй, метры.")] public float RideHeight = 0.05f;
+        [Tooltip("Показывать модели мусоровозов. false — логика вывоза, оверлей и HUD работают без моделей.")] public bool ShowTruckVisuals = false;
 
         private readonly GarbageTicker ticker = new GarbageTicker();
         private GarbageTruckPool pool;
@@ -84,8 +84,8 @@ namespace Citybuilder
             if (Economy == null) Economy = FindFirstObjectByType<EconomyTicker>();
             if (Visualizer == null) Visualizer = FindFirstObjectByType<GridVisualizer>();
             if (Visualizer == null) return;
-            if (pool == null) pool = new GarbageTruckPool(transform, TruckModels,
-                GarbageTrucks.MaxTrucks, ModelScale, ModelYawOffset, RideHeight, Visualizer.Grid.CellSize);
+            if (pool == null) pool = new GarbageTruckPool(transform, TruckModels, GarbageTrucks.MaxTrucks,
+                ModelScale, ModelYawOffset, RideHeight, Visualizer.Grid.CellSize, ShowTruckVisuals);
             GarbageOverlayView.Ensure(this);
             SimulationClock clock = Economy != null && Economy.Runner != null ? Economy.Runner.Clock : null;
             if (subscribed || clock == null) return;
