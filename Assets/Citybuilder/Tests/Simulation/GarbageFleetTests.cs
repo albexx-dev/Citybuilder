@@ -98,6 +98,21 @@ namespace Citybuilder
             return new List<GridPosition>(cells);
         }
 
+        // Маппинг конца ноги на ближайшую дорогу (ревью task/214): дом/депо не занимают
+        // дорожные клетки — маршрут стартует с ближайшей дороги к зданию.
+        [Test]
+        public void TryNearestRoad_PicksClosestCell_AndFailsOnEmpty()
+        {
+            List<GridPosition> cells = MakeList(new GridPosition(1, 0), new GridPosition(4, 2), new GridPosition(2, 5));
+            GridPosition nearest;
+            Assert.IsTrue(GarbageTruckView.TryNearestRoad(new GridPosition(3, 1), cells, out nearest));
+            Assert.AreEqual(new GridPosition(4, 2), nearest);
+            Assert.IsTrue(GarbageTruckView.TryNearestRoad(new GridPosition(1, 1), cells, out nearest));
+            Assert.AreEqual(new GridPosition(1, 0), nearest);
+            List<GridPosition> empty = new List<GridPosition>();
+            Assert.IsFalse(GarbageTruckView.TryNearestRoad(new GridPosition(0, 0), empty, out nearest));
+        }
+
         private static BuildingState Home(GridPosition at)
         {
             BuildingDefinition def = ScriptableObject.CreateInstance<BuildingDefinition>();

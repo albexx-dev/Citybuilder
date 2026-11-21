@@ -94,15 +94,38 @@ namespace Citybuilder
                 Economy.EventLog != null ? Economy.EventLog.Log : null, RouteFinder());
         }
 
-        // Делегат дорог из CongestionController.Routes: путь по дорогам игрока. Конгестион
-        // отсутствует или не готов — null-делегат, GarbageTrucks считает прямой L-маршрут.
+        // Делегат дорог из CongestionController.Routes. Клетки депо/домов — НЕ дорожные,
+        // а RouteSystem.FindPath требует дороги на обоих концах: концы ноги маппятся на
+        // ближайшие дорожные клетки (ревью task/214 — «по дорогам» в живой сцене).
+        // Конгестион отсутствует или не готов — null-делегат, GarbageTrucks считает прямой L-маршрут.
         private Func<GridPosition, GridPosition, List<GridPosition>> RouteFinder()
         {
             if (Congestion == null) Congestion = FindFirstObjectByType<CongestionController>();
-            if (Congestion == null) return null;
-            RouteSystem routes = Congestion.Routes;
-            if (routes == null) return null;
-            return routes.FindPath;
+            if (Congestion == null || Congestion.Routes == null) return null;
+            List<RoadState> states = Congestion.Roads != null ? Congestion.Roads.Roads : null;
+            if (states == null || states.Count == 0) return null;
+            List<GridPosition> roadCells = new List<GridPosition>(states.Count);
+            for (int i = 0; i < states.Count; i++) roadCells.Add(states[i].Cell);
+            return delegate (GridPosition from, GridPosition to)
+            {
+                GridPosition roadFrom, roadTo;
+                if (!TryNearestRoad(from, roadCells, out roadFrom)) return null;
+                if (!TryNearestRoad(to, roadCells, out roadTo)) return null;
+                return Congestion.Routes.FindPath(roadFrom, roadTo);
+            };
+        }
+
+        // Ближайшая дорожная клетка к origin (манхэттен). false — дорог в городе нет.
+        public static bool TryNearestRoad(GridPosition origin, List<GridPosition> roadCells, out GridPosition nearest)
+        {
+            nearest = default(GridPosition);
+            int best = int.MaxValue;
+            for (int i = 0; i < roadCells.Count; i++)
+            {
+                int dist = Mathf.Abs(roadCells[i].X - origin.X) + Mathf.Abs(roadCells[i].Y - origin.Y);
+                if (dist < best) { best = dist; nearest = roadCells[i]; }
+            }
+            return best < int.MaxValue;
         }
 
         // Полигон = первая ручная постройка waste_depot. Нет постройки — null (вывоза нет).
