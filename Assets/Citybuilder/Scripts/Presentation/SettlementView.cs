@@ -52,13 +52,15 @@ namespace Citybuilder
                         delegate { AddBuilding(state, def, cellSize, true, powered); }).gameObject;
                 }
                 GameObject prefab = Instantiate(def.Prefab, at, Quaternion.identity, transform);
-                float scale = LevelScale(state.Level, false);
+                float scale = HouseLevelStyle.LevelScale(state.Level, false);
                 prefab.transform.localScale = Vector3.Scale(def.Prefab.transform.localScale, new Vector3(scale, scale, scale));
                 if (!powered) BlackoutViewStyle.Apply(prefab);
+                HouseLevelMarker.Update(prefab, state.Level);
                 return prefab;
             }
             GameObject cube = BuildCube(state, def, cellSize, constructing);
             if (!powered) BlackoutViewStyle.Apply(cube);
+            HouseLevelMarker.Update(cube, state.Level);
             return cube;
         }
 
@@ -69,7 +71,7 @@ namespace Citybuilder
             int variant = BuildingDefinition.SelectVariant(state.Id, def.VariantCount);
             float w = def.Footprint.x * cellSize * 0.9f;
             float d = def.Footprint.y * cellSize * 0.9f;
-            float h = (1f + variant * 0.5f) * LevelScale(state.Level, true);
+            float h = (1f + variant * 0.5f) * HouseLevelStyle.LevelScale(state.Level, true);
             Vector3 fullScale = new Vector3(w, h, d);
             Vector3 groundCenter = FootprintCenter(state.Origin, def, cellSize, 0f);
             cube.transform.localScale = fullScale;
@@ -97,25 +99,8 @@ namespace Citybuilder
             roof.transform.localScale = new Vector3(0.7f, 0.3f / h, 0.7f);
             roof.transform.localPosition = new Vector3(0f, 0.5f + 0.15f / h, 0f);
             DestroySafe(roof.GetComponent<Collider>());
-            roof.GetComponent<MeshRenderer>().sharedMaterial = BuildMaterial(RoofColor(level, variant));
+            roof.GetComponent<MeshRenderer>().sharedMaterial = BuildMaterial(HouseLevelStyle.RoofColor(level, variant));
             return roof;
-        }
-
-        // Множитель вида по уровню дома (EPIC-59): высота куба ×1.5/×2, масштаб префаба ×1.25/×1.5.
-        private static float LevelScale(int level, bool height)
-        {
-            if (level >= 3) return height ? 2f : 1.5f;
-            if (level >= 2) return height ? 1.5f : 1.25f;
-            return 1f;
-        }
-
-        // Цвет крыши по уровню: 1 — коричневый базовый с оттенком варианта, 2 — терракота, 3 — синяя черепица.
-        private static Color RoofColor(int level, int variant)
-        {
-            float tint = variant * 0.08f;
-            if (level >= 3) return new Color(0.2f, 0.35f, 0.6f);
-            if (level >= 2) return new Color(0.75f, 0.3f + tint * 0.5f, 0.2f);
-            return new Color(0.45f + tint, 0.25f + tint * 0.5f, 0.1f);
         }
 
         private Vector3 FootprintCenter(GridPosition origin, BuildingDefinition def, float cellSize, float height)
