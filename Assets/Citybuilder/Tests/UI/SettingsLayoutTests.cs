@@ -115,6 +115,7 @@ namespace Citybuilder
             {
                 Rect menu = SettingsLayout.MenuRowRect(width, height, row);
                 Assert.LessOrEqual(menu.yMax, subRow.y);
+                Assert.LessOrEqual(menu.yMax, HudLayout.CatalogTabsRect(width, height).y);
                 Assert.LessOrEqual(menu.xMax, bar.xMax);
                 Assert.GreaterOrEqual(menu.y, 0f);
             }

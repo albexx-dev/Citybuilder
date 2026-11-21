@@ -52,11 +52,12 @@ namespace Citybuilder
             return new Rect(x, HudLayout.SpeedGroupRect(screenWidth, screenHeight).y, width, HudLayout.ButtonHeight);
         }
 
-        // Узкий fallback: два ряда по две кнопки слева над подстрокой панели.
+        // Узкий fallback: два ряда по две кнопки слева над каталогом (включая вкладки).
         public static Rect MenuRowRect(float screenWidth, float screenHeight, int row)
         {
-            Rect bar = HudLayout.BottomBarRect(screenWidth, screenHeight);
-            float y = bar.y - HudLayout.SubRowOffset - HudLayout.ButtonGap - HudLayout.ButtonHeight;
+            float subTop = HudLayout.CatalogCardsRect(screenWidth, screenHeight, 1).y
+                - HudLayout.CatalogRowGap - HudLayout.ButtonHeight;
+            float y = subTop - HudLayout.ButtonGap - HudLayout.ButtonHeight;
             y -= (MenuRowCount - 1 - row) * (HudLayout.ButtonHeight + HudLayout.ButtonGap);
             float natural = NarrowColumns * HudLayout.MenuButtonWidth + (NarrowColumns - 1) * HudLayout.ButtonGap;
             float width = Mathf.Min(natural, Mathf.Max(0f, screenWidth - 2f * HudLayout.BarPadding));

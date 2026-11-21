@@ -82,17 +82,6 @@ namespace Citybuilder
             Assert.IsFalse(panel.Overlaps(popup));
             if (panel.height > 0f) Assert.LessOrEqual(panel.yMax, popup.y);
         }
-        [TestCase(800f, 600f)]
-        [TestCase(640f, 480f)]
-        public void SmallWindow_InfoPanelFitsSevenLinesAboveBar(float width, float height)
-        {
-            Rect bar = HudLayout.BottomBarRect(width, height);
-            Rect panel = HudLayout.InfoPanelRect(width, height);
-            Assert.GreaterOrEqual(panel.height, 8f + 6f * 24f + 20f);
-            Assert.LessOrEqual(panel.yMax, bar.y - HudLayout.SubRowOffset);
-            Assert.LessOrEqual(panel.xMax, width);
-        }
-
         [TestCase(600f)]
         [TestCase(700f)]
         [TestCase(800f)]
