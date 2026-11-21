@@ -3,102 +3,116 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Применение настроек шага 3 (EPIC-69): DecorEnabled прячет/показывает декор DecorManager
-    // и гасит режим стройки декора, AutosaveHours задаёт интервал AutosaveController.
+    // Применение настроек (issue #95): тумблер гасит корень ручного декора,
+    // эмбиент применяется одним путём — из SettingsView.ApplyToListeners.
     public class SettingsDecorApplyTests
     {
-        private GameObject host;
-        private GameObject prefab;
+        private GameObject decorHost;
+        private GameObject manualHost;
+        private GameObject manualRoot;
         private DecorManager decor;
+        private BuildModeMenu menu;
         private GameSettings settings;
 
         [SetUp]
         public void SetUp()
         {
-            host = new GameObject("SettingsDecorApplyTest");
-            GridVisualizer viz = host.AddComponent<GridVisualizer>();
-            viz.Width = 4; viz.Height = 2; // сетка до первого доступа к Grid: 8 клеток
-            prefab = new GameObject("TreePrefab");
-            decor = host.AddComponent<DecorManager>();
-            decor.Visualizer = viz;
-            decor.DecorPrefabs = new[] { prefab };
-            decor.Chance = 1f; // декор на каждой свободной клетке
+            decorHost = new GameObject("DecorManagerHost");
+            decor = decorHost.AddComponent<DecorManager>();
+            menu = decorHost.AddComponent<BuildModeMenu>();
+
+            manualHost = new GameObject("ManualDecorHost");
+            DecorPlacementController placer = manualHost.AddComponent<DecorPlacementController>();
+            manualRoot = new GameObject("DecorRoot");
+            manualRoot.transform.SetParent(placer.transform, false);
+            AddDecor("Tree1");
+            AddDecor("Tree2");
             settings = new GameSettings();
         }
 
         [TearDown]
         public void TearDown()
         {
-            Object.DestroyImmediate(host);
-            Object.DestroyImmediate(prefab);
+            Object.DestroyImmediate(manualHost);
+            Object.DestroyImmediate(decorHost);
         }
 
-        private static int ActiveChildren(Transform root)
+        private void AddDecor(string name)
+        {
+            GameObject tree = new GameObject(name);
+            tree.transform.SetParent(manualRoot.transform, false);
+        }
+
+        private int ActiveCount()
         {
             int count = 0;
-            foreach (Transform child in root) if (child.gameObject.activeInHierarchy) count++;
+            foreach (Transform child in manualRoot.transform) if (child.gameObject.activeInHierarchy) count++;
             return count;
         }
 
-        private Transform SpawnedDecorRoot()
+        [Test]
+        public void ManualDecor_SetAndRemove_ChangesChildren()
         {
-            Transform root = decor.transform.Find("DecorRoot");
-            Assert.IsNotNull(root, "корень декора не создан");
-            return root;
+            Assert.AreEqual(2, ActiveCount());
+            AddDecor("Tree3");
+            Assert.AreEqual(3, ActiveCount());
+            Object.DestroyImmediate(manualRoot.transform.GetChild(0).gameObject);
+            Assert.AreEqual(2, ActiveCount());
         }
 
         [Test]
-        public void SetDecorVisible_FalseThenTrue_HidesAndShowsSpawnedDecor()
+        public void ApplyDecor_DisabledHidesManualDecor_AndGatesBuildMode()
         {
-            decor.SetDecorVisible(false); // до первого спавна: только флаг, объектов ещё нет
-            Assert.IsFalse(decor.DecorVisible);
-            decor.SetDecorVisible(true); // включение: спавн 8 клеток при Chance = 1
-            Transform root = SpawnedDecorRoot();
-            Assert.AreEqual(8, ActiveChildren(root));
-
-            decor.SetDecorVisible(false);
-            Assert.IsFalse(root.gameObject.activeInHierarchy);
-            Assert.AreEqual(0, ActiveChildren(root));
-            Assert.IsFalse(decor.DecorVisible);
-
-            decor.SetDecorVisible(true);
-            Assert.IsTrue(root.gameObject.activeInHierarchy);
-            Assert.AreEqual(8, ActiveChildren(root));
-            Assert.IsTrue(decor.DecorVisible);
-        }
-
-        [Test]
-        public void ApplyDecor_FollowsSettings_AndGatesDecorBuildMode()
-        {
-            BuildModeMenu menu = host.AddComponent<BuildModeMenu>();
-            decor.SetDecorVisible(false);
-            decor.SetDecorVisible(true); // спавн: 8 клеток при Chance = 1
             menu.SetMode(BuildModeMenu.Mode.Decor);
-
             settings.DecorEnabled = false;
             SettingsAppliers.ApplyDecor(settings, decor, menu);
             Assert.IsFalse(decor.DecorVisible);
-            Assert.AreEqual(0, ActiveChildren(SpawnedDecorRoot()));
+            Assert.IsFalse(manualRoot.activeInHierarchy);
+            Assert.AreEqual(0, ActiveCount());
             Assert.IsFalse(menu.DecorBuildEnabled);
-            Assert.AreEqual(BuildModeMenu.Mode.Off, menu.CurrentMode); // активный декор-режим погас
-            menu.SetMode(BuildModeMenu.Mode.Decor); // вход в декор при выключенной настройке запрещён
+            Assert.AreEqual(BuildModeMenu.Mode.Off, menu.CurrentMode);
+            menu.SetMode(BuildModeMenu.Mode.Decor);
             Assert.AreEqual(BuildModeMenu.Mode.Off, menu.CurrentMode);
 
             settings.DecorEnabled = true;
             SettingsAppliers.ApplyDecor(settings, decor, menu);
             Assert.IsTrue(decor.DecorVisible);
-            Assert.AreEqual(8, ActiveChildren(SpawnedDecorRoot()));
-            Assert.IsTrue(menu.DecorBuildEnabled);
-            menu.SetMode(BuildModeMenu.Mode.Decor); // после включения декора режим снова доступен
+            Assert.IsTrue(manualRoot.activeInHierarchy);
+            Assert.AreEqual(2, ActiveCount());
+            menu.SetMode(BuildModeMenu.Mode.Decor);
             Assert.AreEqual(BuildModeMenu.Mode.Decor, menu.CurrentMode);
+        }
+
+        [Test]
+        public void ApplyDecor_NullSettings_KeepsManualDecor()
+        {
+            SettingsAppliers.ApplyDecor(null, decor, menu);
+            Assert.IsTrue(decor.DecorVisible);
+            Assert.IsTrue(manualRoot.activeInHierarchy);
+            Assert.AreEqual(2, ActiveCount());
+        }
+
+        [Test]
+        public void ApplyAmbient_SettingsVolume_ReachesView()
+        {
+            GameObject ambientHost = new GameObject("AmbientHost");
+            try
+            {
+                AmbientAudioView ambient = ambientHost.AddComponent<AmbientAudioView>();
+                settings.AmbientVolume = 0.35f;
+                SettingsAppliers.ApplyAmbient(settings, ambient);
+                Assert.AreEqual(0.35f, ambient.AmbientVolume, 0.0001f);
+                SettingsAppliers.ApplyAmbient(null, ambient);
+                Assert.AreEqual(0.35f, ambient.AmbientVolume, 0.0001f);
+            }
+            finally { Object.DestroyImmediate(ambientHost); }
         }
 
         [Test]
         public void ApplyAutosave_SettingsHours_BecomeControllerInterval()
         {
-            AutosaveController autosave = host.AddComponent<AutosaveController>();
+            AutosaveController autosave = decorHost.AddComponent<AutosaveController>();
             Assert.AreEqual(AutosaveController.DefaultAutosaveIntervalTicks, autosave.AutosaveIntervalTicks);
-
             settings.AutosaveHours = 60;
             SettingsAppliers.ApplyAutosave(settings, autosave);
             Assert.AreEqual(60, autosave.AutosaveIntervalTicks);
