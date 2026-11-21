@@ -8,13 +8,11 @@ namespace Citybuilder
     {
         private static readonly Dictionary<string, string[]> values = new Dictionary<string, string[]>
         {
-            // Верхние строки HUD: казна, население, часы.
             { "budget_line", new[] { "Доход: {0} $/ч - Расход: {1} $/ч = Итог: {2} $/ч", "Income: {0} $/h - Upkeep: {1} $/h = Net: {2} $/h" } },
             { "population_line", new[] { "Население: {0} / {1} — {2} домохозяйств", "Pop: {0} / {1} — {2} households" } },
             { "clock_line", new[] { "День {0}, Час {1} — {2}", "Day {0}, Hour {1} — {2}" } },
             { "clock_paused", new[] { "Пауза", "Paused" } },
             { "clock_playing", new[] { "Игра", "Playing" } },
-            // Зоны и уровни налога: строки бюджета инфоменю.
             { "zone_residential", new[] { "Жилая", "Residential" } },
             { "zone_commercial", new[] { "Коммерция", "Commercial" } },
             { "zone_industrial", new[] { "Промзона", "Industrial" } },
@@ -57,7 +55,6 @@ namespace Citybuilder
             { "load_close", new[] { "Закрыть", "Close" } },
             { "load_slot_empty", new[] { "{0} — пусто", "{0} — empty" } },
             { "load_slot_info", new[] { "{0} — День {1} ({2})", "{0} — Day {1} ({2})" } },
-            // Лента событий (issue #87): ключи регистрируются EventMessageCatalog.
             { "event_log_title", new[] { "=== События города ===", "=== City events ===" } },
             { "event_log_empty", new[] { "Событий пока нет.", "No events yet." } },
             { "event_log_prefix", new[] { "День {0}, {1:00}:00 — ", "Day {0}, {1:00}:00 — " } },
@@ -138,7 +135,10 @@ namespace Citybuilder
             { "quest_progress_police", new[] { "Полиция {0}/100", "Police {0}/100" } },
             { "quest_progress_health", new[] { "Больницы {0}/100", "Hospitals {0}/100" } },
             { "quest_progress_services", new[] { "Службы {0}/100", "Services {0}/100" } },
-            { "quest_progress_fire", new[] { "Пожарные {0}/100", "Fire {0}/100" } }
+            { "quest_progress_fire", new[] { "Пожарные {0}/100", "Fire {0}/100" } },
+            { "quest_log_title", new[] { "=== Задачи города ===", "=== City quests ===" } },
+            { "quest_log_empty", new[] { "Задач пока нет.", "No quests yet." } },
+            { "quest_reward", new[] { "(+{0}$)", "(+{0}$)" } }
         };
 
         // Перенос в фасад: исходный реестр остаётся тем же словарём, ключи не дублируются.
