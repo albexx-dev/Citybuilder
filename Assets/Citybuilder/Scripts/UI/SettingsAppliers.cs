@@ -19,5 +19,13 @@ namespace Citybuilder
             if (source == null || autosave == null) return;
             autosave.AutosaveIntervalTicks = source.AutosaveHours;
         }
+
+        // Эмбиент (хвост #71): множитель итоговой громкости кроссфейда AmbientAudioView.
+        // Профиль SettingsView.Settings читает сам AmbientAudioView на Update, как лимит машин.
+        public static void ApplyAmbient(GameSettings source, AmbientAudioView ambient)
+        {
+            if (source == null || ambient == null) return;
+            ambient.AmbientVolume = source.AmbientVolume;
+        }
     }
 }

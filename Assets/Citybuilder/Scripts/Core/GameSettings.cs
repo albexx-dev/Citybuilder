@@ -8,6 +8,7 @@ namespace Citybuilder
     public class GameSettings
     {
         public const float DefaultVolume = 0.5f;
+        public const float DefaultAmbientVolume = 1f;
         public const int DefaultAgentLimit = 12;
         public const int MinAgentLimit = 8;
         public const int MaxAgentLimit = 120;
@@ -16,6 +17,7 @@ namespace Citybuilder
         public const int MaxAutosaveHours = 120;
 
         private float volume = DefaultVolume;
+        private float ambientVolume = DefaultAmbientVolume;
         private bool muted;
         private int agentLimit = DefaultAgentLimit;
         private bool decorEnabled = true;
@@ -35,6 +37,13 @@ namespace Citybuilder
         {
             get { return muted; }
             set { Set(ref muted, value); }
+        }
+
+        // Множитель громкости эмбиента AmbientAudioView (0..1), дефолт 1 — как в EPIC-71.
+        public float AmbientVolume
+        {
+            get { return ambientVolume; }
+            set { Set(ref ambientVolume, ClampVolume(value)); }
         }
 
         public int AgentLimit
@@ -83,9 +92,11 @@ namespace Citybuilder
         // Кнопка «По умолчанию»: одно событие на весь сброс, если что-то изменилось.
         public void ResetToDefaults()
         {
-            bool changed = volume != DefaultVolume || muted || agentLimit != DefaultAgentLimit
-                || !decorEnabled || !dayNightEnabled || autosaveHours != DefaultAutosaveHours;
+            bool changed = volume != DefaultVolume || ambientVolume != DefaultAmbientVolume || muted
+                || agentLimit != DefaultAgentLimit || !decorEnabled || !dayNightEnabled
+                || autosaveHours != DefaultAutosaveHours;
             volume = DefaultVolume;
+            ambientVolume = DefaultAmbientVolume;
             muted = false;
             agentLimit = DefaultAgentLimit;
             decorEnabled = true;

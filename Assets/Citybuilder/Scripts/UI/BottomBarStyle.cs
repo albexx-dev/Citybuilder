@@ -1,15 +1,19 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Citybuilder
 {
     // Единый стиль нижней панели действий (EPIC-13): тёмная подложка и кнопки без расползания стилей.
-    // EPIC-66: кнопки с иконкой слева и тултипы при наведении.
+    // EPIC-66: кнопки с иконкой слева и тултипы при наведении; хвост #66 — с задержкой 0.4 с.
     public static class BottomBarStyle
     {
         private static readonly Color BarBackground = new Color(0f, 0f, 0f, 0.72f);
         private static readonly Color SubBarBackground = new Color(0f, 0f, 0f, 0.58f);
         private static readonly Color IconTint = new Color(0.12f, 0.12f, 0.12f, 0.92f);
         private const float TooltipGap = 4f;
+
+        // Время наведения по кнопке (ключ — Rect): заполнение ведёт TooltipHoverPolicy.Track.
+        private static readonly Dictionary<Rect, float> hoverStarts = new Dictionary<Rect, float>();
 
         // Тёмная полоса панели на всю ширину.
         public static void DrawBarBackground(Rect rect)
@@ -68,10 +72,11 @@ namespace Citybuilder
         }
 
         // Тултип над кнопкой при наведении: только в OnGUI-пути, пустой текст молча пропускается.
+        // Хвост #66: показывается после TooltipHoverPolicy.HoverDelaySeconds на кнопке.
         public static void DrawTooltip(Rect rect, string text)
         {
             if (string.IsNullOrEmpty(text) || Event.current == null) return;
-            if (!rect.Contains(Event.current.mousePosition)) return;
+            if (!TooltipHoverPolicy.Track(hoverStarts, rect, Event.current.mousePosition, Time.unscaledTime)) return;
             Vector2 size = GUI.skin.label.CalcSize(new GUIContent(text));
             GUI.Box(TooltipRect(rect, size.x + 10f, size.y + 4f, Screen.width, Screen.height), text);
         }

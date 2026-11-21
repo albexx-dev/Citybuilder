@@ -25,6 +25,8 @@ namespace Citybuilder
         public float CrossfadeSeconds = 2f;
         [Tooltip("Население полностью активного города (цель 200 из HUD).")]
         public int ReferencePopulation = 200;
+        [Tooltip("Множитель итоговой громкости эмбиента 0..1 (слайдер «Эмбиент» в настройках).")]
+        public float AmbientVolume = 1f;
 
         private const float DayHumDepth = 0.08f;
         private const float DayHumRate = 0.45f;
@@ -33,6 +35,7 @@ namespace Citybuilder
 
         private AudioSource daySource;
         private AudioSource nightSource;
+        private SettingsView settingsView;
         private float dayTarget;
         private float nightTarget;
         private float dayCurrent;
@@ -56,8 +59,15 @@ namespace Citybuilder
         private void Update()
         {
             ResolveRefs();
+            ApplyAmbientFromProfile();
             UpdateTargets();
             SmoothVolumes();
+        }
+
+        // Слайдер «Эмбиент» (хвост #71): профиль читаем каждый кадр, как лимит машин в VehicleAgentHost.
+        private void ApplyAmbientFromProfile()
+        {
+            if (settingsView != null) SettingsAppliers.ApplyAmbient(settingsView.Settings, this);
         }
 
         // Активность города: доля населения от референса, clamp 0..1 (бриф #71).
@@ -85,14 +95,15 @@ namespace Citybuilder
             nightTarget = Mathf.Clamp01(mix.NightVolume * (1f + NightHumDepth * Mathf.Sin(Time.unscaledTime * NightHumRate)));
         }
 
-        // Плавный кроссфейд: экспоненциальное приближение к целям за CrossfadeSeconds.
+        // Плавный кроссфейд: экспоненциальное приближение к целям за CrossfadeSeconds,
+        // итоговая громкость умножается на AmbientVolume из настроек (хвост #71).
         private void SmoothVolumes()
         {
             float step = 1f - Mathf.Exp(-Time.unscaledDeltaTime / Mathf.Max(0.01f, CrossfadeSeconds));
             dayCurrent = Mathf.Lerp(dayCurrent, dayTarget, step);
             nightCurrent = Mathf.Lerp(nightCurrent, nightTarget, step);
-            if (daySource != null) daySource.volume = dayCurrent;
-            if (nightSource != null) nightSource.volume = nightCurrent;
+            if (daySource != null) daySource.volume = dayCurrent * AmbientVolume;
+            if (nightSource != null) nightSource.volume = nightCurrent * AmbientVolume;
         }
 
         // Источник эмбиента создаётся кодом на ДОЧЕРНЕМ объекте: AudioController.cs:55
@@ -119,6 +130,7 @@ namespace Citybuilder
         {
             if (DayNight == null) DayNight = FindFirstObjectByType<DayNightController>();
             if (Population == null) Population = FindFirstObjectByType<PopulationController>();
+            if (settingsView == null) settingsView = FindFirstObjectByType<SettingsView>();
         }
     }
 }
