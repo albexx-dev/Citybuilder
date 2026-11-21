@@ -28,8 +28,8 @@ namespace Citybuilder
             // На узких окнах ряд сжимается — ширина не больше натуральной, но панель не наезжает.
             float natural = SettingsLayout.MenuButtonCount * HudLayout.MenuButtonWidth
                 + (SettingsLayout.MenuButtonCount - 1) * HudLayout.ButtonGap;
-            Assert.That(menu.width, Is.LessThanOrEqualTo(natural).Within(0.01f));
-            Assert.That(menu.xMax, Is.LessThanOrEqualTo(width - HudLayout.BarPadding).Within(0.01f));
+            Assert.That(menu.width, Is.LessThanOrEqualTo(natural + 0.01f));
+            Assert.That(menu.xMax, Is.LessThanOrEqualTo(width - HudLayout.BarPadding + 0.01f));
             Assert.Less(HudLayout.ModeGroupRect(width, height).xMax, menu.x);
         }
     }
