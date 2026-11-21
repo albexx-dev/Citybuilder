@@ -66,6 +66,13 @@ namespace Citybuilder
             return !infoMenuOpen && !eventLogOpen;
         }
 
+        // Задачи и настройки (EPIC-48/69) занимают тот же правый верх и перехватывают клики (issue #98).
+        // Старая 2-аргументная перегрузка сохранена для прежних вызывающих.
+        public static bool IsMinimapVisible(bool infoMenuOpen, bool eventLogOpen, bool questsOpen, bool settingsOpen)
+        {
+            return !infoMenuOpen && !eventLogOpen && !questsOpen && !settingsOpen;
+        }
+
         private static int CellToAxis(int cell, int gridSize, int textureSize)
         {
             int grid = SafeSize(gridSize);

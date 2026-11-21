@@ -32,7 +32,7 @@ namespace Citybuilder
             DrawMenuGroup(SettingsLayout.MenuButtonsRect(sw, sh));
             BuildCatalogView.ResetGuards();
             DrawSubRow(sw, sh);
-            MinimapView.Draw(InfoMenu != null && InfoMenu.IsOpen, EventLog != null && EventLog.IsOpen);
+            MinimapView.Draw(InfoMenu != null && InfoMenu.IsOpen, EventLog != null && EventLog.IsOpen, QuestLog != null && QuestLog.IsOpen, Settings != null && Settings.IsOpen);
         }
 
         private void ResolveRefs()

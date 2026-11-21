@@ -60,6 +60,17 @@ namespace Citybuilder
             Assert.AreEqual(expected, HudLayout.IsMinimapVisible(infoMenuOpen, eventLogOpen));
         }
 
+        [TestCase(false, false, false, false, true)]
+        [TestCase(false, false, true, false, false)]
+        [TestCase(false, false, false, true, false)]
+        [TestCase(true, true, true, true, false)]
+        [TestCase(false, true, false, false, false)]
+        public void IsMinimapVisible_QuestsOrSettingsOpen_HidesWindow(bool infoMenuOpen, bool eventLogOpen, bool questsOpen, bool settingsOpen, bool expected)
+        {
+            Assert.AreEqual(expected, MinimapMapping.IsMinimapVisible(infoMenuOpen, eventLogOpen, questsOpen, settingsOpen));
+            Assert.AreEqual(!infoMenuOpen && !eventLogOpen, MinimapMapping.IsMinimapVisible(infoMenuOpen, eventLogOpen));
+        }
+
         [Test]
         public void FocusOn_MovesCameraOverWorldPoint_AndKeepsHeightAndYaw()
         {
