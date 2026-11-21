@@ -17,6 +17,7 @@ namespace Citybuilder
 
         public void SetDecorVisible(bool visible)
         {
+            if (decorVisible == visible) return;
             decorVisible = visible;
             ToggleRoot(OwnRoot(), visible);
             ToggleRoot(ResolveManualRoot(), visible);
