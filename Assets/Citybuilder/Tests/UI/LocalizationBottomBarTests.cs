@@ -43,7 +43,7 @@ namespace Citybuilder
             AssertRuEn("bottom_speed_play", "Игра", "Play");
             AssertRuEn("bottom_speed_fast", "x4", "x4");
             AssertRuEn("bottom_mode_off", "Выкл [Esc]", "Off [Esc]");
-            AssertRuEn("bottom_mode_houses", "Дома [1]", "Houses [1]");
+            AssertRuEn("bottom_mode_houses", "Здания [1]", "Buildings [1]");
             AssertRuEn("bottom_mode_roads", "Дороги [2]", "Roads [2]");
             AssertRuEn("bottom_mode_zones", "Зоны [3]", "Zones [3]");
             AssertRuEn("bottom_mode_growth", "Рост [4]", "Growth [4]");
@@ -61,16 +61,16 @@ namespace Citybuilder
             AssertRuEn("bottom_tip_speed_play", "Обычная скорость", "Normal speed");
             AssertRuEn("bottom_tip_speed_fast", "Ускорение x4", "Fast forward x4");
             AssertRuEn("bottom_tip_mode_off", "Выйти из режима стройки", "Exit build mode");
-            AssertRuEn("bottom_tip_mode_houses", "Строить дома", "Build houses");
+            AssertRuEn("bottom_tip_mode_houses", "Строить здания", "Build buildings");
             AssertRuEn("bottom_tip_mode_roads", "Строить дороги", "Build roads");
             AssertRuEn("bottom_tip_mode_zones", "Красить зоны", "Paint zones");
-            AssertRuEn("bottom_tip_mode_growth", "Ускорять рост домов", "Speed up house growth");
+            AssertRuEn("bottom_tip_mode_growth", "Ускорять рост зданий", "Speed up building growth");
             AssertRuEn("bottom_tip_mode_decor", "Декорации", "Decorations");
             AssertRuEn("bottom_tip_menu_stats", "Сводка города", "City overview");
             AssertRuEn("bottom_tip_menu_feed", "События города", "City events");
             AssertRuEn("bottom_tip_menu_quests", "Задачи-вехи", "Milestone quests");
             AssertRuEn("bottom_tip_menu_settings", "Настройки игры", "Game settings");
-            AssertRuEn("bottom_tip_brush_residential", "Жилая зона: растут дома", "Residential zone: houses grow");
+            AssertRuEn("bottom_tip_brush_residential", "Жилая зона: растут здания", "Residential zone: buildings grow");
             AssertRuEn("bottom_tip_brush_commercial", "Коммерция: магазины", "Commercial: shops");
             AssertRuEn("bottom_tip_brush_industrial", "Промзона: заводы", "Industrial: factories");
         }
