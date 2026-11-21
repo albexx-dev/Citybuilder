@@ -36,6 +36,20 @@ namespace Citybuilder
             get { return starters; }
         }
 
+        // Поиск задачи по id для восстановления слота (QuestSnapshot): стартовые и полный сервис.
+        // Вехи (q_res_ms_N) не ищутся: неизвестный id — false, их добирает Fill на тике.
+        public static bool TryFind(string id, out QuestDefinition quest)
+        {
+            quest = default(QuestDefinition);
+            if (string.IsNullOrEmpty(id)) return false;
+            if (ServicesAllId == id) { quest = ServicesAll; return true; }
+            for (int i = 0; i < starters.Length; i++)
+            {
+                if (starters[i].Id == id) { quest = starters[i]; return true; }
+            }
+            return false;
+        }
+
         private static readonly QuestDefinition ServicesAll = new QuestDefinition(ServicesAllId,
             "Полный сервис", "Накрой все дома всеми службами: пожарные, полиция, больницы, досуг.", 1500,
             c => c.FireCoverage >= 1f && c.PoliceCoverage >= 1f && c.HealthCoverage >= 1f && c.LeisureCoverage >= 1f);

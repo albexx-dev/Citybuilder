@@ -63,5 +63,9 @@ namespace Citybuilder
         public List<RoadEntry> Roads = new List<RoadEntry>();
         // Ручные здания игрока (v3): те, что поставлены мышью, а не выросли.
         public List<BuildingEntry> ManualBuildings = new List<BuildingEntry>();
+        // v5 (хвост #48): цепочка квестов — id активных и выполненных задач. Поля опциональны:
+        // старый слот без них читается пустыми списками — цепочка стартует заново.
+        public List<string> QuestActive = new List<string>();
+        public List<string> QuestCompleted = new List<string>();
     }
 }
