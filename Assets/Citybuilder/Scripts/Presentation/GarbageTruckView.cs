@@ -4,12 +4,9 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Вид мусоровозов (EPIC-52): владеет GarbageTicker (как QuestLogView владеет
-    // QuestTicker, ADR-012) и пулом моделей GarbageTruckPool. На TickCompleted подаёт
-    // дома, полигон, ленту и делегат дорог RouteSystem.FindPath, в Update двигает и
-    // рисует мусоровозы. Полигон — ручная постройка с признаком депо (issue #90);
-    // нет полигона — мусоровозы не выезжают, мусор копится. Из нескольких депо
-    // GarbageTrucks.SelectDepot выбирает самое ёмкое.
+    // Вид мусоровозов (EPIC-52): GarbageTicker + пул GarbageTruckPool, тик даёт дома, депо,
+    // ленту и делегат дорог RouteSystem.FindPath. Полигон — ручная постройка с IsWasteDepot
+    // (issue #90); нет полигона — вывоза нет, из нескольких депо берётся самое ёмкое.
     public class GarbageTruckView : MonoBehaviour
     {
         [Header("References")]
@@ -32,22 +29,24 @@ namespace Citybuilder
         private readonly GarbageTicker ticker = new GarbageTicker();
         private GarbageTruckPool pool;
         private bool subscribed;
+        private GridPosition? cachedDepot;
 
         // Строка HUD для InfoMenuView (эпик #52): очередь вывоза и мусоровозы в пути.
-        public string ServiceText
-        {
-            get { return "Вывоз мусора: ждут домов " + ticker.Garbage.WaitingCount + ", в пути " + ticker.Garbage.ActiveTrucks; }
-        }
+        public string ServiceText => "Вывоз мусора: ждут домов " + ticker.Garbage.WaitingCount + ", в пути " + ticker.Garbage.ActiveTrucks;
 
         // Домен вывоза для записи/восстановления v6 (ADR-014) и оверлея #94.
         public GarbageSystem Garbage { get { return ticker.Garbage; } }
-        public bool HasDepot { get { return FindDepot().HasValue; } }
+        // Кэш: FindDepot allocates List и сканирует Placed, а HasDepot зовётся каждый кадр оверлеем.
+        public bool HasDepot { get { return cachedDepot.HasValue; } }
 
         // Сброс по команде LoadController.ClearAll; также срабатывает при отмотке часов.
         public void ResetGarbage()
         {
             ticker.Reset();
+            RefreshDepot();
         }
+
+        public void RefreshDepot() { cachedDepot = FindDepot(); }
 
         private void OnEnable()
         {
@@ -96,14 +95,13 @@ namespace Citybuilder
         private void OnClockTick(SimulationTime time)
         {
             if (Economy == null || Economy.Growth == null) return;
-            ticker.Tick((int)time.TickCount, Economy.Growth.Homes, FindDepot(),
+            RefreshDepot();
+            ticker.Tick((int)time.TickCount, Economy.Growth.Homes, cachedDepot,
                 Economy.EventLog != null ? Economy.EventLog.Log : null, RouteFinder());
         }
 
-        // Делегат дорог из CongestionController.Routes. Клетки депо/домов — НЕ дорожные,
-        // а RouteSystem.FindPath требует дороги на обоих концах: концы ноги маппятся на
-        // ближайшие дорожные клетки (ревью task/214 — «по дорогам» в живой сцене).
-        // Конгестион отсутствует или не готов — null-делегат, GarbageTrucks считает прямой L-маршрут.
+        // Концы ноги маппятся на ближайшие дорожные клетки: FindPath требует дорог (ревью task/214).
+        // Нет конгестиона — null-делегат, GarbageTrucks считает прямой L-маршрут.
         private Func<GridPosition, GridPosition, List<GridPosition>> RouteFinder()
         {
             if (Congestion == null) Congestion = FindFirstObjectByType<CongestionController>();
@@ -134,8 +132,7 @@ namespace Citybuilder
             return best < int.MaxValue;
         }
 
-        // Депо = ручная постройка с IsWasteDepot. Нет депо — null (вывоза нет);
-        // несколько — GarbageTrucks.SelectDepot берёт самое ёмкое (issue #90).
+        // Депо = ручная постройка с IsWasteDepot; несколько — SelectDepot берёт самое ёмкое.
         private GridPosition? FindDepot()
         {
             if (Economy == null || Economy.Placement == null || Economy.Placement.Placed == null) return null;

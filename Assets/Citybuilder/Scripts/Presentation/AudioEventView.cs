@@ -39,6 +39,17 @@ namespace Citybuilder
         private string lastEventKey = "";
         private float nextPollTime;
 
+        // Новая игра/загрузка (LoadController.ClearAll): кулдауны и ключ ленты — с чистого листа.
+        public void Reset()
+        {
+            fireCooldown.Reset();
+            crimeCooldown.Reset();
+            garbageCooldown.Reset();
+            blackoutCooldown.Reset();
+            lastEventKey = "";
+            nextPollTime = 0f;
+        }
+
         private void Awake()
         {
             // Источник на ДОЧЕРНЕМ GO: AudioController.cs:55 берёт GetComponent<AudioSource>

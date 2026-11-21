@@ -76,6 +76,13 @@ namespace Citybuilder
             return null;
         }
 
+        private void OnDestroy()
+        {
+            foreach (KeyValuePair<EntityId, GameObject> pair in flames) DestroySafe(pair.Value);
+            flames.Clear();
+            DestroySafe(flameMaterial);
+        }
+
         private void HideGone(List<EntityId> burning)
         {
             List<EntityId> gone = new List<EntityId>();
