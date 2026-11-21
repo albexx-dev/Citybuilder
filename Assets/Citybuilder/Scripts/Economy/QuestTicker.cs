@@ -20,19 +20,21 @@ namespace Citybuilder
         {
             if (tick < lastTick)
             {
-                // Время отмотано назад («Новая игра»/загрузка): квесты не сериализуются
-                // до v5 (#64) — начинаем цепочку заново.
+                // Время отмотано назад без команды сброса (страховка): начинаем цепочку заново.
+                // Обычные «Новая игра»/загрузка идут через Reset — см. QuestLogView.ResetQuests.
                 quests.Reset();
             }
             lastTick = tick;
             quests.Tick(tick, BuildContext(population, buildings, coverage, treasury), treasury, log);
         }
 
-        // Сброс по команде QuestLogView (LoadController.ClearAll); также срабатывает
-        // при отмотке времени назад — квесты не сериализуются до v5 (#64).
+        // Сброс по команде QuestLogView (LoadController.ClearAll). Обнуляет и lastTick:
+        // без этого первый тик после загрузки слота с меньшим номером тика считался бы
+        // «отмоткой» и стёр бы цепочку, восстановленную из слота v5 (QuestSnapshot).
         public void Reset()
         {
             quests.Reset();
+            lastTick = 0;
         }
 
         // Снимок города: нет системы — безопасные нули, покрытие без снимка — 1.
