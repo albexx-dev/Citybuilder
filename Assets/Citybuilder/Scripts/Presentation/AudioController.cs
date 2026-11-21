@@ -13,7 +13,7 @@ namespace Citybuilder
         [Tooltip("Источник звука для UI. Если пусто — создаётся автоматически.")] public AudioSource Source;
         [Header("Clips")]
         [Tooltip("Короткий тик по кнопке.")] public AudioClip ClickClip;
-        [Tooltip("Мягкий звон при сборе налога.")] public AudioClip CoinClip;
+        [Tooltip("Звон награды за ступень цели.")] public AudioClip CoinClip;
         [Tooltip("Тихий поп события в ленте.")] public AudioClip PopClip;
         [Tooltip("Лёгкий свуш открытия/закрытия меню.")] public AudioClip SwooshClip;
 
