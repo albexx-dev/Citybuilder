@@ -16,6 +16,7 @@ namespace Citybuilder
         [Tooltip("Налоговая политика. Пусто = обычный налог в слот.")] public TaxPolicyView Policy;
         [Tooltip("Ручные здания. Пусто = ищется в сцене.")] public BuildingPlacementController Placement;
         [Tooltip("Ступень цели. Пусто = ищется в сцене.")] public GoalView Goal;
+        [Tooltip("Панель задач. Пусто = ищется в сцене.")] public QuestLogView QuestLog;
 
         private long lastManualSaveTick = -1;
         private bool isDirty;
@@ -58,6 +59,8 @@ namespace Citybuilder
                 ReadBalance(), ReadTicks(), CollectRoads(), ReadTaxLevel(), CollectManual(), goalStage);
             // v5: раздельные ставки трёх зон пишутся из политики, уровни зданий уже в снапшоте.
             SnapshotTaxRates.Write(snapshot, Policy == null ? null : Policy.Policy);
+            // v5 (хвост #48): цепочка квестов — id активных и выполненных задач.
+            QuestSnapshot.Write(QuestLog == null ? null : QuestLog.Quests, snapshot);
             return snapshot;
         }
 
@@ -72,6 +75,7 @@ namespace Citybuilder
             if (Policy == null) Policy = FindFirstObjectByType<TaxPolicyView>();
             if (Placement == null) Placement = FindFirstObjectByType<BuildingPlacementController>();
             if (Goal == null) Goal = FindFirstObjectByType<GoalView>();
+            if (QuestLog == null) QuestLog = FindFirstObjectByType<QuestLogView>();
         }
 
         private List<BuildingState> CollectHomes()

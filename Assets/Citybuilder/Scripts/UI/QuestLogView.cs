@@ -31,9 +31,11 @@ namespace Citybuilder
         }
 
         // Сброс цепочки (новая игра/загрузка слота) — зовётся из LoadController.ClearAll.
+        // Через тикер: вместе с задачами снимается «отмотка» lastTick, иначе первый тик
+        // после загрузки слота с меньшим номером тика стёр бы восстановленную цепочку.
         public void ResetQuests()
         {
-            Quests.Reset();
+            questTicker.Reset();
             scroll = Vector2.zero;
         }
 

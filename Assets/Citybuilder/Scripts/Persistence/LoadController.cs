@@ -150,6 +150,10 @@ namespace Citybuilder
             if (Policy != null) SnapshotTaxRates.ApplyTo(snapshot, Policy.Policy);
             GoalView goal = FindFirstObjectByType<GoalView>();
             if (goal != null) goal.RestoreStage(snapshot.GoalStage);
+            // Хвост #48: квесты после сброса в ClearAll — активные и выполненные из слота v5.
+            // Пустые списки (старый слот) — цепочка стартует заново на следующем тике.
+            QuestLogView questLog = FindFirstObjectByType<QuestLogView>();
+            if (questLog != null) QuestSnapshot.Apply(snapshot, questLog.Quests);
         }
     }
 }

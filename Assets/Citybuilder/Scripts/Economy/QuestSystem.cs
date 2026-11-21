@@ -10,10 +10,6 @@ namespace Citybuilder
     {
         public const int MaxActive = 3;
 
-        private const string ResPrefix = "q_res";
-        private const string GrowPrefix = "q_grow";
-        private const string BalancePrefix = "q_balance";
-        private const string ParkPrefix = "q_park";
         private readonly List<QuestDefinition> active = new List<QuestDefinition>(MaxActive);
         private readonly HashSet<string> completed = new HashSet<string>();
 
@@ -30,6 +26,45 @@ namespace Citybuilder
         public int CompletedCount
         {
             get { return completed.Count; }
+        }
+
+        // Шов сейва v5 (QuestSnapshot.Write): копия id активных задач, в порядке панели.
+        public List<string> ActiveIds
+        {
+            get { return IdsOf(active); }
+        }
+
+        // Шов сейва v5: живой набор выполненных id; врайтер пишет его копию.
+        public IReadOnlyCollection<string> CompletedIds
+        {
+            get { return completed; }
+        }
+
+        // Восстановление слота (QuestSnapshot.Apply): выполненные id попадают в набор
+        // без наград и событий — задача не выполнится повторно.
+        public void RestoreCompleted(IEnumerable<string> ids)
+        {
+            if (ids == null) return;
+            foreach (string id in ids)
+            {
+                if (!string.IsNullOrEmpty(id)) completed.Add(id);
+            }
+        }
+
+        // Восстановление слота: активные заменяются найденными в каталоге задачами.
+        // Неизвестный id (веха) или уже выполненный тихо пропускается; недостающие
+        // до лимита добирает Fill на следующем тике.
+        public void RestoreActive(IEnumerable<string> ids)
+        {
+            if (ids == null) return;
+            active.Clear();
+            foreach (string id in ids)
+            {
+                if (active.Count >= MaxActive) break;
+                if (completed.Contains(id)) continue; // битый слот: id в двух списках — награда не должна повториться
+                QuestDefinition quest;
+                if (QuestCatalog.TryFind(id, out quest)) active.Add(quest);
+            }
         }
 
         // Последний снимок города с тика: источник прогресса для QuestLogView.
@@ -73,48 +108,12 @@ namespace Citybuilder
             LastContext = default(QuestContext);
         }
 
-        // Строка прогресса для панели задач («Жители 12/50»); у задачи без цели — null.
+        // Строка прогресса для панели задач: реализация переехала в QuestProgressText
+        // при сплите файла (лимит 150 строк), шов оставлен для панели и тестов.
         public static string ProgressLine(QuestDefinition quest, QuestContext context)
         {
-            string id = quest.Id;
-            if (string.IsNullOrEmpty(id)) return null;
-            int target = ParseTarget(id);
-            if (id.StartsWith(ResPrefix) && target > 0) return "Жители " + context.Residents + "/" + target;
-            if (id.StartsWith(GrowPrefix) && target > 0) return "Здания " + context.Buildings + "/" + target;
-            if (id.StartsWith(BalancePrefix) && target > 0) return "Баланс " + context.Balance + "/" + target;
-            if (id.StartsWith(ParkPrefix) && target > 0) return "Парки " + context.Parks + "/" + target;
-            return CoverLine(id, context);
+            return QuestProgressText.ProgressLine(quest, context);
         }
-
-        // Квесты покрытия: процент домов под службой против 100%.
-        private static string CoverLine(string id, QuestContext context)
-        {
-            if (id == QuestCatalog.PoliceCoverId) return "Полиция " + Percent(context.PoliceCoverage) + "/100";
-            if (id == QuestCatalog.HealthCoverId) return "Больницы " + Percent(context.HealthCoverage) + "/100";
-            if (id == QuestCatalog.ServicesAllId) return "Службы " + Percent(WorstCoverage(context)) + "/100";
-            return "Пожарные " + Percent(context.FireCoverage) + "/100";
-        }
-
-        // Цель закодирована в id: q_res_50 → 50, q_res_ms_250 → 250, иначе 0.
-        private static int ParseTarget(string id)
-        {
-            int underscore = id.LastIndexOf('_');
-            int target = 0;
-            if (underscore >= 0) int.TryParse(id.Substring(underscore + 1), out target);
-            return target;
-        }
-
-        private static float WorstCoverage(QuestContext context)
-        {
-            float worst = context.FireCoverage;
-            if (context.PoliceCoverage < worst) worst = context.PoliceCoverage;
-            if (context.HealthCoverage < worst) worst = context.HealthCoverage;
-            if (context.LeisureCoverage < worst) worst = context.LeisureCoverage;
-            return worst;
-        }
-
-        // Процент 0..100 без Unity: округление половиной вверх.
-        private static int Percent(float coverage) { return (int)(coverage * 100f + 0.5f); }
 
         // Выполнение ровно один раз: id в выполненные, награда казне, событие в ленту.
         // Само событие QuestCompleted стреляет позже — из FireCompleted после мутаций.
@@ -135,15 +134,15 @@ namespace Citybuilder
             while (active.Count < MaxActive)
             {
                 QuestDefinition next;
-                if (!QuestCatalog.TryNext(context, completed, ActiveIds(), out next)) break;
+                if (!QuestCatalog.TryNext(context, completed, IdsOf(active), out next)) break;
                 active.Add(next);
             }
         }
 
-        private List<string> ActiveIds()
+        private static List<string> IdsOf(List<QuestDefinition> quests)
         {
-            List<string> ids = new List<string>(active.Count);
-            for (int i = 0; i < active.Count; i++) ids.Add(active[i].Id);
+            List<string> ids = new List<string>(quests.Count);
+            for (int i = 0; i < quests.Count; i++) ids.Add(quests[i].Id);
             return ids;
         }
     }
