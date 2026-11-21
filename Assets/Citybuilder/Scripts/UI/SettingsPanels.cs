@@ -9,7 +9,7 @@ namespace Citybuilder
     {
         public static void DrawSound(GameSettings s, float x, ref float y)
         {
-            HudText.Draw(x, y, "Звук");
+            HudText.Draw(x, y, Localization.T("settings_section_sound"));
             y += 24f;
             HudText.Draw(x, y, SettingsLayout.VolumeLabel(s.Volume));
             float next = GUI.HorizontalSlider(new Rect(x + 150f, y + 6f, 240f, 20f), s.Volume, 0f, 1f);
@@ -19,24 +19,24 @@ namespace Citybuilder
             float ambient = GUI.HorizontalSlider(new Rect(x + 150f, y + 6f, 240f, 20f), s.AmbientVolume, 0f, 1f);
             if (Mathf.Abs(ambient - s.AmbientVolume) > 0.001f) s.AmbientVolume = ambient;
             y += 28f;
-            bool muted = GUI.Toggle(new Rect(x, y, 220f, 22f), s.Muted, " Без звука");
+            bool muted = GUI.Toggle(new Rect(x, y, 220f, 22f), s.Muted, " " + Localization.T("settings_mute"));
             if (muted != s.Muted) s.Muted = muted;
             y += 28f;
         }
 
         public static void DrawGameplay(GameSettings s, float x, ref float y)
         {
-            HudText.Draw(x, y, "Качество и агенты");
+            HudText.Draw(x, y, Localization.T("settings_section_quality"));
             y += 24f;
             DrawStepper(x, ref y, SettingsLayout.AgentLimitLabel(s.AgentLimit), s.AgentLimit,
                 GameSettings.MinAgentLimit, GameSettings.MaxAgentLimit, SettingsLayout.AgentStep, v => s.AgentLimit = v);
-            bool decor = GUI.Toggle(new Rect(x, y, 320f, 22f), s.DecorEnabled, " Декор на свободных клетках");
+            bool decor = GUI.Toggle(new Rect(x, y, 320f, 22f), s.DecorEnabled, " " + Localization.T("settings_decor"));
             if (decor != s.DecorEnabled) s.DecorEnabled = decor;
             y += 26f;
-            bool dayNight = GUI.Toggle(new Rect(x, y, 220f, 22f), s.DayNightEnabled, "День и ночь");
+            bool dayNight = GUI.Toggle(new Rect(x, y, 220f, 22f), s.DayNightEnabled, Localization.T("settings_day_night"));
             if (dayNight != s.DayNightEnabled) s.DayNightEnabled = dayNight;
             y += 28f;
-            HudText.Draw(x, y, "Игра");
+            HudText.Draw(x, y, Localization.T("settings_section_game"));
             y += 24f;
             DrawStepper(x, ref y, SettingsLayout.AutosaveLabel(s.AutosaveHours), s.AutosaveHours,
                 GameSettings.MinAutosaveHours, GameSettings.MaxAutosaveHours, SettingsLayout.AutosaveStep, v => s.AutosaveHours = v);
@@ -55,14 +55,14 @@ namespace Citybuilder
 
         public static void DrawFooter(GameSettings s, SettingsView view, TutorialView tutorial, float x, float y)
         {
-            if (BottomBarStyle.DrawButton(new Rect(x, y, 200f, 30f), "По умолчанию", false)) s.ResetToDefaults();
-            if (BottomBarStyle.DrawButton(new Rect(x + 216f, y, 200f, 30f), "Назад в паузу [Esc]", false)) view.ReturnToPause();
-            if (BottomBarStyle.DrawButton(new Rect(x, y + 38f, 240f, 30f), "Повторить обучение", false))
+            if (BottomBarStyle.DrawButton(new Rect(x, y, 200f, 30f), Localization.T("settings_defaults"), false)) s.ResetToDefaults();
+            if (BottomBarStyle.DrawButton(new Rect(x + 216f, y, 200f, 30f), Localization.T("settings_back"), false)) view.ReturnToPause();
+            if (BottomBarStyle.DrawButton(new Rect(x, y + 38f, 240f, 30f), Localization.T("settings_replay_tutorial"), false))
             {
                 if (tutorial != null) tutorial.ResetTutorial();
                 view.Close();
             }
-            HudText.Draw(x, y + 76f, "Управление: WASD / Q E / колесо / ЛКМ");
+            HudText.Draw(x, y + 76f, Localization.T("settings_controls"));
         }
     }
 }

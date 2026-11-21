@@ -104,23 +104,23 @@ namespace Citybuilder
 
         public static string VolumeLabel(float volume)
         {
-            return "Громкость: " + Mathf.RoundToInt(volume * 100f) + "%";
+            return Localization.T("pause_volume", Mathf.RoundToInt(volume * 100f));
         }
 
         // Подпись слайдера эмбиента: тот же формат 0..100%, что у общей громкости (хвост #71).
         public static string AmbientLabel(float ambientVolume)
         {
-            return "Эмбиент: " + Mathf.RoundToInt(ambientVolume * 100f) + "%";
+            return Localization.T("settings_ambient", Mathf.RoundToInt(ambientVolume * 100f));
         }
 
         public static string AgentLimitLabel(int limit)
         {
-            return "Машины: лимит " + limit;
+            return Localization.T("settings_agent_limit", limit);
         }
 
         public static string AutosaveLabel(int hours)
         {
-            return "Автосейв: каждые " + hours + " ч";
+            return Localization.T("settings_autosave", hours);
         }
     }
 }

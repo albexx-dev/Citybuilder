@@ -132,11 +132,11 @@ namespace Citybuilder
         private void DrawQuests(QuestSystem quests)
         {
             float y = 4f;
-            HudText.Draw(4f, y, "=== Задачи города ===");
+            HudText.Draw(4f, y, Localization.T("quest_log_title"));
             y += LineHeight;
             if (quests == null || quests.Active.Count == 0)
             {
-                HudText.Draw(12f, y, "Задач пока нет.");
+                HudText.Draw(12f, y, Localization.T("quest_log_empty"));
                 return;
             }
             for (int i = 0; i < quests.Active.Count; i++)
@@ -148,7 +148,7 @@ namespace Citybuilder
         // Строка задачи: титул с наградой, описание и прогресс («Жители 12/50»).
         private static float DrawQuest(float y, QuestDefinition quest, QuestContext context)
         {
-            HudText.Draw(12f, y, quest.Title + "  (+" + quest.Reward + "$)");
+            HudText.Draw(12f, y, quest.Title + "  " + Localization.T("quest_reward", quest.Reward));
             HudText.Draw(20f, y + LineHeight, quest.Description);
             string progress = QuestSystem.ProgressLine(quest, context);
             if (progress == null) return y + LineHeight * 2f;

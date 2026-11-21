@@ -116,31 +116,32 @@ namespace Citybuilder
 
         private void DrawLines(float x, float y)
         {
-            HudText.Draw(x, y, "=== " + BuildingDisplayName.Of(current) + " ===");
+            HudText.Draw(x, y, Localization.T("info_panel_title", BuildingDisplayName.Of(current)));
             y += 24f;
-            HudText.Draw(x, y, "Стоимость: $" + current.Cost + " • Содержание: $" + current.UpkeepPerHour + "/ч");
+            HudText.Draw(x, y, Localization.T("info_panel_cost", current.Cost, current.UpkeepPerHour));
             y += 24f;
             if (current.Capacity > 0)
             {
-                HudText.Draw(x, y, "Жители: " + current.Residents + "/" + current.Capacity + " • Дорога: " + (current.RoadConnected ? "да" : "нет"));
+                HudText.Draw(x, y, Localization.T("info_panel_residents", current.Residents, current.Capacity,
+                    Localization.T(current.RoadConnected ? "info_yes" : "info_no")));
                 y += 24f;
-                HudText.Draw(x, y, "Уровень: " + current.Level);
+                HudText.Draw(x, y, Localization.T("info_panel_level", current.Level));
                 y += 24f;
-                HudText.Draw(x, y, "Свет " + Pct(current.PowerRate01) + "% • Вода " + Pct(current.WaterRate01) + "% • Мусор " + Pct(current.WasteRate01) + "%");
+                HudText.Draw(x, y, Localization.T("info_panel_supply", Pct(current.PowerRate01), Pct(current.WaterRate01), Pct(current.WasteRate01)));
                 y += 24f;
-                HudText.Draw(x, y, "Пожарные " + Pct(current.FireCoverage01) + "% • Полиция " + Pct(current.PoliceCoverage01) + "%");
+                HudText.Draw(x, y, Localization.T("info_panel_safety", Pct(current.FireCoverage01), Pct(current.PoliceCoverage01)));
                 y += 24f;
-                HudText.Draw(x, y, "Больница " + Pct(current.HealthCoverage01) + "% • Парк " + Pct(current.LeisureCoverage01) + "%");
+                HudText.Draw(x, y, Localization.T("info_panel_care", Pct(current.HealthCoverage01), Pct(current.LeisureCoverage01)));
                 return;
             }
             if (current.HasServiceRadius)
             {
-                HudText.Draw(x, y, "Радиус: " + current.ServiceRadius + " кл. • Покрыто домов: " + current.CoveredHomes + "/" + current.TotalHomes);
+                HudText.Draw(x, y, Localization.T("info_panel_radius", current.ServiceRadius, current.CoveredHomes, current.TotalHomes));
                 y += 24f;
             }
-            HudText.Draw(x, y, "Уровень: " + current.Level); // уровень станции (EPIC-51); у жилых строка выше
+            HudText.Draw(x, y, Localization.T("info_panel_level", current.Level)); // уровень станции (EPIC-51)
             y += 24f;
-            if (current.JobsProvided > 0) HudText.Draw(x, y, "Рабочих мест: " + current.JobsProvided);
+            if (current.JobsProvided > 0) HudText.Draw(x, y, Localization.T("info_panel_jobs", current.JobsProvided));
         }
 
         private void ResolveRefs()

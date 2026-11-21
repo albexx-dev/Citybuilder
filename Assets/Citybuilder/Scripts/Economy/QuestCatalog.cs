@@ -18,16 +18,16 @@ namespace Citybuilder
 
         private static readonly QuestDefinition[] starters =
         {
-            new QuestDefinition("q_res_10", "Первые жители", "Достигни 10 жителей.", 200, c => c.Residents >= 10),
-            new QuestDefinition("q_grow_5", "Застройщик", "Вырасти 5 зданий.", 250, c => c.Buildings >= 5),
-            new QuestDefinition("q_res_50", "Поселение", "Достигни 50 жителей.", 400, c => c.Residents >= 50),
-            new QuestDefinition("q_park_3", "Скверы", "Построй 3 парка.", 300, c => c.Parks >= 3),
-            new QuestDefinition("q_grow_20", "Городской район", "Вырасти 20 зданий.", 500, c => c.Buildings >= 20),
-            new QuestDefinition("q_res_100", "Растущий город", "Достигни 100 жителей.", 600, c => c.Residents >= 100),
-            new QuestDefinition(FireCoverId, "Пожарная безопасность", "Накрой пожарной частью все дома.", 500, c => c.FireCoverage >= 1f),
-            new QuestDefinition(PoliceCoverId, "Правопорядок", "Накрой полицейским участком все дома.", 500, c => c.PoliceCoverage >= 1f),
-            new QuestDefinition("q_res_200", "Большой город", "Достигни 200 жителей.", 1000, c => c.Residents >= 200),
-            new QuestDefinition(HealthCoverId, "Медицина", "Построй больницу и накрой все дома.", 700, c => c.HealthCoverage >= 1f)
+            new QuestDefinition("q_res_10", "quest_title_res_10", "quest_desc_residents", new object[] { 10 }, 200, c => c.Residents >= 10),
+            new QuestDefinition("q_grow_5", "quest_title_grow_5", "quest_desc_buildings", new object[] { 5 }, 250, c => c.Buildings >= 5),
+            new QuestDefinition("q_res_50", "quest_title_res_50", "quest_desc_residents", new object[] { 50 }, 400, c => c.Residents >= 50),
+            new QuestDefinition("q_park_3", "quest_title_park_3", "quest_desc_parks", new object[] { 3 }, 300, c => c.Parks >= 3),
+            new QuestDefinition("q_grow_20", "quest_title_grow_20", "quest_desc_buildings", new object[] { 20 }, 500, c => c.Buildings >= 20),
+            new QuestDefinition("q_res_100", "quest_title_res_100", "quest_desc_residents", new object[] { 100 }, 600, c => c.Residents >= 100),
+            new QuestDefinition(FireCoverId, "quest_title_fire_cover", "quest_desc_fire_cover", 500, c => c.FireCoverage >= 1f),
+            new QuestDefinition(PoliceCoverId, "quest_title_police_cover", "quest_desc_police_cover", 500, c => c.PoliceCoverage >= 1f),
+            new QuestDefinition("q_res_200", "quest_title_res_200", "quest_desc_residents", new object[] { 200 }, 1000, c => c.Residents >= 200),
+            new QuestDefinition(HealthCoverId, "quest_title_health_cover", "quest_desc_health_cover", 700, c => c.HealthCoverage >= 1f)
         };
 
         // Стартовые квесты в порядке приоритета: жители, рост, парки, службы.
@@ -51,7 +51,7 @@ namespace Citybuilder
         }
 
         private static readonly QuestDefinition ServicesAll = new QuestDefinition(ServicesAllId,
-            "Полный сервис", "Накрой все дома всеми службами: пожарные, полиция, больницы, досуг.", 1500,
+            "quest_title_services_all", "quest_desc_services_all", 1500,
             c => c.FireCoverage >= 1f && c.PoliceCoverage >= 1f && c.HealthCoverage >= 1f && c.LeisureCoverage >= 1f);
 
         // Следующий доступный квест: не выполнен, не активен, доступен городу и ещё
@@ -92,8 +92,9 @@ namespace Citybuilder
             if (context.Residents < MilestoneFromResidents) return default(QuestDefinition);
             int threshold = MilestoneFromResidents + MilestoneStep;
             while (threshold <= context.Residents && threshold <= int.MaxValue - MilestoneStep) threshold += MilestoneStep;
-            return new QuestDefinition("q_res_ms_" + threshold, "Веха роста",
-                "Достигни " + threshold + " жителей.", 200 + threshold, c => c.Residents >= threshold);
+            return new QuestDefinition("q_res_ms_" + threshold, "quest_title_res_milestone",
+                "quest_desc_residents", new object[] { threshold }, 200 + threshold,
+                c => c.Residents >= threshold);
         }
 
         // Вехи баланса: от $5000 — удвоение (5000, 10000, ...) в подросшем городе.
@@ -103,8 +104,9 @@ namespace Citybuilder
             int threshold = BalanceMilestoneFrom;
             while (threshold <= context.Balance && threshold > 0) threshold *= 2;
             if (threshold <= 0) return default(QuestDefinition);
-            return new QuestDefinition("q_balance_ms_" + threshold, "Профицит казны",
-                "Достигни баланса $" + threshold + ".", threshold / 5, c => c.Balance >= threshold);
+            return new QuestDefinition("q_balance_ms_" + threshold, "quest_title_balance_milestone",
+                "quest_desc_balance", new object[] { threshold }, threshold / 5,
+                c => c.Balance >= threshold);
         }
 
         // Веха открыта для выдачи: существует, не выполнена и доступна городу.

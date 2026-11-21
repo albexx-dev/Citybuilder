@@ -56,6 +56,7 @@ namespace Citybuilder.Tests
         [Test]
         public void HousesWordFollowsRussianPlural()
         {
+            Localization.SetLanguage(Language.Ru);
             Assert.AreEqual("дом", GrowthStatusPolicy.HousesWord(1));
             Assert.AreEqual("дома", GrowthStatusPolicy.HousesWord(3));
             Assert.AreEqual("домов", GrowthStatusPolicy.HousesWord(5));
@@ -67,6 +68,7 @@ namespace Citybuilder.Tests
         [Test]
         public void LowAttractivenessSuffix_ReportsOnlyBelowOne()
         {
+            Localization.SetLanguage(Language.Ru);
             Assert.AreEqual(string.Empty, GrowthStatusPolicy.LowAttractivenessSuffix(1f));
             Assert.AreEqual(string.Empty, GrowthStatusPolicy.LowAttractivenessSuffix(1.2f));
             Assert.AreEqual(string.Empty, GrowthStatusPolicy.LowAttractivenessSuffix(float.NaN));

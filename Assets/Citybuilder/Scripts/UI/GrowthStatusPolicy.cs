@@ -36,18 +36,20 @@ namespace Citybuilder
         {
             if (float.IsNaN(multiplier) || multiplier >= 0.995f) return string.Empty;
             int pct = (int)Math.Round(multiplier * 100f);
-            return " • низкая привлекательность (" + pct + "%)";
+            return Localization.T("growth_low_attraction", pct);
         }
 
-        // Русское склонение: 1 дом, 2 дома, 5 домов, 11 домов, 21 дом.
+        // Склонение: 1 дом, 2 дома, 5 домов, 11 домов, 21 дом; в EN — house/houses.
         public static string HousesWord(int count)
         {
+            if (Localization.Language == Language.En)
+                return Localization.T(count == 1 ? "house_one" : "house_many");
             int mod100 = count % 100;
-            if (mod100 >= 11 && mod100 <= 14) return "домов";
+            if (mod100 >= 11 && mod100 <= 14) return Localization.T("house_many");
             int mod10 = count % 10;
-            if (mod10 == 1) return "дом";
-            if (mod10 >= 2 && mod10 <= 4) return "дома";
-            return "домов";
+            if (mod10 == 1) return Localization.T("house_one");
+            if (mod10 >= 2 && mod10 <= 4) return Localization.T("house_few");
+            return Localization.T("house_many");
         }
     }
 }

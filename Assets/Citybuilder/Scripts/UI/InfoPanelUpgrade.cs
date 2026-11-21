@@ -24,7 +24,7 @@ namespace Citybuilder
         public static bool Draw(Rect panel, BuildingInfo info)
         {
             if (!info.Upgradeable) return false;
-            return GUI.Button(ButtonRect(panel), "Улучшить — $" + info.UpgradePrice);
+            return GUI.Button(ButtonRect(panel), Localization.T("info_panel_upgrade", info.UpgradePrice));
         }
 
         // Попытка апгрейда выбранного здания: state по origin, казна из роста,

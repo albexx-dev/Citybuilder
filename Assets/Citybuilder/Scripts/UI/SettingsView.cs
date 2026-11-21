@@ -122,7 +122,7 @@ namespace Citybuilder
         {
             float x = panel.x + 16f;
             float y = panel.y + 12f;
-            HudText.Draw(x, y, "=== Настройки ===");
+            HudText.Draw(x, y, Localization.T("settings_title"));
             y += 30f;
             SettingsPanels.DrawSound(settings, x, ref y);
             SettingsPanels.DrawGameplay(settings, x, ref y);

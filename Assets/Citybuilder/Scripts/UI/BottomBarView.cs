@@ -49,13 +49,13 @@ namespace Citybuilder
         private void DrawSpeedGroup(Rect group)
         {
             SimulationSpeed[] speeds = { SimulationSpeed.Paused, SimulationSpeed.Playing, SimulationSpeed.FastForward };
-            string[] labels = { "Пауза", "Игра", "x4" };
+            string[] labels = Localized(BottomBarIcons.SpeedLabelKeys);
             for (int i = 0; i < speeds.Length; i++)
             {
                 float x = group.x + i * (HudLayout.SpeedButtonWidth + HudLayout.ButtonGap);
                 Rect rect = new Rect(x, group.y, HudLayout.SpeedButtonWidth, group.height);
                 bool active = Runner != null && Runner.Speed == speeds[i];
-                if (BottomBarStyle.DrawButton(rect, IconBook.Get(BottomBarIcons.SpeedKeys[i]), labels[i], BottomBarIcons.SpeedTips[i], active) && Runner != null) Runner.SetSpeed(speeds[i]);
+                if (BottomBarStyle.DrawButton(rect, IconBook.Get(BottomBarIcons.SpeedKeys[i]), labels[i], Localization.T(BottomBarIcons.SpeedTipKeys[i]), active) && Runner != null) Runner.SetSpeed(speeds[i]);
             }
         }
 
@@ -64,7 +64,7 @@ namespace Citybuilder
             BuildModeMenu.Mode[] modes =
                 { BuildModeMenu.Mode.Off, BuildModeMenu.Mode.Houses, BuildModeMenu.Mode.Roads,
                   BuildModeMenu.Mode.Zones, BuildModeMenu.Mode.Growth, BuildModeMenu.Mode.Decor };
-            string[] labels = { "Выкл [Esc]", "Дома [1]", "Дороги [2]", "Зоны [3]", "Рост [4]", "Декор [5]" };
+            string[] labels = Localized(BottomBarIcons.ModeLabelKeys);
             for (int i = 0; i < modes.Length; i++)
             {
                 float x = group.x + i * (HudLayout.ModeButtonWidth + HudLayout.ButtonGap);
@@ -76,19 +76,20 @@ namespace Citybuilder
                     continue;
                 }
                 bool active = Menu != null && Menu.CurrentMode == modes[i];
-                if (BottomBarStyle.DrawButton(rect, IconBook.Get(BottomBarIcons.ModeKeys[i]), labels[i], BottomBarIcons.ModeTips[i], active) && Menu != null) Menu.SetMode(modes[i]);
+                if (BottomBarStyle.DrawButton(rect, IconBook.Get(BottomBarIcons.ModeKeys[i]), labels[i], Localization.T(BottomBarIcons.ModeTipKeys[i]), active) && Menu != null) Menu.SetMode(modes[i]);
             }
         }
 
         private void DrawMenuGroup(float sw, float sh)
         {
-            DrawMenuButton(0, sw, sh, "Статистика", InfoMenu == null && !StatsEnabled, InfoMenu != null && InfoMenu.IsOpen,
+            string[] labels = Localized(BottomBarIcons.MenuLabelKeys);
+            DrawMenuButton(0, sw, sh, labels[0], InfoMenu == null && !StatsEnabled, InfoMenu != null && InfoMenu.IsOpen,
                 () => { if (InfoMenu != null) { ClosePanels(false, true, true); InfoMenu.Toggle(); } });
-            DrawMenuButton(1, sw, sh, "Лента", EventLog == null && !EventLogEnabled, EventLog != null && EventLog.IsOpen,
+            DrawMenuButton(1, sw, sh, labels[1], EventLog == null && !EventLogEnabled, EventLog != null && EventLog.IsOpen,
                 () => { if (EventLog != null) { ClosePanels(true, false, true); EventLog.Toggle(); } });
-            DrawMenuButton(2, sw, sh, "Задачи", QuestLog == null, QuestLog != null && QuestLog.IsOpen,
+            DrawMenuButton(2, sw, sh, labels[2], QuestLog == null, QuestLog != null && QuestLog.IsOpen,
                 () => { ClosePanels(true, true, false); QuestLog.Toggle(); });
-            DrawMenuButton(3, sw, sh, "Настройки", Settings == null, Settings != null && Settings.IsOpen,
+            DrawMenuButton(3, sw, sh, labels[3], Settings == null, Settings != null && Settings.IsOpen,
                 () => { if (!Settings.IsOpen) ClosePanels(true, true, true); Settings.Toggle(); });
         }
 
@@ -99,7 +100,7 @@ namespace Citybuilder
             Rect rect = SettingsLayout.MenuButtonRect(sw, sh, index);
             if (disabled) { BottomBarStyle.DrawDisabledButton(rect, label); return; }
             if (BottomBarStyle.DrawButton(rect, IconBook.Get(BottomBarIcons.MenuKeys[index]), label,
-                BottomBarIcons.MenuTips[index], open) && action != null) action();
+                Localization.T(BottomBarIcons.MenuTipKeys[index]), open) && action != null) action();
         }
 
         // Панели меню взаимоисключающие (EPIC-14/09/48/69): открытие одной закрывает остальные и настройки.
@@ -145,8 +146,16 @@ namespace Citybuilder
                 float x = popup.x + i * (HudLayout.PaletteButtonWidth + HudLayout.ButtonGap);
                 Rect rect = new Rect(x, popup.y, HudLayout.PaletteButtonWidth, popup.height);
                 bool active = Menu.Zones != null && Menu.Zones.Brush == brushes[i];
-                if (BottomBarStyle.DrawButton(rect, IconBook.Get(BottomBarIcons.BrushKeys[i]), labels[i], BottomBarIcons.BrushTips[i], active)) Menu.SetBrush(brushes[i]);
+                if (BottomBarStyle.DrawButton(rect, IconBook.Get(BottomBarIcons.BrushKeys[i]), labels[i], Localization.T(BottomBarIcons.BrushTipKeys[i]), active)) Menu.SetBrush(brushes[i]);
             }
+        }
+
+        // Подписи считаются каждый кадр: язык мог смениться между отрисовками IMGUI.
+        private static string[] Localized(string[] keys)
+        {
+            string[] labels = new string[keys.Length];
+            for (int i = 0; i < keys.Length; i++) labels[i] = Localization.T(keys[i]);
+            return labels;
         }
     }
 }
