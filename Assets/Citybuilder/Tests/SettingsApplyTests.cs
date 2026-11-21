@@ -45,8 +45,8 @@ namespace Citybuilder
         [Test]
         public void ApplyDayNight_TogglesControllerFieldBothWays()
         {
-            // Без Runner контроллер честно ругается при включении — ждём это сообщение.
-            LogAssert.Expect(LogType.Error, "DayNightController: задайте Runner в Inspector.");
+            // Reapply без Runner молча пропускает применение (гвард в контроллере):
+            // тест проверяет только само поле, без ожидания лога.
             GameObject go = new GameObject("TestSettingsDayNight");
             try
             {
