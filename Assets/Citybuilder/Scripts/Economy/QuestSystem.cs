@@ -61,6 +61,7 @@ namespace Citybuilder
             foreach (string id in ids)
             {
                 if (active.Count >= MaxActive) break;
+                if (completed.Contains(id)) continue; // битый слот: id в двух списках — награда не должна повториться
                 QuestDefinition quest;
                 if (QuestCatalog.TryFind(id, out quest)) active.Add(quest);
             }
