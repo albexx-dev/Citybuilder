@@ -103,7 +103,7 @@ namespace Citybuilder
 
         private static GameObject FindRootAt(Vector3 center)
         {
-            GameObject[] roots = UnityEngine.Object.FindObjectsByType<GameObject>();
+            GameObject[] roots = UnityEngine.Object.FindObjectsByType<GameObject>(UnityEngine.FindObjectsSortMode.None);
             for (int i = 0; i < roots.Length; i++)
             {
                 GameObject candidate = roots[i];

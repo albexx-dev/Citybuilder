@@ -99,6 +99,12 @@ namespace Citybuilder
             if (metricsRecorder != null) metricsRecorder.Clear();
             QuestLogView questLog = FindFirstObjectByType<QuestLogView>();
             if (questLog != null) questLog.ResetQuests();
+            ResetRuntimeViews();
+        }
+
+        // Агенты и FX пересчитываются от нового города: сброс до восстановления слота.
+        private void ResetRuntimeViews()
+        {
             GarbageTruckView garbage = FindFirstObjectByType<GarbageTruckView>();
             if (garbage != null) garbage.ResetGarbage();
             PedestrianAgentHost pedestrians = FindFirstObjectByType<PedestrianAgentHost>();

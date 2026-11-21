@@ -117,16 +117,16 @@ namespace Citybuilder
 
         private static void RestoreSite(int ticks, bool rootView)
         {
-            GameObject host = new GameObject("TestConstructionRestore");
+            GameObject host = new GameObject("TestConstructionRestore"); GameObject ready = null; BuildingDefinition def = null;
             try
             {
                 GridVisualizer grid = host.AddComponent<GridVisualizer>();
-                BuildingDefinition def = ScriptableObject.CreateInstance<BuildingDefinition>();
+                def = ScriptableObject.CreateInstance<BuildingDefinition>();
                 def.Id = "shop"; def.Footprint = new Vector2Int(1, 1); def.ConstructionTicks = 5;
                 BuildingPlacementController placement = host.AddComponent<BuildingPlacementController>();
                 placement.GridVisualizer = grid; placement.Definitions.Add(def);
                 Assert.IsTrue(placement.RestoreManual(def.Id, new GridPosition(1, 2)));
-                GameObject ready = GameObject.Find("Cube");
+                ready = GameObject.Find("Cube");
                 if (!rootView) ready.transform.SetParent(grid.transform, true);
                 CitySnapshot slot = new CitySnapshot();
                 slot.ConstructionProgress.Add(new CitySnapshot.ConstructionProgressEntry { X = 1, Y = 2, DefId = def.Id, TicksElapsed = ticks });
@@ -135,7 +135,7 @@ namespace Citybuilder
                 Assert.AreEqual(1, restored.Count); Assert.AreEqual(ticks, restored[0].TicksElapsed);
                 Assert.IsFalse(ready.activeSelf);
             }
-            finally { ConstructionSnapshot.Clear(); Object.DestroyImmediate(host); }
+            finally { ConstructionSnapshot.Clear(); Object.DestroyImmediate(ready); Object.DestroyImmediate(def); Object.DestroyImmediate(host); }
         }
 
         private static QuestContext Context(int residents, int buildings, int parks)
