@@ -100,8 +100,7 @@ namespace Citybuilder
             if (questLog != null) questLog.ResetQuests();
             GarbageTruckView garbage = FindFirstObjectByType<GarbageTruckView>();
             if (garbage != null) garbage.ResetGarbage();
-            AudioEventView audioEvents = FindFirstObjectByType<AudioEventView>();
-            if (audioEvents != null) audioEvents.Reset();
+            FindFirstObjectByType<AudioEventView>()?.Reset();
             PedestrianAgentHost pedestrians = FindFirstObjectByType<PedestrianAgentHost>();
             if (pedestrians != null) pedestrians.ResetAgents();
         }
@@ -154,11 +153,7 @@ namespace Citybuilder
         private void ApplyV6(CitySnapshot snapshot, List<BuildingState> homes)
         {
             GarbageTruckView garbage = FindFirstObjectByType<GarbageTruckView>();
-            if (garbage != null)
-            {
-                garbage.Garbage.Restore(SaveV6Snapshot.ReadGarbage(snapshot), homes);
-                garbage.RefreshDepot(); // кэш депо: ручные здания уже восстановлены (ApplyManual).
-            }
+            if (garbage != null) { garbage.Garbage.Restore(SaveV6Snapshot.ReadGarbage(snapshot), homes); garbage.RefreshDepot(); }
             EconomyTicker economy = FindFirstObjectByType<EconomyTicker>();
             if (economy != null) economy.Crimes.RestoreTotal(SaveV6Snapshot.ReadThefts(snapshot));
             ConstructionSnapshot.RestoreAll(snapshot, Growth, Zones == null ? null : Zones.GridVisualizer, Placement);

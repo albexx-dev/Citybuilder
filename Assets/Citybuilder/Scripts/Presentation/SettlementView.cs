@@ -21,6 +21,7 @@ namespace Citybuilder
             if (state == null || def == null) return null;
             RemoveBuilding(state);
             currentId = state.Id;
+            materials[currentId] = new List<Material>();
             GameObject go = SpawnView(state, def, cellSize, skipConstructionStage, powered);
             if (go == null) { DestroyMaterials(state.Id); return null; }
             return views[state.Id] = go;
@@ -58,12 +59,12 @@ namespace Citybuilder
                 GameObject prefab = Instantiate(def.Prefab, at, Quaternion.identity, transform);
                 float scale = HouseLevelStyle.LevelScale(state.Level, false);
                 prefab.transform.localScale = Vector3.Scale(def.Prefab.transform.localScale, new Vector3(scale, scale, scale));
-                if (!powered) BlackoutViewStyle.Apply(prefab);
+                if (!powered) BlackoutViewStyle.Apply(prefab, materials[currentId]);
                 HouseLevelMarker.Update(prefab, state.Level);
                 return prefab;
             }
             GameObject cube = BuildCube(state, def, cellSize, constructing);
-            if (!powered) BlackoutViewStyle.Apply(cube);
+            if (!powered) BlackoutViewStyle.Apply(cube, materials[currentId]);
             HouseLevelMarker.Update(cube, state.Level);
             return cube;
         }
@@ -117,9 +118,7 @@ namespace Citybuilder
         private Material TrackMaterial(Color color)
         {
             Material mat = new Material(Shader.Find("Unlit/Color")) { color = color };
-            List<Material> bucket;
-            if (!materials.TryGetValue(currentId, out bucket)) materials[currentId] = bucket = new List<Material>();
-            bucket.Add(mat);
+            materials[currentId].Add(mat);
             return mat;
         }
 
