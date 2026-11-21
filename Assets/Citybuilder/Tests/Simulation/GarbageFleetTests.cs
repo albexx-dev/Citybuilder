@@ -50,6 +50,54 @@ namespace Citybuilder
             Assert.AreNotEqual(log.Snapshot()[0].Message, log.Snapshot()[1].Message);
         }
 
+        // Делегат null: ноги считаются прямым L-маршрутом — вывоз работает без дорог.
+        [Test]
+        public void Dispatch_NullFinder_FallsBackToDirectPath()
+        {
+            BuildingState home = Home(new GridPosition(3, 3));
+            GarbageSystem garbage = Run(new List<BuildingState> { home }, ReadyTick(home.Id) + 1, Depot, null);
+            Assert.AreEqual(1, garbage.ActiveTrucks);
+            GarbageTrucks.Truck truck = garbage.TruckAt(0);
+            Assert.IsTrue(truck.Route[0].Equals(Depot), "старт от полигона");
+            Assert.IsTrue(truck.Route[truck.Route.Count - 1].Equals(Depot), "финиш на полигоне");
+            Assert.IsTrue(truck.Route.Contains(new GridPosition(3, 3)), "дом на L-маршруте");
+        }
+
+        // Реальная сетка дорог (RouteSystem(grid, roads)): маршрут идёт по дорогам игрока
+        // и объезжает прямой L-маршрут — образец CongestionFeed-теста AgentManagerTests.
+        [Test]
+        public void Dispatch_RouteSystemFinder_FollowsRoadCells()
+        {
+            GridSystem grid = new GridSystem(new GridSize(10, 10), 2f);
+            List<GridPosition> roads = MakeList(new GridPosition(0, 0), new GridPosition(1, 0), new GridPosition(2, 0),
+                new GridPosition(2, 1), new GridPosition(2, 2), new GridPosition(1, 2), new GridPosition(0, 2));
+            RouteSystem routes = new RouteSystem(grid, roads);
+            BuildingState home = Home(new GridPosition(0, 2));
+            GarbageSystem garbage = Run(new List<BuildingState> { home }, ReadyTick(home.Id) + 1, Depot, routes.FindPath);
+            Assert.AreEqual(1, garbage.ActiveTrucks);
+            GarbageTrucks.Truck truck = garbage.TruckAt(0);
+            Assert.Greater(truck.Route.Count, 5, "объезд по дорогам длиннее L-маршрута в 3 клетки");
+            Assert.IsTrue(truck.Route.Contains(new GridPosition(2, 2)), "маршрут прошёл по дороге");
+            for (int i = 0; i < truck.Route.Count; i++) Assert.IsTrue(roads.Contains(truck.Route[i]), "клетка " + i + " не дорога");
+        }
+
+        // Дом не соединён с дорогой: RouteSystem вернул null — прямой L-маршрут, очередь не залипает.
+        [Test]
+        public void Dispatch_RouteSystemNoConnection_FallsBackToDirectPath()
+        {
+            GridSystem grid = new GridSystem(new GridSize(10, 10), 2f);
+            RouteSystem routes = new RouteSystem(grid, MakeList(new GridPosition(0, 0), new GridPosition(1, 0)));
+            BuildingState home = Home(new GridPosition(5, 5));
+            GarbageSystem garbage = Run(new List<BuildingState> { home }, ReadyTick(home.Id) + 1, Depot, routes.FindPath);
+            Assert.AreEqual(1, garbage.ActiveTrucks, "фолбэк: мусоровоз выехал напрямик");
+            Assert.AreEqual(0, garbage.WaitingCount, "очередь разобрана, вывоз не встал");
+        }
+
+        private static List<GridPosition> MakeList(params GridPosition[] cells)
+        {
+            return new List<GridPosition>(cells);
+        }
+
         private static BuildingState Home(GridPosition at)
         {
             BuildingDefinition def = ScriptableObject.CreateInstance<BuildingDefinition>();

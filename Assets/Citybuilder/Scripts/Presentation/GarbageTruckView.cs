@@ -1,11 +1,14 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Citybuilder
 {
     // Вид мусоровозов (EPIC-52): владеет GarbageTicker (как QuestLogView владеет
     // QuestTicker, ADR-012) и пулом моделей GarbageTruckPool. На TickCompleted подаёт
-    // дома, полигон и ленту, в Update двигает и рисует мусоровозы. Полигон — ручная
-    // постройка waste_depot; нет полигона — мусоровозы не выезжают, мусор копится.
+    // дома, полигон, ленту и делегат дорог RouteSystem.FindPath, в Update двигает и
+    // рисует мусоровозы. Полигон — ручная постройка waste_depot; нет полигона —
+    // мусоровозы не выезжают, мусор копится.
     public class GarbageTruckView : MonoBehaviour
     {
         [Header("References")]
@@ -13,6 +16,8 @@ namespace Citybuilder
         public EconomyTicker Economy;
         [Tooltip("Сетка: размер клетки и мировые координаты. Обязателен.")]
         public GridVisualizer Visualizer;
+        [Tooltip("Пробки: Routes даёт пути по дорогам игрока. Пусто = ищется в сцене; нет конгестиона — прямой L-маршрут.")]
+        public CongestionController Congestion;
 
         [Header("Model")]
         [Tooltip("FBX-модели мусоровозов (Kenney Racing). Пусто = мусоровозы без вида.")]
@@ -81,12 +86,23 @@ namespace Citybuilder
             subscribed = true;
         }
 
-        // Граница игрового часа: дома, полигон waste_depot и лента подаются в тикер.
+        // Граница игрового часа: дома, полигон waste_depot, лента и делегат дорог — в тикер.
         private void OnClockTick(SimulationTime time)
         {
             if (Economy == null || Economy.Growth == null) return;
             ticker.Tick((int)time.TickCount, Economy.Growth.Homes, FindDepot(),
-                Economy.EventLog != null ? Economy.EventLog.Log : null);
+                Economy.EventLog != null ? Economy.EventLog.Log : null, RouteFinder());
+        }
+
+        // Делегат дорог из CongestionController.Routes: путь по дорогам игрока. Конгестион
+        // отсутствует или не готов — null-делегат, GarbageTrucks считает прямой L-маршрут.
+        private Func<GridPosition, GridPosition, List<GridPosition>> RouteFinder()
+        {
+            if (Congestion == null) Congestion = FindFirstObjectByType<CongestionController>();
+            if (Congestion == null) return null;
+            RouteSystem routes = Congestion.Routes;
+            if (routes == null) return null;
+            return routes.FindPath;
         }
 
         // Полигон = первая ручная постройка waste_depot. Нет постройки — null (вывоза нет).
