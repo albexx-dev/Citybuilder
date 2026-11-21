@@ -7,8 +7,6 @@ namespace Citybuilder
     public class LanguageToggleView : MonoBehaviour
     {
         private const string GuardKey = "language_toggle";
-        private const float ButtonX = 10f;
-        private const float ButtonY = 70f; // казна 10, население 30, часы 50 — кнопка ниже последней строки.
         private const float ButtonWidth = 72f;
         private const float ButtonHeight = 22f;
 
@@ -24,7 +22,7 @@ namespace Citybuilder
 
         private void OnGUI()
         {
-            Rect rect = new Rect(ButtonX, ButtonY, ButtonWidth, ButtonHeight);
+            Rect rect = new Rect(HudLayout.TopLeftX, HudLayout.TopLeftRowY(4), ButtonWidth, ButtonHeight);
             UiClickGuard.Set(GuardKey, rect);
             GUIContent content = new GUIContent(Label, "Переключить язык / Toggle language");
             if (GUI.Button(rect, content))

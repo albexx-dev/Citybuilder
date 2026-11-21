@@ -65,13 +65,13 @@ namespace Citybuilder
             ResolveRefs();
             Subscribe();
             Color balanceColor = Treasury.IsInDeficit ? UpkeepView.DeficitColor : Color.white;
-            HudText.Draw(10f, 10f, "$ " + Treasury.Balance, balanceColor);
+            HudText.Draw(HudLayout.TopLeftX, HudLayout.TopLeftRowY(0), "$ " + Treasury.Balance, balanceColor);
             bool netDeficit;
             string summary = Breakdown(out netDeficit);
             if (summary != null)
             {
                 Color lineColor = netDeficit ? UpkeepView.DeficitColor : Color.white;
-                HudText.Draw(10f, 32f, summary, lineColor);
+                HudText.Draw(HudLayout.TopLeftX, HudLayout.TopLeftRowY(2), summary, lineColor);
             }
         }
 
