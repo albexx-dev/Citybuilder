@@ -22,7 +22,6 @@ namespace Citybuilder
             { "tax_level_normal", new[] { "обычный", "normal" } },
             { "tax_level_high", new[] { "высокий", "high" } },
             { "zone_tax_label", new[] { "{0}: {1} ({2}) +{3} $/ч", "{0}: {1} ({2}) +{3} $/h" } },
-            // Каталог постройки: вкладки категорий и суффикс заблокированной карточки.
             { "catalog_tab_roads", new[] { "Дороги", "Roads" } },
             { "catalog_tab_houses", new[] { "Дома", "Houses" } },
             { "catalog_tab_commerce", new[] { "Коммерция", "Commerce" } },
@@ -109,7 +108,37 @@ namespace Citybuilder
             { "bottom_tip_menu_settings", new[] { "Настройки игры", "Game settings" } },
             { "bottom_tip_brush_residential", new[] { "Жилая зона: растут дома", "Residential zone: houses grow" } },
             { "bottom_tip_brush_commercial", new[] { "Коммерция: магазины", "Commercial: shops" } },
-            { "bottom_tip_brush_industrial", new[] { "Промзона: заводы", "Industrial: factories" } }
+            { "bottom_tip_brush_industrial", new[] { "Промзона: заводы", "Industrial: factories" } },
+            // Квесты-вехи (issue #100 шаг 2): заголовки, описания и строки прогресса.
+            { "quest_title_res_10", new[] { "Первые жители", "First residents" } },
+            { "quest_title_grow_5", new[] { "Застройщик", "Builder" } },
+            { "quest_title_res_50", new[] { "Поселение", "Settlement" } },
+            { "quest_title_park_3", new[] { "Скверы", "Parks" } },
+            { "quest_title_grow_20", new[] { "Городской район", "City district" } },
+            { "quest_title_res_100", new[] { "Растущий город", "Growing city" } },
+            { "quest_title_fire_cover", new[] { "Пожарная безопасность", "Fire safety" } },
+            { "quest_title_police_cover", new[] { "Правопорядок", "Law enforcement" } },
+            { "quest_title_res_200", new[] { "Большой город", "Large city" } },
+            { "quest_title_health_cover", new[] { "Медицина", "Healthcare" } },
+            { "quest_title_services_all", new[] { "Полный сервис", "Full services" } },
+            { "quest_title_res_milestone", new[] { "Веха роста", "Growth milestone" } },
+            { "quest_title_balance_milestone", new[] { "Профицит казны", "Treasury surplus" } },
+            { "quest_desc_residents", new[] { "Достигни {0} жителей.", "Reach {0} residents." } },
+            { "quest_desc_buildings", new[] { "Вырасти {0} зданий.", "Grow {0} buildings." } },
+            { "quest_desc_parks", new[] { "Построй {0} парка.", "Build {0} parks." } },
+            { "quest_desc_fire_cover", new[] { "Накрой пожарной частью все дома.", "Cover all homes with a fire station." } },
+            { "quest_desc_police_cover", new[] { "Накрой полицейским участком все дома.", "Cover all homes with a police station." } },
+            { "quest_desc_health_cover", new[] { "Построй больницу и накрой все дома.", "Build a hospital and cover all homes." } },
+            { "quest_desc_services_all", new[] { "Накрой все дома всеми службами: пожарные, полиция, больницы, досуг.", "Cover all homes with every service: fire, police, hospitals, leisure." } },
+            { "quest_desc_balance", new[] { "Достигни баланса ${0}.", "Reach a balance of ${0}." } },
+            { "quest_progress_residents", new[] { "Жители {0}/{1}", "Residents {0}/{1}" } },
+            { "quest_progress_buildings", new[] { "Здания {0}/{1}", "Buildings {0}/{1}" } },
+            { "quest_progress_balance", new[] { "Баланс {0}/{1}", "Balance {0}/{1}" } },
+            { "quest_progress_parks", new[] { "Парки {0}/{1}", "Parks {0}/{1}" } },
+            { "quest_progress_police", new[] { "Полиция {0}/100", "Police {0}/100" } },
+            { "quest_progress_health", new[] { "Больницы {0}/100", "Hospitals {0}/100" } },
+            { "quest_progress_services", new[] { "Службы {0}/100", "Services {0}/100" } },
+            { "quest_progress_fire", new[] { "Пожарные {0}/100", "Fire {0}/100" } }
         };
 
         // Перенос в фасад: исходный реестр остаётся тем же словарём, ключи не дублируются.

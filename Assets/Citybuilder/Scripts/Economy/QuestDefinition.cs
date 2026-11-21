@@ -22,17 +22,29 @@ namespace Citybuilder
     public struct QuestDefinition
     {
         public readonly string Id;
-        public readonly string Title;
-        public readonly string Description;
         public readonly int Reward;
+        private readonly string titleKey;
+        private readonly string descriptionKey;
+        private readonly object[] descriptionArgs;
         private readonly Func<QuestContext, bool> isSatisfied;
 
-        public QuestDefinition(string id, string title, string description, int reward,
+        // Тексты вычисляются при чтении: смена языка видна в уже выданных задачах (issue #100).
+        public string Title { get { return Localization.T(titleKey); } }
+        public string Description { get { return Localization.T(descriptionKey, descriptionArgs); } }
+
+        public QuestDefinition(string id, string titleKey, string descriptionKey, int reward,
+            Func<QuestContext, bool> isSatisfied)
+            : this(id, titleKey, descriptionKey, null, reward, isSatisfied)
+        {
+        }
+
+        public QuestDefinition(string id, string titleKey, string descriptionKey, object[] args, int reward,
             Func<QuestContext, bool> isSatisfied)
         {
             Id = id;
-            Title = title;
-            Description = description;
+            this.titleKey = titleKey;
+            this.descriptionKey = descriptionKey;
+            descriptionArgs = args;
             Reward = reward;
             this.isSatisfied = isSatisfied;
         }

@@ -15,20 +15,20 @@ namespace Citybuilder
             string id = quest.Id;
             if (string.IsNullOrEmpty(id)) return null;
             int target = ParseTarget(id);
-            if (id.StartsWith(ResPrefix) && target > 0) return "Жители " + context.Residents + "/" + target;
-            if (id.StartsWith(GrowPrefix) && target > 0) return "Здания " + context.Buildings + "/" + target;
-            if (id.StartsWith(BalancePrefix) && target > 0) return "Баланс " + context.Balance + "/" + target;
-            if (id.StartsWith(ParkPrefix) && target > 0) return "Парки " + context.Parks + "/" + target;
+            if (id.StartsWith(ResPrefix) && target > 0) return Localization.T("quest_progress_residents", context.Residents, target);
+            if (id.StartsWith(GrowPrefix) && target > 0) return Localization.T("quest_progress_buildings", context.Buildings, target);
+            if (id.StartsWith(BalancePrefix) && target > 0) return Localization.T("quest_progress_balance", context.Balance, target);
+            if (id.StartsWith(ParkPrefix) && target > 0) return Localization.T("quest_progress_parks", context.Parks, target);
             return CoverLine(id, context);
         }
 
         // Квесты покрытия: процент домов под службой против 100%.
         private static string CoverLine(string id, QuestContext context)
         {
-            if (id == QuestCatalog.PoliceCoverId) return "Полиция " + Percent(context.PoliceCoverage) + "/100";
-            if (id == QuestCatalog.HealthCoverId) return "Больницы " + Percent(context.HealthCoverage) + "/100";
-            if (id == QuestCatalog.ServicesAllId) return "Службы " + Percent(WorstCoverage(context)) + "/100";
-            return "Пожарные " + Percent(context.FireCoverage) + "/100";
+            if (id == QuestCatalog.PoliceCoverId) return Localization.T("quest_progress_police", Percent(context.PoliceCoverage));
+            if (id == QuestCatalog.HealthCoverId) return Localization.T("quest_progress_health", Percent(context.HealthCoverage));
+            if (id == QuestCatalog.ServicesAllId) return Localization.T("quest_progress_services", Percent(WorstCoverage(context)));
+            return Localization.T("quest_progress_fire", Percent(context.FireCoverage));
         }
 
         // Цель закодирована в id: q_res_50 → 50, q_res_ms_250 → 250, иначе 0.
