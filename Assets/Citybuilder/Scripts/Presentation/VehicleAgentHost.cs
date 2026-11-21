@@ -58,6 +58,15 @@ namespace Citybuilder
             if (Settings == null) Settings = FindFirstObjectByType<SettingsView>();
         }
 
+        // Сброс по команде загрузки/«Новая игра» (LoadController.ClearAll): агенты и счётчик
+        // дорог обнуляются, и вид сразу гасит старые машины.
+        public void ResetAgents()
+        {
+            if (manager != null) manager.Clear();
+            lastRoadCount = 0;
+            if (View != null && manager != null) View.Sync(manager);
+        }
+
         private List<GridPosition> FindRoute(GridPosition from, GridPosition to)
         {
             RouteSystem routes = Congestion != null ? Congestion.Routes : null;

@@ -61,7 +61,7 @@ namespace Citybuilder
                 CitySnapshot.ConstructionProgressEntry entry = entries[i];
                 if (entry == null || string.IsNullOrEmpty(entry.DefId)) continue;
                 BuildingDefinition def = FindDefinition(entry.DefId, growth, placement);
-                if (def == null || entry.TicksElapsed <= 0 || entry.TicksElapsed >= def.ConstructionTicks) continue;
+                if (def == null || entry.TicksElapsed < 0 || entry.TicksElapsed >= def.ConstructionTicks) continue;
                 RestoreOne(entry, def, growth, grid);
             }
         }
@@ -79,18 +79,43 @@ namespace Citybuilder
             Restore(parent, entry, def, cellSize, delegate { ready.SetActive(true); });
         }
 
+        // Вид ручной стройки корневой: ищем и детей родителя, и корневые объекты по мировой позиции.
         private static GameObject FindViewAt(Transform parent, CitySnapshot.ConstructionProgressEntry entry,
             BuildingDefinition def, float cellSize)
         {
             float x = (entry.X + 0.5f + (def.Footprint.x - 1) * 0.5f) * cellSize;
             float z = (entry.Y + 0.5f + (def.Footprint.y - 1) * 0.5f) * cellSize;
+            Vector3 center = new Vector3(x, 0f, z);
+            GameObject found = FindChildAt(parent, center);
+            return found != null ? found : FindRootAt(center);
+        }
+
+        private static GameObject FindChildAt(Transform parent, Vector3 center)
+        {
+            if (parent == null) return null;
             for (int i = 0; i < parent.childCount; i++)
             {
                 Transform child = parent.GetChild(i);
-                if (Mathf.Abs(child.localPosition.x - x) < 0.01f && Mathf.Abs(child.localPosition.z - z) < 0.01f)
-                    return child.gameObject;
+                if (Matches(child.position, center)) return child.gameObject;
             }
             return null;
+        }
+
+        private static GameObject FindRootAt(Vector3 center)
+        {
+            GameObject[] roots = UnityEngine.Object.FindObjectsByType<GameObject>(UnityEngine.FindObjectsSortMode.None);
+            for (int i = 0; i < roots.Length; i++)
+            {
+                GameObject candidate = roots[i];
+                if (candidate.transform.parent == null && Matches(candidate.transform.position, center)
+                    && candidate.GetComponent<ConstructionSiteView>() == null) return candidate;
+            }
+            return null;
+        }
+
+        private static bool Matches(Vector3 position, Vector3 center)
+        {
+            return Mathf.Abs(position.x - center.x) < 0.01f && Mathf.Abs(position.z - center.z) < 0.01f;
         }
 
         private static BuildingDefinition FindDefinition(string defId, SettlementGrowthController growth,

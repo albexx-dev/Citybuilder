@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Citybuilder
 {
@@ -107,6 +109,33 @@ namespace Citybuilder
             Assert.DoesNotThrow(delegate { ConstructionSnapshot.RestoreAll(new CitySnapshot(), null, null, null); });
             Assert.AreEqual(0, ConstructionSnapshot.Collect().Count);
             ConstructionSnapshot.Clear();
+        }
+
+        [Test] public void ZeroTickSite_RestoresAsUnfinished() { RestoreSite(0, false); }
+
+        [Test] public void ManualSite_RestoresWhenReadyViewIsRoot() { RestoreSite(2, true); }
+
+        private static void RestoreSite(int ticks, bool rootView)
+        {
+            GameObject host = new GameObject("TestConstructionRestore"); GameObject ready = null; BuildingDefinition def = null;
+            try
+            {
+                GridVisualizer grid = host.AddComponent<GridVisualizer>();
+                def = ScriptableObject.CreateInstance<BuildingDefinition>();
+                def.Id = "shop"; def.Footprint = new Vector2Int(1, 1); def.ConstructionTicks = 5;
+                BuildingPlacementController placement = host.AddComponent<BuildingPlacementController>();
+                placement.GridVisualizer = grid; placement.Definitions.Add(def);
+                Assert.IsTrue(placement.RestoreManual(def.Id, new GridPosition(1, 2)));
+                ready = GameObject.Find("Cube");
+                if (!rootView) ready.transform.SetParent(grid.transform, true);
+                CitySnapshot slot = new CitySnapshot();
+                slot.ConstructionProgress.Add(new CitySnapshot.ConstructionProgressEntry { X = 1, Y = 2, DefId = def.Id, TicksElapsed = ticks });
+                ConstructionSnapshot.RestoreAll(slot, null, grid, placement);
+                List<CitySnapshot.ConstructionProgressEntry> restored = ConstructionSnapshot.Collect();
+                Assert.AreEqual(1, restored.Count); Assert.AreEqual(ticks, restored[0].TicksElapsed);
+                Assert.IsFalse(ready.activeSelf);
+            }
+            finally { ConstructionSnapshot.Clear(); Object.DestroyImmediate(ready); Object.DestroyImmediate(def); Object.DestroyImmediate(host); }
         }
 
         private static QuestContext Context(int residents, int buildings, int parks)

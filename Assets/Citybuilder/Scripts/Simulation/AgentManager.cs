@@ -78,6 +78,13 @@ namespace Citybuilder
 
         public int ActiveLimit { get { return activeLimit; } }
 
+        // Полная очистка пула («Новая игра»/загрузка): старые поездки не едут по новому городу.
+        public void Clear()
+        {
+            for (int i = 0; i < MaxAgents; i++) agents[i] = default(VehicleAgent);
+            roadCursor = 0;
+        }
+
         private static bool IsEmpty(IReadOnlyList<GridPosition> list)
         {
             return list == null || list.Count == 0;
