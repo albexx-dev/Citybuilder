@@ -21,27 +21,35 @@ namespace Citybuilder
             }
         }
 
-        private readonly Dictionary<EntityId, Source> sources = new Dictionary<EntityId, Source>();
-        private readonly Dictionary<EntityId, GridPosition> points = new Dictionary<EntityId, GridPosition>();
+        private readonly Dictionary<int, Source> sources = new Dictionary<int, Source>();
+        private readonly Dictionary<int, GridPosition> points = new Dictionary<int, GridPosition>();
+        private int nextKey = -1;
 
         public int SourceCount { get { return sources.Count; } }
 
         public int PointCount { get { return points.Count; } }
 
+        // Локальный ключ: не расходует счётчик EntityId и не влияет на хеши ADR-009.
+        // Отрицательные значения не пересекаются с EntityId.Value (> 0).
+        public void AddSource(GridPosition position, int radius) =>
+            sources[nextKey--] = new Source(position, radius > 0 ? radius : 0);
+
+        public void AddPoint(GridPosition position) => points[nextKey--] = position;
+
         // Дубликат id перезаписывает источник. Отрицательный радиус — 0.
         public void SetSource(EntityId id, GridPosition position, int radius)
         {
-            sources[id] = new Source(position, radius > 0 ? radius : 0);
+            sources[id.Value] = new Source(position, radius > 0 ? radius : 0);
         }
 
-        public void RemoveSource(EntityId id) { sources.Remove(id); }
+        public void RemoveSource(EntityId id) { sources.Remove(id.Value); }
 
         public void ClearSources() { sources.Clear(); }
 
         // Дубликат id перезаписывает позицию точки.
-        public void SetPoint(EntityId id, GridPosition position) { points[id] = position; }
+        public void SetPoint(EntityId id, GridPosition position) { points[id.Value] = position; }
 
-        public void RemovePoint(EntityId id) { points.Remove(id); }
+        public void RemovePoint(EntityId id) { points.Remove(id.Value); }
 
         // Убирает и источники, и точки.
         public void Clear()
@@ -53,7 +61,7 @@ namespace Citybuilder
         // Точка накрыта, если хотя бы один источник достаёт до неё.
         public bool IsCovered(GridPosition point)
         {
-            foreach (KeyValuePair<EntityId, Source> pair in sources)
+            foreach (KeyValuePair<int, Source> pair in sources)
             {
                 if (IsInside(pair.Value, point))
                 {
@@ -67,7 +75,7 @@ namespace Citybuilder
         public float RateOf(EntityId pointId)
         {
             GridPosition position;
-            if (!points.TryGetValue(pointId, out position))
+            if (!points.TryGetValue(pointId.Value, out position))
             {
                 return 0f;
             }
@@ -80,7 +88,7 @@ namespace Citybuilder
             get
             {
                 int covered = 0;
-                foreach (KeyValuePair<EntityId, GridPosition> pair in points)
+                foreach (KeyValuePair<int, GridPosition> pair in points)
                 {
                     if (IsCovered(pair.Value))
                     {
@@ -113,7 +121,7 @@ namespace Citybuilder
                 return -1;
             }
             long best = long.MaxValue;
-            foreach (KeyValuePair<EntityId, Source> pair in sources)
+            foreach (KeyValuePair<int, Source> pair in sources)
             {
                 long distance = SquaredDistance(pair.Value.Position, point);
                 if (distance < best)
