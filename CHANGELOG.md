@@ -12,6 +12,7 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 - Documentation no longer points at the removed `TASKS/` folder; the static validator now rejects its re-creation.
 - Connectivity metric counts manual residential buildings in the denominator; service stations (`ResidentCapacity == 0`) do not grow it — confirmed intended (issue #42).
+- Accepted ADR-013: the city event log stores messages as a localization key + args with language-independent dedup and sound resolved from event type instead of `message.Contains` text markers.
 
 ## [v1.2.2] - 2026-11-21
 
