@@ -3,12 +3,13 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Событийные звуки города (хвосты #71/#66): тревожный сигнал пожара, низкий «удар»
-    // сгоревшего дома, короткий диссонанс кражи. Домен пишет в CityEventLog без Unity,
+    // Событийные звуки города (хвосты #71/#66, задача 104): тревожный сигнал пожара,
+    // низкий «удар» сгоревшего дома, короткий диссонанс кражи; вывоз мусора и отключение
+    // света — тихие сигналы на уже подключённых клипах. Домен пишет в CityEventLog без Unity,
     // поэтому вью читает ленту опросом через EconomyTicker.EventLog (образец чтения
     // FireOverlayView: снимок раз в PollIntervalSec). Кулдаун на вид сигнала —
     // SoundCooldownPolicy (образец EventLogView.Record), сгоревший дом — тот же клип
-    // пожара на низком питче BurnedPitch.
+    // пожара на низком питче BurnedPitch. Казна/доход молчат: coin — только награда цели.
     public class AudioEventView : MonoBehaviour
     {
         [Header("References")]
@@ -24,11 +25,17 @@ namespace Citybuilder
 
         private const float FireVolumeScale = 0.9f;
         private const float CrimeVolumeScale = 0.8f;
+        private const float GarbageVolumeScale = 0.5f;
+        private const float GarbagePitch = 1.6f;
+        private const float BlackoutVolumeScale = 0.5f;
+        private const float BlackoutPitch = 0.5f;
         private const float MinPollIntervalSec = 0.05f;
 
         private AudioSource source;
         private readonly SoundCooldownPolicy fireCooldown = new SoundCooldownPolicy();
         private readonly SoundCooldownPolicy crimeCooldown = new SoundCooldownPolicy();
+        private readonly SoundCooldownPolicy garbageCooldown = new SoundCooldownPolicy();
+        private readonly SoundCooldownPolicy blackoutCooldown = new SoundCooldownPolicy();
         private string lastEventKey = "";
         private float nextPollTime;
 
@@ -75,12 +82,23 @@ namespace Citybuilder
         }
 
         // Один звук на вид сигнала: кулдаун гасит серии, питч различает пожар и сгоревший дом.
+        // Garbage/Blackout: тихий чирп на клипе кражи и глухой «удар» на клипе пожара.
         private void PlaySound(AudioEventSound sound)
         {
             if (sound == AudioEventSound.None || source == null) return;
             if (sound == AudioEventSound.Crime)
             {
                 if (crimeCooldown.ShouldPlayDeficit(Time.unscaledTime)) PlayOneShotSafe(CrimeClip, CrimeVolumeScale, 1f);
+                return;
+            }
+            if (sound == AudioEventSound.Garbage)
+            {
+                if (garbageCooldown.ShouldPlayDeficit(Time.unscaledTime)) PlayOneShotSafe(CrimeClip, GarbageVolumeScale, GarbagePitch);
+                return;
+            }
+            if (sound == AudioEventSound.Blackout)
+            {
+                if (blackoutCooldown.ShouldPlayDeficit(Time.unscaledTime)) PlayOneShotSafe(FireClip, BlackoutVolumeScale, BlackoutPitch);
                 return;
             }
             if (!fireCooldown.ShouldPlayDeficit(Time.unscaledTime)) return;
