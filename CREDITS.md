@@ -20,6 +20,7 @@
 | Модели больницы и парка | проект Citybuilder (Blender-конвейер, задача 153) | MIT (репо) | `Assets/Citybuilder/Models/hospital.fbx`, `Assets/Citybuilder/Models/park.fbx` |
 | UI-звуки | проект Citybuilder (процедурные, эпик 19 v1.1) | MIT (репо) | `Assets/Citybuilder/Audio/click.wav`, `Assets/Citybuilder/Audio/coin.wav`, `Assets/Citybuilder/Audio/pop.wav`, `Assets/Citybuilder/Audio/swoosh.wav` |
 | Эмбиент день/ночь | проект Citybuilder (процедурные, эпик 71, задача 210) | CC0 1.0 (собственная генерация) | `Assets/Citybuilder/Audio/ambient-day.wav`, `Assets/Citybuilder/Audio/ambient-night.wav` |
+| Событийные сигналы (пожар/кража) | проект Citybuilder (процедурные, хвосты #71/#66) | CC0 1.0 (собственная генерация) | `Assets/Citybuilder/Audio/event-fire.wav`, `Assets/Citybuilder/Audio/event-crime.wav` |
 
 ## Правила (ADR-010)
 
