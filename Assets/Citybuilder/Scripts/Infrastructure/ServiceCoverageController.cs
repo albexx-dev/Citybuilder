@@ -23,6 +23,10 @@ namespace Citybuilder
         [Tooltip("Пауза между пересчётами в секундах. Минимум 0.5.")]
         public float RefreshIntervalSec = 2f;
 
+        [Header("Tick")]
+        [Tooltip("Часы: снимок пересчитывается в каждом тике до пожаров/краж/квестов. Пусто = ищется в сцене.")]
+        public SimulationRunner Runner;
+
         private readonly ServiceBuildingSystem system = new ServiceBuildingSystem();
         private float timer;
 
@@ -76,6 +80,23 @@ namespace Citybuilder
         {
             ClampSettings();
         }
+
+        // Тик: TickStarted всегда раньше TickCompleted (пожары/кражи/квесты).
+        // Один свежий снимок на тик, независимо от скорости и порядка подписки.
+        private void OnEnable()
+        {
+            if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
+            if (Runner == null || Runner.Clock == null) return;
+            Runner.Clock.TickStarted += OnTickStarted;
+        }
+
+        private void OnDisable()
+        {
+            if (Runner == null || Runner.Clock == null) return;
+            Runner.Clock.TickStarted -= OnTickStarted;
+        }
+
+        private void OnTickStarted(SimulationTime time) { RefreshNow(); }
 
         private void Update()
         {
