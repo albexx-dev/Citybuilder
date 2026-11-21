@@ -32,7 +32,7 @@ cd Citybuilder
 git remote add upstream https://github.com/albexx-dev/Citybuilder.git
 ```
 
-> Не используйте кнопку **Download ZIP**: без папки `.git` не будет ни веток, ни пулл-реквестов, а Unity не сможет подтянуть git-пакет. Модели `.fbx` и звуки `.wav` хранятся прямо в обычном git, поэтому **Git LFS для клонирования не нужен** (в репозитории сейчас 0 LFS-объектов).
+> Не используйте кнопку **Download ZIP**: без папки `.git` не будет ни веток, ни пулл-реквестов, а Unity не сможет подтянуть git-пакет. Модели `.fbx` и звуки `.wav` хранятся прямо в обычном git, но **Git LFS нужен**: по паттернам из `.gitattributes` в репозитории уже **19 LFS-объектов** (`git lfs ls-files`) — текстуры и иконки `.png`. Устанавливайте Git LFS до клонирования, иначе эти файлы останутся указателями.
 
 ## 3. Открыть и запустить
 
@@ -50,7 +50,7 @@ python Tools/ValidateRepo.py
 
 Ожидается строка `OK: N tracked files, M unique GUIDs, K warning(s)`. `WARN` про мягкий лимит в 150 строк на C#-файл — это не ошибка, `ERROR` быть не должно.
 
-В Unity: **Window → General → Test Runner → EditMode → Run All**. Актуальная база — **434 теста**, все должны быть зелёными.
+В Unity: **Window → General → Test Runner → EditMode → Run All**. Актуальная база — **980 тестов в 125 файлах** на момент правки (перед релизом пересчитать), все должны быть зелёными.
 
 Сборка: **File → Build Settings** → сцена `Prototype.unity` уже добавлена → **Build**.
 

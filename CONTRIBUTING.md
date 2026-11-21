@@ -25,7 +25,7 @@ New here? Start with [ONBOARDING.md](ONBOARDING.md) (RU): cloning, the exact Uni
 4. Keep commits small: max 5 files and 250 changed lines.
 5. Run local checks:
    - `python Tools/ValidateRepo.py` — must print `OK`; `WARN` lines about the 150-line soft limit are acceptable;
-   - Unity Test Runner → **EditMode** → assembly `Tests` (434 tests) must be green;
+   - Unity Test Runner → **EditMode** → assembly `Tests` (980 tests at the time of writing; recount before release) must be green;
    - `powershell -ExecutionPolicy Bypass -File Tools/Check-UnityMcp.ps1` only when the MCP stack is in use.
 6. Push the branch and open a PR against `albexx-dev/Citybuilder:main`, filling in `.github/PULL_REQUEST_TEMPLATE.md`.
 7. CI in `.github/workflows/ci.yml` must be green. The required check is named **`Static validation`**. The optional `Unity EditMode tests` job runs only when the repository variable `ENABLE_UNITY_TESTS=true` and the Unity license secrets are configured.

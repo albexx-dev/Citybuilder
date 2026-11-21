@@ -89,13 +89,13 @@ Core
 
 ## 13. Testing strategy
 
-- EditMode-тесты на всю чистую логику и адаптеры: 63 тестовых файла (`Assets/Citybuilder/Tests/`), статическая валидация — `Tools/ValidateRepo.py` в CI.
+- EditMode-тесты на всю чистую логику и адаптеры: 125 тестовых файлов (`Assets/Citybuilder/Tests/`) и 980 тестов (802 `[Test]` + 178 `[TestCase]`) на момент правки; число растёт — пересчитывать перед релизом. Статическая валидация — `Tools/ValidateRepo.py` в CI.
 
 ## 14. Performance strategy
 
 Ориентир V1 / v1.1: сетка 50x50 = 2500 клеток только логика, без 2500 GameObject. Визуал сетки и оверлея радиуса — процедурные меши (`GridMeshBuilder`). Перекраска пробок выполняется строго 1 раз за тик часов, а кеш строк `InfoMenuView` и `EventLogView` обновляется не чаще 2 раз в секунду.
 
-## 15. Current implementation scope (v1.2.x)
+## 15. Current implementation scope
 
 v1.1 systems (see v1.1.0 scope history in git) plus the v1.2 «Living city» milestone:
 
