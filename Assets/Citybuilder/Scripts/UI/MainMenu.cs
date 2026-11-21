@@ -58,29 +58,29 @@ namespace Citybuilder
             BottomBarStyle.DrawBarBackground(panel);
             float x = panel.x + 20f;
             float y = panel.y + 14f;
-            HudText.Draw(x, y, "=== Citybuilder ===");
+            HudText.Draw(x, y, Localization.T("main_menu_title"));
             y += 34f;
-            if (GUI.Button(new Rect(x, y, 280f, 32f), "Продолжить"))
+            if (GUI.Button(new Rect(x, y, 280f, 32f), Localization.T("main_menu_continue")))
             {
                 if (Load != null) Load.LoadNow(FindLatestSlot(Application.persistentDataPath));
                 if (Runner != null) Runner.SetSpeed(SimulationSpeed.Playing);
                 Close();
             }
             y += 40f;
-            if (GUI.Button(new Rect(x, y, 280f, 32f), "Новая игра"))
+            if (GUI.Button(new Rect(x, y, 280f, 32f), Localization.T("main_menu_new_game")))
             {
                 if (Load != null) Load.NewGame();
                 if (Runner != null) Runner.SetSpeed(SimulationSpeed.Playing);
                 Close();
             }
             y += 40f;
-            if (GUI.Button(new Rect(x, y, 280f, 32f), "Загрузить") && LoadMenu != null)
+            if (GUI.Button(new Rect(x, y, 280f, 32f), Localization.T("main_menu_load")) && LoadMenu != null)
             {
                 Close();
                 LoadMenu.Open();
             }
             y += 40f;
-            if (GUI.Button(new Rect(x, y, 280f, 32f), "Выход")) Application.Quit();
+            if (GUI.Button(new Rect(x, y, 280f, 32f), Localization.T("main_menu_exit"))) Application.Quit();
         }
 
         private void ResolveRefs()

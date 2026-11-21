@@ -51,7 +51,7 @@ namespace Citybuilder
             BottomBarStyle.DrawBarBackground(panel);
             float x = panel.x + 14f;
             float y = panel.y + 12f;
-            HudText.Draw(x, y, "=== Загрузить город ===");
+            HudText.Draw(x, y, Localization.T("load_title"));
             y += 30f;
             string baseDir = Application.persistentDataPath;
             for (int i = 0; i < SaveSlotIndex.ManualSlotCount; i++)
@@ -61,7 +61,7 @@ namespace Citybuilder
             }
             DrawRow(x, y, SaveSlotIndex.AutosaveSlot, baseDir);
             y += 44f;
-            if (GUI.Button(new Rect(x, y, 120f, 28f), "Закрыть")) ReturnToPause();
+            if (GUI.Button(new Rect(x, y, 120f, 28f), Localization.T("load_close"))) ReturnToPause();
         }
 
         private void DrawRow(float x, float y, int slot, string baseDir)
@@ -71,15 +71,15 @@ namespace Citybuilder
                 ? meta.name
                 : SaveSlotIndex.DefaultName(slot);
             string label = meta == null
-                ? title + " — пусто"
-                : title + " — День " + (meta.savedAtTick / 24) + " (" + meta.savedAtReal + ")";
+                ? Localization.T("load_slot_empty", title)
+                : Localization.T("load_slot_info", title, meta.savedAtTick / 24, meta.savedAtReal);
             HudText.Draw(x, y + 2f, label);
             Rect btn = new Rect(x + 330f, y, 100f, 26f);
             if (meta == null)
             {
-                BottomBarStyle.DrawDisabledButton(btn, "Загрузить");
+                BottomBarStyle.DrawDisabledButton(btn, Localization.T("load_load"));
             }
-            else if (GUI.Button(btn, "Загрузить") && Load != null)
+            else if (GUI.Button(btn, Localization.T("load_load")) && Load != null)
             {
                 Load.LoadNow(slot);
                 Close();
