@@ -9,7 +9,9 @@ namespace Citybuilder
         None = 0,
         FireStart = 1,
         Burned = 2,
-        Crime = 3
+        Crime = 3,
+        Garbage = 4,
+        Blackout = 5
     }
 
     public static class AudioEventPolicy
@@ -18,8 +20,9 @@ namespace Citybuilder
         public const string BurnedMarker = "сгорел";
         public const string ExtinguishedMarker = "потушен";
 
-        // Один сигнал на вид события: начало пожара, сгоревший дом, кража.
+        // Один сигнал на вид события: пожар, кража, вывоз мусора, отключение света.
         // Потушенный пожар молчит (хорошая новость — достаточно записи в ленте).
+        // Казна/доход молчат всегда: coin.wav — только награда цели (GoalView.cs:64).
         public static AudioEventSound Resolve(EventKind kind, string message)
         {
             if (kind == EventKind.Fire && !string.IsNullOrEmpty(message))
@@ -28,6 +31,8 @@ namespace Citybuilder
                 if (!message.Contains(ExtinguishedMarker)) return AudioEventSound.FireStart;
             }
             if (kind == EventKind.Crime) return AudioEventSound.Crime;
+            if (kind == EventKind.Garbage) return AudioEventSound.Garbage;
+            if (kind == EventKind.Blackout) return AudioEventSound.Blackout;
             return AudioEventSound.None;
         }
 

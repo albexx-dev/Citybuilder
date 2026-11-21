@@ -37,6 +37,29 @@ namespace Citybuilder
         }
 
         [Test]
+        public void Resolve_Garbage_IsGarbage()
+        {
+            // Вывоз мусора — тихий сигнал, не монетка.
+            Assert.AreEqual(AudioEventSound.Garbage, AudioEventPolicy.Resolve(EventKind.Garbage, "Мусор вывезен (День 3)"));
+        }
+
+        [Test]
+        public void Resolve_Blackout_IsBlackout()
+        {
+            Assert.AreEqual(AudioEventSound.Blackout, AudioEventPolicy.Resolve(EventKind.Blackout, "Отключилась энергия (День 3)"));
+        }
+
+        [Test]
+        public void Resolve_TreasuryAndIncome_AreSilent()
+        {
+            // Доктрина: coin.wav — только награда цели (GoalView.cs:64); лента дохода молчит.
+            // ShouldPlayCoin остаётся мёртвым путём только в тестах SoundCooldownPolicyTests.
+            Assert.AreEqual(AudioEventSound.None, AudioEventPolicy.Resolve(EventKind.Treasury, "Налоговый сбор +45 $/ч"));
+            Assert.AreEqual(AudioEventSound.None, AudioEventPolicy.Resolve(EventKind.Treasury, "Казна +120 $"));
+            Assert.AreEqual(AudioEventSound.None, AudioEventPolicy.Resolve(EventKind.Supply, "Энергия 46%"));
+        }
+
+        [Test]
         public void Resolve_OtherKinds_AndEmptyMessage_AreSilent()
         {
             Assert.AreEqual(AudioEventSound.None, AudioEventPolicy.Resolve(EventKind.Supply, "Энергия 46%"));
