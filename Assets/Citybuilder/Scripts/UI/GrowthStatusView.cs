@@ -90,22 +90,22 @@ namespace Citybuilder
         {
             GrowthStatusPolicy.Kind kind = PickKind();
             if (kind == GrowthStatusPolicy.Kind.None) return string.Empty;
-            string head = "Рост: " + Growth.GrownCount + " " + GrowthStatusPolicy.HousesWord(Growth.GrownCount);
+            string head = Localization.T("growth_head", Growth.GrownCount, GrowthStatusPolicy.HousesWord(Growth.GrownCount));
             switch (kind)
             {
                 case GrowthStatusPolicy.Kind.GrowthOff:
-                    return head + " — выключен, нажми [4]";
+                    return head + Localization.T("growth_off");
                 case GrowthStatusPolicy.Kind.NoZones:
-                    return head + " — нет жилых зон, нажми [3]";
+                    return head + Localization.T("growth_no_zones");
                 case GrowthStatusPolicy.Kind.AtCapacity:
-                    return head + " — потолок " + Growth.MaxSettlements + " достигнут";
+                    return head + Localization.T("growth_capacity", Growth.MaxSettlements);
                 case GrowthStatusPolicy.Kind.NoMoney:
-                    return head + " — нет денег: дом стоит $" + CheapestCost();
+                    return head + Localization.T("growth_no_money", CheapestCost());
                 case GrowthStatusPolicy.Kind.Deficit:
-                    return head + " — казна пуста: содержание больше дохода";
+                    return head + Localization.T("growth_deficit");
                 default:
                     float attr = Population != null ? Population.CurrentAttractiveness : 1f;
-                    return head + ", следующий через " + Growth.TicksToNextGrowth + " ч"
+                    return head + Localization.T("growth_next", Growth.TicksToNextGrowth)
                         + SlowSuffix() + GrowthStatusPolicy.LowAttractivenessSuffix(attr);
             }
         }
@@ -117,9 +117,9 @@ namespace Citybuilder
             int jams = Growth != null && Growth.Congestion != null ? Growth.Congestion.GrowthTickMultiplier : 1;
             int worst = Mathf.Max(supply, jams);
             if (worst <= 1) return string.Empty;
-            string reason = supply > 1 && jams > 1 ? "дефицит снабжения и пробки"
-                : supply > 1 ? "дефицит снабжения" : "пробки";
-            return " (медленнее ×" + worst + ": " + reason + ")";
+            string reason = supply > 1 && jams > 1 ? Localization.T("growth_slow_both")
+                : supply > 1 ? Localization.T("growth_slow_supply") : Localization.T("growth_slow_jams");
+            return Localization.T("growth_slow", worst, reason);
         }
     }
 }

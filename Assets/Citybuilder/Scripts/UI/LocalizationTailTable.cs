@@ -43,7 +43,23 @@ namespace Citybuilder
             { "info_panel_care", new[] { "Больница {0}% • Парк {1}%", "Hospital {0}% • Park {1}%" } },
             { "info_panel_radius", new[] { "Радиус: {0} кл. • Покрыто домов: {1}/{2}", "Radius: {0} tiles • Homes covered: {1}/{2}" } },
             { "info_panel_jobs", new[] { "Рабочих мест: {0}", "Jobs: {0}" } },
-            { "info_panel_upgrade", new[] { "Улучшить — ${0}", "Upgrade — ${0}" } }
+            { "info_panel_upgrade", new[] { "Улучшить — ${0}", "Upgrade — ${0}" } },
+            // Статус роста: склонение «дом», причины остановки и замедления.
+            { "house_one", new[] { "дом", "house" } },
+            { "house_few", new[] { "дома", "house" } },
+            { "house_many", new[] { "домов", "houses" } },
+            { "growth_low_attraction", new[] { " • низкая привлекательность ({0}%)", " • low attractiveness ({0}%)" } },
+            { "growth_head", new[] { "Рост: {0} {1}", "Growth: {0} {1}" } },
+            { "growth_off", new[] { " — выключен, нажми [4]", " — off, press [4]" } },
+            { "growth_no_zones", new[] { " — нет жилых зон, нажми [3]", " — no residential zones, press [3]" } },
+            { "growth_capacity", new[] { " — потолок {0} достигнут", " — cap {0} reached" } },
+            { "growth_no_money", new[] { " — нет денег: дом стоит ${0}", " — no money: house costs ${0}" } },
+            { "growth_deficit", new[] { " — казна пуста: содержание больше дохода", " — treasury empty: upkeep exceeds income" } },
+            { "growth_next", new[] { ", следующий через {0} ч", ", next in {0} h" } },
+            { "growth_slow_both", new[] { "дефицит снабжения и пробки", "supply shortage and traffic" } },
+            { "growth_slow_supply", new[] { "дефицит снабжения", "supply shortage" } },
+            { "growth_slow_jams", new[] { "пробки", "traffic" } },
+            { "growth_slow", new[] { " (медленнее ×{0}: {1})", " (slower ×{0}: {1})" } }
         };
 
         public static void AddTo(Dictionary<string, string[]> target)
