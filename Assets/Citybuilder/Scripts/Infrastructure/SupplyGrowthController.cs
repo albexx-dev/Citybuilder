@@ -35,11 +35,11 @@ namespace Citybuilder
             float p = Power != null ? Power.Rate01 : 1f;
             float w = Water != null ? Water.Rate01 : 1f;
             float g = Waste != null ? Waste.Rate01 : 1f;
-            string line = EvaluateSupplyEvent(p, w, g, ref hadDeficit);
-            if (!string.IsNullOrEmpty(line)) log.Add(EventKind.Supply, line, tick);
+            CityEvent supplyEvent = EvaluateSupplyEvent(p, w, g, ref hadDeficit);
+            if (!string.IsNullOrEmpty(supplyEvent.MessageKey)) log.Add(supplyEvent);
         }
 
-        // Блэкаут (EPIC-50): в ленту только при изменении числа отключённых — дедуп по строке
+        // Блэкаут (EPIC-50): в ленту только при изменении числа отключённых — дедуп по ключу
         // не спасает от меняющегося N (issue #63), поэтому гейт по изменению, без троттлинга.
         public void ReportBlackout(CityEventLog log, int tick)
         {
@@ -47,39 +47,36 @@ namespace Citybuilder
             int count = Power.UnpoweredCount;
             if (count == lastBlackoutCount) return;
             lastBlackoutCount = count;
-            log.Add(EventKind.Blackout, BlackoutMessage(count), tick);
+            log.Add(EventKind.Blackout,
+                count > 0 ? EventMessageCatalog.Blackout : EventMessageCatalog.BlackoutRestored,
+                count > 0 ? new object[] { count } : null, tick);
         }
 
-        private static string BlackoutMessage(int count)
-        {
-            return count > 0
-                ? "Блэкаут: " + count + " зданий без энергии"
-                : "Электроснабжение восстановлено";
-        }
-
-        // Чистая логика формирования события снабжения.
-        public static string EvaluateSupplyEvent(float power01, float water01, float waste01, ref bool wasInDeficit)
+        // Чистая логика формирования события снабжения: ключ + аргументы, без языка.
+        public static CityEvent EvaluateSupplyEvent(float power01, float water01, float waste01, ref bool wasInDeficit)
         {
             int mult = SupplyGrowthPolicy.Multiplier(power01, water01, waste01);
             if (mult > 1)
             {
                 wasInDeficit = true;
                 if (power01 <= water01 && power01 <= waste01)
-                {
-                    return "Энергия " + (int)Math.Round(power01 * 100f) + "%: рост замедлен";
-                }
+                    return Deficit(EventMessageCatalog.SupplyPowerDeficit, power01);
                 if (water01 <= waste01)
-                {
-                    return "Вода " + (int)Math.Round(water01 * 100f) + "%: рост замедлен";
-                }
-                return "Мусор " + (int)Math.Round(waste01 * 100f) + "%: рост замедлен";
+                    return Deficit(EventMessageCatalog.SupplyWaterDeficit, water01);
+                return Deficit(EventMessageCatalog.SupplyWasteDeficit, waste01);
             }
             if (wasInDeficit)
             {
                 wasInDeficit = false;
-                return "Снабжение восстановлено: 100%";
+                return new CityEvent(EventKind.Supply, EventMessageCatalog.SupplyRestored, null, 0);
             }
-            return string.Empty;
+            return default(CityEvent);
+        }
+
+        private static CityEvent Deficit(string messageKey, float rate01)
+        {
+            return new CityEvent(EventKind.Supply, messageKey,
+                new object[] { (int)Math.Round(rate01 * 100f) }, 0);
         }
     }
 }
