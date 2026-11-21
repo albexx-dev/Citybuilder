@@ -24,7 +24,7 @@ namespace Citybuilder
             Assert.AreEqual(1, quests.CompletedCount);
             Assert.IsFalse(HasActive(quests, "q_res_10"));
             Assert.AreEqual(3, quests.Active.Count);
-            Assert.AreEqual(1, CountMessages(log, "Задача выполнена: Первые жители (+200$)"));
+            Assert.AreEqual(1, CountMessages(log, EventMessageCatalog.QuestCompleted));
         }
 
         [Test]
@@ -136,13 +136,13 @@ namespace Citybuilder
             return false;
         }
 
-        private static int CountMessages(CityEventLog log, string message)
+        private static int CountMessages(CityEventLog log, string messageKey)
         {
             int count = 0;
             IReadOnlyList<CityEvent> snapshot = log.Snapshot();
             for (int i = 0; i < snapshot.Count; i++)
             {
-                if (snapshot[i].Message == message) count++;
+                if (snapshot[i].MessageKey == messageKey) count++;
             }
             return count;
         }

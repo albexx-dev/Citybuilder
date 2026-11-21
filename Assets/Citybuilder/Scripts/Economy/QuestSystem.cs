@@ -123,8 +123,8 @@ namespace Citybuilder
             if (treasury != null && quest.Reward > 0) treasury.Earn(quest.Reward);
             if (log != null)
             {
-                log.Add(EventKind.Treasury,
-                    "Задача выполнена: " + quest.Title + " (+" + quest.Reward + "$)", tick);
+                log.Add(EventKind.Treasury, EventMessageCatalog.QuestCompleted,
+                    new object[] { quest.Title, quest.Reward }, tick);
             }
         }
 

@@ -70,7 +70,7 @@ namespace Citybuilder
             for (int i = start; i < snapshot.Count; i++)
             {
                 lastEventKey = AudioEventPolicy.KeyOf(snapshot[i]);
-                PlaySound(AudioEventPolicy.Resolve(snapshot[i].Kind, snapshot[i].Message));
+                PlaySound(AudioEventPolicy.Resolve(snapshot[i]));
             }
         }
 

@@ -16,8 +16,8 @@ namespace Citybuilder
         {
             BuildingState home = Home(new GridPosition(5, 5));
             int igniteTick = FindIgniteTick(home.Id);
-            List<string> firstEvents = new List<string>();
-            List<string> secondEvents = new List<string>();
+            List<CityEvent> firstEvents = new List<CityEvent>();
+            List<CityEvent> secondEvents = new List<CityEvent>();
             FireSystem first = Run(home, igniteTick, 3, 0f, firstEvents);
             FireSystem second = Run(home, igniteTick, 3, 0f, secondEvents);
             Assert.IsTrue(first.IsBurning(home.Id));
@@ -51,7 +51,7 @@ namespace Citybuilder
         {
             BuildingState home = Home(new GridPosition(6, 6));
             int igniteTick = FindIgniteTick(home.Id);
-            FireSystem fires = Run(home, igniteTick, 20, 1f, new List<string>());
+            FireSystem fires = Run(home, igniteTick, 20, 1f, new List<CityEvent>());
             Assert.AreEqual(0, fires.BurningCount);
         }
 
@@ -61,7 +61,7 @@ namespace Citybuilder
         {
             BuildingState home = Home(new GridPosition(7, 7));
             int igniteTick = FindIgniteTick(home.Id);
-            FireSystem fires = Run(home, igniteTick, 20, float.NaN, new List<string>());
+            FireSystem fires = Run(home, igniteTick, 20, float.NaN, new List<CityEvent>());
             Assert.AreEqual(0, fires.BurningCount);
         }
 
@@ -71,8 +71,8 @@ namespace Citybuilder
         {
             BuildingState home = Home(new GridPosition(8, 8));
             FireSystem fires = new FireSystem();
-            List<string> messages = new List<string>();
-            fires.Fired += delegate (EventKind kind, string message, int tick) { messages.Add(message); };
+            List<CityEvent> messages = new List<CityEvent>();
+            fires.Fired += delegate (CityEvent cityEvent) { messages.Add(cityEvent); };
             fires.ForceIgnite(home, 100);
             int demolished = 0;
             fires.Tick(101, new List<BuildingState> { home }, delegate { return 1f; },
@@ -80,7 +80,8 @@ namespace Citybuilder
             Assert.IsFalse(fires.IsBurning(home.Id));
             Assert.AreEqual(0, demolished);
             Assert.AreEqual(2, messages.Count);
-            Assert.IsTrue(messages[1].Contains("потушен"));
+            Assert.AreEqual(EventSubtype.Extinguished, messages[1].Subtype);
+            Assert.AreEqual(EventMessageCatalog.FireExtinguished, messages[1].MessageKey);
         }
 
         // Разрушение: 6 тиков горения без станции — снос, жители выселены, 2 события (старт и сгорание).
@@ -91,8 +92,8 @@ namespace Citybuilder
             PopulationSystem population = new PopulationSystem();
             population.MoveIn(home, 4);
             FireSystem fires = new FireSystem();
-            List<string> messages = new List<string>();
-            fires.Fired += delegate (EventKind kind, string message, int tick) { messages.Add(message); };
+            List<CityEvent> messages = new List<CityEvent>();
+            fires.Fired += delegate (CityEvent cityEvent) { messages.Add(cityEvent); };
             fires.ForceIgnite(home, 100);
             List<BuildingState> burned = new List<BuildingState>();
             for (int t = 101; t <= 106; t++)
@@ -105,8 +106,9 @@ namespace Citybuilder
             Assert.IsFalse(fires.IsBurning(home.Id));
             Assert.AreEqual(0, population.TotalResidents);
             Assert.AreEqual(2, messages.Count);
-            Assert.IsTrue(messages[0].Contains("Пожар в доме #"));
-            Assert.IsTrue(messages[1].Contains("сгорел дотла"));
+            Assert.AreEqual(EventSubtype.FireStart, messages[0].Subtype);
+            Assert.AreEqual(EventSubtype.Burned, messages[1].Subtype);
+            Assert.AreEqual(EventMessageCatalog.FireBurned, messages[1].MessageKey);
         }
 
         // Хук форс-возгорания: поджигает один раз, повторный вызов не дублирует.
@@ -115,8 +117,8 @@ namespace Citybuilder
         {
             BuildingState home = Home(new GridPosition(14, 14));
             FireSystem fires = new FireSystem();
-            List<string> messages = new List<string>();
-            fires.Fired += delegate (EventKind kind, string message, int tick) { messages.Add(message); };
+            List<CityEvent> messages = new List<CityEvent>();
+            fires.Fired += delegate (CityEvent cityEvent) { messages.Add(cityEvent); };
             fires.ForceIgnite(home, 1);
             fires.ForceIgnite(home, 2);
             Assert.IsTrue(fires.IsBurning(home.Id));
@@ -143,10 +145,10 @@ namespace Citybuilder
 
         // Прогон дома тиков с заданным покрытием; события собираются в список.
         private static FireSystem Run(BuildingState home, int startTick, int ticks, float coverage,
-            List<string> events)
+            List<CityEvent> events)
         {
             FireSystem fires = new FireSystem();
-            fires.Fired += delegate (EventKind kind, string message, int tick) { events.Add(message); };
+            fires.Fired += delegate (CityEvent cityEvent) { events.Add(cityEvent); };
             List<BuildingState> homes = new List<BuildingState> { home };
             for (int t = startTick; t < startTick + ticks; t++)
             {
