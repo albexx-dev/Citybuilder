@@ -28,6 +28,7 @@ namespace Citybuilder
         public SimulationRunner Runner;
 
         private readonly ServiceBuildingSystem system = new ServiceBuildingSystem();
+        private readonly CoverageTickBinding tickBinding = new CoverageTickBinding();
         private float timer;
 
         public ServiceBuildingSystem System
@@ -82,18 +83,18 @@ namespace Citybuilder
         }
 
         // Тик: TickStarted всегда раньше TickCompleted (пожары/кражи/квесты).
-        // Один свежий снимок на тик, независимо от скорости и порядка подписки.
+        // Один пересчёт от TickStarted на тик; Update сохраняет 2-секундное HUD-освежение
+        // как страховку для паузы/редактора.
         private void OnEnable()
         {
             if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
             if (Runner == null || Runner.Clock == null) return;
-            Runner.Clock.TickStarted += OnTickStarted;
+            tickBinding.Bind(Runner.Clock, OnTickStarted);
         }
 
         private void OnDisable()
         {
-            if (Runner == null || Runner.Clock == null) return;
-            Runner.Clock.TickStarted -= OnTickStarted;
+            tickBinding.Unbind();
         }
 
         private void OnTickStarted(SimulationTime time) { RefreshNow(); }
