@@ -40,10 +40,17 @@ namespace Citybuilder
 
         private void Awake()
         {
-            daySource = EnsureSource();
-            nightSource = EnsureSource();
+            daySource = EnsureSource("AmbientDay");
+            nightSource = EnsureSource("AmbientNight");
             StartLoop(daySource, DayClip);
             StartLoop(nightSource, NightClip);
+        }
+
+        private void OnDisable()
+        {
+            // Пауза эмбиента при выключении компонента; Update вернёт громкость при включении.
+            if (daySource != null) daySource.volume = 0f;
+            if (nightSource != null) nightSource.volume = 0f;
         }
 
         private void Update()
@@ -88,10 +95,13 @@ namespace Citybuilder
             if (nightSource != null) nightSource.volume = nightCurrent;
         }
 
-        // Источник эмбиента создаётся кодом, как Source в AudioController (EPIC-19).
-        private AudioSource EnsureSource()
+        // Источник эмбиента создаётся кодом на ДОЧЕРНЕМ объекте: AudioController.cs:55
+        // берёт GetComponent<AudioSource>() со своего хоста — общий GO столкнул бы их.
+        private AudioSource EnsureSource(string name)
         {
-            AudioSource source = gameObject.AddComponent<AudioSource>();
+            GameObject host = new GameObject(name);
+            host.transform.SetParent(transform, false);
+            AudioSource source = host.AddComponent<AudioSource>();
             source.playOnAwake = false;
             source.loop = true;
             source.volume = 0f;

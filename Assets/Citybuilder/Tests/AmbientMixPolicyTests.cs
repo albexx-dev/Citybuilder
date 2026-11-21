@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Citybuilder.Tests
+namespace Citybuilder
 {
     // Микс эмбиента (EPIC-71): края 6/9/18/22, линейность, границы громкостей,
     // масштаб от активности города и гарды часа — по образцу DayNightPolicyTests.
