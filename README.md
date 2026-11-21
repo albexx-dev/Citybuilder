@@ -30,7 +30,7 @@ Connected systems:
 
 ## Quickstart
 
-![Citybuilder v1.1.0 — нижняя панель действий, чистый HUD и туториал](https://github.com/albexx-dev/Citybuilder/releases/download/v1.1.0/v110-play-city.png)
+![Citybuilder — игровой процесс: нижняя панель действий, HUD и туториал (скриншот архивного релиза v1.1.0)](https://github.com/albexx-dev/Citybuilder/releases/download/v1.1.0/v110-play-city.png)
 
 1. Clone the repository and open **its root** as a Unity project (`Assets/`, `Packages/`, and `ProjectSettings/` are tracked with `.meta` files).
 2. Open `Assets/Citybuilder/Scenes/Prototype.unity` and press **Play**.
