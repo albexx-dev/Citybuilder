@@ -44,9 +44,35 @@ namespace Citybuilder
             public int Y;
         }
 
+        // v6 (ADR-014): опциональные записи. В слотах v1–v5 полей нет — читается как пусто/0.
+        [Serializable]
+        public class GarbageQueueEntry
+        {
+            public int X;
+            public int Y;
+            public int Accumulated;
+        }
+
+        [Serializable]
+        public class ComfortStreakEntry
+        {
+            public int X;
+            public int Y;
+            public int Streak;
+        }
+
+        [Serializable]
+        public class ConstructionProgressEntry
+        {
+            public int X;
+            public int Y;
+            public string DefId;
+            public int TicksElapsed;
+        }
+
         // v1 — без TaxLevel, v2 — с TaxLevel, v3 — плюс ручные здания,
-        // v4 — плюс ступень цели (GoalStage), v5 — плюс уровни зданий и три ставки.
-        public int Version = 5;
+        // v4 — плюс ступень цели, v5 — уровни и ставки, v6 — опциональные поля ниже.
+        public int Version = 6;
         public long TickCount;
         public int Balance;
         // Налоговая политика: 0 = не задано (слот v1) → обычный, 1/2/3 = низкий/обычный/высокий.
@@ -67,5 +93,10 @@ namespace Citybuilder
         // старый слот без них читается пустыми списками — цепочка стартует заново.
         public List<string> QuestActive = new List<string>();
         public List<string> QuestCompleted = new List<string>();
+        // v6 (ADR-014): все четыре поля необязательны; null/пусто = поведение слота v5.
+        public int TheftCounter;
+        public List<GarbageQueueEntry> GarbageQueue = new List<GarbageQueueEntry>();
+        public List<ComfortStreakEntry> ComfortStreak = new List<ComfortStreakEntry>();
+        public List<ConstructionProgressEntry> ConstructionProgress = new List<ConstructionProgressEntry>();
     }
 }

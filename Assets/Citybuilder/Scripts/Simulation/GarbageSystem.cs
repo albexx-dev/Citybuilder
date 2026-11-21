@@ -3,11 +3,9 @@ using System.Collections.Generic;
 
 namespace Citybuilder
 {
-    // Вывоз мусора (EPIC-52): дома копят мусор, готовые встают в очередь, флот
-    // мусоровозов (GarbageTrucks) объезжает её от полигона. Прирост за тик
-    // детерминирован FNV-1a по (tick, EntityId) со своей солью — без System.Random
-    // (паттерн ADR-009). Домен не знает про Unity. Состояние НЕ сериализуется:
-    // Reset при отмотке времени назад (как пожары и квесты).
+    // Вывоз мусора (EPIC-52): дома копят, флот (GarbageTrucks) объезжает очередь от полигона.
+    // Прирост детерминирован FNV-1a
+    // (паттерн ADR-009). В v6 (ADR-014) в слот пишутся накопление и адреса очереди, не флот.
     public class GarbageSystem
     {
         public const int ReadyThreshold = 20;
@@ -25,6 +23,7 @@ namespace Citybuilder
 
         private readonly GarbageTrucks fleet = new GarbageTrucks();
         private readonly Dictionary<EntityId, int> accumulated = new Dictionary<EntityId, int>();
+        private readonly Dictionary<EntityId, GridPosition> origins = new Dictionary<EntityId, GridPosition>();
         private readonly List<Pickup> ready = new List<Pickup>();
         private readonly HashSet<EntityId> queued = new HashSet<EntityId>();
         private int lastTick;
@@ -68,9 +67,33 @@ namespace Citybuilder
         public void Reset()
         {
             accumulated.Clear();
+            origins.Clear();
             ready.Clear();
             queued.Clear();
             fleet.Reset();
+        }
+
+        // Снимок v6: координаты дома и накопленный мусор; готовые очереди идут первыми.
+        public void CollectSnapshot(List<CitySnapshot.GarbageQueueEntry> entries)
+        {
+            if (entries == null) return;
+            for (int i = 0; i < ready.Count; i++) AddEntry(entries, ready[i].Id, ready[i].At);
+            foreach (KeyValuePair<EntityId, int> pair in accumulated)
+            {
+                GridPosition at;
+                if (origins.TryGetValue(pair.Key, out at)) AddEntry(entries, pair.Key, at);
+            }
+        }
+
+        private void AddEntry(List<CitySnapshot.GarbageQueueEntry> entries, EntityId id, GridPosition at)
+        {
+            for (int i = 0; i < entries.Count; i++)
+            {
+                if (entries[i].X != at.X || entries[i].Y != at.Y) continue;
+                entries[i].Accumulated = AccOf(id);
+                return;
+            }
+            entries.Add(new CitySnapshot.GarbageQueueEntry { X = at.X, Y = at.Y, Accumulated = AccOf(id) });
         }
 
         // Накопление дома: WasteOutput здания плюс детерминированный бит хеша (0..1).
@@ -80,6 +103,7 @@ namespace Citybuilder
             int output = home.Definition != null ? home.Definition.WasteOutput : 0;
             int value = AccOf(home.Id) + GainPerTick(tick, home.Id, output);
             accumulated[home.Id] = value;
+            origins[home.Id] = home.Origin;
             if (value < ReadyThreshold || queued.Contains(home.Id)) return;
             queued.Add(home.Id);
             ready.Add(new Pickup { Id = home.Id, At = home.Origin });

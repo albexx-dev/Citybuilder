@@ -6,7 +6,7 @@ namespace Citybuilder
     // Строит снапшот города из живых систем. Чистый C#, без Unity.
     public static class SaveSystem
     {
-        public const int CurrentVersion = 5;
+        public const int CurrentVersion = SaveV6Snapshot.Version;
 
         // Слот без налога (старая сигнатура): TaxLevel = 0, при чтении это «обычный».
         public static CitySnapshot BuildSnapshot(List<BuildingState> homes, List<HouseholdState> households,
@@ -50,6 +50,8 @@ namespace Citybuilder
             SnapshotHouseholds.Write(snapshot, households, indexByHome);
             AddRoads(snapshot, roads);
             AddManual(snapshot, manualBuildings);
+            // v6 (ADR-014): серия комфорта пишется сразу; остальные системы подключает SaveController.
+            SaveV6Snapshot.Write(snapshot, null, null, homes, null);
             return snapshot;
         }
 
