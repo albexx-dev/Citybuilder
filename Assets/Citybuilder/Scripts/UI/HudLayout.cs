@@ -71,14 +71,6 @@ namespace Citybuilder
             return new Rect(x, speed.y, width, ButtonHeight);
         }
 
-        public static Rect MenuButtonsRect(float screenWidth, float screenHeight)
-        {
-            Rect speed = SpeedGroupRect(screenWidth, screenHeight);
-            float width = 3f * MenuButtonWidth + 2f * ButtonGap;
-            float x = Mathf.Max(ModeGroupRect(screenWidth, screenHeight).xMax + GroupGap, screenWidth - width - BarPadding);
-            return new Rect(x, speed.y, width, ButtonHeight);
-        }
-
         public static int MaxPaletteItems(float screenWidth)
         {
             float modeX = ModeGroupRect(screenWidth, 0f).x;

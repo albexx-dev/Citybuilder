@@ -71,6 +71,7 @@ namespace Citybuilder
             QuestLogView quests = FindFirstObjectByType<QuestLogView>();
             if (log != null) log.SetOpen(false);
             if (quests != null) quests.SetOpen(false);
+            SettingsView.CloseIfOpen();
         }
 
         private void OnGUI()

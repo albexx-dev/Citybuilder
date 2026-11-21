@@ -18,6 +18,7 @@ namespace Citybuilder
 
         private GameSettings settings;
         private bool isOpen;
+        private bool lastDayNightEnabled = true;
         private SimulationSpeed speedBeforeOpen = SimulationSpeed.Playing;
 
         public bool IsOpen { get { return isOpen; } }
@@ -61,6 +62,13 @@ namespace Citybuilder
             isOpen = false;
             UiClickGuard.Set("settings", new Rect());
             if (Runner != null) Runner.SetSpeed(speedBeforeOpen);
+        }
+
+        // Шов для хоткеев других панелей: закрыть настройки, если открыты (Tab/L поверх окна).
+        public static void CloseIfOpen()
+        {
+            SettingsView settings = FindFirstObjectByType<SettingsView>();
+            if (settings != null && settings.IsOpen) settings.Close();
         }
 
         // Нижняя панель тогглит окно, как «Задачи» и «Лента».
@@ -118,7 +126,8 @@ namespace Citybuilder
         private void ApplyToListeners()
         {
             ApplyAudio(settings, Audio);
-            ApplyDayNight(settings, DayNight);
+            if (settings.DayNightEnabled != lastDayNightEnabled) ApplyDayNight(settings, DayNight);
+            lastDayNightEnabled = settings.DayNightEnabled;
         }
 
         // Готовая точка AudioController: SetVolume/SetMuted сами ведут свои ключи PlayerPrefs.
