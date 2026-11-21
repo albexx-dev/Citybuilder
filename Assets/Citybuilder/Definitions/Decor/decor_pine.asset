@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Citybuilder::Citybuilder.DecorDefinition
   Id: decor_pine
   DisplayName: "\u0421\u043E\u0441\u043D\u0430"
+  DisplayNameKey: decor_pine
   Prefab: {fileID: 8639678678474083894, guid: f033d722b1f7a0f41b745f9fd8aaeb44, type: 3}
