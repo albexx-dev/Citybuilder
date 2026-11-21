@@ -148,7 +148,6 @@ namespace Citybuilder
 
         private void ResolveRefs()
         {
-            if (settings == null) settings = new GameSettings();
             if (Pause == null) Pause = GetComponent<PauseMenuView>() ?? FindFirstObjectByType<PauseMenuView>();
             if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
             if (Audio == null) Audio = FindFirstObjectByType<AudioController>();
