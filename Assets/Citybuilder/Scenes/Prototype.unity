@@ -449,6 +449,8 @@ GameObject:
   - component: {fileID: 985593196}
   - component: {fileID: 985593197}
   - component: {fileID: 985593198}
+  - component: {fileID: 985593200}
+  - component: {fileID: 985593199}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -645,6 +647,7 @@ MonoBehaviour:
   SaveMenu: {fileID: 0}
   LoadMenu: {fileID: 0}
   Settings: {fileID: 0}
+  InfoPanel: {fileID: 0}
 --- !u!114 &985593162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -928,6 +931,7 @@ MonoBehaviour:
   Power: {fileID: 0}
   Kind: 1
   RefreshIntervalSec: 2
+  Runner: {fileID: 0}
 --- !u!114 &985593180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -964,6 +968,7 @@ MonoBehaviour:
   Power: {fileID: 0}
   Kind: 2
   RefreshIntervalSec: 2
+  Runner: {fileID: 0}
 --- !u!114 &985593182
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -997,6 +1002,10 @@ MonoBehaviour:
   Menu: {fileID: 0}
   Placement: {fileID: 0}
   Palette: {fileID: 0}
+  Economy: {fileID: 0}
+  Quests: {fileID: 0}
+  Log: {fileID: 0}
+  Runner: {fileID: 0}
 --- !u!114 &985593184
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1237,6 +1246,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Citybuilder::Citybuilder.QuestLogView
   Economy: {fileID: 594737064}
+--- !u!114 &985593199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6d04c92e51a4f3c9e8737a0f2d1c48b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.BlackoutViewController
+  Growth: {fileID: 985593158}
+  Power: {fileID: 985593170}
+  RefreshIntervalSec: 2
+--- !u!114 &985593200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d237f6b41ee4f668a94f3a591991eab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.FireOverlayView
+  Economy: {fileID: 594737064}
+  Growth: {fileID: 985593158}
+  RefreshIntervalSec: 0.5
+  HeightAboveGround: 2.4
 --- !u!1 &1069481158
 GameObject:
   m_ObjectHideFlags: 0
@@ -1421,6 +1461,8 @@ MonoBehaviour:
   Placement: {fileID: 0}
   Goal: {fileID: 0}
   QuestLog: {fileID: 0}
+  Garbage: {fileID: 0}
+  Economy: {fileID: 0}
 --- !u!4 &1432023087
 Transform:
   m_ObjectHideFlags: 0
@@ -1604,6 +1646,7 @@ GameObject:
   - component: {fileID: 1821543319}
   - component: {fileID: 1821543318}
   - component: {fileID: 1821543320}
+  - component: {fileID: 1821543321}
   m_Layer: 0
   m_Name: Simulation
   m_TagString: Untagged
@@ -1721,6 +1764,8 @@ MonoBehaviour:
   Decor: {fileID: 0}
   Menu: {fileID: 0}
   Autosave: {fileID: 0}
+  Ambient: {fileID: 0}
+  Tutorial: {fileID: 0}
 --- !u!114 &1821543320
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1733,12 +1778,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ceeeab625170a078b78904bc0f8dfe7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Citybuilder::Citybuilder.DecorManager
-  Visualizer: {fileID: 0}
-  ZonePainter: {fileID: 0}
-  DecorPrefabs: []
-  Chance: 0.15
-  RefreshInterval: 0.5
-  DecorScale: 1
+  ManualDecorRoot: {fileID: 0}
+--- !u!114 &1821543321
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1821543312}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ab11e515ae825afcf52b319b68f0efa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.MetricsRecorder
+  Runner: {fileID: 1821543313}
+  Population: {fileID: 0}
+  Treasury: {fileID: 0}
+  Growth: {fileID: 0}
+  Power: {fileID: 0}
+  Water: {fileID: 0}
+  Waste: {fileID: 0}
 --- !u!1 &2007715383
 GameObject:
   m_ObjectHideFlags: 0
@@ -1771,6 +1830,8 @@ MonoBehaviour:
   StartingBalance: 1500
   Economy: {fileID: 0}
   Upkeep: {fileID: 0}
+  Quests: {fileID: 0}
+  Runner: {fileID: 0}
 --- !u!4 &2007715385
 Transform:
   m_ObjectHideFlags: 0
