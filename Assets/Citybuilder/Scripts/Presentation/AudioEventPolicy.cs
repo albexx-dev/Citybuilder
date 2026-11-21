@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Citybuilder
 {
-    // Какой звуковой сигнал соответствует событию ленты (хвосты #71/#66, ADR-007).
+    // Какой звуковой сигнал соответствует событию ленты (хвосты #71/#66, ADR-007/013).
     // Чистый C# без Unity — образец AmbientMixPolicy: EditMode-тесты и dotnet-прогон.
     public enum AudioEventSound
     {
@@ -16,23 +16,18 @@ namespace Citybuilder
 
     public static class AudioEventPolicy
     {
-        // Маркеры сообщений FireSystem: «Пожар в доме #N!», «потушен», «Дом #N сгорел дотла».
-        public const string BurnedMarker = "сгорел";
-        public const string ExtinguishedMarker = "потушен";
-
-        // Один сигнал на вид события: пожар, кража, вывоз мусора, отключение света.
+        // Один сигнал на вид события: пожар, сгоревший дом, кража, вывоз мусора, отключение света.
         // Потушенный пожар молчит (хорошая новость — достаточно записи в ленте).
         // Казна/доход молчат всегда: coin.wav — только награда цели (GoalView.cs:64).
-        public static AudioEventSound Resolve(EventKind kind, string message)
+        // Никакого разбора текста: подтип и ключ не зависят от языка (ADR-013).
+        public static AudioEventSound Resolve(CityEvent cityEvent)
         {
-            if (kind == EventKind.Fire && !string.IsNullOrEmpty(message))
-            {
-                if (message.Contains(BurnedMarker)) return AudioEventSound.Burned;
-                if (!message.Contains(ExtinguishedMarker)) return AudioEventSound.FireStart;
-            }
-            if (kind == EventKind.Crime) return AudioEventSound.Crime;
-            if (kind == EventKind.Garbage) return AudioEventSound.Garbage;
-            if (kind == EventKind.Blackout) return AudioEventSound.Blackout;
+            if (cityEvent.Subtype == EventSubtype.Burned) return AudioEventSound.Burned;
+            if (cityEvent.Subtype == EventSubtype.FireStart) return AudioEventSound.FireStart;
+            if (cityEvent.Subtype == EventSubtype.Extinguished) return AudioEventSound.None;
+            if (cityEvent.Kind == EventKind.Crime) return AudioEventSound.Crime;
+            if (cityEvent.Kind == EventKind.Garbage) return AudioEventSound.Garbage;
+            if (cityEvent.Kind == EventKind.Blackout) return AudioEventSound.Blackout;
             return AudioEventSound.None;
         }
 
@@ -49,10 +44,12 @@ namespace Citybuilder
             return snapshot.Count - 1;
         }
 
-        // Ключ последнего обработанного события: тик, вид и текст (текст уникален по дому).
+        // Ключ последнего обработанного события: тик, вид, ключ сообщения и аргументы.
+        // Смена языка не меняет ключ — последнее событие не проигрывается повторно.
         public static string KeyOf(CityEvent cityEvent)
         {
-            return cityEvent.Tick + ":" + (int)cityEvent.Kind + ":" + cityEvent.Message;
+            return cityEvent.Tick + ":" + (int)cityEvent.Kind + ":" + cityEvent.MessageKey
+                + ":" + CityEvent.ArgsKey(cityEvent.Args);
         }
     }
 }
