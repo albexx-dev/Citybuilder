@@ -56,6 +56,6 @@
 | #70 | [Туториал v3](EPIC-70-tutorial-v3.md) | ux | not started |
 | #71 | [Звук v2](EPIC-71-sound-v2.md) | ux | шаг ambient **done** (task/210; событийные звуки — хвост) |
 | #72 | [Локализация EN](EPIC-72-localization.md) | ux | шаг 1 **done** (task/211; лента/ассеты — хвосты) |
-| #73 | [Релиз v1.2.0](EPIC-73-release.md) | release | not started |
+| #73 | [Релиз v1.2.0](EPIC-73-release.md) | release | **done** (тег v1.2.0, Release с zip, билд 0 ош.) |
 
 Прогресс отмечается здесь и чекбоксами в issue #74. Две задачи параллельно запрещены.
