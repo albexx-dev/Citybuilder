@@ -11,9 +11,9 @@ namespace Citybuilder
     // живёт в системе, в домен населения и сейв не попадает.
     public class CrimeSystem
     {
-        public const float TheftChancePerTick = 0.0008f; // 20 домов без полиции ≈ 1 кража за 2–3 дня
+        public const float TheftChancePerTick = 0.0005f; // смягчено по жалобе владельца «экономика быстро падает»: 20 домов ≈ 1 кража за 4–5 дней
         public const float SafeCoverage = 0.5f;          // порог покрытия полиции: ниже — дом могут обокрасть
-        public const int FinePerTheft = 50;              // штраф казне за одну кражу
+        public const int FinePerTheft = 20;              // штраф казне за одну кражу
         public const float LeisurePenalty = 0.2f;        // −досуг дома после кражи
         public const int LeisurePenaltyTicks = 12;       // срок временного модификатора досуга
         private const byte CrimeSalt = 0x63;             // соль FNV: кражи и пожары идут разными следами

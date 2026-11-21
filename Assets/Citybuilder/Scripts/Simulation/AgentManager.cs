@@ -8,13 +8,8 @@ namespace Citybuilder
     public class AgentManager
     {
         public const int MaxAgents = 40;
-        public const int SpawnsPerHour = 8;
         public const int DefaultActiveLimit = 12;
         public const float CellsPerSecond = 2f;
-        public const int MorningStart = 7;
-        public const int MorningEnd = 9;
-        public const int EveningStart = 17;
-        public const int EveningEnd = 19;
 
         // Поставщик маршрутов: в сцене — RouteSystem.FindPath, в тестах — fake.
         public Func<GridPosition, GridPosition, List<GridPosition>> PathFinder;
@@ -34,7 +29,7 @@ namespace Citybuilder
         private readonly VehicleAgent[] agents = new VehicleAgent[MaxAgents];
         private readonly CongestionSystem congestion;
         private readonly List<GridPosition> tripCell = new List<GridPosition>(1);
-        private long spawnCursor;
+        private long roadCursor;
         private int activeLimit = DefaultActiveLimit;
 
         public AgentManager(CongestionSystem congestion) { this.congestion = congestion; }
@@ -47,19 +42,33 @@ namespace Citybuilder
             return index >= 0 && index < MaxAgents ? agents[index] : default(VehicleAgent);
         }
 
-        // Часовой тик: утро 7-9 спавн дом→работа, вечер 17-19 работа→дом, иначе тихо.
-        public void OnGameHour(int hour, IReadOnlyList<GridPosition> homes, IReadOnlyList<GridPosition> works, IReadOnlyList<GridPosition> roads)
+        // Спавн по событию «построена дорога» (решение владельца: машины появляются, когда
+        // строятся дороги, а не по расписанию часов). Пара дом→работа берётся по вращающемуся
+        // курсору; TrySpawn сам якорит концы к ближайшим дорогам и проверяет соединённость
+        // маршрутом. false — ни одна пара не соединена (машина пока не нужна).
+        public bool SpawnForNewRoad(GridPosition newRoad, IReadOnlyList<GridPosition> homes,
+            IReadOnlyList<GridPosition> works, IReadOnlyList<GridPosition> roads)
         {
-            if (hour >= MorningStart && hour < MorningEnd) SpawnBatch(homes, works, roads);
-            else if (IsSpawnHour(hour)) SpawnBatch(works, homes, roads);
+            if (ActiveCount >= activeLimit) return false;
+            if (IsEmpty(homes) || IsEmpty(works) || IsEmpty(roads)) return false;
+            int pairs = homes.Count * works.Count;
+            for (int i = 0; i < pairs; i++)
+            {
+                long pairIndex = roadCursor + i;
+                GridPosition from = homes[(int)(pairIndex % homes.Count)];
+                GridPosition to = works[(int)(pairIndex % works.Count)];
+                int before = ActiveCount;
+                TrySpawn(from, to, roads);
+                if (ActiveCount > before)
+                {
+                    roadCursor += i + 1;
+                    return true;
+                }
+            }
+            return false;
         }
 
-        // Единая проверка окна спавна (утро 7-9 / вечер 17-19): читают OnGameHour и хост.
-        public static bool IsSpawnHour(int hour) { return (hour >= MorningStart && hour < MorningEnd) || (hour >= EveningStart && hour < EveningEnd); }
-
-        // Партия поездок за час окна: пары целей по вращающемуся курсору.
-        // Лимит одновременных машин: настройки игрока (Настройки → Лимит машин) и жалоба
-        // владельца на «слишком много» — спавн останавливается на пределе.
+        // Лимит одновременных машин: настройки игрока (Настройки → Лимит машин).
         public void SetActiveLimit(int value)
         {
             if (value < 1) value = 1;
@@ -68,22 +77,6 @@ namespace Citybuilder
         }
 
         public int ActiveLimit { get { return activeLimit; } }
-
-        private void SpawnBatch(IReadOnlyList<GridPosition> fromOrigins, IReadOnlyList<GridPosition> toOrigins, IReadOnlyList<GridPosition> roads)
-        {
-            int budget = activeLimit - ActiveCount;
-            if (budget <= 0) return;
-            if (IsEmpty(fromOrigins) || IsEmpty(toOrigins) || IsEmpty(roads)) return;
-            int count = SpawnsPerHour < budget ? SpawnsPerHour : budget;
-            for (int i = 0; i < count; i++)
-            {
-                long pairIndex = spawnCursor + i;
-                GridPosition from = fromOrigins[(int)(pairIndex % fromOrigins.Count)];
-                GridPosition to = toOrigins[(int)(pairIndex % toOrigins.Count)];
-                TrySpawn(from, to, roads);
-            }
-            spawnCursor += SpawnsPerHour;
-        }
 
         private static bool IsEmpty(IReadOnlyList<GridPosition> list)
         {

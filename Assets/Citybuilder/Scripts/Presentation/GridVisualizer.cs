@@ -14,7 +14,7 @@ namespace Citybuilder
         [Header("Colors")]
         public Color LineColor = Color.white;
         public Color HoverColor = new Color(1f, 1f, 0f, 0.4f);
-        public Color OccupiedColor = new Color(1f, 0f, 0f, 0.4f);
+        public Color OccupiedColor = new Color(1f, 0f, 0f, 0f); // невидимая: владелец убрал красные подложки зданий
 
         [Header("References")]
         [Tooltip("Строитель мешей. Пусто = создастся на этом же объекте.")]

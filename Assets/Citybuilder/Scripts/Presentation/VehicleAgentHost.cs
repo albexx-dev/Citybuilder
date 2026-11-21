@@ -24,7 +24,7 @@ namespace Citybuilder
         public SettingsView Settings;
 
         private AgentManager manager;
-        private bool clockSubscribed;
+        private int lastRoadCount;
         private readonly List<GridPosition> homes = new List<GridPosition>();
         private readonly List<GridPosition> works = new List<GridPosition>();
         private readonly List<GridPosition> roads = new List<GridPosition>();
@@ -64,43 +64,34 @@ namespace Citybuilder
             return routes != null ? routes.FindPath(from, to) : null;
         }
 
-        private void OnEnable() { TrySubscribeClock(); }
-
-        private void OnDisable()
-        {
-            if (clockSubscribed && Runner != null && Runner.Clock != null) Runner.Clock.TickCompleted -= OnClockTick;
-            clockSubscribed = false;
-        }
-
-        // Устойчивая подписка (прецедент QuestLogView.TrySubscribe): Runner.Clock ленив —
-        // в OnEnable он мог быть null (порядок компонентов сцены), повторяем в Update.
-        private void TrySubscribeClock()
-        {
-            if (clockSubscribed) return;
-            if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
-            if (Runner == null || Runner.Clock == null) return;
-            Runner.Clock.TickCompleted += OnClockTick;
-            clockSubscribed = true;
-        }
-
-        // Граница игрового часа: обновить цели и дороги, спавн по окну расписания.
-        // Вне окон спавна пропускаем всё: OnGameHour там no-op, а сбор целей копирует списки.
-        private void OnClockTick(SimulationTime time)
-        {
-            if (manager == null || !AgentManager.IsSpawnHour(time.HourOfDay)) return;
-            CollectTargets();
-            CollectRoads();
-            manager.OnGameHour(time.HourOfDay, homes, works, roads);
-        }
-
         private void Update()
         {
-            TrySubscribeClock();
-            if (manager == null || Runner == null || Runner.Clock == null) return;
+            if (manager == null || Runner == null) return;
             if (Settings != null && Settings.Settings != null) manager.SetActiveLimit(Settings.Settings.AgentLimit);
-            if (Runner.Clock.Speed == SimulationSpeed.Paused) return;
+            SpawnOnNewRoads();
+            if (Runner.Clock == null || Runner.Clock.Speed == SimulationSpeed.Paused) return;
             manager.Advance(Time.deltaTime);
             if (View != null) View.Sync(manager);
+        }
+
+        // Спавн машин привязан к СТРОИТЕЛЬСТВУ дорог (решение владельца): одна новая
+        // клетка дороги — одна машина (если дом соединён с работой и лимит позволяет).
+        private void SpawnOnNewRoads()
+        {
+            RoadNetworkStore store = Congestion != null ? Congestion.Roads : null;
+            if (store == null) store = FindFirstObjectByType<RoadNetworkStore>();
+            List<RoadState> states = store != null ? store.Roads : null;
+            int count = states != null ? states.Count : 0;
+            if (count <= lastRoadCount)
+            {
+                lastRoadCount = count;
+                return;
+            }
+            RoadState latest = states[count - 1];
+            lastRoadCount = count;
+            CollectTargets();
+            CollectRoads();
+            manager.SpawnForNewRoad(latest.Cell, homes, works, roads);
         }
 
         // Дома — жилые здания; работы — остальные выросшие и ручные с рабочими местами.

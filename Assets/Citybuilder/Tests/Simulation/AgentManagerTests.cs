@@ -4,7 +4,8 @@ using NUnit.Framework;
 
 namespace Citybuilder
 {
-    // Тесты AgentManager (ADR-011, EPIC-44): окна спавна, пул, прибытие, фид пробок.
+    // Тесты AgentManager (ADR-011, EPIC-44): спавн при постройке дороги (решение владельца:
+    // машины появляются, когда строятся дороги), пул, лимит, прибытие, фид пробок.
     public class AgentManagerTests
     {
         private static readonly List<GridPosition> Homes = MakeList(new GridPosition(0, 1));
@@ -27,11 +28,11 @@ namespace Citybuilder
         }
 
         [Test]
-        public void MorningWindow_SpawnsBatch_AnchoredToRoads()
+        public void SpawnForNewRoad_SpawnsAnchoredToRoads()
         {
             AgentManager manager = MakeManager(Walk);
-            manager.OnGameHour(7, Homes, Works, Roads);
-            Assert.AreEqual(AgentManager.SpawnsPerHour, manager.ActiveCount);
+            Assert.IsTrue(manager.SpawnForNewRoad(new GridPosition(2, 1), Homes, Works, Roads));
+            Assert.AreEqual(1, manager.ActiveCount);
             AgentManager.VehicleAgent agent = manager.AgentAt(0);
             Assert.IsTrue(agent.Active);
             Assert.AreEqual(new GridPosition(1, 1), agent.Path[0]);
@@ -39,65 +40,45 @@ namespace Citybuilder
         }
 
         [Test]
-        public void OutsideSpawnWindow_DoesNotSpawn()
+        public void SpawnForNewRoad_NoTargetsOrRoads_NoSpawn()
         {
             AgentManager manager = MakeManager(Walk);
-            int[] hours = { 0, 6, 9, 12, 16, 19, 23 };
-            for (int i = 0; i < hours.Length; i++)
-            {
-                manager.OnGameHour(hours[i], Homes, Works, Roads);
-            }
+            manager.SpawnForNewRoad(new GridPosition(1, 1), new List<GridPosition>(), Works, Roads);
+            manager.SpawnForNewRoad(new GridPosition(1, 1), Homes, new List<GridPosition>(), Roads);
+            manager.SpawnForNewRoad(new GridPosition(1, 1), Homes, Works, null);
+            manager.SpawnForNewRoad(new GridPosition(1, 1), Homes, null, Roads);
             Assert.AreEqual(0, manager.ActiveCount);
         }
 
         [Test]
-        public void IsSpawnHour_TrueOnlyInMorningAndEveningWindows()
-        {
-            int[] inside = { 7, 8, 17, 18 };
-            int[] outside = { 0, 6, 9, 12, 16, 19, 23 };
-            for (int i = 0; i < inside.Length; i++) Assert.IsTrue(AgentManager.IsSpawnHour(inside[i]));
-            for (int i = 0; i < outside.Length; i++) Assert.IsFalse(AgentManager.IsSpawnHour(outside[i]));
-        }
-
-        [Test]
-        public void EveningWindow_SpawnsWorkToHome()
-        {
-            AgentManager manager = MakeManager(Walk);
-            manager.OnGameHour(17, Homes, Works, Roads);
-            AgentManager.VehicleAgent agent = manager.AgentAt(0);
-            Assert.IsTrue(agent.Active);
-            Assert.AreEqual(new GridPosition(3, 1), agent.Path[0]);
-            Assert.AreEqual(new GridPosition(1, 1), agent.Path[agent.Path.Count - 1]);
-        }
-
-        [Test]
-        public void NoPath_NoSpawn()
+        public void SpawnForNewRoad_NoPath_NoSpawn()
         {
             AgentManager noFinder = new AgentManager(null);
-            noFinder.OnGameHour(7, Homes, Works, Roads);
+            noFinder.SpawnForNewRoad(new GridPosition(1, 1), Homes, Works, Roads);
             AgentManager nullPath = MakeManager((from, to) => null);
-            nullPath.OnGameHour(7, Homes, Works, Roads);
+            nullPath.SpawnForNewRoad(new GridPosition(1, 1), Homes, Works, Roads);
             Assert.AreEqual(0, noFinder.ActiveCount);
             Assert.AreEqual(0, nullPath.ActiveCount);
         }
 
         [Test]
-        public void MissingTargetsOrRoads_NoSpawn()
+        public void SpawnForNewRoad_SameRoadAnchor_NoSpawn()
         {
             AgentManager manager = MakeManager(Walk);
-            manager.OnGameHour(7, new List<GridPosition>(), Works, Roads);
-            manager.OnGameHour(7, Homes, new List<GridPosition>(), Roads);
-            manager.OnGameHour(7, Homes, Works, null);
-            manager.OnGameHour(7, Homes, null, Roads);
+            manager.SpawnForNewRoad(new GridPosition(1, 1), Homes, MakeList(new GridPosition(1, 0)), Roads);
             Assert.AreEqual(0, manager.ActiveCount);
         }
 
         [Test]
-        public void SameRoadAnchor_NoSpawn()
+        public void SpawnForNewRoad_RespectsActiveLimit()
         {
             AgentManager manager = MakeManager(Walk);
-            manager.OnGameHour(7, Homes, MakeList(new GridPosition(1, 0)), Roads);
-            Assert.AreEqual(0, manager.ActiveCount);
+            manager.SetActiveLimit(2);
+            Assert.IsTrue(manager.SpawnForNewRoad(new GridPosition(2, 1), Homes, Works, Roads));
+            Assert.IsTrue(manager.SpawnForNewRoad(new GridPosition(2, 1), Homes, Works, Roads));
+            Assert.IsFalse(manager.SpawnForNewRoad(new GridPosition(2, 1), Homes, Works, Roads));
+            Assert.AreEqual(2, manager.ActiveCount);
+            Assert.Less(manager.ActiveCount, AgentManager.MaxAgents);
         }
 
         [Test]
@@ -105,32 +86,21 @@ namespace Citybuilder
         {
             AgentManager manager = MakeManager(Walk);
             manager.SetActiveLimit(AgentManager.MaxAgents);
-            for (int hour = 0; hour < 5; hour++)
+            for (int i = 0; i < AgentManager.MaxAgents + 5; i++)
             {
-                manager.OnGameHour(7, Homes, Works, Roads);
+                manager.SpawnForNewRoad(new GridPosition(2, 1), Homes, Works, Roads);
             }
-            manager.OnGameHour(8, Homes, Works, Roads);
             Assert.AreEqual(AgentManager.MaxAgents, manager.ActiveCount);
-        }
-
-        [Test]
-        public void ActiveLimit_CapsSpawning()
-        {
-            AgentManager manager = MakeManager(Walk);
-            manager.SetActiveLimit(AgentManager.SpawnsPerHour + 4);
-            for (int hour = 0; hour < 5; hour++) manager.OnGameHour(7, Homes, Works, Roads);
-            Assert.AreEqual(AgentManager.SpawnsPerHour + 4, manager.ActiveCount);
-            Assert.Less(manager.ActiveCount, AgentManager.MaxAgents);
         }
 
         [Test]
         public void Arrival_DespanwsAgent()
         {
             AgentManager manager = MakeManager(Walk);
-            manager.OnGameHour(7, Homes, Works, Roads);
+            manager.SpawnForNewRoad(new GridPosition(2, 1), Homes, Works, Roads);
             manager.Advance(0.9f);
-            Assert.AreEqual(AgentManager.SpawnsPerHour, manager.ActiveCount);
-            manager.Advance(0.2f);
+            Assert.AreEqual(1, manager.ActiveCount);
+            manager.Advance(1.2f);
             Assert.AreEqual(0, manager.ActiveCount);
         }
 
@@ -138,11 +108,11 @@ namespace Citybuilder
         public void Slots_ReusedAfterArrival()
         {
             AgentManager manager = MakeManager(Walk);
-            manager.OnGameHour(7, Homes, Works, Roads);
+            manager.SpawnForNewRoad(new GridPosition(2, 1), Homes, Works, Roads);
             manager.Advance(2f);
             Assert.AreEqual(0, manager.ActiveCount);
-            manager.OnGameHour(7, Homes, Works, Roads);
-            Assert.AreEqual(AgentManager.SpawnsPerHour, manager.ActiveCount);
+            manager.SpawnForNewRoad(new GridPosition(2, 1), Homes, Works, Roads);
+            Assert.AreEqual(1, manager.ActiveCount);
         }
 
         [Test]
@@ -154,7 +124,7 @@ namespace Citybuilder
             RouteSystem routes = new RouteSystem(grid, roads);
             CongestionSystem congestion = new CongestionSystem(routes, grid);
             AgentManager manager = MakeManager(routes.FindPath, congestion);
-            manager.OnGameHour(7, MakeList(new GridPosition(0, 0)), MakeList(new GridPosition(4, 0)), roads);
+            manager.SpawnForNewRoad(new GridPosition(1, 0), MakeList(new GridPosition(0, 0)), MakeList(new GridPosition(4, 0)), roads);
             Assert.GreaterOrEqual(congestion.GetLoad(new GridPosition(1, 0)), 1);
             manager.Advance(0.5f);
             Assert.GreaterOrEqual(congestion.GetLoad(new GridPosition(2, 0)), 1);

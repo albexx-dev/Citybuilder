@@ -43,9 +43,9 @@ namespace Citybuilder
         [Test]
         public void Constants_EpicValues()
         {
-            Assert.AreEqual(0.0008f, CrimeSystem.TheftChancePerTick);
+            Assert.AreEqual(0.0005f, CrimeSystem.TheftChancePerTick);
             Assert.AreEqual(0.5f, CrimeSystem.SafeCoverage);
-            Assert.AreEqual(50, CrimeSystem.FinePerTheft);
+            Assert.AreEqual(20, CrimeSystem.FinePerTheft);
             Assert.AreEqual(0.2f, CrimeSystem.LeisurePenalty);
             Assert.AreEqual(12, CrimeSystem.LeisurePenaltyTicks);
         }
