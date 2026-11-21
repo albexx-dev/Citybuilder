@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Citybuilder
@@ -8,15 +9,17 @@ namespace Citybuilder
     {
         public const float DarkenFactor = 0.45f;
 
-        // Затемнить все материалы вида: и префабы, и кубы с крышами.
-        public static void Apply(GameObject view)
+        // Затемнить все материалы вида; копии добавляются в bucket к исходникам, владелец уничтожит все сразу.
+        public static void Apply(GameObject view, List<Material> bucket = null)
         {
             if (view == null) return;
             MeshRenderer[] renderers = view.GetComponentsInChildren<MeshRenderer>();
             for (int i = 0; i < renderers.Length; i++)
             {
-                Color color = renderers[i].material.color;
-                renderers[i].material.color = Darken(color);
+                Material mat = renderers[i].material;
+                if (mat == null) continue;
+                mat.color = Darken(mat.color);
+                if (bucket != null) bucket.Add(mat);
             }
         }
 

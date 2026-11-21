@@ -10,6 +10,8 @@ namespace Citybuilder
         public const float TargetWidthFactor = 0.9f;
         private const float MinHeight = 0.001f;
         private static readonly Color FillColor = new Color(0.5f, 0.5f, 0.5f);
+        // Один неизменяемый материал на все стройки — общий, удалять нельзя.
+        private static readonly Material FillMaterial = new Material(Shader.Find("Unlit/Color")) { color = FillColor };
         private readonly ConstructionScaffold scaffold = new ConstructionScaffold();
         private SimulationRunner runner;
         private Transform sprout;
@@ -29,9 +31,8 @@ namespace Citybuilder
         public string DefId { get { return defId; } }
         public static Vector3 TargetScale(BuildingDefinition def, float cellSize)
         {
-            float w = def.Footprint.x * cellSize * TargetWidthFactor;
-            float d = def.Footprint.y * cellSize * TargetWidthFactor;
-            return new Vector3(w, TargetHeight, d);
+            return new Vector3(def.Footprint.x * cellSize * TargetWidthFactor, TargetHeight,
+                def.Footprint.y * cellSize * TargetWidthFactor);
         }
         public static ConstructionSiteView Spawn(Transform parent, Vector3 groundCenter, BuildingDefinition def,
             float cellSize, Vector3 targetScale, Transform sprout, Action onCompleted)
@@ -118,8 +119,7 @@ namespace Citybuilder
             fillBlock = GameObject.CreatePrimitive(PrimitiveType.Cube);
             BuildingViewFactory.DestroySafe(fillBlock.GetComponent<Collider>());
             fillBlock.transform.SetParent(transform, false);
-            fillBlock.GetComponent<MeshRenderer>().sharedMaterial =
-                new Material(Shader.Find("Unlit/Color")) { color = FillColor };
+            fillBlock.GetComponent<MeshRenderer>().sharedMaterial = FillMaterial;
         }
         private void SubscribeClock()
         {

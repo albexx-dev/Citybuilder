@@ -11,6 +11,8 @@ namespace Citybuilder
         public Color FallbackColor = new Color(1f, 0.9f, 0.6f);
 
         private readonly Dictionary<EntityId, GameObject> views = new Dictionary<EntityId, GameObject>();
+        private readonly Dictionary<EntityId, List<Material>> materials = new Dictionary<EntityId, List<Material>>();
+        private EntityId currentId;
 
         // Ставит вид по Id; skipConstructionStage=true — сразу готовое; powered=false — вид «обесточено».
         public GameObject AddBuilding(BuildingState state, BuildingDefinition def, float cellSize,
@@ -18,10 +20,11 @@ namespace Citybuilder
         {
             if (state == null || def == null) return null;
             RemoveBuilding(state);
+            currentId = state.Id;
+            materials[currentId] = new List<Material>();
             GameObject go = SpawnView(state, def, cellSize, skipConstructionStage, powered);
-            if (go == null) return null;
-            views[state.Id] = go;
-            return go;
+            if (go == null) { DestroyMaterials(state.Id); return null; }
+            return views[state.Id] = go;
         }
 
         public void RemoveBuilding(BuildingState state)
@@ -31,12 +34,14 @@ namespace Citybuilder
             if (!views.TryGetValue(state.Id, out go)) return;
             views.Remove(state.Id);
             DestroySafe(go);
+            DestroyMaterials(state.Id);
         }
 
         public void Clear()
         {
             foreach (KeyValuePair<EntityId, GameObject> entry in views) DestroySafe(entry.Value);
             views.Clear();
+            foreach (EntityId id in new List<EntityId>(materials.Keys)) DestroyMaterials(id);
         }
 
         private GameObject SpawnView(BuildingState state, BuildingDefinition def, float cellSize, bool skipConstructionStage, bool powered)
@@ -54,12 +59,12 @@ namespace Citybuilder
                 GameObject prefab = Instantiate(def.Prefab, at, Quaternion.identity, transform);
                 float scale = HouseLevelStyle.LevelScale(state.Level, false);
                 prefab.transform.localScale = Vector3.Scale(def.Prefab.transform.localScale, new Vector3(scale, scale, scale));
-                if (!powered) BlackoutViewStyle.Apply(prefab);
+                if (!powered) BlackoutViewStyle.Apply(prefab, materials[currentId]);
                 HouseLevelMarker.Update(prefab, state.Level);
                 return prefab;
             }
             GameObject cube = BuildCube(state, def, cellSize, constructing);
-            if (!powered) BlackoutViewStyle.Apply(cube);
+            if (!powered) BlackoutViewStyle.Apply(cube, materials[currentId]);
             HouseLevelMarker.Update(cube, state.Level);
             return cube;
         }
@@ -79,7 +84,7 @@ namespace Citybuilder
             DestroySafe(cube.GetComponent<Collider>());
             Color wallColor = WallColor(def, variant);
             MeshRenderer renderer = cube.GetComponent<MeshRenderer>();
-            renderer.sharedMaterial = BuildMaterial(wallColor);
+            renderer.sharedMaterial = TrackMaterial(wallColor);
             GameObject roof = BuildRoof(cube, h, variant, state.Level);
             if (constructing)
             {
@@ -99,22 +104,30 @@ namespace Citybuilder
             roof.transform.localScale = new Vector3(0.7f, 0.3f / h, 0.7f);
             roof.transform.localPosition = new Vector3(0f, 0.5f + 0.15f / h, 0f);
             DestroySafe(roof.GetComponent<Collider>());
-            roof.GetComponent<MeshRenderer>().sharedMaterial = BuildMaterial(HouseLevelStyle.RoofColor(level, variant));
+            roof.GetComponent<MeshRenderer>().sharedMaterial = TrackMaterial(HouseLevelStyle.RoofColor(level, variant));
             return roof;
         }
 
         private Vector3 FootprintCenter(GridPosition origin, BuildingDefinition def, float cellSize, float height)
         {
-            float baseX = (origin.X + 0.5f) * cellSize;
-            float baseZ = (origin.Y + 0.5f) * cellSize;
-            float centerX = baseX + (def.Footprint.x - 1) * cellSize * 0.5f;
-            float centerZ = baseZ + (def.Footprint.y - 1) * cellSize * 0.5f;
-            return new Vector3(centerX, height, centerZ);
+            return new Vector3((origin.X + def.Footprint.x * 0.5f) * cellSize, height,
+                (origin.Y + def.Footprint.y * 0.5f) * cellSize);
         }
 
-        private static Material BuildMaterial(Color color)
+        // Свой материал на куб: учитывается по Id и уничтожается вместе с видом.
+        private Material TrackMaterial(Color color)
         {
-            return new Material(Shader.Find("Unlit/Color")) { color = color };
+            Material mat = new Material(Shader.Find("Unlit/Color")) { color = color };
+            materials[currentId].Add(mat);
+            return mat;
+        }
+
+        private void DestroyMaterials(EntityId id)
+        {
+            List<Material> bucket;
+            if (!materials.TryGetValue(id, out bucket)) return;
+            materials.Remove(id);
+            for (int i = 0; i < bucket.Count; i++) DestroySafe(bucket[i]);
         }
 
         private static void DestroySafe(Object obj)
