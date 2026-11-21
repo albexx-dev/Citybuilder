@@ -70,7 +70,7 @@ namespace Citybuilder
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Escape) && current.Found)
+            if (Input.GetKeyDown(KeyCode.Escape) && current.Found && UiEscapeGuard.TryConsume(Time.frameCount))
             {
                 Close();
                 return;
