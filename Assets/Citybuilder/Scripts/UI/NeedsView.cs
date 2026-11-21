@@ -63,10 +63,8 @@ namespace Citybuilder
             float jobs = model != null ? model.JobsRoomRate : 0f;
             float employment = model != null ? model.EmploymentRate : 0f;
             float average = model != null ? model.AverageSatisfaction : 0f;
-            string text = "Потребности: " + ToPercent(average) + "%";
-            text += " (жильё " + ToPercent(housing) + "%";
-            text += " • работа " + ToPercent(jobs) + "%";
-            text += " • занятость " + ToPercent(employment) + "%";
+            string text = Localization.T("needs_base", ToPercent(average), ToPercent(housing),
+                ToPercent(jobs), ToPercent(employment));
             text = AppendProviders(text, model);
             return text + ")";
         }
@@ -75,12 +73,12 @@ namespace Citybuilder
         private static string AppendProviders(string text, NeedSystem model)
         {
             if (model == null) return text;
-            if (model.HasPower) text += " • энергия " + ToPercent(model.PowerRate) + "%";
-            if (model.HasWater) text += " • вода " + ToPercent(model.WaterRate) + "%";
-            if (model.HasWaste) text += " • мусор " + ToPercent(model.WasteRate) + "%";
-            if (model.HasFire) text += " • пожарные " + ToPercent(model.FireRate) + "%";
-            if (model.HasHealth) text += " • здоровье " + ToPercent(model.HealthRate) + "%";
-            if (model.HasLeisure) text += " • досуг " + ToPercent(model.LeisureRate) + "%";
+            if (model.HasPower) text += Localization.T("needs_power", ToPercent(model.PowerRate));
+            if (model.HasWater) text += Localization.T("needs_water", ToPercent(model.WaterRate));
+            if (model.HasWaste) text += Localization.T("needs_waste", ToPercent(model.WasteRate));
+            if (model.HasFire) text += Localization.T("needs_fire", ToPercent(model.FireRate));
+            if (model.HasHealth) text += Localization.T("needs_health", ToPercent(model.HealthRate));
+            if (model.HasLeisure) text += Localization.T("needs_leisure", ToPercent(model.LeisureRate));
             return text;
         }
 

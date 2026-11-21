@@ -19,9 +19,9 @@ namespace Citybuilder
             {
                 ServiceCoverageController primary = Controller != null ? Controller : GetComponent<ServiceCoverageController>();
                 if (primary == null) return string.Empty;
-                string text = KindLine("Пожарные", primary, ServiceKind.Fire);
+                string text = KindLine(Localization.T("service_label_fire"), primary, ServiceKind.Fire);
                 ServiceCoverageController police = Police != null ? Police : primary;
-                text += " • " + KindLine("Полиция", police, ServiceKind.Police);
+                text += " • " + KindLine(Localization.T("service_label_police"), police, ServiceKind.Police);
                 return text;
             }
         }
@@ -33,8 +33,8 @@ namespace Citybuilder
             {
                 ServiceCoverageController primary = Controller != null ? Controller : GetComponent<ServiceCoverageController>();
                 if (primary == null) return string.Empty;
-                return KindLine("Больницы", primary, ServiceKind.Health)
-                    + " • " + KindLine("Досуг", primary, ServiceKind.Leisure);
+                return KindLine(Localization.T("service_label_health"), primary, ServiceKind.Health)
+                    + " • " + KindLine(Localization.T("service_label_leisure"), primary, ServiceKind.Leisure);
             }
         }
 

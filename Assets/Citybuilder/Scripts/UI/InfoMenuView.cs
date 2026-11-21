@@ -37,6 +37,22 @@ namespace Citybuilder
 
         public bool IsOpen { get { return isOpen; } }
 
+        // Смена языка пересобирает кеш строк: инфоменю держит готовые тексты, а не ключи (как EventLogView).
+        private void OnLanguageChanged()
+        {
+            if (isOpen) RebuildCache();
+        }
+
+        private void OnEnable()
+        {
+            Localization.LanguageChanged += OnLanguageChanged;
+        }
+
+        private void OnDisable()
+        {
+            Localization.LanguageChanged -= OnLanguageChanged;
+        }
+
         public void Toggle() { SetOpen(!isOpen); }
 
         public void SetOpen(bool open)
