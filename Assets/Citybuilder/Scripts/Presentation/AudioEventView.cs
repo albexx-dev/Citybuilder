@@ -34,8 +34,15 @@ namespace Citybuilder
 
         private void Awake()
         {
-            source = GetComponent<AudioSource>();
-            if (source == null) source = gameObject.AddComponent<AudioSource>();
+            // Источник на ДОЧЕРНЕМ GO: AudioController.cs:55 берёт GetComponent<AudioSource>
+            // со своего хоста — общий GameObject столкнул бы событийные звуки с UI-звуком.
+            source = GetComponentInChildren<AudioSource>();
+            if (source == null)
+            {
+                GameObject host = new GameObject("AudioEvents");
+                host.transform.SetParent(transform, false);
+                source = host.AddComponent<AudioSource>();
+            }
             source.playOnAwake = false;
         }
 
