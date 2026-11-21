@@ -30,9 +30,9 @@ namespace Citybuilder
         private static string Format(SimulationTime time, SimulationSpeed speed)
         {
             string speedName = "x4";
-            if (speed == SimulationSpeed.Paused) speedName = "Пауза";
-            else if (speed == SimulationSpeed.Playing) speedName = "Игра";
-            return "Day " + time.DayNumber + ", Hour " + time.HourOfDay + " — " + speedName;
+            if (speed == SimulationSpeed.Paused) speedName = Localization.T("clock_paused");
+            else if (speed == SimulationSpeed.Playing) speedName = Localization.T("clock_playing");
+            return Localization.T("clock_line", time.DayNumber, time.HourOfDay, speedName);
         }
     }
 }

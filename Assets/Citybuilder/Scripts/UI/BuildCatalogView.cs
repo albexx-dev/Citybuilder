@@ -10,8 +10,6 @@ namespace Citybuilder
         private const float TabWidth = 96f;
         private const int TabsDragId = 0;
         private const string TabsGuard = "catalog_tabs";
-        // Ярлыки вкладок по значению BuildingCategory (текстовые, иконки — задача 66).
-        private static readonly string[] Labels = { "Дороги", "Дома", "Коммерция", "Службы", "Декор", "Транспорт" };
         private static readonly List<BuildingCategory> tabs = new List<BuildingCategory>();
         private static readonly List<BuildingDefinition> cards = new List<BuildingDefinition>();
         private static BuildingCategory active = BuildingCategory.Residential;
@@ -66,7 +64,7 @@ namespace Citybuilder
             {
                 float x = i * (TabWidth + HudLayout.ButtonGap) - tabsScroll;
                 Rect rect = new Rect(x, 0f, TabWidth, view.height);
-                if (BottomBarStyle.DrawButton(rect, Labels[(int)tabs[i]], tabs[i] == active)) Select(tabs[i]);
+                if (BottomBarStyle.DrawButton(rect, LabelFor(tabs[i]), tabs[i] == active)) Select(tabs[i]);
             }
             GUI.EndGroup();
         }
@@ -77,6 +75,20 @@ namespace Citybuilder
             if (active == category) return;
             active = category;
             CatalogCards.ResetScroll();
+        }
+
+        // Ярлык вкладки по категории (текстовые, иконки — задача 66); текст берётся из локализации.
+        private static string LabelFor(BuildingCategory category)
+        {
+            switch (category)
+            {
+                case BuildingCategory.Roads: return Localization.T("catalog_tab_roads");
+                case BuildingCategory.Residential: return Localization.T("catalog_tab_houses");
+                case BuildingCategory.Commercial: return Localization.T("catalog_tab_commerce");
+                case BuildingCategory.Service: return Localization.T("catalog_tab_services");
+                case BuildingCategory.Transport: return Localization.T("catalog_tab_transport");
+                default: return Localization.T("catalog_tab_decor");
+            }
         }
 
         // Чистый хелпер: карточки выбранной категории в переиспользуемый список, null-элементы пропускаются.
