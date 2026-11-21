@@ -16,7 +16,7 @@ namespace Citybuilder
         [Tooltip("Контроллер звука: громкость и мут применяются на лету. Пусто = ищется в сцене.")] public AudioController Audio;
         [Tooltip("Цикл дня и ночи: вкл/выкл применяется сразу. Пусто = ищется в сцене.")] public DayNightController DayNight;
 
-        private GameSettings settings;
+        private readonly GameSettings settings = new GameSettings();
         private bool isOpen;
         private bool lastDayNightEnabled = true;
         private SimulationSpeed speedBeforeOpen = SimulationSpeed.Playing;
