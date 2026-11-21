@@ -17,18 +17,18 @@ namespace Citybuilder
             BuildingState first = Home(new GridPosition(10, 10));
             BuildingState second = Home(new GridPosition(11, 11));
             FireSystem fires = new FireSystem();
-            List<string> messages = new List<string>();
+            List<CityEvent> messages = new List<CityEvent>();
             CityEventLog log = new CityEventLog();
-            fires.Fired += delegate (EventKind kind, string message, int tick)
+            fires.Fired += delegate (CityEvent cityEvent)
             {
-                messages.Add(message);
-                log.Add(kind, message, tick);
+                messages.Add(cityEvent);
+                log.Add(cityEvent);
             };
             fires.ForceIgnite(first, 50);
             fires.ForceIgnite(second, 50);
             Assert.AreEqual(2, log.Count);
             Assert.AreEqual(EventKind.Fire, ((CityEvent)log.Snapshot()[0]).Kind);
-            Assert.AreNotEqual(messages[0], messages[1]);
+            Assert.AreNotEqual(messages[0].Args[0], messages[1].Args[0]);
         }
 
         // FireTicker: дом в радиусе станции снимка тушится, события старт+тушение в ленте.

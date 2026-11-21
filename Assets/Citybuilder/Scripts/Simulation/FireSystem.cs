@@ -16,8 +16,8 @@ namespace Citybuilder
 
         private readonly Dictionary<EntityId, int> burning = new Dictionary<EntityId, int>();
 
-        // Событие для ленты города: вид, уникальное по дому сообщение, тик.
-        public event Action<EventKind, string, int> Fired;
+        // Событие для ленты города: ключ + аргументы и типизированный подтип (ADR-013).
+        public event Action<CityEvent> Fired;
 
         // Сколько домов горит прямо сейчас (снимок для оверлея).
         public int BurningCount
@@ -68,7 +68,7 @@ namespace Citybuilder
         {
             if (home == null || burning.ContainsKey(home.Id)) return;
             burning[home.Id] = 1;
-            Emit(EventKind.Fire, "Пожар в доме #" + home.Id.Value + "!", tick);
+            Emit(FireEvent(EventSubtype.FireStart, EventMessageCatalog.FireStart, home.Id.Value, tick));
         }
 
         // FNV-1a по байтам тика и id: мультипликативно, детерминированно (паттерн ADR-009).
@@ -109,7 +109,8 @@ namespace Citybuilder
         private void Extinguish(BuildingState home, int tick)
         {
             if (!burning.Remove(home.Id)) return;
-            Emit(EventKind.Fire, "Пожар в доме #" + home.Id.Value + " потушен", tick);
+            Emit(FireEvent(EventSubtype.Extinguished, EventMessageCatalog.FireExtinguished,
+                home.Id.Value, tick));
         }
 
         private void AdvanceBurn(int tick, BuildingState home, Action<BuildingState> demolish)
@@ -122,19 +123,24 @@ namespace Citybuilder
             }
             burning.Remove(home.Id);
             if (demolish != null) demolish(home);
-            Emit(EventKind.Fire, "Дом #" + home.Id.Value + " сгорел дотла", tick);
+            Emit(FireEvent(EventSubtype.Burned, EventMessageCatalog.FireBurned, home.Id.Value, tick));
         }
 
         private void TryIgnite(int tick, BuildingState home)
         {
             if (!ShouldIgnite(tick, home.Id)) return;
             burning[home.Id] = 1;
-            Emit(EventKind.Fire, "Пожар в доме #" + home.Id.Value + "!", tick);
+            Emit(FireEvent(EventSubtype.FireStart, EventMessageCatalog.FireStart, home.Id.Value, tick));
         }
 
-        private void Emit(EventKind kind, string message, int tick)
+        private static CityEvent FireEvent(EventSubtype subtype, string key, int homeId, int tick)
         {
-            if (Fired != null) Fired(kind, message, tick);
+            return new CityEvent(EventKind.Fire, subtype, key, new object[] { homeId }, tick);
+        }
+
+        private void Emit(CityEvent cityEvent)
+        {
+            if (Fired != null) Fired(cityEvent);
         }
     }
 }

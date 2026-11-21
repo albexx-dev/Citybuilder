@@ -62,9 +62,9 @@ namespace Citybuilder
             return coverage.Coverage01(ServiceKind.Fire, home.Origin);
         }
 
-        private void OnFireEvent(EventKind kind, string message, int tick)
+        private void OnFireEvent(CityEvent cityEvent)
         {
-            if (log != null) log.Add(kind, message, tick);
+            if (log != null) log.Add(cityEvent);
         }
     }
 }
