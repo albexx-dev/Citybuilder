@@ -30,5 +30,5 @@ Garbage → `event-crime.wav` на высоком питче, Blackout → `even
 
 ## Правила (ADR-010)
 
-- Новый сторонний ассет → строка в этой таблице обязательна (проверяет `Tools/ValidateRepo.py`).
+- Новый сторонний ассет → строка в этой таблице обязательна. Валидатор проверяет покрытие только для `Assets/Citybuilder/Models/**` с расширениями `.fbx`/`.png`; иконки в `Assets/StreamingAssets/` и звуки в `Assets/Citybuilder/Audio/` он не проверяет — их вносят в таблицу вручную.
 - Разрешены только CC0/CC-BY (CC-BY — с указанием автора); Editorial/Personal — запрещены.
