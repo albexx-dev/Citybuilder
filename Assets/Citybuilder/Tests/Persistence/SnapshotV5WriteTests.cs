@@ -14,11 +14,11 @@ namespace Citybuilder
         public void TearDown() { for (int i = 0; i < assets.Count; i++) Object.DestroyImmediate(assets[i]); assets.Clear(); }
 
         [Test]
-        public void Version_IsFive()
+        public void Version_IsSix()
         {
-            Assert.AreEqual(5, SaveSystem.CurrentVersion);
-            Assert.AreEqual(5, new CitySnapshot().Version);
-            Assert.AreEqual(5, SaveSystem.BuildSnapshot(null, null, null, 0, 0, null).Version);
+            Assert.AreEqual(6, SaveSystem.CurrentVersion);
+            Assert.AreEqual(6, new CitySnapshot().Version);
+            Assert.AreEqual(6, SaveSystem.BuildSnapshot(null, null, null, 0, 0, null).Version);
         }
 
         // Игрок: дом вырос до 2, станцию улучшил до 2, ставки Жилая=1 / Коммерция=3 / Промзона=2.

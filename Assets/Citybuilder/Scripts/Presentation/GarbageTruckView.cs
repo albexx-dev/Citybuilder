@@ -39,7 +39,7 @@ namespace Citybuilder
             get { return "Вывоз мусора: ждут домов " + ticker.Garbage.WaitingCount + ", в пути " + ticker.Garbage.ActiveTrucks; }
         }
 
-        // Для оверлея issue #94: чтение снимка и факт полигона.
+        // Домен вывоза для записи/восстановления v6 (ADR-014) и оверлея #94.
         public GarbageSystem Garbage { get { return ticker.Garbage; } }
         public bool HasDepot { get { return FindDepot().HasValue; } }
 

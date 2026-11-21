@@ -3,45 +3,37 @@ using System.Collections.Generic;
 
 namespace Citybuilder
 {
-    // Вывоз мусора (EPIC-52): дома копят мусор, готовые встают в очередь, флот
-    // мусоровозов (GarbageTrucks) объезжает её от полигона. Прирост за тик
-    // детерминирован FNV-1a по (tick, EntityId) со своей солью — без System.Random
-    // (паттерн ADR-009). Домен не знает про Unity. Состояние НЕ сериализуется:
-    // Reset при отмотке времени назад (как пожары и квесты).
+    // Вывоз мусора (EPIC-52): дома копят, флот (GarbageTrucks) объезжает очередь от полигона.
+    // Прирост детерминирован FNV-1a
+    // (паттерн ADR-009). В v6 (ADR-014) в слот пишутся накопление и адреса очереди, не флот.
     public class GarbageSystem
     {
         public const int ReadyThreshold = 20;
         private const byte Salt = 0x5A;
-
         // Дом готов к вывозу: id и его клетка на момент постановки в очередь.
         public struct Pickup
         {
             public EntityId Id;
             public GridPosition At;
         }
-
         // Событие для ленты города: вид, уникальное по дому сообщение, тик.
         public event Action<EventKind, string, int> Collected;
-
         private readonly GarbageTrucks fleet = new GarbageTrucks();
         private readonly Dictionary<EntityId, int> accumulated = new Dictionary<EntityId, int>();
+        private readonly Dictionary<EntityId, GridPosition> origins = new Dictionary<EntityId, GridPosition>();
         private readonly List<Pickup> ready = new List<Pickup>();
         private readonly HashSet<EntityId> queued = new HashSet<EntityId>();
         private int lastTick;
-
         // Домов ждёт вывоза (HUD-строка и тесты).
         public int WaitingCount { get { return ready.Count; } }
-
         // Мусоровозов в пути прямо сейчас.
         public int ActiveTrucks { get { return fleet.ActiveCount; } }
-
         // Накопление дома (после вывоза — 0). Для оверлея переполнения и тестов.
         public int AccOf(EntityId id)
         {
             int value;
             return accumulated.TryGetValue(id, out value) ? value : 0;
         }
-
         // Мусоровоз по индексу слота (для видов). Вне диапазона — неактивный.
         public GarbageTrucks.Truck TruckAt(int index)
         {
@@ -68,9 +60,39 @@ namespace Citybuilder
         public void Reset()
         {
             accumulated.Clear();
+            origins.Clear();
             ready.Clear();
             queued.Clear();
             fleet.Reset();
+        }
+
+        // Снимок v6 вынесен в GarbageSnapshot (один класс на файл); швы ниже — для хостов.
+        public void CollectSnapshot(List<CitySnapshot.GarbageQueueEntry> entries)
+        {
+            GarbageSnapshot.Collect(this, entries);
+        }
+        public void Restore(List<CitySnapshot.GarbageQueueEntry> entries, List<BuildingState> homes)
+        {
+            GarbageSnapshot.Restore(this, entries, homes);
+        }
+
+        internal List<Pickup> Ready { get { return ready; } }
+        internal IEnumerable<KeyValuePair<EntityId, int>> Accumulated { get { return accumulated; } }
+        internal bool IsQueued(EntityId id) { return queued.Contains(id); }
+        internal GridPosition OriginOf(EntityId id)
+        {
+            GridPosition at;
+            return origins.TryGetValue(id, out at) ? at : new GridPosition(-1, -1);
+        }
+        internal void SetAccumulated(BuildingState home, int value)
+        {
+            accumulated[home.Id] = value;
+            origins[home.Id] = home.Origin;
+        }
+        internal void Queue(BuildingState home)
+        {
+            queued.Add(home.Id);
+            ready.Add(new Pickup { Id = home.Id, At = home.Origin });
         }
 
         // Накопление дома: WasteOutput здания плюс детерминированный бит хеша (0..1).
@@ -80,6 +102,7 @@ namespace Citybuilder
             int output = home.Definition != null ? home.Definition.WasteOutput : 0;
             int value = AccOf(home.Id) + GainPerTick(tick, home.Id, output);
             accumulated[home.Id] = value;
+            origins[home.Id] = home.Origin;
             if (value < ReadyThreshold || queued.Contains(home.Id)) return;
             queued.Add(home.Id);
             ready.Add(new Pickup { Id = home.Id, At = home.Origin });

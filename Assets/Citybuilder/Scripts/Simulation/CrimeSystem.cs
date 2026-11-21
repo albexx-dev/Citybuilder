@@ -41,6 +41,12 @@ namespace Citybuilder
             CrimeLevel01 = 0f;
         }
 
+        // Счётчик краж из v6: только статистика, лента и штрафы не перепроигрываются.
+        public void RestoreTotal(int total)
+        {
+            totalThefts = total < 0 ? 0 : total;
+        }
+
         // Один тик часов: обновить уровень преступности и проверить дома без полиции.
         public void Tick(int tick, List<BuildingState> homes, Func<BuildingState, float> coverage,
             float crimeLevel01, Action<BuildingState> steal)

@@ -18,16 +18,17 @@ namespace Citybuilder
         // Выросшие дома: тот же список, что вернули LoadSystem.ApplyBuildings или Growth.RestoreGrown.
         public static void ApplyHomes(CitySnapshot snapshot, List<BuildingState> homes)
         {
-            Apply(snapshot == null ? null : snapshot.Buildings, homes);
+            Apply(snapshot, snapshot == null ? null : snapshot.Buildings, homes);
         }
 
         // Ручные здания игрока: улучшенные станции и службы (BuildingPlacementController.Placed).
         public static void ApplyManual(CitySnapshot snapshot, List<BuildingState> placed)
         {
-            Apply(snapshot == null ? null : snapshot.ManualBuildings, placed);
+            Apply(snapshot, snapshot == null ? null : snapshot.ManualBuildings, placed);
         }
 
-        private static void Apply(List<CitySnapshot.BuildingEntry> entries, List<BuildingState> states)
+        private static void Apply(CitySnapshot snapshot, List<CitySnapshot.BuildingEntry> entries,
+            List<BuildingState> states)
         {
             if (entries == null || states == null) return;
             for (int i = 0; i < entries.Count; i++)
@@ -36,10 +37,10 @@ namespace Citybuilder
                 if (entry == null) continue;
                 BuildingState state = FindByOrigin(states, entry.X, entry.Y);
                 if (state == null) continue;
-                // Отдельного «задать уровень» у BuildingState нет и не нужно: уровень дома и станции
-                // ставит ApplyHouseTick. Серию комфорта слот не хранит, поэтому 0 — честное состояние
-                // после загрузки: повышения и понижения копятся заново.
-                state.ApplyHouseTick(HouseLevelPolicy.ClampLevel(entry.Level), 0);
+                // Уровень и серию ставит ApplyHouseTick. Серия из v6 (ADR-014) по координатам;
+                // для слота v1–v5 она равна 0 — поведение как раньше.
+                state.ApplyHouseTick(HouseLevelPolicy.ClampLevel(entry.Level),
+                    SaveV6Snapshot.ReadStreak(snapshot, entry.X, entry.Y));
             }
         }
 

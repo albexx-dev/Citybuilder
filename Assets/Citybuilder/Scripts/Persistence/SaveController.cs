@@ -17,6 +17,8 @@ namespace Citybuilder
         [Tooltip("Ручные здания. Пусто = ищется в сцене.")] public BuildingPlacementController Placement;
         [Tooltip("Ступень цели. Пусто = ищется в сцене.")] public GoalView Goal;
         [Tooltip("Панель задач. Пусто = ищется в сцене.")] public QuestLogView QuestLog;
+        [Tooltip("Мусор v6 (ADR-014). Пусто = ищется в сцене.")] public GarbageTruckView Garbage;
+        [Tooltip("Кражи v6 (ADR-014). Пусто = ищется в сцене.")] public EconomyTicker Economy;
 
         private long lastManualSaveTick = -1;
         private bool isDirty;
@@ -61,6 +63,9 @@ namespace Citybuilder
             SnapshotTaxRates.Write(snapshot, Policy == null ? null : Policy.Policy);
             // v5 (хвост #48): цепочка квестов — id активных и выполненных задач.
             QuestSnapshot.Write(QuestLog == null ? null : QuestLog.Quests, snapshot);
+            // v6 (ADR-014): мусор, кражи и незавершённые стройки; серию пишет SaveSystem.
+            SaveV6Snapshot.Write(snapshot, Garbage == null ? null : Garbage.Garbage,
+                Economy == null ? null : Economy.Crimes, CollectHomes(), ConstructionSnapshot.Collect());
             return snapshot;
         }
 
@@ -76,6 +81,8 @@ namespace Citybuilder
             if (Placement == null) Placement = FindFirstObjectByType<BuildingPlacementController>();
             if (Goal == null) Goal = FindFirstObjectByType<GoalView>();
             if (QuestLog == null) QuestLog = FindFirstObjectByType<QuestLogView>();
+            if (Garbage == null) Garbage = FindFirstObjectByType<GarbageTruckView>();
+            if (Economy == null) Economy = FindFirstObjectByType<EconomyTicker>();
         }
 
         private List<BuildingState> CollectHomes()
