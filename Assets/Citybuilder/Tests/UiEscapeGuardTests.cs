@@ -29,6 +29,16 @@ namespace Citybuilder
         }
 
         [Test]
+        public void EscPriority_NoneAction_DoesNotConsumeFrame()
+        {
+            UiEscapeGuard.Reset();
+            Assert.IsFalse(BuildModeHotkeys.TryBeginEscape(BuildModeHotkeys.EscAction.None, 5));
+            Assert.IsTrue(UiEscapeGuard.TryConsume(5));
+            Assert.IsTrue(BuildModeHotkeys.TryBeginEscape(BuildModeHotkeys.EscAction.OpenPause, 6));
+            Assert.IsFalse(UiEscapeGuard.TryConsume(6));
+        }
+
+        [Test]
         public void EscPriority_GuardStopsPauseAfterPanelConsumedFrame()
         {
             UiEscapeGuard.Reset();

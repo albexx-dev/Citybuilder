@@ -83,7 +83,7 @@ namespace Citybuilder
                 // Esc работает при открытых паузе/главном меню, но глотается слотами и вводом текста.
                 if (!CanProcessHotkeys(slotModalOpen, GUIUtility.keyboardControl)) return;
                 EscAction act = EvaluateEsc(mainOpen, pauseOpen, menu.CurrentMode, infoPanelOpen);
-                if (!TryBeginEscape(act)) return;
+                if (!TryBeginEscape(act, Time.frameCount)) return;
                 if (act == EscAction.ClosePause && Pause != null) Pause.Close();
                 else if (act == EscAction.TurnOffMode) menu.SetMode(BuildModeMenu.Mode.Off);
                 else if (act == EscAction.OpenPause && Pause != null) Pause.Open();
@@ -99,9 +99,9 @@ namespace Citybuilder
         }
 
         // Гард ставим только если Esc реально что-то делает: None не должен съедать кадр панели.
-        private static bool TryBeginEscape(EscAction act)
+        public static bool TryBeginEscape(EscAction act, int frame)
         {
-            return act != EscAction.None && UiEscapeGuard.TryConsume(Time.frameCount);
+            return act != EscAction.None && UiEscapeGuard.TryConsume(frame);
         }
 
         public void SelectMode(BuildModeMenu menu, BuildModeMenu.Mode mode)
