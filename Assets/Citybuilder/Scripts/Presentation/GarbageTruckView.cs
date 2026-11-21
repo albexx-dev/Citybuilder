@@ -1,11 +1,14 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Citybuilder
 {
     // Вид мусоровозов (EPIC-52): владеет GarbageTicker (как QuestLogView владеет
     // QuestTicker, ADR-012) и пулом моделей GarbageTruckPool. На TickCompleted подаёт
-    // дома, полигон и ленту, в Update двигает и рисует мусоровозы. Полигон — ручная
-    // постройка waste_depot; нет полигона — мусоровозы не выезжают, мусор копится.
+    // дома, полигон, ленту и делегат дорог RouteSystem.FindPath, в Update двигает и
+    // рисует мусоровозы. Полигон — ручная постройка waste_depot; нет полигона —
+    // мусоровозы не выезжают, мусор копится.
     public class GarbageTruckView : MonoBehaviour
     {
         [Header("References")]
@@ -13,6 +16,8 @@ namespace Citybuilder
         public EconomyTicker Economy;
         [Tooltip("Сетка: размер клетки и мировые координаты. Обязателен.")]
         public GridVisualizer Visualizer;
+        [Tooltip("Пробки: Routes даёт пути по дорогам игрока. Пусто = ищется в сцене; нет конгестиона — прямой L-маршрут.")]
+        public CongestionController Congestion;
 
         [Header("Model")]
         [Tooltip("FBX-модели мусоровозов (Kenney Racing). Пусто = мусоровозы без вида.")]
@@ -81,12 +86,46 @@ namespace Citybuilder
             subscribed = true;
         }
 
-        // Граница игрового часа: дома, полигон waste_depot и лента подаются в тикер.
+        // Граница игрового часа: дома, полигон waste_depot, лента и делегат дорог — в тикер.
         private void OnClockTick(SimulationTime time)
         {
             if (Economy == null || Economy.Growth == null) return;
             ticker.Tick((int)time.TickCount, Economy.Growth.Homes, FindDepot(),
-                Economy.EventLog != null ? Economy.EventLog.Log : null);
+                Economy.EventLog != null ? Economy.EventLog.Log : null, RouteFinder());
+        }
+
+        // Делегат дорог из CongestionController.Routes. Клетки депо/домов — НЕ дорожные,
+        // а RouteSystem.FindPath требует дороги на обоих концах: концы ноги маппятся на
+        // ближайшие дорожные клетки (ревью task/214 — «по дорогам» в живой сцене).
+        // Конгестион отсутствует или не готов — null-делегат, GarbageTrucks считает прямой L-маршрут.
+        private Func<GridPosition, GridPosition, List<GridPosition>> RouteFinder()
+        {
+            if (Congestion == null) Congestion = FindFirstObjectByType<CongestionController>();
+            if (Congestion == null || Congestion.Routes == null) return null;
+            List<RoadState> states = Congestion.Roads != null ? Congestion.Roads.Roads : null;
+            if (states == null || states.Count == 0) return null;
+            List<GridPosition> roadCells = new List<GridPosition>(states.Count);
+            for (int i = 0; i < states.Count; i++) roadCells.Add(states[i].Cell);
+            return delegate (GridPosition from, GridPosition to)
+            {
+                GridPosition roadFrom, roadTo;
+                if (!TryNearestRoad(from, roadCells, out roadFrom)) return null;
+                if (!TryNearestRoad(to, roadCells, out roadTo)) return null;
+                return Congestion.Routes.FindPath(roadFrom, roadTo);
+            };
+        }
+
+        // Ближайшая дорожная клетка к origin (манхэттен). false — дорог в городе нет.
+        public static bool TryNearestRoad(GridPosition origin, List<GridPosition> roadCells, out GridPosition nearest)
+        {
+            nearest = default(GridPosition);
+            int best = int.MaxValue;
+            for (int i = 0; i < roadCells.Count; i++)
+            {
+                int dist = Mathf.Abs(roadCells[i].X - origin.X) + Mathf.Abs(roadCells[i].Y - origin.Y);
+                if (dist < best) { best = dist; nearest = roadCells[i]; }
+            }
+            return best < int.MaxValue;
         }
 
         // Полигон = первая ручная постройка waste_depot. Нет постройки — null (вывоза нет).
