@@ -2,8 +2,8 @@ using System.Collections.Generic;
 
 namespace Citybuilder
 {
-    // Кольцевая лента последних 50 событий города с дедупликацией в окне 10 тиков (EPIC-09 шаг 1, ADR-007).
-    // Plain C#, без Unity и без глобальной шины: контроллеры пишут на границе тика, EventLogView читает снимок.
+    // Кольцевая лента последних 50 событий города с дедупликацией в окне 10 тиков (EPIC-09 шаг 1, ADR-007/013).
+    // Plain C#, без Unity: запись — ключ + аргументы, язык известен только view на момент отрисовки.
     public class CityEventLog
     {
         public const int MaxEvents = 50;
@@ -17,21 +17,26 @@ namespace Citybuilder
             get { return buffer.Count; }
         }
 
-        // Добавляет событие, если за последние 10 тиков не было такого же (kind + message).
-        public bool Add(EventKind kind, string message, int tick)
+        // Добавляет событие, если за последние 10 тиков не было такого же (kind + key + args).
+        public bool Add(CityEvent cityEvent)
         {
-            if (string.IsNullOrEmpty(message)) return false;
-            int safeTick = tick < 0 ? 0 : tick;
-            string key = (int)kind + ":" + message;
+            if (string.IsNullOrEmpty(cityEvent.MessageKey)) return false;
+            string key = (int)cityEvent.Kind + ":" + cityEvent.MessageKey + ":" + CityEvent.ArgsKey(cityEvent.Args);
             int prevTick;
-            if (lastTickByKey.TryGetValue(key, out prevTick) && safeTick - prevTick < DedupTicks)
+            if (lastTickByKey.TryGetValue(key, out prevTick) && cityEvent.Tick - prevTick < DedupTicks)
             {
                 return false;
             }
-            lastTickByKey[key] = safeTick;
+            lastTickByKey[key] = cityEvent.Tick;
             if (buffer.Count >= MaxEvents) buffer.RemoveAt(0);
-            buffer.Add(new CityEvent(kind, message, safeTick));
+            buffer.Add(cityEvent);
             return true;
+        }
+
+        // Удобный шов для продюсеров, которые не держат готовую запись.
+        public bool Add(EventKind kind, string messageKey, object[] args, int tick)
+        {
+            return Add(new CityEvent(kind, messageKey, args, tick));
         }
 
         // Снимок событий в порядке от старых к новым.
