@@ -10,6 +10,7 @@ namespace Citybuilder
         private System.Func<string> savedLoad;
         private System.Action<string> savedSave;
         private string stored;
+        private UnityEngine.Object createdObject;
 
         [SetUp]
         public void InjectMemoryStore()
@@ -21,6 +22,7 @@ namespace Citybuilder
             Localization.LoadPreference = () => stored;
             Localization.SavePreference = value => stored = value;
             Localization.SetLanguage(Language.Ru);
+            createdObject = null;
         }
 
         [TearDown]
@@ -29,6 +31,8 @@ namespace Citybuilder
             Localization.SetLanguage(savedLanguage);
             Localization.LoadPreference = savedLoad;
             Localization.SavePreference = savedSave;
+            if (createdObject != null) Object.DestroyImmediate(createdObject);
+            createdObject = null;
         }
 
         [Test]
@@ -40,7 +44,7 @@ namespace Citybuilder
             Assert.AreEqual("Дом", BuildingDisplayName.Of(def));
             Localization.SetLanguage(Language.En);
             Assert.AreEqual("House", BuildingDisplayName.Of(def));
-            Object.DestroyImmediate(def);
+            createdObject = def;
         }
 
         [Test]
@@ -52,7 +56,7 @@ namespace Citybuilder
             Assert.AreEqual("Waste Depot", BuildingDisplayName.Of(def));
             Localization.SetLanguage(Language.En);
             Assert.AreEqual("Waste Depot", BuildingDisplayName.Of(def));
-            Object.DestroyImmediate(def);
+            createdObject = def;
         }
 
         [Test]
@@ -63,7 +67,7 @@ namespace Citybuilder
             def.DisplayName = "Factory";
 
             Assert.AreEqual("Factory", BuildingDisplayName.Of(def));
-            Object.DestroyImmediate(def);
+            createdObject = def;
         }
 
         [Test]
@@ -73,7 +77,7 @@ namespace Citybuilder
             def.DisplayName = string.Empty;
 
             Assert.AreEqual("house", BuildingDisplayName.Of(def));
-            Object.DestroyImmediate(def);
+            createdObject = def;
         }
 
         [Test]
@@ -100,7 +104,7 @@ namespace Citybuilder
             Assert.AreEqual("Дуб", BuildingDisplayName.Of(def));
             Localization.SetLanguage(Language.En);
             Assert.AreEqual("Oak", BuildingDisplayName.Of(def));
-            Object.DestroyImmediate(def);
+            createdObject = def;
         }
 
         [Test]

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace Citybuilder
@@ -6,36 +7,26 @@ namespace Citybuilder
     // и отсутствие дублей при смене языка. Чистый C#, прогоняется через dotnet.
     public class EventLocalizationTests
     {
-        private static readonly string[] EventKeys =
-        {
-            EventMessageCatalog.CongestionSlowdown, EventMessageCatalog.TreasuryDeficit,
-            EventMessageCatalog.UnemploymentHigh, EventMessageCatalog.QuestCompleted,
-            EventMessageCatalog.SupplyPowerDeficit, EventMessageCatalog.SupplyWaterDeficit,
-            EventMessageCatalog.SupplyWasteDeficit, EventMessageCatalog.SupplyRestored,
-            EventMessageCatalog.Blackout, EventMessageCatalog.BlackoutRestored,
-            EventMessageCatalog.FireStart, EventMessageCatalog.FireExtinguished,
-            EventMessageCatalog.FireBurned, EventMessageCatalog.CrimeTheft,
-            EventMessageCatalog.GarbageCollected
-        };
+        private static readonly ICollection<string> EventKeys = EventMessageCatalog.Keys;
+        private LanguageTestScope languageScope;
 
         [SetUp]
-        public void UseRu()
+        public void InjectLanguageScope()
         {
-            Localization.SetLanguage(Language.Ru);
+            languageScope = new LanguageTestScope();
         }
 
         [TearDown]
-        public void RestoreRu()
+        public void RestoreLanguageScope()
         {
-            Localization.SetLanguage(Language.Ru);
+            languageScope.Dispose();
         }
 
         [Test]
         public void AllEventKeys_RegisteredAndNonEmptyInBothLanguages()
         {
-            for (int i = 0; i < EventKeys.Length; i++)
+            foreach (string key in EventKeys)
             {
-                string key = EventKeys[i];
                 Assert.IsTrue(Localization.Has(key), key);
                 Localization.SetLanguage(Language.Ru);
                 Assert.IsFalse(string.IsNullOrEmpty(Localization.T(key)), key);

@@ -22,6 +22,12 @@ namespace Citybuilder
         public const string CrimeTheft = "event_crime_theft";
         public const string GarbageCollected = "event_garbage_collected";
 
+        // Все ключи каталога: тест полноты берёт перечень отсюда, не хардкодя 15 строк.
+        public static ICollection<string> Keys
+        {
+            get { return Messages.Keys; }
+        }
+
         private static readonly Dictionary<string, string[]> Messages = new Dictionary<string, string[]>
         {
             { CongestionSlowdown, new[] { "Пробки замедляют рост ×{0}", "Traffic slows growth ×{0}" } },
