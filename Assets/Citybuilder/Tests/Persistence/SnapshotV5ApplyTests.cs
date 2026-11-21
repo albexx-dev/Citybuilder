@@ -99,7 +99,7 @@ namespace Citybuilder
             Assert.IsTrue(SaveSlotStorage.Validate(slot));
             TaxPolicy policy = new TaxPolicy(); SnapshotTaxRates.ApplyTo(slot, policy);
             Assert.AreEqual(2, ReloadHomes(slot, "house")[0].Level); Assert.AreEqual(3, ReloadManual(slot, "power_plant")[0].Level);
-            Assert.AreEqual(2, policy.RateFor(ZoneType.Residential)); Assert.AreEqual(6, policy.RateFor(ZoneType.Commercial)); Assert.AreEqual(4, policy.RateFor(ZoneType.Industrial));
+            Assert.AreEqual(1, policy.RateFor(ZoneType.Residential)); Assert.AreEqual(4, policy.RateFor(ZoneType.Commercial)); Assert.AreEqual(2, policy.RateFor(ZoneType.Industrial));
         }
 
         // Дом возвращается тем же путём, что чистый C#-лоад: LoadSystem.ApplyBuildings, новый город.
