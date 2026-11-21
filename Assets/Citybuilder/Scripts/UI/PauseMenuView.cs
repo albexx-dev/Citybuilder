@@ -67,23 +67,23 @@ namespace Citybuilder
 
         private void DrawButtons(float x, float y)
         {
-            HudText.Draw(x, y, "=== Пауза ===");
+            HudText.Draw(x, y, Localization.T("pause_title"));
             y += 32f;
-            if (GUI.Button(new Rect(x, y, 300f, 30f), "Продолжить [Esc]"))
+            if (GUI.Button(new Rect(x, y, 300f, 30f), Localization.T("pause_resume")))
             { AudioController.PlayClickGlobal(); Close(); }
             y += 36f;
-            if (GUI.Button(new Rect(x, y, 300f, 30f), "Сохранить") && SaveMenu != null)
+            if (GUI.Button(new Rect(x, y, 300f, 30f), Localization.T("pause_save")) && SaveMenu != null)
             { AudioController.PlayClickGlobal(); Close(); SaveMenu.Open(); }
             y += 36f;
-            if (GUI.Button(new Rect(x, y, 300f, 30f), "Загрузить") && LoadMenu != null)
+            if (GUI.Button(new Rect(x, y, 300f, 30f), Localization.T("pause_load")) && LoadMenu != null)
             { AudioController.PlayClickGlobal(); Close(); LoadMenu.Open(); }
             y += 36f;
-            if (Settings == null) BottomBarStyle.DrawDisabledButton(new Rect(x, y, 300f, 30f), "Настройки");
-            else if (GUI.Button(new Rect(x, y, 300f, 30f), "Настройки"))
+            if (Settings == null) BottomBarStyle.DrawDisabledButton(new Rect(x, y, 300f, 30f), Localization.T("pause_settings"));
+            else if (GUI.Button(new Rect(x, y, 300f, 30f), Localization.T("pause_settings")))
             { AudioController.PlayClickGlobal(); Close(); Settings.Open(); }
             y += 36f;
             DrawAudioControls(x, ref y);
-            if (GUI.Button(new Rect(x, y, 300f, 30f), "В главное меню"))
+            if (GUI.Button(new Rect(x, y, 300f, 30f), Localization.T("pause_main_menu")))
             {
                 AudioController.PlayClickGlobal();
                 bool dirty = Save != null && Save.IsDirty;
@@ -95,34 +95,34 @@ namespace Citybuilder
         private void DrawAudioControls(float x, ref float y)
         {
             float vol = Audio != null ? Audio.Volume : AudioController.DefaultVolume;
-            HudText.Draw(x, y, "Громкость: " + Mathf.RoundToInt(vol * 100f) + "%");
+            HudText.Draw(x, y, Localization.T("pause_volume", Mathf.RoundToInt(vol * 100f)));
             float nextVol = GUI.HorizontalSlider(new Rect(x + 135f, y + 6f, 165f, 20f), vol, 0f, 1f);
             if (Audio != null && Mathf.Abs(nextVol - vol) > 0.001f) Audio.SetVolume(nextVol);
             y += 26f;
             bool muted = Audio != null && Audio.IsMuted;
-            bool nextMuted = GUI.Toggle(new Rect(x, y, 200f, 24f), muted, " Без звука");
+            bool nextMuted = GUI.Toggle(new Rect(x, y, 200f, 24f), muted, " " + Localization.T("pause_mute"));
             if (Audio != null && nextMuted != muted) Audio.SetMuted(nextMuted);
             y += 30f;
         }
 
         private void DrawConfirm(float x, float y)
         {
-            HudText.Draw(x, y, "Сохранить перед выходом?");
+            HudText.Draw(x, y, Localization.T("pause_confirm_title"));
             y += 42f;
-            if (GUI.Button(new Rect(x, y, 300f, 32f), "Да (сохранить и выйти)"))
+            if (GUI.Button(new Rect(x, y, 300f, 32f), Localization.T("pause_confirm_yes")))
             {
                 AudioController.PlayClickGlobal();
                 if (Save != null) Save.SaveNow(0);
                 GoToMainMenu();
             }
             y += 40f;
-            if (GUI.Button(new Rect(x, y, 300f, 32f), "Нет (выйти без сохранения)"))
+            if (GUI.Button(new Rect(x, y, 300f, 32f), Localization.T("pause_confirm_no")))
             {
                 AudioController.PlayClickGlobal();
                 GoToMainMenu();
             }
             y += 40f;
-            if (GUI.Button(new Rect(x, y, 300f, 32f), "Отмена")) confirmingExit = false;
+            if (GUI.Button(new Rect(x, y, 300f, 32f), Localization.T("pause_confirm_cancel"))) confirmingExit = false;
         }
 
         private void GoToMainMenu()

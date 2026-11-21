@@ -60,7 +60,7 @@ namespace Citybuilder
             BottomBarStyle.DrawBarBackground(panel);
             float x = panel.x + 14f;
             float y = panel.y + 12f;
-            HudText.Draw(x, y, "=== Сохранить город ===");
+            HudText.Draw(x, y, Localization.T("save_title"));
             y += 30f;
             string baseDir = Application.persistentDataPath;
             for (int i = 0; i < SaveSlotIndex.ManualSlotCount; i++)
@@ -68,7 +68,7 @@ namespace Citybuilder
                 DrawSlotRow(x, y, i, baseDir);
                 y += 40f;
             }
-            if (GUI.Button(new Rect(x, y + 6f, 120f, 28f), "Закрыть")) ReturnToPause();
+            if (GUI.Button(new Rect(x, y + 6f, 120f, 28f), Localization.T("save_close"))) ReturnToPause();
         }
 
         private void DrawSlotRow(float x, float y, int slot, string baseDir)
@@ -76,10 +76,10 @@ namespace Citybuilder
             slotNames[slot] = GUI.TextField(new Rect(x, y, 160f, 26f), slotNames[slot] ?? string.Empty, 32);
             SaveSlotIndex.SlotMeta meta = SaveSlotIndex.GetMeta(baseDir, slot);
             string info = meta == null
-                ? "пусто"
-                : "День " + (meta.savedAtTick / 24) + " • " + meta.savedAtReal;
+                ? Localization.T("save_slot_empty")
+                : Localization.T("save_slot_info", meta.savedAtTick / 24, meta.savedAtReal);
             HudText.Draw(x + 170f, y + 2f, info);
-            if (GUI.Button(new Rect(x + 330f, y, 100f, 26f), "Сохранить") && Save != null)
+            if (GUI.Button(new Rect(x + 330f, y, 100f, 26f), Localization.T("save_save")) && Save != null)
             {
                 Save.SaveNow(slot, slotNames[slot]);
                 Close();
