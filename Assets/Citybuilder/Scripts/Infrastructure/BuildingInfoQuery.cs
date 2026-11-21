@@ -60,7 +60,6 @@ namespace Citybuilder
             bool isGrown;
             return FindAt(cell, grownHomes, manualBuildings, out isGrown);
         }
-
         // Список клеток внутри сетки, покрытых кругом станции (единая математика через ServiceCoverage).
         public static List<GridPosition> GetRadiusCells(GridPosition center, int radius, GridSize gridSize)
         {
