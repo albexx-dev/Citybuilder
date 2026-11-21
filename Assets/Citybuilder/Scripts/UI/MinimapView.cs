@@ -11,6 +11,7 @@ namespace Citybuilder
     public static class MinimapView
     {
         private const string GuardKey = "minimap";
+        private const string TooltipText = "Клик — перейти к клетке";
 
         private static GridVisualizer visualizer;
         private static ZonePaintingController painter;
@@ -22,7 +23,13 @@ namespace Citybuilder
         // Игровой путь из OnGUI: видимость (в правом верху сидят инфоменю и лента), ленивые ссылки, клик.
         public static void Draw(bool infoMenuOpen, bool eventLogOpen)
         {
-            if (!MinimapMapping.IsMinimapVisible(infoMenuOpen, eventLogOpen)) { Hide(); return; }
+            Draw(infoMenuOpen, eventLogOpen, false, false);
+        }
+
+        // Полный набор флагов из BottomBarView (issue #98): задачи и настройки тоже прячут окно и снимают гард.
+        public static void Draw(bool infoMenuOpen, bool eventLogOpen, bool questsOpen, bool settingsOpen)
+        {
+            if (!MinimapMapping.IsMinimapVisible(infoMenuOpen, eventLogOpen, questsOpen, settingsOpen)) { Hide(); return; }
             EnsureRefs();
             GridSystem grid = visualizer != null ? visualizer.Grid : null;
             if (grid == null || camera == null) { Hide(); return; }
@@ -48,6 +55,7 @@ namespace Citybuilder
             Texture2D map = MinimapTexture.Current;
             if (map == null) { Hide(); return; }
             GUI.DrawTexture(rect, map);
+            BottomBarStyle.DrawTooltip(rect, TooltipText);
             ProcessClick(click, rect, grid, target);
         }
 

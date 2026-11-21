@@ -130,6 +130,9 @@ namespace Citybuilder
         {
             MinimapView.Hide();
             Assert.IsFalse(UiClickGuard.IsOverMenu(new Vector2(window.center.x, Screen.height - window.center.y)));
+            ClickAt(window.center.x, window.center.y, -1);
+            MinimapView.Draw(true, false, true, false);
+            Assert.IsFalse(UiClickGuard.IsOverMenu(new Vector2(window.center.x, Screen.height - window.center.y)));
         }
         [Test]
         public void RectToPixel_InvertsGuiY_AndKeepsX()

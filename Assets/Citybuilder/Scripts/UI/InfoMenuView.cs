@@ -56,7 +56,7 @@ namespace Citybuilder
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Tab))
+            if (Input.GetKeyDown(KeyCode.Tab) && BuildModeHotkeys.CanProcessPanelHotkeys())
             {
                 if (!isOpen) CloseSiblingPanels();
                 Toggle();
