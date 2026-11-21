@@ -36,59 +36,80 @@ namespace Citybuilder
             CityEventLog log = new CityEventLog();
             for (int i = 0; i < 60; i++)
             {
-                log.Add(EventKind.Info, "Событие #" + i, i * 10);
+                log.Add(EventKind.Info, "test_event", new object[] { i }, i * 10);
             }
 
             IReadOnlyList<CityEvent> snap = log.Snapshot();
             Assert.AreEqual(50, snap.Count);
-            Assert.AreEqual("Событие #10", snap[0].Message);
-            Assert.AreEqual("Событие #59", snap[49].Message);
+            Assert.AreEqual(10, snap[0].Args[0]);
+            Assert.AreEqual(59, snap[49].Args[0]);
         }
 
         [Test]
-        public void Deduplication_SameKindAndMessageWithin10Ticks_RecordedOnceThenAllowedAtPlus10()
+        public void Deduplication_SameKindKeyAndArgsWithin10Ticks_RecordedOnceThenAllowedAtPlus10()
         {
             CityEventLog log = new CityEventLog();
             for (int i = 0; i < 15; i++)
             {
-                log.Add(EventKind.Supply, "Энергия 46%: рост замедлен", i / 3);
+                log.Add(EventKind.Supply, EventMessageCatalog.SupplyPowerDeficit,
+                    new object[] { 46 }, i / 3);
             }
 
             Assert.AreEqual(1, log.Count);
 
-            Assert.IsFalse(log.Add(EventKind.Supply, "Энергия 46%: рост замедлен", 9));
-            Assert.IsTrue(log.Add(EventKind.Supply, "Энергия 46%: рост замедлен", 10));
+            Assert.IsFalse(log.Add(EventKind.Supply, EventMessageCatalog.SupplyPowerDeficit,
+                new object[] { 46 }, 9));
+            Assert.IsTrue(log.Add(EventKind.Supply, EventMessageCatalog.SupplyPowerDeficit,
+                new object[] { 46 }, 10));
             Assert.AreEqual(2, log.Count);
         }
 
         [Test]
-        public void Deduplication_DifferentKindSameText_RecordsBoth()
+        public void Deduplication_DifferentKindOrArgs_RecordsBoth()
         {
             CityEventLog log = new CityEventLog();
-            log.Add(EventKind.Supply, "Дефицит", 5);
-            log.Add(EventKind.Treasury, "Дефицит", 5);
+            log.Add(EventKind.Supply, "same_key", null, 5);
+            log.Add(EventKind.Treasury, "same_key", null, 5);
+            log.Add(EventKind.Supply, "same_key", new object[] { 46 }, 5);
+            log.Add(EventKind.Supply, "same_key", new object[] { 47 }, 5);
 
-            Assert.AreEqual(2, log.Count);
+            Assert.AreEqual(4, log.Count);
+        }
+
+        [Test]
+        public void Deduplication_LanguageSwitch_IsNotAffected()
+        {
+            CityEventLog log = new CityEventLog();
+            Localization.SetLanguage(Language.Ru);
+            log.Add(EventKind.Supply, EventMessageCatalog.SupplyPowerDeficit, new object[] { 46 }, 1);
+            Localization.SetLanguage(Language.En);
+            Assert.IsFalse(log.Add(EventKind.Supply, EventMessageCatalog.SupplyPowerDeficit,
+                new object[] { 46 }, 2));
+            Assert.AreEqual(1, log.Count);
+            Assert.AreEqual("Day 0, 01:00 — Power 46%: growth slowed",
+                EventLogView.FormatLine(log.Snapshot()[0]));
         }
 
         [Test]
         public void Clear_EmptiesLogAndResetsDeduplicationAndFormatsLine()
         {
             CityEventLog log = new CityEventLog();
-            log.Add(EventKind.Employment, "Высокая безработица: занятость 38%", 81);
+            log.Add(EventKind.Employment, EventMessageCatalog.UnemploymentHigh, new object[] { 38 }, 81);
             Assert.AreEqual("День 3, 09:00 — Высокая безработица: занятость 38%",
                 EventLogView.FormatLine(log.Snapshot()[0]));
 
             log.Clear();
             Assert.AreEqual(0, log.Count);
-            Assert.IsTrue(log.Add(EventKind.Employment, "Высокая безработица: занятость 38%", 82));
+            Assert.IsTrue(log.Add(EventKind.Employment, EventMessageCatalog.UnemploymentHigh,
+                new object[] { 38 }, 82));
             Assert.AreEqual(1, log.Count);
         }
 
         [Test]
-        public void FormatLine_EnglishLanguage_UsesEnglishPrefix()
+        public void FormatLine_EnglishLanguage_UsesEnglishText()
         {
-            CityEvent e = new CityEvent(EventKind.Employment, "High unemployment: employment 38%", 81);
+            CityEvent e = new CityEvent(EventKind.Employment, EventMessageCatalog.UnemploymentHigh,
+                new object[] { 38 }, 81);
             Localization.SetLanguage(Language.En);
             Assert.AreEqual("Day 3, 09:00 — High unemployment: employment 38%", EventLogView.FormatLine(e));
         }
@@ -107,23 +128,22 @@ namespace Citybuilder
         }
 
         [Test]
-        public void SupplyEvent_ReportsDeficitAndThenRecoveryOnce()
+        public void SupplyEvent_ReportsDeficitKeyAndRecoveryOnce()
         {
             bool wasInDeficit = false;
-            Assert.AreEqual(string.Empty,
-                SupplyGrowthController.EvaluateSupplyEvent(1f, 1f, 1f, ref wasInDeficit));
+            Assert.IsEmpty(SupplyGrowthController.EvaluateSupplyEvent(1f, 1f, 1f, ref wasInDeficit).MessageKey);
             Assert.IsFalse(wasInDeficit);
 
-            Assert.AreEqual("Энергия 46%: рост замедлен",
-                SupplyGrowthController.EvaluateSupplyEvent(0.46f, 1f, 1f, ref wasInDeficit));
+            CityEvent deficit = SupplyGrowthController.EvaluateSupplyEvent(0.46f, 1f, 1f, ref wasInDeficit);
+            Assert.AreEqual(EventMessageCatalog.SupplyPowerDeficit, deficit.MessageKey);
+            Assert.AreEqual(46, deficit.Args[0]);
             Assert.IsTrue(wasInDeficit);
 
-            Assert.AreEqual("Снабжение восстановлено: 100%",
-                SupplyGrowthController.EvaluateSupplyEvent(1f, 1f, 1f, ref wasInDeficit));
+            CityEvent restored = SupplyGrowthController.EvaluateSupplyEvent(1f, 1f, 1f, ref wasInDeficit);
+            Assert.AreEqual(EventMessageCatalog.SupplyRestored, restored.MessageKey);
             Assert.IsFalse(wasInDeficit);
 
-            Assert.AreEqual(string.Empty,
-                SupplyGrowthController.EvaluateSupplyEvent(1f, 1f, 1f, ref wasInDeficit));
+            Assert.IsEmpty(SupplyGrowthController.EvaluateSupplyEvent(1f, 1f, 1f, ref wasInDeficit).MessageKey);
         }
     }
 }

@@ -146,7 +146,7 @@ namespace Citybuilder
             if (EventLog == null) EventLog = FindFirstObjectByType<EventLogView>();
             if (EventLog == null) return;
             CityEventLog log = EventLog.Log;
-            // Троттлинг по виду: сообщения с меняющимися числами («Энергия 46%») обходят дедуп.
+            // Троттлинг по виду: сообщения с меняющимися аргументами («Энергия 46%») обходят дедуп.
             if (Growth != null && Growth.SupplyGrowth != null
                 && eventThrottle.Allow(EventKind.Supply.ToString(), tick))
             {
@@ -160,19 +160,22 @@ namespace Citybuilder
             if (Growth != null && Growth.Congestion != null && Growth.Congestion.GrowthTickMultiplier > 1
                 && eventThrottle.Allow(EventKind.Congestion.ToString(), tick))
             {
-                log.Add(EventKind.Congestion, "Пробки замедляют рост ×" + Growth.Congestion.GrowthTickMultiplier, tick);
+                log.Add(EventKind.Congestion, EventMessageCatalog.CongestionSlowdown,
+                    new object[] { Growth.Congestion.GrowthTickMultiplier }, tick);
             }
             if (Treasury != null && Treasury.Treasury != null && Treasury.Treasury.IsInDeficit
                 && eventThrottle.Allow(EventKind.Treasury.ToString(), tick)
                 && soundPolicy.ShouldPlayDeficit(Time.unscaledTime))
             {
-                log.Add(EventKind.Treasury, "Дефицит казны: баланс $" + Treasury.Treasury.Balance, tick);
+                log.Add(EventKind.Treasury, EventMessageCatalog.TreasuryDeficit,
+                    new object[] { Treasury.Treasury.Balance }, tick);
             }
             if (employment != null && Population.Population.TotalResidents > 0 && employment.EmploymentRate < Population.MinEmployment
                 && eventThrottle.Allow(EventKind.Employment.ToString(), tick))
             {
                 int pct = (int)Math.Round(employment.EmploymentRate * 100f);
-                log.Add(EventKind.Employment, "Высокая безработица: занятость " + pct + "%", tick);
+                log.Add(EventKind.Employment, EventMessageCatalog.UnemploymentHigh,
+                    new object[] { pct }, tick);
             }
             // Звука на тиковые события нет: лента читаема (троттлинг), награды целей звучат в GoalView.
         }
