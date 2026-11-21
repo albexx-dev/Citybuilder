@@ -31,7 +31,7 @@ namespace Citybuilder
         {
             Assert.AreEqual(AudioController.DefaultVolume, settings.Volume, 0.001f); Assert.IsFalse(settings.Muted);
             Assert.AreEqual(GameSettings.DefaultAgentLimit, settings.AgentLimit); Assert.IsTrue(settings.DecorEnabled);
-            Assert.IsTrue(settings.DayNightEnabled); Assert.AreEqual(AutosaveController.AutosaveIntervalTicks, settings.AutosaveHours);
+            Assert.IsTrue(settings.DayNightEnabled); Assert.AreEqual(AutosaveController.DefaultAutosaveIntervalTicks, settings.AutosaveHours);
             Assert.AreEqual(0, changes);
         }
 

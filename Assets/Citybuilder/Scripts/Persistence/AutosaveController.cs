@@ -2,11 +2,15 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Автосейв каждые 24 игровых часа в autosave.json (EPIC-11 шаг 2, ADR-008).
-    // Подписка на TickCompleted: в паузе не тикает; пропускает тик, если на нём уже был ручной сейв.
+    // Автосейв каждые AutosaveIntervalTicks игровых часов (дефолт 24) в autosave.json
+    // (EPIC-11 шаг 2, ADR-008). Подписка на TickCompleted: в паузе не тикает; пропускает
+    // тик, если на нём уже был ручной сейв. Интервал подаётся из настроек (EPIC-69 шаг 3).
     public class AutosaveController : MonoBehaviour
     {
-        public const int AutosaveIntervalTicks = 24;
+        public const int DefaultAutosaveIntervalTicks = 24;
+
+        [Tooltip("Интервал автосейва в тиках (1 тик = 1 игровой час). Подаётся из настроек (EPIC-69).")]
+        public int AutosaveIntervalTicks = DefaultAutosaveIntervalTicks;
 
         [Header("References")]
         [Tooltip("Контроллер сохранения. Пусто = ищется на этом же объекте.")]
