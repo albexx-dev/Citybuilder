@@ -48,7 +48,7 @@ namespace Citybuilder
 
         private void Update()
         {
-            if (isOpen && Input.GetKeyDown(KeyCode.Escape)) ReturnToPause();
+            if (isOpen && Input.GetKeyDown(KeyCode.Escape) && UiEscapeGuard.TryConsume(Time.frameCount)) ReturnToPause();
         }
 
         private void OnGUI()
