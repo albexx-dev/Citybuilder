@@ -1,6 +1,6 @@
 # Citybuilder
 
-3D city-building simulation in Unity 6 / C#. Current release: **v1.2.0 «Живой город»**.
+3D city-building simulation in Unity 6 / C#. Current release: **v1.2.2** (v1.2 «Живой город» + follow-ups).
 
 ## New here? / Новому участнику
 
@@ -43,13 +43,13 @@ Connected systems:
 
 ## Download
 
-Ready-to-play Windows64 build: [GitHub Release v1.2.0](https://github.com/albexx-dev/Citybuilder/releases/tag/v1.2.0) — unzip and run `CityBuilder.exe`.
+Ready-to-play Windows64 build: [GitHub Release v1.2.2](https://github.com/albexx-dev/Citybuilder/releases/tag/v1.2.2) — unzip and run `CityBuilder.exe`.
 
 ## Documentation
 
 - `ONBOARDING.md` — (RU) step-by-step setup for a new contributor, from clone to first PR.
 - `CONTRIBUTING.md` — contribution rules and the pull request workflow.
-- `CHANGELOG.md` — full release notes for `[v1.2.0]`, `[v1.1.0]` and `[v1.1]`.
+- `CHANGELOG.md` — full release notes for `[v1.2.2]`, `[v1.2.1]`, `[v1.2.0]`, `[v1.1.0]` and `[v1.1]`.
 - `ARCHITECTURE.md` — modular monolith design and implemented v1.2.0 systems.
 - `GAME_DESIGN.md` — simulation rules, infinite-game doctrine (§19), and v1.2 balance table (§20).
 - `UNITY_MCP_SETUP.md` — Unity/Blender MCP setup and the Blender FBX exporter addon workflow.
