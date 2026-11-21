@@ -116,7 +116,7 @@ namespace Citybuilder
 
         private void DrawLines(float x, float y)
         {
-            HudText.Draw(x, y, "=== " + current.DisplayName + " ===");
+            HudText.Draw(x, y, "=== " + BuildingDisplayName.Of(current) + " ===");
             y += 24f;
             HudText.Draw(x, y, "Стоимость: $" + current.Cost + " • Содержание: $" + current.UpkeepPerHour + "/ч");
             y += 24f;
