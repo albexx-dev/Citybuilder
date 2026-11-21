@@ -31,6 +31,7 @@ namespace Citybuilder
         static Localization()
         {
             LocalizationTable.AddTo(table);
+            LocalizationTailTable.AddTo(table);
             EventMessageCatalog.RegisterTo(table);
         }
         // Есть ли ключ в таблице: фолбэк имени здания на DisplayName, если перевода нет.
