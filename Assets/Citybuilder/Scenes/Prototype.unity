@@ -239,6 +239,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1821543314}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &549918041
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 549918043}
+  - component: {fileID: 549918042}
+  m_Layer: 0
+  m_Name: AudioEvents
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &549918042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549918041}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 978b79fdc37b41b7b10a578dbe6f2e1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.AudioEventView
+  Economy: {fileID: 0}
+  FireClip: {fileID: 8300000, guid: 75d0f0b3d1444ebe863369e977e50483, type: 3}
+  CrimeClip: {fileID: 8300000, guid: bf9131d314b4400cb133e5ea3fd7251b, type: 3}
+  PollIntervalSec: 0.25
+  BurnedPitch: 0.5
+--- !u!4 &549918043
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549918041}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &594737063
 GameObject:
   m_ObjectHideFlags: 0
@@ -1313,6 +1362,7 @@ MonoBehaviour:
   NightClip: {fileID: 8300000, guid: 0f623d9376a346d9bbf3ad6cf44e0829, type: 3}
   CrossfadeSeconds: 2
   ReferencePopulation: 200
+  AmbientVolume: 1
 --- !u!4 &1309243368
 Transform:
   m_ObjectHideFlags: 0
@@ -1845,3 +1895,4 @@ SceneRoots:
   - {fileID: 1432023087}
   - {fileID: 751421547}
   - {fileID: 1309243368}
+  - {fileID: 549918043}
