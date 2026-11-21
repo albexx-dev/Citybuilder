@@ -32,11 +32,11 @@ namespace Citybuilder
         // Тестируемый шов: история приходит параметром, поиск в сцене не участвует.
         public static void Draw(ref float y, float width, MetricsHistory history)
         {
-            HudText.Draw(12f, y, "=== История ===");
+            HudText.Draw(12f, y, Localization.T("metrics_title"));
             y += HeaderHeight;
             if (history == null || history.Count == 0)
             {
-                HudText.Draw(12f, y, "Копится с началом игровых часов");
+                HudText.Draw(12f, y, Localization.T("metrics_empty"));
                 y += EmptyHeight - HeaderHeight;
                 return;
             }

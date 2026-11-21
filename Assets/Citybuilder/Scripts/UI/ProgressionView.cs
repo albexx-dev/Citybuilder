@@ -25,8 +25,8 @@ namespace Citybuilder
         // Текст строки: ближайший тип или признание, что открыто всё.
         private static string BuildText(BuildingDefinition next)
         {
-            if (next == null) return "Все типы открыты";
-            return "Дальше: " + BuildingDisplayName.Of(next) + " — " + next.UnlockBuildings + " зд.";
+            if (next == null) return Localization.T("progression_all");
+            return Localization.T("progression_next", BuildingDisplayName.Of(next), next.UnlockBuildings);
         }
     }
 }
