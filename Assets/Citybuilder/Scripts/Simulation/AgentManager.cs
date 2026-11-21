@@ -71,9 +71,11 @@ namespace Citybuilder
 
         private void SpawnBatch(IReadOnlyList<GridPosition> fromOrigins, IReadOnlyList<GridPosition> toOrigins, IReadOnlyList<GridPosition> roads)
         {
-            if (ActiveCount >= activeLimit) return;
+            int budget = activeLimit - ActiveCount;
+            if (budget <= 0) return;
             if (IsEmpty(fromOrigins) || IsEmpty(toOrigins) || IsEmpty(roads)) return;
-            for (int i = 0; i < SpawnsPerHour; i++)
+            int count = SpawnsPerHour < budget ? SpawnsPerHour : budget;
+            for (int i = 0; i < count; i++)
             {
                 long pairIndex = spawnCursor + i;
                 GridPosition from = fromOrigins[(int)(pairIndex % fromOrigins.Count)];

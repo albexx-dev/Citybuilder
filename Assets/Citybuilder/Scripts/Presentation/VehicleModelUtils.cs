@@ -23,12 +23,12 @@ namespace Citybuilder
         {
             Vector3 min, max;
             if (!TryBounds(model, out min, out max)) return 1f;
-            float length = max.z - min.z;
-            if (length <= 0.001f) return 1f;
-            float scale = targetLength / length;
-            model.transform.localScale = model.transform.localScale * scale;
+            float worldLength = (max.z - min.z) * model.transform.localScale.z;
+            if (worldLength <= 0.001f) return 1f;
+            float multiplier = targetLength / worldLength;
+            model.transform.localScale = model.transform.localScale * multiplier;
             Align(model);
-            return scale;
+            return multiplier;
         }
 
         // Объединённый AABB всех мешей модели в системе координат её корня.

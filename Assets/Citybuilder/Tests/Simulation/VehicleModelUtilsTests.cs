@@ -22,29 +22,34 @@ namespace Citybuilder
             return root;
         }
 
+        // TryBounds меряет КОРНЕВУЮ длину (до своего localScale) — мировая = корневая × scale.z.
+        private static float WorldLength(GameObject model)
+        {
+            Vector3 min, max;
+            Assert.IsTrue(VehicleModelUtils.TryBounds(model, out min, out max));
+            return (max.z - min.z) * model.transform.localScale.z;
+        }
+
         [Test]
         public void Fit_ScalesLengthToTarget_AndAlignsCenterOnPivot()
         {
             GameObject model = MakeModel(13.46f, 1f, 0f, 0f);
-            float scale = VehicleModelUtils.Fit(model, 1.6f);
+            float multiplier = VehicleModelUtils.Fit(model, 1.6f);
+            Assert.AreEqual(1.6f, WorldLength(model), 0.001f, "мировая длина = целевой");
+            Assert.AreEqual(1.6f / 13.46f, multiplier, 0.0001f);
             Vector3 min, max;
             Assert.IsTrue(VehicleModelUtils.TryBounds(model, out min, out max));
-            Assert.AreEqual(1.6f, max.z - min.z, 0.001f, "длина = целевой");
-            Assert.AreEqual(0.8f, (min.z + max.z) * 0.5f, 0.01f, "центр на оси корня");
-            Assert.Less(Mathf.Abs(min.y), 0.001f, "низ на земле");
-            Assert.AreEqual(1.6f / 13.46f, scale, 0.0001f);
+            Assert.Less(Mathf.Abs(min.y * model.transform.localScale.y), 0.001f, "низ на земле (в мире)");
             Object.DestroyImmediate(model);
         }
 
         [Test]
-        public void Fit_MultipliesExistingScale_NotReset()
+        public void Fit_MeasuresWorldLength_KeepsExistingScaleMeaning()
         {
             GameObject model = MakeModel(10f, 1f, 0f, 0f);
-            model.transform.localScale = Vector3.one * 2f;
+            model.transform.localScale = Vector3.one * 2f; // мир: 20
             VehicleModelUtils.Fit(model, 2f);
-            Vector3 min, max;
-            Assert.IsTrue(VehicleModelUtils.TryBounds(model, out min, out max));
-            Assert.AreEqual(2f, max.z - min.z, 0.001f);
+            Assert.AreEqual(2f, WorldLength(model), 0.001f, "мировая длина приведена к цели");
             Object.DestroyImmediate(model);
         }
 

@@ -30,7 +30,7 @@ namespace Citybuilder
         public void Defaults_MatchCurrentGameConstants()
         {
             Assert.AreEqual(AudioController.DefaultVolume, settings.Volume, 0.001f); Assert.IsFalse(settings.Muted);
-            Assert.AreEqual(40, settings.AgentLimit); Assert.IsTrue(settings.DecorEnabled);
+            Assert.AreEqual(GameSettings.DefaultAgentLimit, settings.AgentLimit); Assert.IsTrue(settings.DecorEnabled);
             Assert.IsTrue(settings.DayNightEnabled); Assert.AreEqual(AutosaveController.AutosaveIntervalTicks, settings.AutosaveHours);
             Assert.AreEqual(0, changes);
         }
