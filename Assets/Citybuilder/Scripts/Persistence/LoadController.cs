@@ -81,6 +81,7 @@ namespace Citybuilder
         {
             // ID, горение и кражи не сериализуются: повторная загрузка даёт те же номера и чистое состояние.
             EntityId.Reset();
+            ConstructionSnapshot.Clear();
             if (Demolition != null) Demolition.ClearGrown();
             if (Zones != null) Zones.ClearZones();
             if (Roads != null) Roads.ClearRoads();
@@ -102,6 +103,8 @@ namespace Citybuilder
             if (garbage != null) garbage.ResetGarbage();
             PedestrianAgentHost pedestrians = FindFirstObjectByType<PedestrianAgentHost>();
             if (pedestrians != null) pedestrians.ResetAgents();
+            VehicleAgentHost vehicles = FindFirstObjectByType<VehicleAgentHost>();
+            if (vehicles != null) vehicles.ResetAgents();
         }
 
         private List<BuildingState> ApplyCity(CitySnapshot snapshot)
