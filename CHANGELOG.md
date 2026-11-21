@@ -11,6 +11,7 @@ All notable changes to this project are documented here. Format follows [Keep a 
 ### Changed
 
 - Documentation no longer points at the removed `TASKS/` folder; the static validator now rejects its re-creation.
+- Connectivity metric counts manual residential buildings in the denominator; service stations (`ResidentCapacity == 0`) do not grow it — confirmed intended (issue #42).
 
 ## [v1.2.0] - 2026-11-21
 
