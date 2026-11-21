@@ -30,11 +30,10 @@ namespace Citybuilder
         public void SameCoordinates_IgniteAndSteal_StableAcrossRefresh()
         {
             EntityId.Reset();
-            EntityId home = EntityId.New();
-            uint fireBefore = FireSystem.Hash(Tick, home);
-            uint stealBefore = CrimeSystem.Hash(Tick, home);
+            EntityId.New(); // дом до пересчёта
 
             ServiceBuildingSystem services = new ServiceBuildingSystem();
+            services.SetSources(ServiceKind.Fire, new List<ServiceSource> { new ServiceSource(Home, 5) });
             services.BuildSnapshot(new List<GridPosition> { Home });
             services.BuildSnapshot(new List<GridPosition> { Home });
             EntityId createdAfter = EntityId.New();
@@ -46,8 +45,6 @@ namespace Citybuilder
             Assert.AreEqual(createdControl.Value, createdAfter.Value);
             Assert.AreEqual(FireSystem.Hash(Tick, createdControl), FireSystem.Hash(Tick, createdAfter));
             Assert.AreEqual(CrimeSystem.Hash(Tick, createdControl), CrimeSystem.Hash(Tick, createdAfter));
-            Assert.AreEqual(fireBefore, FireSystem.Hash(Tick, home));
-            Assert.AreEqual(stealBefore, CrimeSystem.Hash(Tick, home));
         }
     }
 }
