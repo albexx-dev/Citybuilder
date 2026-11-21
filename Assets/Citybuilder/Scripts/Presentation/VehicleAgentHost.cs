@@ -24,6 +24,7 @@ namespace Citybuilder
         public SettingsView Settings;
 
         private AgentManager manager;
+        private bool clockSubscribed;
         private readonly List<GridPosition> homes = new List<GridPosition>();
         private readonly List<GridPosition> works = new List<GridPosition>();
         private readonly List<GridPosition> roads = new List<GridPosition>();
@@ -63,15 +64,23 @@ namespace Citybuilder
             return routes != null ? routes.FindPath(from, to) : null;
         }
 
-        private void OnEnable()
-        {
-            if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
-            if (Runner != null && Runner.Clock != null) Runner.Clock.TickCompleted += OnClockTick;
-        }
+        private void OnEnable() { TrySubscribeClock(); }
 
         private void OnDisable()
         {
-            if (Runner != null && Runner.Clock != null) Runner.Clock.TickCompleted -= OnClockTick;
+            if (clockSubscribed && Runner != null && Runner.Clock != null) Runner.Clock.TickCompleted -= OnClockTick;
+            clockSubscribed = false;
+        }
+
+        // Устойчивая подписка (прецедент QuestLogView.TrySubscribe): Runner.Clock ленив —
+        // в OnEnable он мог быть null (порядок компонентов сцены), повторяем в Update.
+        private void TrySubscribeClock()
+        {
+            if (clockSubscribed) return;
+            if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
+            if (Runner == null || Runner.Clock == null) return;
+            Runner.Clock.TickCompleted += OnClockTick;
+            clockSubscribed = true;
         }
 
         // Граница игрового часа: обновить цели и дороги, спавн по окну расписания.
@@ -86,6 +95,7 @@ namespace Citybuilder
 
         private void Update()
         {
+            TrySubscribeClock();
             if (manager == null || Runner == null || Runner.Clock == null) return;
             if (Settings != null && Settings.Settings != null) manager.SetActiveLimit(Settings.Settings.AgentLimit);
             if (Runner.Clock.Speed == SimulationSpeed.Paused) return;
