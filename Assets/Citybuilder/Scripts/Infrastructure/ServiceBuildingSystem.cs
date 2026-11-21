@@ -129,8 +129,8 @@ namespace Citybuilder
         private static ServiceCoverage BuildKindCoverage(List<ServiceSource> sources, List<GridPosition> houses)
         {
             ServiceCoverage coverage = new ServiceCoverage();
-            for (int i = 0; i < sources.Count; i++) coverage.SetSource(EntityId.New(), sources[i].Center, sources[i].Radius);
-            for (int i = 0; i < houses.Count; i++) coverage.SetPoint(EntityId.New(), houses[i]);
+            for (int i = 0; i < sources.Count; i++) coverage.AddSource(sources[i].Center, sources[i].Radius);
+            for (int i = 0; i < houses.Count; i++) coverage.AddPoint(houses[i]);
             return coverage;
         }
     }

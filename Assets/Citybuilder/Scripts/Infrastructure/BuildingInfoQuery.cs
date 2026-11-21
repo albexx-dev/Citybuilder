@@ -66,7 +66,7 @@ namespace Citybuilder
             List<GridPosition> result = new List<GridPosition>();
             if (radius <= 0) return result;
             ServiceCoverage cov = new ServiceCoverage();
-            cov.SetSource(EntityId.New(), center, radius);
+            cov.AddSource(center, radius);
             int minX = Math.Max(0, center.X - radius);
             int maxX = Math.Min(gridSize.Width - 1, center.X + radius);
             int minY = Math.Max(0, center.Y - radius);
@@ -97,7 +97,7 @@ namespace Citybuilder
             }
             if (info.ServiceKind == ServiceKind.None || info.ServiceRadius <= 0) return;
             ServiceCoverage single = new ServiceCoverage();
-            single.SetSource(EntityId.New(), state.Origin, info.ServiceRadius);
+            single.AddSource(state.Origin, info.ServiceRadius);
             if (grownHomes != null)
             {
                 for (int i = 0; i < grownHomes.Count; i++)
