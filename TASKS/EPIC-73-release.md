@@ -14,7 +14,7 @@ GitHub Release `v1.2.0` с zip windows64, README-витрина с скринш�
 
 **Код и качество**
 - [ ] Все эпики фаз 1–4 закрыты; #42/#65 техдолг закрыт
-- [ ] `Tools/ValidateRepo.py` — 0 ошибок, warning ≤15
+- [ ] `Tools/ValidateRepo.py` — 0 ERROR; WARN допустимы (150 строк / метод >30 / несколько типов)
 - [ ] EditMode-тесты все зелёные (ожидаемо >550 после v1.2)
 - [ ] CI на main зелёный
 

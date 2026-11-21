@@ -8,13 +8,10 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 - **ADR-014 (issue #93):** save v6 decision — optional garbage queues, theft counter, comfort streak and construction progress with v5 fallback, `SaveSlotStorage` validation, v1–v5 compatibility. Fires and vehicle agents stay non-serialized (ADR-009/ADR-011) and out of scope.
 
-### Removed
-
-- `TASKS/` (22 v1.1 epic-plan files): the plans remain in git history. Task tracking now lives in GitHub Issues and the pull request workflow; see `ONBOARDING.md` and `CONTRIBUTING.md`.
-
 ### Changed
 
-- Documentation no longer points at the removed `TASKS/` folder; the static validator now rejects its re-creation.
+- Documentation now matches the repository: `TASKS/` is still tracked (32 files, `git ls-files TASKS`), `TASKS/README.md` remains the epic queue, and the validator requires it. Earlier notes claiming the folder was removed and that re-creating it was rejected were inaccurate; ADR-005 carries a superseding update.
+- `Tools/ValidateRepo.py` now warns on methods over 30 lines and files with several top-level types, cross-checks `bundleVersion` against README/CHANGELOG instead of a hardcoded `1.2`, rejects AGENTS.md:77 APIs (regex, long LINQ chains, async/await, reflection, DI) and scans `.py` for credentials. The required `Static validation` check name is unchanged.
 - Connectivity metric counts manual residential buildings in the denominator; service stations (`ResidentCapacity == 0`) do not grow it — confirmed intended (issue #42).
 - Accepted ADR-013: the city event log stores messages as a localization key + args with language-independent dedup and sound resolved from event type instead of `message.Contains` text markers.
 
