@@ -18,6 +18,7 @@ namespace Citybuilder
         [Tooltip("Меню сохранения.")] public SaveMenuView SaveMenu;
         [Tooltip("Меню загрузки.")] public LoadMenuView LoadMenu;
         [Tooltip("Окно настроек (EPIC-69).")] public SettingsView Settings;
+        [Tooltip("Инфопанель выбранного здания: её Esc имеет приоритет над паузой (issue #98).")] public InfoPanelView InfoPanel;
 
         public enum EscAction
         {
@@ -36,9 +37,24 @@ namespace Citybuilder
             return EscAction.OpenPause;
         }
 
+        // Приоритет Esc (issue #98): открытая инфопанель гасит себя и не открывает паузу в этом кадре.
+        public static EscAction EvaluateEsc(bool mainOpen, bool pauseOpen, BuildModeMenu.Mode mode, bool infoPanelOpen)
+        {
+            if (infoPanelOpen) return EscAction.None;
+            return EvaluateEsc(mainOpen, pauseOpen, mode);
+        }
+
         public static bool CanProcessHotkeys(bool isModalOpen, int keyboardControl)
         {
             return !isModalOpen && keyboardControl == 0;
+        }
+
+        // Единый гард для Tab (статистика) и L (лента): формула не дублируется, модалки спрашиваем здесь.
+        public static bool CanProcessPanelHotkeys()
+        {
+            BuildModeHotkeys hotkeys = FindFirstObjectByType<BuildModeHotkeys>();
+            if (hotkeys != null && hotkeys.IsModalOpen()) return false;
+            return CanProcessHotkeys(false, GUIUtility.keyboardControl);
         }
 
         public bool IsModalOpen()
@@ -61,12 +77,13 @@ namespace Citybuilder
             bool slotModalOpen = (SaveMenu != null && SaveMenu.IsOpen)
                 || (LoadMenu != null && LoadMenu.IsOpen)
                 || (Settings != null && Settings.IsOpen);
+            bool infoPanelOpen = InfoPanel != null && InfoPanel.IsOpen;
 
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 // Esc работает при открытых паузе/главном меню, но глотается слотами и вводом текста.
-                if (slotModalOpen || GUIUtility.keyboardControl != 0) return;
-                EscAction act = EvaluateEsc(mainOpen, pauseOpen, menu.CurrentMode);
+                if (!CanProcessHotkeys(slotModalOpen, GUIUtility.keyboardControl)) return;
+                EscAction act = EvaluateEsc(mainOpen, pauseOpen, menu.CurrentMode, infoPanelOpen);
                 if (act == EscAction.ClosePause && Pause != null) Pause.Close();
                 else if (act == EscAction.TurnOffMode) menu.SetMode(BuildModeMenu.Mode.Off);
                 else if (act == EscAction.OpenPause && Pause != null) Pause.Open();
@@ -93,6 +110,7 @@ namespace Citybuilder
             if (SaveMenu == null) SaveMenu = GetComponent<SaveMenuView>() ?? FindFirstObjectByType<SaveMenuView>();
             if (LoadMenu == null) LoadMenu = GetComponent<LoadMenuView>() ?? FindFirstObjectByType<LoadMenuView>();
             if (Settings == null) Settings = GetComponent<SettingsView>() ?? FindFirstObjectByType<SettingsView>();
+            if (InfoPanel == null) InfoPanel = FindFirstObjectByType<InfoPanelView>();
         }
 
         private BuildModeMenu ResolveMenu()

@@ -188,5 +188,12 @@ namespace Citybuilder
             }
             finally { Object.DestroyImmediate(go); }
         }
+
+        [Test]
+        public void PanelHotkeys_GuardAndEscPriority_UseSinglePureLogic()
+        {
+            Assert.IsFalse(BuildModeHotkeys.CanProcessHotkeys(true, 0)); Assert.IsFalse(BuildModeHotkeys.CanProcessHotkeys(false, 1)); Assert.IsTrue(BuildModeHotkeys.CanProcessHotkeys(false, 0));
+            Assert.AreEqual(BuildModeHotkeys.EscAction.None, BuildModeHotkeys.EvaluateEsc(false, false, BuildModeMenu.Mode.Off, true)); Assert.AreEqual(BuildModeHotkeys.EscAction.OpenPause, BuildModeHotkeys.EvaluateEsc(false, false, BuildModeMenu.Mode.Off, false));
+        }
     }
 }
