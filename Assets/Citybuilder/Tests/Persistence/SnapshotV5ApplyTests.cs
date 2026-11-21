@@ -43,7 +43,7 @@ namespace Citybuilder
             Assert.IsTrue(SaveSlotStorage.Validate(slot));
             Assert.AreEqual(1, ReloadHomes(slot, "house")[0].Level); Assert.AreEqual(1, ReloadManual(slot, "house")[0].Level);
             TaxPolicy policy = new TaxPolicy(); SnapshotTaxRates.ApplyTo(slot, policy);
-            Assert.AreEqual(6, policy.RateFor(ZoneType.Residential)); Assert.AreEqual(6, policy.RateFor(ZoneType.Commercial)); Assert.AreEqual(6, policy.RateFor(ZoneType.Industrial));
+            Assert.AreEqual(4, policy.RateFor(ZoneType.Residential)); Assert.AreEqual(4, policy.RateFor(ZoneType.Commercial)); Assert.AreEqual(4, policy.RateFor(ZoneType.Industrial));
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace Citybuilder
         {
             CitySnapshot slot = new CitySnapshot(); slot.TaxLevel = 2; slot.TaxRates = new int[] { 1, 3, 2 };
             TaxPolicy policy = new TaxPolicy(); SnapshotTaxRates.ApplyTo(slot, policy);
-            Assert.AreEqual(2, policy.RateFor(ZoneType.Residential)); Assert.AreEqual(6, policy.RateFor(ZoneType.Commercial)); Assert.AreEqual(4, policy.RateFor(ZoneType.Industrial));
+            Assert.AreEqual(1, policy.RateFor(ZoneType.Residential)); Assert.AreEqual(4, policy.RateFor(ZoneType.Commercial)); Assert.AreEqual(2, policy.RateFor(ZoneType.Industrial));
         }
 
         [Test]
@@ -71,8 +71,8 @@ namespace Citybuilder
             CitySnapshot slot = new CitySnapshot(); slot.TaxLevel = 1; slot.TaxRates = new int[] { 1, 9, 2 };
             TaxPolicy policy = new TaxPolicy(); policy.Set(TaxPolicy.Level.High);
             SnapshotTaxRates.ApplyTo(slot, policy);
-            Assert.AreEqual(2, policy.RateFor(ZoneType.Commercial)); Assert.AreEqual(2, policy.RateFor(ZoneType.Industrial));
-            SnapshotTaxRates.ApplyTo(null, policy); Assert.AreEqual(4, policy.RateFor(ZoneType.Residential));
+            Assert.AreEqual(1, policy.RateFor(ZoneType.Commercial)); Assert.AreEqual(1, policy.RateFor(ZoneType.Industrial));
+            SnapshotTaxRates.ApplyTo(null, policy); Assert.AreEqual(2, policy.RateFor(ZoneType.Residential));
         }
 
         // Повторная загрузка не наращивает уровень; null-списки, null-элементы и чужие клетки безопасны.

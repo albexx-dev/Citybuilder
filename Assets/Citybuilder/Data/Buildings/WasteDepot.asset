@@ -20,7 +20,7 @@ MonoBehaviour:
   UnlockBuildings: 0
   AllowedZone: 3
   ResidentCapacity: 0
-  JobsProvided: 2
+  JobsProvided: 3
   ServiceKind: 0
   ServiceRadius: 0
   PowerDemand: 0
