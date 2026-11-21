@@ -28,15 +28,16 @@ namespace Citybuilder
         private readonly Dictionary<int, Stack<GameObject>> pools = new Dictionary<int, Stack<GameObject>>();
         private Transform decorRoot;
         private float timer;
+        private bool decorVisible = true;
 
         private void Start()
         {
-            if (Ready()) RefreshDecor();
+            if (Ready() && decorVisible) RefreshDecor();
         }
 
         private void Update()
         {
-            if (!Ready()) return;
+            if (!Ready() || !decorVisible) return;
             timer += Time.deltaTime;
             if (timer < RefreshInterval) return;
             timer = 0f;
@@ -47,6 +48,21 @@ namespace Citybuilder
         {
             List<GridPosition> cells = new List<GridPosition>(active.Keys);
             for (int i = 0; i < cells.Count; i++) Release(cells[i]);
+        }
+
+        // Настройка DecorEnabled (EPIC-69 шаг 3): выкл прячет весь декор и останавливает
+        // пересчёт, вкл показывает корень и сразу пересчитывает клетки (смена видна на паузе).
+        public bool DecorVisible
+        {
+            get { return decorVisible; }
+        }
+
+        public void SetDecorVisible(bool visible)
+        {
+            if (decorVisible == visible) return;
+            decorVisible = visible;
+            if (decorRoot != null) decorRoot.gameObject.SetActive(visible);
+            if (visible && Ready()) RefreshDecor();
         }
 
         // Полный пересчёт: спавн на свободных, уборка на занятых/зонированных.

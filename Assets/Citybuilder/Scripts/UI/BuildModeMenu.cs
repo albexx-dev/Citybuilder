@@ -17,6 +17,8 @@ namespace Citybuilder
         public SettlementGrowthController Growth;
         [Tooltip("Ручной декор: деревья без занятия клеток. Пусто = ищется на этом же объекте.")]
         public DecorPlacementController Decor;
+        [Tooltip("Режим стройки декора доступен. Гасится настройкой DecorEnabled (EPIC-69 шаг 3).")]
+        public bool DecorBuildEnabled = true;
 
         public enum Mode
         {
@@ -44,6 +46,7 @@ namespace Citybuilder
         // Включает один режим, остальные гасит. Публичный для E2E-моста.
         public void SetMode(Mode mode)
         {
+            if (mode == Mode.Decor && !DecorBuildEnabled) mode = Mode.Off; // настройка DecorEnabled
             current = mode;
             EnsureRefs();
             if (Houses != null)
@@ -71,6 +74,13 @@ namespace Citybuilder
                 Decor.enabled = (mode == Mode.Decor);
                 Decor.placementActive = (mode == Mode.Decor);
             }
+        }
+
+        // Настройка DecorEnabled (EPIC-69 шаг 3): вход в декор запрещён, активный режим гасится.
+        public void SetDecorBuildEnabled(bool enabled)
+        {
+            DecorBuildEnabled = enabled;
+            if (!enabled && current == Mode.Decor) SetMode(Mode.Off);
         }
 
         // Кисть зон. None и null ZonePainter — игнор. Публичный для E2E-моста.
