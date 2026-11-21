@@ -2,8 +2,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Геометрия HUD, нижней панели действий (EPIC-13), инфоменю (EPIC-14), ленты событий (EPIC-09) и мини-карты (EPIC-67).
-    // Единственный источник прямоугольников: отсюда рисуются группы и регистрируется UiClickGuard.
+    // Геометрия HUD, нижней панели, инфоменю, ленты и мини-карты: единый источник прямоугольников.
     public static class HudLayout
     {
         public const float BarHeight = 38f;
@@ -18,6 +17,11 @@ namespace Citybuilder
         public const float SubRowOffset = 34f;
         public const float InfoMenuTop = 10f;
         public const float InfoMenuBottomGap = 8f;
+        // Верхний левый угол: шаг ярусов больше высоты подложки строки HudText.
+        public const float TopLeftX = 10f;
+        public const float TopLeftY = 10f;
+        public const float TopLeftLineStep = 26f;
+        public static float TopLeftRowY(int index) => TopLeftY + index * TopLeftLineStep;
         // Каталог постройки (задача 173): карточки фиксированной ширины, переполнение скроллит CatalogScroll.
         public const float CatalogCardWidth = 112f;
         public const float CatalogCardHeight = 96f;

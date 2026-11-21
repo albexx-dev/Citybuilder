@@ -89,7 +89,7 @@ namespace Citybuilder.Tests
             Assert.IsTrue(text.Contains("палитре"), text);
             Assert.IsTrue(text.Contains("НАД ПАНЕЛЬЮ"), text);
             Assert.IsTrue(text.Contains(Localization.T("building_power_station")), text);
-            Assert.IsTrue(text.Contains("Дома [1]"), text);
+            Assert.IsTrue(text.Contains("Здания [1]"), text);
         }
 
         [Test]
@@ -105,7 +105,7 @@ namespace Citybuilder.Tests
             string text = TutorialPolicy.FormatText(step);
             Assert.IsTrue(text.Contains("палитре"), step + ": " + text);
             Assert.IsTrue(text.Contains("НАД ПАНЕЛЬЮ"), step + ": " + text);
-            Assert.IsTrue(text.Contains("Дома [1]"), step + ": " + text);
+            Assert.IsTrue(text.Contains("Здания [1]"), step + ": " + text);
             Assert.IsTrue(text.Contains(displayName), step + ": " + text);
         }
 

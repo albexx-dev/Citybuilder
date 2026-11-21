@@ -40,7 +40,7 @@ Connected systems:
 1. Clone the repository (with Git LFS) and open **its root** as a Unity project.
 2. Open `Assets/Citybuilder/Scenes/Prototype.unity` and press **Play** → **Новая игра** (New game).
 3. Switch language with the **RU/EN** button in the top HUD row; the choice is persisted.
-4. Follow the tutorial: paint **Зоны [3]** (Жилая / Коммерция / Промзона), enable **Рост [4]**, lay **Дороги [2]**, place buildings from **Дома [1]** (Power, Water, Waste, Compost, Fire, Police, Park, Hospital). Left-click a building in **Выкл [Esc]** mode to inspect it and see its service radius. The tutorial also reacts to fires, theft, garbage pickup and night; repeat it from **Настройки → Повторить обучение** (controls help is there too).
+4. Follow the tutorial: paint **Зоны [3]** (Жилая / Коммерция / Промзона), enable **Рост [4]**, lay **Дороги [2]**, place buildings from **Здания [1]** (Power, Water, Waste, Compost, Fire, Police, Park, Hospital). Left-click a building in **Выкл [Esc]** mode to inspect it and see its service radius. The tutorial also reacts to fires, theft, garbage pickup and night; repeat it from **Настройки → Повторить обучение** (controls help is there too).
 5. Bottom bar: **Пауза / Игра / x4** speed, **Статистика [Tab]**, **Лента [L]**, **Задачи**, **Настройки**, **Декор [5]**; **Esc** opens the Pause Menu (Save/Load slots, volume, mute). Camera: WASD, Q/E, wheel, RMB (right-drag to rotate); LMB places/inspects. **F5 / F9** save and load slot 0.
 6. Static validation: `python Tools/ValidateRepo.py`.
 
