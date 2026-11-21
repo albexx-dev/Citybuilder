@@ -82,11 +82,10 @@ namespace Citybuilder
         {
             if (stages.AllDone)
             {
-                return "Цель выполнена: " + goals.Residents + " жителей";
+                return Localization.T("goal_done", goals.Residents);
             }
             int step = stages.Stage + 1;
-            return "Цель: " + goals.Residents + "/" + stages.Target + " жителей (ступень "
-                + step + "/" + GoalStages.StageCount + ")";
+            return Localization.T("goal_progress", goals.Residents, stages.Target, step, GoalStages.StageCount);
         }
 
         // Тихое создание поверх живых симуляций. Систем нет — рисуем только HUD.

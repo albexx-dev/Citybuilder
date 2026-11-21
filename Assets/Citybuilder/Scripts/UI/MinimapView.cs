@@ -11,7 +11,7 @@ namespace Citybuilder
     public static class MinimapView
     {
         private const string GuardKey = "minimap";
-        private const string TooltipText = "Клик — перейти к клетке";
+        private const string TooltipKey = "minimap_tip";
 
         private static GridVisualizer visualizer;
         private static ZonePaintingController painter;
@@ -55,7 +55,7 @@ namespace Citybuilder
             Texture2D map = MinimapTexture.Current;
             if (map == null) { Hide(); return; }
             GUI.DrawTexture(rect, map);
-            BottomBarStyle.DrawTooltip(rect, TooltipText);
+            BottomBarStyle.DrawTooltip(rect, Localization.T(TooltipKey));
             ProcessClick(click, rect, grid, target);
         }
 

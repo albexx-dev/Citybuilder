@@ -22,7 +22,10 @@ namespace Citybuilder
             new Color(0.5f, 0.8f, 0.95f),   // нужды
             new Color(0.95f, 0.6f, 0.3f)    // энергия
         };
-        private static readonly string[] Names = { "Население", "Казна", "Нужды", "Энергия" };
+        private static readonly string[] NameKeys =
+        {
+            "metric_name_population", "metric_name_treasury", "metric_name_needs", "metric_name_power"
+        };
 
         private static readonly Texture2D[] textures = new Texture2D[SeriesCount];
         private static readonly float[] source = new float[MetricsHistory.Capacity];
@@ -55,7 +58,7 @@ namespace Citybuilder
         {
             if (index < 0 || index >= SeriesCount) return string.Empty;
             MetricsSnapshot latest = history != null ? history.Latest() : default(MetricsSnapshot);
-            return Names[index] + ": " + ValueAt(index, latest).ToString("0");
+            return Localization.T(NameKeys[index]) + ": " + ValueAt(index, latest).ToString("0");
         }
 
         // Забыть таймер (тесты, «Новая игра»): следующий вызов пересчитает сразу.

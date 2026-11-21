@@ -79,7 +79,7 @@ namespace Citybuilder
             HudText.Draw(10f, y, text);
             Rect btn = new Rect(Screen.width - 100f, y - 2f, 90f, 24f);
             UiClickGuard.Set("tutorial_dismiss", btn);
-            if (GUI.Button(btn, "Понятно")) { if (isEvent) events.Acknowledge(); else Dismiss(); }
+            if (GUI.Button(btn, Localization.T("tutorial_dismiss"))) { if (isEvent) events.Acknowledge(); else Dismiss(); }
         }
 
         // Компактный баннер: в узком/низком окне подсказка не исчезает, текст обрезается группой.
@@ -91,7 +91,7 @@ namespace Citybuilder
             GUI.EndGroup();
             Rect btn = SettingsLayout.CompactDismissRect(Screen.width, Screen.height);
             UiClickGuard.Set("tutorial_dismiss", btn);
-            if (GUI.Button(btn, "Понятно")) { if (isEvent) events.Acknowledge(); else Dismiss(); }
+            if (GUI.Button(btn, Localization.T("tutorial_dismiss"))) { if (isEvent) events.Acknowledge(); else Dismiss(); }
         }
 
         // Цель стрелки: «x4» — кнопка скорости; шаги-стройки — кнопка здания в палитре

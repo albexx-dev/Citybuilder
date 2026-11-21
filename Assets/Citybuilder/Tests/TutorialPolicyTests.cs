@@ -145,8 +145,25 @@ namespace Citybuilder.Tests
         [Test]
         public void SelectedTargetType_SwitchesBuildStepTextToClickMap()
         {
-            Assert.AreEqual("Тип выбран: кликни по свободной клетке на карте",
+            Assert.AreEqual(Localization.T("tutorial_select"),
                 TutorialPolicy.FormatText(TutorialPolicy.Step.BuildPower, "power_station"));
+        }
+
+        // Новые ключи: RU совпадает со старым текстом, EN не содержит русских литералов.
+        [Test]
+        public void StepTexts_UseRegistry_InBothLanguages()
+        {
+            Language previous = Localization.Language;
+            try
+            {
+                Localization.SetLanguage(Language.Ru);
+                Assert.AreEqual(Localization.T("tutorial_step_1"), TutorialPolicy.FormatText(TutorialPolicy.Step.PaintZones));
+                Localization.SetLanguage(Language.En);
+                Assert.IsTrue(TutorialPolicy.FormatText(TutorialPolicy.Step.PaintZones).Contains("Zones [3]"));
+                Assert.IsFalse(TutorialPolicy.FormatText(TutorialPolicy.Step.PaintZones).Contains("Зоны"));
+                Assert.AreEqual(Localization.T("tutorial_select"), TutorialPolicy.FormatText(TutorialPolicy.Step.BuildPower, "power_station"));
+            }
+            finally { Localization.SetLanguage(previous); }
         }
 
         [Test]

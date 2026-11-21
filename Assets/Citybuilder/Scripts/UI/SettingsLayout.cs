@@ -80,18 +80,26 @@ namespace Citybuilder
             return new Rect(row.x + (index % NarrowColumns) * (width + HudLayout.ButtonGap), row.y, width, row.height);
         }
 
-        // Компактный баннер туториала: строка вверху слева, кнопка «Понятно» справа от текста.
+        // Компактный баннер туториала: строка слева, кнопка «Понятно» справа от текста.
+        // Ряд идёт под мини-картой: при 1024×600 старый y=10 пересекал её квадрат 8..148.
         public static Rect CompactBannerRect(float screenWidth, float screenHeight)
         {
             float dismissX = CompactDismissRect(screenWidth, screenHeight).x;
             float width = Mathf.Max(0f, dismissX - 2f * HudLayout.BarPadding - HudLayout.ButtonGap);
-            return new Rect(HudLayout.BarPadding, HudLayout.InfoMenuTop, width, HudLayout.ButtonHeight);
+            return new Rect(HudLayout.BarPadding, CompactTop(screenWidth, screenHeight), width, HudLayout.ButtonHeight);
         }
 
         public static Rect CompactDismissRect(float screenWidth, float screenHeight)
         {
             float x = Mathf.Max(HudLayout.BarPadding + 90f, screenWidth - 100f);
-            return new Rect(x, HudLayout.InfoMenuTop - 2f, 90f, HudLayout.ButtonHeight);
+            return new Rect(x, CompactTop(screenWidth, screenHeight) - 2f, 90f, HudLayout.ButtonHeight);
+        }
+
+        // Верх компактного ряда: низ мини-карты + зазор, с клампом внутри окна.
+        private static float CompactTop(float screenWidth, float screenHeight)
+        {
+            float belowMap = HudLayout.MinimapRect(screenWidth, screenHeight).yMax + HudLayout.ButtonGap;
+            return Mathf.Min(belowMap, screenHeight - HudLayout.ButtonHeight - 2f);
         }
 
         // Шаг степпера с клампом: за границей диапазона остаёмся на границе.

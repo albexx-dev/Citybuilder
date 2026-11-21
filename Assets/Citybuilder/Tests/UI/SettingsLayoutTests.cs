@@ -146,5 +146,17 @@ namespace Citybuilder
             Assert.GreaterOrEqual(button.y, 0f);
             Assert.LessOrEqual(button.yMax, height);
         }
+        // Регресс 1024×600: компактный баннер больше не перекрывает квадрат мини-карты.
+        [TestCase(1024f, 600f)]
+        [TestCase(800f, 600f)]
+        public void CompactTutorialBanner_ClearsMinimap(float width, float height)
+        {
+            Rect map = HudLayout.MinimapRect(width, height);
+            Rect banner = SettingsLayout.CompactBannerRect(width, height);
+            Rect button = SettingsLayout.CompactDismissRect(width, height);
+            Assert.GreaterOrEqual(banner.y, map.yMax);
+            Assert.GreaterOrEqual(button.y, map.yMax);
+            Assert.LessOrEqual(button.yMax, height);
+        }
     }
 }
