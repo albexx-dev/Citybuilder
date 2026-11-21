@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Citybuilder
 {
     // Сборщик событий v1.2 для TutorialView (эпик 97): опрашивает доступные системы,
@@ -63,13 +61,7 @@ namespace Citybuilder
 
         private static bool HasGarbage(EventLogView log)
         {
-            if (log == null || log.Log == null) return false;
-            IReadOnlyList<CityEvent> events = log.Log.Snapshot();
-            for (int i = 0; i < events.Count; i++)
-            {
-                if (events[i].Kind == EventKind.Garbage) return true;
-            }
-            return false;
+            return log != null && log.Log != null && log.Log.Contains(EventKind.Garbage);
         }
     }
 }

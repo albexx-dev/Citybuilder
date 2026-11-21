@@ -40,6 +40,16 @@ namespace Citybuilder
             return new List<CityEvent>(buffer);
         }
 
+        // Есть ли событие вида kind без аллокации снимка (опрос каждого кадра OnGUI).
+        public bool Contains(EventKind kind)
+        {
+            for (int i = 0; i < buffer.Count; i++)
+            {
+                if (buffer[i].Kind == kind) return true;
+            }
+            return false;
+        }
+
         // Сброс для «Новой игры».
         public void Clear()
         {

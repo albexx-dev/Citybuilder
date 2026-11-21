@@ -117,7 +117,7 @@ namespace Citybuilder.Tests
             Localization.SetLanguage(Language.Ru);
             Assert.IsTrue(TutorialPolicy.FormatText(TutorialPolicy.Step.BuildPower).Contains("Электростанция"));
             Assert.IsTrue(TutorialPolicy.FormatText(TutorialPolicy.Step.BuildWater).Contains("Водонапорная башня"));
-            Assert.IsTrue(TutorialPolicy.FormatText(TutorialPolicy.Step.BuildWaste).Contains("Мусорный полигон"));
+            Assert.IsTrue(TutorialPolicy.FormatText(TutorialPolicy.Step.BuildWaste).Contains("Мусорный склад"));
             Assert.IsTrue(TutorialPolicy.FormatText(TutorialPolicy.Step.BuildPark).Contains("Парк"));
             Localization.SetLanguage(previous);
         }
