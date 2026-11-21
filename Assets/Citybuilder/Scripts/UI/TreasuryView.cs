@@ -114,11 +114,11 @@ namespace Citybuilder
             subscribed = false;
         }
 
-        // Штрафы за кражи текущего часа: событие само несёт номер тика.
-        private void OnCrime(EventKind kind, string message, int tick)
+        // Штрафы за кражи текущего часа: событие само несёт номер тика (ADR-013: CityEvent).
+        private void OnCrime(CityEvent cityEvent)
         {
-            if (kind != EventKind.Crime) return;
-            if (tick != theftTick) { theftTick = tick; theftFines = 0; }
+            if (cityEvent.Kind != EventKind.Crime) return;
+            if (cityEvent.Tick != theftTick) { theftTick = cityEvent.Tick; theftFines = 0; }
             theftFines += CrimeSystem.FinePerTheft;
         }
 
