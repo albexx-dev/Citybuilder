@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.BuildingDefinition
   Id: police_station
   DisplayName: Police Station
+  DisplayNameKey: building_police_station
   Footprint: {x: 2, y: 2}
   ConstructionCost: 250
   ConstructionTicks: 5
