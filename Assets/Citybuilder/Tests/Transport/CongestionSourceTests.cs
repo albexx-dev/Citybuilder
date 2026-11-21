@@ -76,7 +76,7 @@ namespace Citybuilder
             CongestionSystem congestion = new CongestionSystem(routes, grid);
             AgentManager manager = new AgentManager(congestion) { PathFinder = routes.FindPath };
 
-            manager.OnGameHour(7, MakeList(new GridPosition(0, 0)), MakeList(new GridPosition(4, 0)), roads);
+            manager.SpawnForNewRoad(roads[1], MakeList(new GridPosition(0, 0)), MakeList(new GridPosition(4, 0)), roads);
 
             Assert.IsTrue(congestion.HasAgentFeed);
             Assert.GreaterOrEqual(congestion.GetLoad(new GridPosition(1, 0)), 1);

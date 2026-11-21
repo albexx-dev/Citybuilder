@@ -66,7 +66,7 @@ namespace Citybuilder
         {
             AgentManager manager = MakeManager(Walk);
             manager.CellSpeedFactor = cell => 0.5f;
-            manager.OnGameHour(7, Homes, Works, Roads);
+            manager.SpawnForNewRoad(new GridPosition(2, 1), Homes, Works, Roads);
             manager.Advance(0.9f);
             Assert.AreEqual(0, manager.AgentAt(0).CellIndex);
             manager.Advance(0.6f);
@@ -77,7 +77,7 @@ namespace Citybuilder
         public void AgentManager_NoSpeedFactor_FullSpeed()
         {
             AgentManager manager = MakeManager(Walk);
-            manager.OnGameHour(7, Homes, Works, Roads);
+            manager.SpawnForNewRoad(new GridPosition(2, 1), Homes, Works, Roads);
             manager.Advance(0.9f);
             Assert.AreEqual(1, manager.AgentAt(0).CellIndex);
             manager.Advance(0.6f);
@@ -103,8 +103,8 @@ namespace Citybuilder
             AgentManager free = new AgentManager(clean) { PathFinder = routes.FindPath };
             List<GridPosition> homes = MakeList(new GridPosition(0, 0));
             List<GridPosition> works = MakeList(new GridPosition(6, 0));
-            jammed.OnGameHour(7, homes, works, roads);
-            free.OnGameHour(7, homes, works, roads);
+            jammed.SpawnForNewRoad(roads[1], homes, works, roads);
+            free.SpawnForNewRoad(roads[1], homes, works, roads);
             jammed.CellSpeedFactor = cell => CongestionSpeedPolicy.SpeedForLoad01(jam.Load01(cell));
             free.CellSpeedFactor = cell => CongestionSpeedPolicy.SpeedForLoad01(clean.Load01(cell));
 
@@ -121,7 +121,7 @@ namespace Citybuilder
                 free.Advance(0.6f);
             }
             Assert.AreEqual(0, free.ActiveCount);
-            Assert.AreEqual(AgentManager.SpawnsPerHour, jammed.ActiveCount);
+            Assert.AreEqual(1, jammed.ActiveCount); // затор: единственная машина не доехала
         }
     }
 }
