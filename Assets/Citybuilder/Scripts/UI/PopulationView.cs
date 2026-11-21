@@ -22,8 +22,7 @@ namespace Citybuilder
                 residents = controller.Population.TotalResidents;
                 households = controller.Population.HouseholdCount;
             }
-            string text = "Pop: " + residents + " / " + controller.GrownCapacity;
-            text += " — " + households + " households";
+            string text = Localization.T("population_line", residents, controller.GrownCapacity, households);
             HudText.Draw(10, 30, text);
         }
     }

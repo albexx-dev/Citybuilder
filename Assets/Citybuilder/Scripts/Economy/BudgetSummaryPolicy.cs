@@ -1,14 +1,13 @@
 namespace Citybuilder
 {
-    // Строка бюджета для HUD: доход, содержание и итог за час. Чистая логика без Unity.
+    // Строка бюджета для HUD: доход, содержание и итог за час. Чистая логика, текст — из реестра локализации.
     public static class BudgetSummaryPolicy
     {
         // «Доход: +24 $/ч - Расход: 10 $/ч = Итог: +14 $/ч». Доход и итог всегда со знаком.
         public static string Line(int incomePerHour, int upkeepPerHour)
         {
             int net = NetPerHour(incomePerHour, upkeepPerHour);
-            return "Доход: +" + incomePerHour + " $/ч - Расход: " + upkeepPerHour
-                + " $/ч = Итог: " + Signed(net) + " $/ч";
+            return Localization.T("budget_line", Signed(incomePerHour), upkeepPerHour.ToString(), Signed(net));
         }
 
         // Итог часа: доход минус содержание.
