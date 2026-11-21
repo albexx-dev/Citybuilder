@@ -25,6 +25,10 @@ namespace Citybuilder
             Assert.AreEqual(HouseLevelStyle.MarkerColor(2).r, own.color.r, 0.0001f);
             Assert.AreEqual(shared.color.r, roof.GetComponent<MeshRenderer>().sharedMaterial.color.r, 0.0001f);
 
+            // Материал переиспользуется при смене уровня: новых утечек нет.
+            HouseLevelMarker.Update(house, 2);
+            Assert.AreSame(own, house.transform.Find(HouseLevelMarker.MarkerName).GetComponent<MeshRenderer>().sharedMaterial);
+
             HouseLevelMarker.Update(house, 1);
             Assert.IsNull(house.transform.Find(HouseLevelMarker.MarkerName));
 

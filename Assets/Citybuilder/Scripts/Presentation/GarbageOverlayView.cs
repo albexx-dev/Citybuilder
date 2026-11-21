@@ -35,6 +35,7 @@ namespace Citybuilder
         {
             foreach (KeyValuePair<EntityId, GameObject> pair in bins) DestroySafe(pair.Value);
             bins.Clear();
+            DestroySafe(binMaterial);
         }
 
         private void Update()

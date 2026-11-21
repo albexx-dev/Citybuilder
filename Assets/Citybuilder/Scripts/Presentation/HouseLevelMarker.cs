@@ -11,6 +11,8 @@ namespace Citybuilder
         private const float Size = 0.42f;
         private const float Thickness = 0.12f;
         private const float Gap = 0.18f;
+        // Два материала на уровни 2 и 3: переиспользуются, при смене уровня/сносе не утекают.
+        private static readonly Material[] markerMaterials = new Material[2];
 
         // level 1 снимает старый маркер; 2 и 3 ставят свой цвет.
         public static void Update(GameObject house, int level)
@@ -32,10 +34,7 @@ namespace Citybuilder
             marker.transform.localPosition = new Vector3(0f, (above + Gap) / sy, 0f);
             marker.transform.localScale = new Vector3(Size / sx, Thickness / sy, Size / sz);
             DestroySafe(marker.GetComponent<Collider>());
-            marker.GetComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Unlit/Color"))
-            {
-                color = HouseLevelStyle.MarkerColor(level)
-            };
+            marker.GetComponent<MeshRenderer>().sharedMaterial = MaterialFor(level);
         }
 
         public static void Detach(GameObject house)
@@ -57,6 +56,20 @@ namespace Citybuilder
                 top = Mathf.Max(top, renderers[i].bounds.max.y);
             }
             return top - house.position.y;
+        }
+
+        // Свои материалы только для маркеров: shared-материалы зданий не трогаются.
+        private static Material MaterialFor(int level)
+        {
+            int index = level >= 3 ? 1 : 0;
+            if (markerMaterials[index] == null)
+            {
+                markerMaterials[index] = new Material(Shader.Find("Unlit/Color"))
+                {
+                    color = HouseLevelStyle.MarkerColor(level)
+                };
+            }
+            return markerMaterials[index];
         }
 
         private static float Safe(float value)
