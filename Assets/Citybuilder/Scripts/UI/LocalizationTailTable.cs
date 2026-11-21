@@ -19,7 +19,7 @@ namespace Citybuilder
             { "settings_defaults", new[] { "По умолчанию", "Defaults" } },
             { "settings_back", new[] { "Назад в паузу [Esc]", "Back to pause [Esc]" } },
             { "settings_replay_tutorial", new[] { "Повторить обучение", "Replay tutorial" } },
-            { "settings_controls", new[] { "Управление: WASD / Q E / колесо / ЛКМ", "Controls: WASD / Q E / wheel / LMB" } },
+            { "settings_controls", new[] { "Управление: WASD / Q E / колесо / ПКМ — поворот / ЛКМ — стройка", "Controls: WASD / Q E / wheel / RMB rotate / LMB place" } },
             { "settings_ambient", new[] { "Эмбиент: {0}%", "Ambient: {0}%" } },
             { "settings_agent_limit", new[] { "Машины: лимит {0}", "Vehicles: limit {0}" } },
             { "settings_autosave", new[] { "Автосейв: каждые {0} ч", "Autosave: every {0} h" } },
