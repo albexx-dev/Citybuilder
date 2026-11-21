@@ -1,4 +1,3 @@
-using System;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -8,8 +7,8 @@ namespace Citybuilder
     public class BuildingDisplayNameTests
     {
         private Language savedLanguage;
-        private Func<string> savedLoad;
-        private Action<string> savedSave;
+        private System.Func<string> savedLoad;
+        private System.Action<string> savedSave;
         private string stored;
 
         [SetUp]
