@@ -101,18 +101,24 @@ namespace Citybuilder
             return null;
         }
 
+        // Среди корневых видов берем последний подходящий: свежий вид создается позже старых.
         private static GameObject FindRootAt(Vector3 center)
         {
             GameObject[] roots = UnityEngine.Object.FindObjectsByType<GameObject>(UnityEngine.FindObjectsSortMode.None);
+            GameObject found = null;
             for (int i = 0; i < roots.Length; i++)
             {
                 GameObject candidate = roots[i];
-                if (candidate.transform.parent == null && Matches(candidate.transform.position, center)
-                    && candidate.GetComponent<ConstructionSiteView>() == null) return candidate;
+                if (candidate.transform.parent != null || !Matches(candidate.transform.position, center)) continue;
+                if (candidate.GetComponent<ConstructionSiteView>() != null) continue;
+                if (candidate.GetComponentInChildren<MeshRenderer>() == null
+                    && candidate.GetComponentInChildren<SettlementView>() == null) continue;
+                found = candidate;
             }
-            return null;
+            return found;
         }
 
+        // Высота вида не сравнивается: готовый куб стоит на 0.5 выше центра площадки.
         private static bool Matches(Vector3 position, Vector3 center)
         {
             return Mathf.Abs(position.x - center.x) < 0.01f && Mathf.Abs(position.z - center.z) < 0.01f;
