@@ -102,6 +102,26 @@ namespace Citybuilder
             Assert.AreEqual("Слот 1 — Day 5 (12:00)", Localization.T("load_slot_info", "Слот 1", 5, "12:00"));
         }
 
+        // Новые ключи туториала и инфоменю: RU — старый литерал байт-в-байт, EN — без русского.
+        [Test]
+        public void TutorialAndInfoMenu_Keys_MatchLegacyRuStrings()
+        {
+            AssertRuEn("tutorial_dismiss", "Понятно", "Got it");
+            AssertRuEn("minimap_tip", "Клик — перейти к клетке", "Click to focus the cell");
+            AssertRuEn("tutorial_step_1", "Шаг 1/7. Нажми кнопку «Зоны [3]» на нижней панели, выбери кисть «Жилая» и закрась участок около 4×4 клетки на карте.", "Step 1/7. Press «Zones [3]» on the bottom bar, pick the «Residential» brush and paint an area of about 4x4 tiles on the map.");
+            AssertRuEn("tutorial_step_4", "Шаг 4/7. Нажми кнопку «Дома [1]», выбери {0} в палитре НАД ПАНЕЛЬЮ и кликни свободную клетку на карте.", "Step 4/7. Press «Houses [1]», pick {0} in the palette ABOVE THE BAR and click a free tile on the map.");
+            AssertRuEn("tutorial_event_fire", "Пожар! Построй пожарную станцию: открой вкладку «Службы» и выбери карточку в каталоге над панелью.", "Fire! Build a fire station: open the «Services» tab and pick the card in the catalog above the bar.");
+            AssertRuEn("needs_base", "Потребности: {0}% (жильё {1}% • работа {2}% • занятость {3}%", "Needs: {0}% (housing {1}% • jobs {2}% • employment {3}%");
+            AssertRuEn("service_label_police", "Полиция", "Police");
+            AssertRuEn("goal_done", "Цель выполнена: {0} жителей", "Goal reached: {0} residents");
+            AssertRuEn("progression_all", "Все типы открыты", "All types unlocked");
+            AssertRuEn("metrics_title", "=== История ===", "=== History ===");
+            AssertRuEn("metric_name_population", "Население", "Population");
+            Localization.SetLanguage(Language.Ru);
+            Assert.AreEqual("Шаг 4/7. Нажми кнопку «Дома [1]», выбери Электростанция в палитре НАД ПАНЕЛЬЮ и кликни свободную клетку на карте.",
+                Localization.T("tutorial_step_4", Localization.T("building_power_station")));
+        }
+
         [Test]
         public void ZoneBrushLabels_MatchZoneKeysInBothLanguages()
         {
