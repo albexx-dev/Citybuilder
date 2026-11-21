@@ -592,6 +592,7 @@ MonoBehaviour:
   Save: {fileID: 0}
   SaveMenu: {fileID: 0}
   LoadMenu: {fileID: 0}
+  Settings: {fileID: 0}
 --- !u!114 &985593162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -990,6 +991,7 @@ MonoBehaviour:
   InfoMenu: {fileID: 985593187}
   EventLog: {fileID: 985593188}
   QuestLog: {fileID: 0}
+  Settings: {fileID: 0}
   StatsEnabled: 1
   EventLogEnabled: 1
 --- !u!114 &985593187
@@ -1099,6 +1101,7 @@ MonoBehaviour:
   SaveMenu: {fileID: 985593190}
   LoadMenu: {fileID: 985593191}
   MainMenu: {fileID: 985593162}
+  Settings: {fileID: 0}
   Audio: {fileID: 985593193}
 --- !u!114 &985593193
 MonoBehaviour:
@@ -1273,6 +1276,56 @@ MonoBehaviour:
   Population: {fileID: 1069481159}
   Simulation: {fileID: 1821543313}
   Treasury: {fileID: 0}
+--- !u!1 &1309243366
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1309243368}
+  - component: {fileID: 1309243367}
+  m_Layer: 0
+  m_Name: AmbientAudio
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1309243367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1309243366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15962e1e2a614df48986aae9b19f12e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.AmbientAudioView
+  DayNight: {fileID: 0}
+  Population: {fileID: 0}
+  DayClip: {fileID: 8300000, guid: 9df2be25be5a4eddafda39045c7c94b3, type: 3}
+  NightClip: {fileID: 8300000, guid: 0f623d9376a346d9bbf3ad6cf44e0829, type: 3}
+  CrossfadeSeconds: 2
+  ReferencePopulation: 200
+--- !u!4 &1309243368
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1309243366}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1432023085
 GameObject:
   m_ObjectHideFlags: 0
@@ -1492,6 +1545,8 @@ GameObject:
   - component: {fileID: 1821543315}
   - component: {fileID: 1821543316}
   - component: {fileID: 1821543317}
+  - component: {fileID: 1821543319}
+  - component: {fileID: 1821543318}
   m_Layer: 0
   m_Name: Simulation
   m_TagString: Untagged
@@ -1576,6 +1631,35 @@ MonoBehaviour:
   MoonPitch: 48
   MoonAzimuth: 30
   MoonColor: {r: 0.58, g: 0.68, b: 1, a: 1}
+--- !u!114 &1821543318
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1821543312}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e5f3b7a1c9d4e62af30b8d6c47129ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.LanguageToggleView
+  Label: RU/EN
+--- !u!114 &1821543319
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1821543312}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b24579d3b00ec0b80add6f951bbefd0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.SettingsView
+  Pause: {fileID: 0}
+  Runner: {fileID: 0}
+  Audio: {fileID: 0}
+  DayNight: {fileID: 0}
 --- !u!1 &2007715383
 GameObject:
   m_ObjectHideFlags: 0
@@ -1733,3 +1817,4 @@ SceneRoots:
   - {fileID: 1821543314}
   - {fileID: 1432023087}
   - {fileID: 751421547}
+  - {fileID: 1309243368}
