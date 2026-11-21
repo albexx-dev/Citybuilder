@@ -38,6 +38,9 @@ namespace Citybuilder
             get { return "Вывоз мусора: ждут домов " + ticker.Garbage.WaitingCount + ", в пути " + ticker.Garbage.ActiveTrucks; }
         }
 
+        // Домен вывоза для записи и восстановления v6 (ADR-014).
+        public GarbageSystem Garbage { get { return ticker.Garbage; } }
+
         // Сброс по команде LoadController.ClearAll; также срабатывает при отмотке часов.
         public void ResetGarbage()
         {

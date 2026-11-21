@@ -96,6 +96,34 @@ namespace Citybuilder
             entries.Add(new CitySnapshot.GarbageQueueEntry { X = at.X, Y = at.Y, Accumulated = AccOf(id) });
         }
 
+        // Восстановление v6 по координатам: очередь готовых без событий, штрафов и наград.
+        public void Restore(List<CitySnapshot.GarbageQueueEntry> entries, List<BuildingState> homes)
+        {
+            if (entries == null || homes == null) return;
+            for (int i = 0; i < entries.Count; i++)
+            {
+                CitySnapshot.GarbageQueueEntry entry = entries[i];
+                if (entry == null || entry.Accumulated < 0) continue;
+                BuildingState home = FindHome(homes, entry.X, entry.Y);
+                if (home == null || queued.Contains(home.Id)) continue;
+                accumulated[home.Id] = entry.Accumulated;
+                origins[home.Id] = home.Origin;
+                if (entry.Accumulated < ReadyThreshold) continue;
+                queued.Add(home.Id);
+                ready.Add(new Pickup { Id = home.Id, At = home.Origin });
+            }
+        }
+
+        private static BuildingState FindHome(List<BuildingState> homes, int x, int y)
+        {
+            for (int i = 0; i < homes.Count; i++)
+            {
+                BuildingState home = homes[i];
+                if (home != null && home.Origin.X == x && home.Origin.Y == y) return home;
+            }
+            return null;
+        }
+
         // Накопление дома: WasteOutput здания плюс детерминированный бит хеша (0..1).
         private void Accumulate(int tick, BuildingState home)
         {
