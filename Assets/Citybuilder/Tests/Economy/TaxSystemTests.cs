@@ -24,8 +24,8 @@ namespace Citybuilder
             policy.Set(TaxPolicy.Level.High);
 
             Assert.AreEqual(4, employment.Employed);
-            // Высокая ставка после ребаланса 171: 4 работающих × 6 = 24.
-            Assert.AreEqual(24, tax.ComputeTax(policy.PerWorker));
+            // Высокая ставка после баланса v1.2 (эпик #53): 4 работающих × 4 = 16.
+            Assert.AreEqual(16, tax.ComputeTax(policy.PerWorker));
         }
 
         [Test]
@@ -100,7 +100,7 @@ namespace Citybuilder
         }
 
         // Разнос по зонам: связей работник→здание нет, занятые (8) распределяются по долям
-        // мест зон (0/6/8 из 14) → 0/3/5. Обычные ставки 4/4/4 дают 32, коммерция высокая — 38.
+        // мест зон (0/6/8 из 14) → 0/3/5. Обычные ставки 2/2/2 дают 16, коммерция высокая — 22 (v1.2).
         [Test]
         public void ComputeTax_ZonalPolicy_PaysByZoneJobs()
         {
@@ -109,16 +109,16 @@ namespace Citybuilder
             TaxSystem tax = MakeZonalCity(population, grown);
             TaxPolicy policy = new TaxPolicy();
 
-            Assert.AreEqual(32, tax.ComputeTax(policy));
+            Assert.AreEqual(16, tax.ComputeTax(policy));
             Assert.AreEqual(0, tax.EmployedPerZone().Residential);
             Assert.AreEqual(3, tax.EmployedPerZone().Commercial);
             Assert.AreEqual(5, tax.EmployedPerZone().Industrial);
 
             policy.SetZone(ZoneType.Commercial, TaxPolicy.Level.High);
-            Assert.AreEqual(38, tax.ComputeTax(policy));
+            Assert.AreEqual(22, tax.ComputeTax(policy));
             policy.SetZone(ZoneType.Commercial, TaxPolicy.Level.Normal);
             policy.SetZone(ZoneType.Industrial, TaxPolicy.Level.High);
-            Assert.AreEqual(42, tax.ComputeTax(policy));
+            Assert.AreEqual(26, tax.ComputeTax(policy));
         }
 
         // Зональный Collect зачисляет сумму разом в казну и возвращает Ok.
@@ -132,7 +132,7 @@ namespace Citybuilder
             Treasury.TransactionResult result = tax.Collect(new TaxPolicy());
 
             Assert.IsTrue(result.Success);
-            Assert.AreEqual(32, tax.Treasury.Balance);
+            Assert.AreEqual(16, tax.Treasury.Balance);
         }
 
         // Нет поставщика зональных мест: вся занятость считается жилой (совместимость).
@@ -153,7 +153,7 @@ namespace Citybuilder
             Assert.AreEqual(4, tax.EmployedPerZone().Residential);
             Assert.AreEqual(0, tax.EmployedPerZone().Commercial);
             // Высокая коммерция не действует: мест по зонам неизвестно, работает жилая ставка.
-            Assert.AreEqual(16, tax.ComputeTax(policy));
+            Assert.AreEqual(8, tax.ComputeTax(policy));
         }
     }
 }

@@ -64,44 +64,10 @@ namespace Citybuilder
                 GameObject model = Instantiate(CarModels[slot % CarModels.Length]);
                 model.transform.SetParent(car.transform, false);
                 model.transform.localScale = model.transform.localScale * ModelScale;
-                AlignModel(model);
+                VehicleModelUtils.Align(model);
             }
             car.SetActive(false);
             return car;
-        }
-
-        // Kenney-ассет несёт сдвиг внутри FBX: центр по XZ и низ по Y выравниваем на ось вида.
-        private static void AlignModel(GameObject model)
-        {
-            Vector3 min, max;
-            if (!TryModelBounds(model, out min, out max)) return;
-            Vector3 anchor = new Vector3((min.x + max.x) * 0.5f, min.y, (min.z + max.z) * 0.5f);
-            model.transform.localPosition = Vector3.Scale(-anchor, model.transform.localScale);
-        }
-
-        // Объединённый AABB всех мешей модели в системе координат её корня.
-        // bounds доступны и без Read/Write у меша, поэтому замер не требует настроек импорта.
-        private static bool TryModelBounds(GameObject model, out Vector3 min, out Vector3 max)
-        {
-            min = Vector3.positiveInfinity;
-            max = Vector3.negativeInfinity;
-            MeshFilter[] filters = model.GetComponentsInChildren<MeshFilter>(true);
-            for (int i = 0; i < filters.Length; i++)
-            {
-                Mesh mesh = filters[i].sharedMesh;
-                if (mesh == null) continue;
-                Matrix4x4 toRoot = model.transform.worldToLocalMatrix * filters[i].transform.localToWorldMatrix;
-                Vector3 center = mesh.bounds.center;
-                Vector3 ext = mesh.bounds.extents;
-                for (int c = 0; c < 8; c++)
-                {
-                    Vector3 corner = center + Vector3.Scale(ext, new Vector3((c & 1) * 2 - 1, (c & 2) - 1, (c & 4) / 2 - 1));
-                    corner = toRoot.MultiplyPoint3x4(corner);
-                    min = Vector3.Min(min, corner);
-                    max = Vector3.Max(max, corner);
-                }
-            }
-            return min.x <= max.x;
         }
 
         private void ShowCar(int index, AgentManager.VehicleAgent agent, float cellSize)
