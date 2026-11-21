@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.RoadDefinition
   Id: asphalt
   DisplayName: Asphalt Road
+  DisplayNameKey: building_asphalt
   CostPerCell: 10
   Category: 0
