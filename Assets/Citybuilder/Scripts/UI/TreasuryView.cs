@@ -125,7 +125,6 @@ namespace Citybuilder
         // Награды текущего часа: в границе тика часы уже обновлены.
         private void OnQuestReward(QuestDefinition quest)
         {
-            if (quest == null) return;
             int tick = CurrentTick();
             if (tick != rewardTick) { rewardTick = tick; rewards = 0; }
             rewards += quest.Reward;
