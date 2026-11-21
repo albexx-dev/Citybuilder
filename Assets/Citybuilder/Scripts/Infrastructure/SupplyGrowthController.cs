@@ -31,11 +31,17 @@ namespace Citybuilder
         // Проверка дефицита/восстановления снабжения для ленты событий на границе тика (EPIC-09 шаг 3).
         public void ReportTick(CityEventLog log, int tick)
         {
+            ReportTick(log, tick,
+                Power != null ? Power.Rate01 : 1f,
+                Water != null ? Water.Rate01 : 1f,
+                Waste != null ? Waste.Rate01 : 1f);
+        }
+
+        // Шов для тестов: тот же путь записи, но с явными уровнями систем вместо ссылок сцены.
+        public void ReportTick(CityEventLog log, int tick, float power01, float water01, float waste01)
+        {
             if (log == null) return;
-            float p = Power != null ? Power.Rate01 : 1f;
-            float w = Water != null ? Water.Rate01 : 1f;
-            float g = Waste != null ? Waste.Rate01 : 1f;
-            CityEvent supplyEvent = EvaluateSupplyEvent(p, w, g, ref hadDeficit);
+            CityEvent supplyEvent = EvaluateSupplyEvent(power01, water01, waste01, ref hadDeficit, tick);
             if (!string.IsNullOrEmpty(supplyEvent.MessageKey)) log.Add(supplyEvent);
         }
 
@@ -53,30 +59,31 @@ namespace Citybuilder
         }
 
         // Чистая логика формирования события снабжения: ключ + аргументы, без языка.
-        public static CityEvent EvaluateSupplyEvent(float power01, float water01, float waste01, ref bool wasInDeficit)
+        public static CityEvent EvaluateSupplyEvent(float power01, float water01, float waste01,
+            ref bool wasInDeficit, int tick)
         {
             int mult = SupplyGrowthPolicy.Multiplier(power01, water01, waste01);
             if (mult > 1)
             {
                 wasInDeficit = true;
                 if (power01 <= water01 && power01 <= waste01)
-                    return Deficit(EventMessageCatalog.SupplyPowerDeficit, power01);
+                    return Deficit(EventMessageCatalog.SupplyPowerDeficit, power01, tick);
                 if (water01 <= waste01)
-                    return Deficit(EventMessageCatalog.SupplyWaterDeficit, water01);
-                return Deficit(EventMessageCatalog.SupplyWasteDeficit, waste01);
+                    return Deficit(EventMessageCatalog.SupplyWaterDeficit, water01, tick);
+                return Deficit(EventMessageCatalog.SupplyWasteDeficit, waste01, tick);
             }
             if (wasInDeficit)
             {
                 wasInDeficit = false;
-                return new CityEvent(EventKind.Supply, EventMessageCatalog.SupplyRestored, null, 0);
+                return new CityEvent(EventKind.Supply, EventMessageCatalog.SupplyRestored, null, tick);
             }
             return default(CityEvent);
         }
 
-        private static CityEvent Deficit(string messageKey, float rate01)
+        private static CityEvent Deficit(string messageKey, float rate01, int tick)
         {
             return new CityEvent(EventKind.Supply, messageKey,
-                new object[] { (int)Math.Round(rate01 * 100f) }, 0);
+                new object[] { (int)Math.Round(rate01 * 100f) }, tick);
         }
     }
 }
