@@ -79,6 +79,7 @@ namespace Citybuilder
         // Чистая геометрия тултипа: над кнопкой, без выхода за края окна (для тестов без IMGUI).
         public static Rect TooltipRect(Rect buttonRect, float tipWidth, float tipHeight, float screenWidth, float screenHeight)
         {
+            tipWidth = Mathf.Min(tipWidth, Mathf.Max(0f, screenWidth));
             float x = Mathf.Clamp(buttonRect.x, 0f, Mathf.Max(0f, screenWidth - tipWidth));
             float y = Mathf.Max(0f, buttonRect.y - tipHeight - TooltipGap);
             return new Rect(x, y, tipWidth, tipHeight);

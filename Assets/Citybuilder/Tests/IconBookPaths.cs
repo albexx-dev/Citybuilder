@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace Citybuilder
 {
     // Набор иконок (EPIC-66): каждый ключ реестра обязан иметь PNG на диске,
-    // иначе кнопка молча останется текстовой. Пути считаются от Application.dataPath.
+    // иначе кнопка молча останется текстовой. Пути считаются от Application.streamingAssetsPath.
     public class IconBookPaths
     {
         [Test]

@@ -4,10 +4,10 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Реестр UI-иконок (EPIC-66 шаг 1): ключ -> Texture2D, PNG лежит в Assets/Citybuilder/Art/Icons.
-    // Загрузка с диска через File.ReadAllBytes + LoadImage: работает и в EditMode, и в Play, и в билде —
-    // AssetDatabase в билде недоступен, а IconBook статический, поэтому Inspector-ссылки не подходят
-    // (модели же грузятся через Inspector, см. VehicleAgentView).
+    // Реестр UI-иконок (EPIC-66 шаг 1): ключ -> Texture2D, PNG лежит в StreamingAssets/Citybuilder/Art/Icons —
+    // этот путь доезжает и до windows64-билда (#73). Загрузка через File.ReadAllBytes + LoadImage:
+    // работает в EditMode, Play и билде; AssetDatabase в билде недоступен, а IconBook статический,
+    // поэтому Inspector-ссылки не подходят (модели же грузятся через Inspector, см. VehicleAgentView).
     public static class IconBook
     {
         private const string IconsFolder = "Art/Icons";
@@ -31,10 +31,10 @@ namespace Citybuilder
             return texture;
         }
 
-        // Абсолютный путь PNG от Application.dataPath: тесты File.Exists и загрузка с диска.
+        // Абсолютный путь PNG от Application.streamingAssetsPath: тесты File.Exists и загрузка с диска.
         public static string AbsolutePath(string key)
         {
-            return Path.Combine(Application.dataPath, "Citybuilder/" + IconsFolder + "/" + key + ".png");
+            return Path.Combine(Application.streamingAssetsPath, "Citybuilder/" + IconsFolder + "/" + key + ".png");
         }
 
         // PNG с диска: LoadImage сам подбирает размер и формат; неудача или отсутствие файла = null.
