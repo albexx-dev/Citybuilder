@@ -65,7 +65,7 @@ Locked V1: квадратная сетка, клетка 1x1 м, начало (0
   - Стадии роста зданий (3 тика каркаса 0.6 масштаба) и 3 детерминированных варианта домов (`GrowthStageView`, `SettlementView`, EPIC-17),
   - Звуковая подсистема (`AudioController` + 4 процедурных CC0 WAV-клипа в `Assets/Citybuilder/Audio/`, EPIC-19),
   - Blender-конвейер (`Tools/blender-addon/citybuilder_export.py`, `generate_models.py`) и low-poly FBX-модели `hospital.fbx` и `park.fbx` (EPIC-20).
-- Persistence: сейвы v2 (ADR-008, EPIC-11) — 3 ручных слота (`slot_0..2.json`), отдельный слот автосейва (`autosave.json`), индекс метаданных (`slots.json` через `SaveSlotIndex`), `AutosaveController` (каждые 24 тика), `SaveSlotStorage`, `SaveController` (`IsDirty`), `LoadController`.
+- Persistence: сейвы v2 (ADR-008, EPIC-11) — 3 ручных слота (`slot0.json`..`slot2.json`), отдельный слот автосейва (`autosave.json`), индекс метаданных (`slots.json` через `SaveSlotIndex`), `AutosaveController` (каждые 24 тика), `SaveSlotStorage`, `SaveController` (`IsDirty`), `LoadController`.
 
 ## 9. Dependencies
 
@@ -85,11 +85,11 @@ Core
 
 ## 12. Data persistence
 
-Реализовано (сейвы v2, EPIC-11): снапшот v4 (`CitySnapshot`) сохраняется в 3 именованных слота (`slot_0.json`..`slot_2.json`) и автосейв (`autosave.json`) с метаданными в `slots.json` (`SaveSlotIndex`: имя слота, игровое время, население, баланс, штамп времени). Отрицательный баланс казны при дефиците корректно сохраняется и восстанавливается (`Treasury.Restore`).
+Реализовано (сейвы v2, EPIC-11): снапшот v6 (`CitySnapshot`) сохраняется в 3 именованных слота (`slot0.json`..`slot2.json`) и автосейв (`autosave.json`) с метаданными в `slots.json` (`SaveSlotIndex`: имя слота, игровое время, население, баланс, штамп времени). Отрицательный баланс казны при дефиците корректно сохраняется и восстанавливается (`Treasury.Restore`).
 
 ## 13. Testing strategy
 
-- EditMode-тесты на всю чистую логику и адаптеры: 125 тестовых файлов (`Assets/Citybuilder/Tests/`) и 980 тестов (802 `[Test]` + 178 `[TestCase]`) на момент правки; число растёт — пересчитывать перед релизом. Статическая валидация — `Tools/ValidateRepo.py` в CI.
+- EditMode-тесты на всю чистую логику и адаптеры: 1038 тестов в 134 файлах (`Assets/Citybuilder/Tests/`, 842 `[Test]` + 196 `[TestCase]`). Статическая валидация — `Tools/ValidateRepo.py` в CI.
 
 ## 14. Performance strategy
 

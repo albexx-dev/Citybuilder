@@ -4,6 +4,7 @@
 
 | Version | Supported |
 | --- | --- |
+| v1.3 | yes |
 | v1.1 | yes |
 | older prototype builds | no |
 
