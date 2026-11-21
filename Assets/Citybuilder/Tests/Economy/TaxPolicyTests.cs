@@ -6,6 +6,20 @@ namespace Citybuilder
     // дефолт 2/2/2, независимые циклы зон, формат строки бюджета, фолбэки. Без Unity API.
     public class TaxPolicyTests
     {
+        private LanguageTestScope languageScope;
+
+        [SetUp]
+        public void InjectLanguageScope()
+        {
+            languageScope = new LanguageTestScope();
+        }
+
+        [TearDown]
+        public void RestoreLanguageScope()
+        {
+            languageScope.Dispose();
+        }
+
         [Test]
         public void Default_EachZone_IsNormalTwo()
         {

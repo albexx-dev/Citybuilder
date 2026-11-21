@@ -10,6 +10,19 @@ namespace Citybuilder
     {
         private const string BuildingsFolder = "Assets/Citybuilder/Data/Buildings/";
         private const int StartingBalance = 1500;
+        private LanguageTestScope languageScope;
+
+        [SetUp]
+        public void InjectLanguageScope()
+        {
+            languageScope = new LanguageTestScope();
+        }
+
+        [TearDown]
+        public void RestoreLanguageScope()
+        {
+            languageScope.Dispose();
+        }
 
         // Старт 1500, стройка 2 домов и трёх станций, 48 часов по обычному налогу новой политики.
         [Test]
