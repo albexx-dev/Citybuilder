@@ -37,6 +37,7 @@ namespace Citybuilder
             int manual = ApplyManual(snapshot);
             SnapshotLevels.ApplyAll(snapshot, homes, Placement == null ? null : Placement.Placed);
             LoadedHouseViewRefresh.Apply(Growth, homes);
+            ApplyV6(snapshot, homes);
             ApplyMeta(snapshot);
             SaveController save = GetComponent<SaveController>();
             if (save != null) save.ClearDirty();
@@ -145,6 +146,16 @@ namespace Citybuilder
                 if (entry != null && Placement.RestoreManual(entry.DefId, new GridPosition(entry.X, entry.Y))) restored++;
             }
             return restored;
+        }
+
+        // v6 (ADR-014): без событий и наград — очередь, счётчик и стройка продолжаются с файла.
+        private void ApplyV6(CitySnapshot snapshot, List<BuildingState> homes)
+        {
+            GarbageTruckView garbage = FindFirstObjectByType<GarbageTruckView>();
+            if (garbage != null) garbage.Garbage.Restore(SaveV6Snapshot.ReadGarbage(snapshot), homes);
+            EconomyTicker economy = FindFirstObjectByType<EconomyTicker>();
+            if (economy != null) economy.Crimes.RestoreTotal(SaveV6Snapshot.ReadThefts(snapshot));
+            ConstructionSnapshot.RestoreAll(snapshot, Growth, Zones == null ? null : Zones.GridVisualizer, Placement);
         }
 
         private void ApplyMeta(CitySnapshot snapshot)

@@ -54,6 +54,8 @@ namespace Citybuilder
             if (string.IsNullOrEmpty(baseDir) || string.IsNullOrEmpty(file)) return null;
             CitySnapshot snap = ReadSlot(Path.Combine(baseDir, file));
             if (snap == null || !Validate(snap)) return null;
+            // Только новые поля v6; правила отклонения слотов v1–v5 выше не затрагиваются.
+            SaveV6Snapshot.Normalize(snap);
             SaveSlotIndex.GetMeta(baseDir, slot);
             return snap;
         }

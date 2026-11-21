@@ -38,6 +38,78 @@ namespace Citybuilder
             }
         }
 
+        public const int MapCells = 50;
+        public const int MaxConstructionTicks = 10000;
+        public const int MaxStreakMagnitude = 10000;
+
+        // Нормализация только полей v6 перед применением слота; v1–v5 не отклоняются и не меняются.
+        public static void Normalize(CitySnapshot snapshot)
+        {
+            if (snapshot == null) return;
+            snapshot.GarbageQueue = NormalizeGarbage(snapshot.GarbageQueue);
+            snapshot.ConstructionProgress = NormalizeSites(snapshot.ConstructionProgress);
+            snapshot.ComfortStreak = NormalizeStreaks(snapshot.ComfortStreak);
+            if (snapshot.TheftCounter < 0) snapshot.TheftCounter = 0;
+        }
+
+        private static List<CitySnapshot.GarbageQueueEntry> NormalizeGarbage(
+            List<CitySnapshot.GarbageQueueEntry> source)
+        {
+            List<CitySnapshot.GarbageQueueEntry> result = new List<CitySnapshot.GarbageQueueEntry>();
+            if (source == null) return result;
+            int limit = MapCells * MapCells;
+            for (int i = 0; i < source.Count && result.Count < limit; i++)
+            {
+                CitySnapshot.GarbageQueueEntry entry = source[i];
+                if (entry == null || !InMap(entry.X, entry.Y) || entry.Accumulated < 0) continue;
+                if (result.Count > 0 && result[result.Count - 1].X == entry.X && result[result.Count - 1].Y == entry.Y)
+                    result.RemoveAt(result.Count - 1);
+                result.Add(entry);
+            }
+            return result;
+        }
+
+        private static List<CitySnapshot.ConstructionProgressEntry> NormalizeSites(
+            List<CitySnapshot.ConstructionProgressEntry> source)
+        {
+            List<CitySnapshot.ConstructionProgressEntry> result = new List<CitySnapshot.ConstructionProgressEntry>();
+            if (source == null) return result;
+            int limit = MapCells * MapCells;
+            for (int i = 0; i < source.Count && result.Count < limit; i++)
+            {
+                CitySnapshot.ConstructionProgressEntry entry = source[i];
+                if (entry == null || !InMap(entry.X, entry.Y) || string.IsNullOrEmpty(entry.DefId)) continue;
+                if (entry.TicksElapsed < 0 || entry.TicksElapsed > MaxConstructionTicks) continue;
+                if (result.Count > 0 && result[result.Count - 1].X == entry.X && result[result.Count - 1].Y == entry.Y)
+                    result.RemoveAt(result.Count - 1);
+                result.Add(entry);
+            }
+            return result;
+        }
+
+        private static List<CitySnapshot.ComfortStreakEntry> NormalizeStreaks(
+            List<CitySnapshot.ComfortStreakEntry> source)
+        {
+            List<CitySnapshot.ComfortStreakEntry> result = new List<CitySnapshot.ComfortStreakEntry>();
+            if (source == null) return result;
+            int limit = MapCells * MapCells;
+            for (int i = 0; i < source.Count && result.Count < limit; i++)
+            {
+                CitySnapshot.ComfortStreakEntry entry = source[i];
+                if (entry == null || !InMap(entry.X, entry.Y) || entry.Streak < -MaxStreakMagnitude
+                    || entry.Streak > MaxStreakMagnitude) continue;
+                if (result.Count > 0 && result[result.Count - 1].X == entry.X && result[result.Count - 1].Y == entry.Y)
+                    result.RemoveAt(result.Count - 1);
+                result.Add(entry);
+            }
+            return result;
+        }
+
+        private static bool InMap(int x, int y)
+        {
+            return x >= 0 && y >= 0 && x < MapCells && y < MapCells;
+        }
+
         // Чтение: null-списки старых слотов заменяются пустыми, счётчик не уходит в минус.
         public static List<CitySnapshot.GarbageQueueEntry> ReadGarbage(CitySnapshot snapshot)
         {
