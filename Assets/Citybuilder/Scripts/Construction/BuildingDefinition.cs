@@ -23,6 +23,7 @@ namespace Citybuilder
         [Header("Identity")]
         [Tooltip("Уникальный id здания, латиницей без пробелов.")] public string Id;
         [Tooltip("Имя для UI.")] public string DisplayName;
+        [Tooltip("Ключ имени в реестре RU/EN. Пусто — DisplayName.")] public string DisplayNameKey;
 
         [Header("Construction")]
         [Tooltip("Размер здания в клетках. Минимум 1x1.")] public Vector2Int Footprint = new Vector2Int(2, 2);

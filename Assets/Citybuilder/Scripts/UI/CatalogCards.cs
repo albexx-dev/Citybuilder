@@ -57,12 +57,12 @@ namespace Citybuilder
         {
             if (!UnlockPolicy.IsUnlocked(def, grown))
             {
-                BottomBarStyle.DrawDisabledButton(card, def.DisplayName + Localization.T("catalog_locked", UnlockPolicy.Remaining(def, grown)));
+                BottomBarStyle.DrawDisabledButton(card, BuildingDisplayName.Of(def) + Localization.T("catalog_locked", UnlockPolicy.Remaining(def, grown)));
                 return;
             }
             bool selected = placement != null && placement.Definition == def;
             if (BottomBarStyle.DrawButton(card, string.Empty, selected) && placement != null) placement.SetDefinition(def);
-            GUI.Label(NameRect(card), def.DisplayName, CenterLabel);
+            GUI.Label(NameRect(card), BuildingDisplayName.Of(def), CenterLabel);
             DrawTile(card, def.Category);
             GUI.Label(PriceRect(card), "$" + def.ConstructionCost, CenterLabel);
         }

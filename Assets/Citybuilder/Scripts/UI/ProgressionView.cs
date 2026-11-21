@@ -26,7 +26,7 @@ namespace Citybuilder
         private static string BuildText(BuildingDefinition next)
         {
             if (next == null) return "Все типы открыты";
-            return "Дальше: " + next.DisplayName + " — " + next.UnlockBuildings + " зд.";
+            return "Дальше: " + BuildingDisplayName.Of(next) + " — " + next.UnlockBuildings + " зд.";
         }
     }
 }
