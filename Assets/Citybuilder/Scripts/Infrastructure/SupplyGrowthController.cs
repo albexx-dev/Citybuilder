@@ -77,7 +77,7 @@ namespace Citybuilder
                 wasInDeficit = false;
                 return new CityEvent(EventKind.Supply, EventMessageCatalog.SupplyRestored, null, tick);
             }
-            return default(CityEvent);
+            return new CityEvent(EventKind.Supply, string.Empty, null, tick);
         }
 
         private static CityEvent Deficit(string messageKey, float rate01, int tick)

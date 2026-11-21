@@ -28,6 +28,23 @@ namespace Citybuilder
             Tick = tick < 0 ? 0 : tick;
         }
 
+        // Равенство по значению: Args копируется в конструкторе, поэтому ссылочное
+        // сравнение struct ломало тесты детерминизма пожаров/краж (ADR-013).
+        public override bool Equals(object obj)
+        {
+            if (!(obj is CityEvent)) return false;
+            CityEvent other = (CityEvent)obj;
+            return Kind == other.Kind && Subtype == other.Subtype && Tick == other.Tick
+                && MessageKey == other.MessageKey && ArgsKey(Args) == ArgsKey(other.Args);
+        }
+
+        public override int GetHashCode()
+        {
+            int code = (int)Kind * 397 ^ (int)Subtype ^ Tick;
+            code = code * 397 ^ (MessageKey == null ? 0 : MessageKey.GetHashCode());
+            return code * 397 ^ ArgsKey(Args).GetHashCode();
+        }
+
         // Стабильный вид аргументов для дедупа и ключа опроса звука: язык не участвует.
         public static string ArgsKey(object[] args)
         {
