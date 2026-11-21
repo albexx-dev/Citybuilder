@@ -131,16 +131,16 @@ namespace Citybuilder
         [Test]
         public void SupplyReportTick_WritesRealTick_AndRepeatsAfter10Ticks()
         {
-            SupplyGrowthController supply = new SupplyGrowthController();
             CityEventLog log = new CityEventLog();
-            supply.ReportTick(log, 5, 0.46f, 1f, 1f);
+            bool inDeficit = false;
+            SupplyGrowthController.ReportTick(log, 5, 0.46f, 1f, 1f, ref inDeficit);
             Assert.AreEqual(1, log.Count);
             Assert.AreEqual(5, log.Snapshot()[0].Tick);
             Assert.AreEqual("День 0, 05:00 — Энергия 46%: рост замедлен",
                 EventLogView.FormatLine(log.Snapshot()[0]));
-            supply.ReportTick(log, 14, 0.46f, 1f, 1f);
+            SupplyGrowthController.ReportTick(log, 14, 0.46f, 1f, 1f, ref inDeficit);
             Assert.AreEqual(1, log.Count);
-            supply.ReportTick(log, 15, 0.46f, 1f, 1f);
+            SupplyGrowthController.ReportTick(log, 15, 0.46f, 1f, 1f, ref inDeficit);
             Assert.AreEqual(2, log.Count);
             Assert.AreEqual(15, log.Snapshot()[1].Tick);
         }

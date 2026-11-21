@@ -40,8 +40,15 @@ namespace Citybuilder
         // Шов для тестов: тот же путь записи, но с явными уровнями систем вместо ссылок сцены.
         public void ReportTick(CityEventLog log, int tick, float power01, float water01, float waste01)
         {
+            ReportTick(log, tick, power01, water01, waste01, ref hadDeficit);
+        }
+
+        // Статический шов: не инстанцирует MonoBehaviour в EditMode-тестах.
+        public static void ReportTick(CityEventLog log, int tick, float power01, float water01,
+            float waste01, ref bool inDeficit)
+        {
             if (log == null) return;
-            CityEvent supplyEvent = EvaluateSupplyEvent(power01, water01, waste01, ref hadDeficit, tick);
+            CityEvent supplyEvent = EvaluateSupplyEvent(power01, water01, waste01, ref inDeficit, tick);
             if (!string.IsNullOrEmpty(supplyEvent.MessageKey)) log.Add(supplyEvent);
         }
 
