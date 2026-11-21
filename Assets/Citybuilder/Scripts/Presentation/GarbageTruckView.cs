@@ -38,6 +38,10 @@ namespace Citybuilder
             get { return "Вывоз мусора: ждут домов " + ticker.Garbage.WaitingCount + ", в пути " + ticker.Garbage.ActiveTrucks; }
         }
 
+        // Для оверлея issue #94: чтение снимка и факт полигона.
+        public GarbageSystem Garbage { get { return ticker.Garbage; } }
+        public bool HasDepot { get { return FindDepot().HasValue; } }
+
         // Сброс по команде LoadController.ClearAll; также срабатывает при отмотке часов.
         public void ResetGarbage()
         {
@@ -80,6 +84,7 @@ namespace Citybuilder
             if (Visualizer == null) return;
             if (pool == null) pool = new GarbageTruckPool(transform, TruckModels,
                 GarbageTrucks.MaxTrucks, ModelScale, ModelYawOffset, RideHeight, Visualizer.Grid.CellSize);
+            GarbageOverlayView.Ensure(this);
             SimulationClock clock = Economy != null && Economy.Runner != null ? Economy.Runner.Clock : null;
             if (subscribed || clock == null) return;
             clock.TickCompleted += OnClockTick;
@@ -131,7 +136,7 @@ namespace Citybuilder
         // Полигон = первая ручная постройка waste_depot. Нет постройки — null (вывоза нет).
         private GridPosition? FindDepot()
         {
-            if (Economy.Placement == null || Economy.Placement.Placed == null) return null;
+            if (Economy == null || Economy.Placement == null || Economy.Placement.Placed == null) return null;
             System.Collections.Generic.List<BuildingState> placed = Economy.Placement.Placed;
             for (int i = 0; i < placed.Count; i++)
             {
