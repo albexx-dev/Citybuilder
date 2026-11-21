@@ -20,8 +20,8 @@ namespace Citybuilder
             public GridPosition At;
         }
 
-        // Событие для ленты города: вид, уникальное по дому сообщение, тик.
-        public event Action<EventKind, string, int> Collected;
+        // Событие для ленты города: ключ вывоза и номер дома в аргументах, тик.
+        public event Action<CityEvent> Collected;
 
         private readonly GarbageTrucks fleet = new GarbageTrucks();
         private readonly Dictionary<EntityId, int> accumulated = new Dictionary<EntityId, int>();
@@ -91,7 +91,8 @@ namespace Citybuilder
             accumulated.Remove(id);
             queued.Remove(id);
             if (Collected != null)
-                Collected(EventKind.Garbage, "Мусоровоз вывез мусор из дома #" + id.Value, lastTick);
+                Collected(new CityEvent(EventKind.Garbage, EventMessageCatalog.GarbageCollected,
+                    new object[] { id.Value }, lastTick));
         }
 
         // FNV-1a с солью мусора: поток решений другой, чем у пожаров (паттерн ADR-009).

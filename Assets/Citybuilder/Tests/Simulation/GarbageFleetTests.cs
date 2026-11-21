@@ -41,13 +41,13 @@ namespace Citybuilder
             BuildingState second = Home(new GridPosition(3, 3));
             CityEventLog log = new CityEventLog();
             GarbageSystem garbage = new GarbageSystem();
-            garbage.Collected += delegate (EventKind kind, string message, int tick) { log.Add(kind, message, tick); };
+            garbage.Collected += delegate (CityEvent cityEvent) { log.Add(cityEvent); };
             List<BuildingState> homes = new List<BuildingState> { first, second };
             int horizon = Math.Max(ReadyTick(first.Id), ReadyTick(second.Id)) + 1;
             for (int t = 0; t <= horizon; t++) garbage.Tick(t, homes, Depot, FakePath);
             garbage.Advance(30f);
             Assert.AreEqual(2, log.Count);
-            Assert.AreNotEqual(log.Snapshot()[0].Message, log.Snapshot()[1].Message);
+            Assert.AreNotEqual(log.Snapshot()[0].Args[0], log.Snapshot()[1].Args[0]);
         }
 
         // Делегат null: ноги считаются прямым L-маршрутом — вывоз работает без дорог.

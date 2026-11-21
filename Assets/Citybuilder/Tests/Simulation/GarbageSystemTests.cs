@@ -29,8 +29,8 @@ namespace Citybuilder
         public void TwoRuns_SameInputs_SameAccumulationAndEvents()
         {
             BuildingState home = Home(HouseAt);
-            List<string> firstEvents = new List<string>();
-            List<string> secondEvents = new List<string>();
+            List<CityEvent> firstEvents = new List<CityEvent>();
+            List<CityEvent> secondEvents = new List<CityEvent>();
             GarbageSystem first = Run(new List<BuildingState> { home }, 20, null, null, firstEvents);
             GarbageSystem second = Run(new List<BuildingState> { home }, 20, null, null, secondEvents);
             Assert.AreEqual(first.AccOf(home.Id), second.AccOf(home.Id));
@@ -43,10 +43,10 @@ namespace Citybuilder
         {
             BuildingState home = Home(HouseAt);
             int readyTick = ReadyTick(home.Id);
-            GarbageSystem before = Run(new List<BuildingState> { home }, readyTick, null, null, new List<string>());
+            GarbageSystem before = Run(new List<BuildingState> { home }, readyTick, null, null, new List<CityEvent>());
             Assert.AreEqual(0, before.WaitingCount);
             // +10 тиков после порога: дом уже в очереди — повторно не добавляется (грид queued).
-            GarbageSystem after = Run(new List<BuildingState> { home }, readyTick + 11, null, null, new List<string>());
+            GarbageSystem after = Run(new List<BuildingState> { home }, readyTick + 11, null, null, new List<CityEvent>());
             Assert.AreEqual(1, after.WaitingCount);
             Assert.GreaterOrEqual(after.AccOf(home.Id), GarbageSystem.ReadyThreshold);
         }
@@ -57,7 +57,7 @@ namespace Citybuilder
         {
             BuildingState home = Home(HouseAt);
             int readyTick = ReadyTick(home.Id);
-            GarbageSystem garbage = Run(new List<BuildingState> { home }, readyTick + 5, null, null, new List<string>());
+            GarbageSystem garbage = Run(new List<BuildingState> { home }, readyTick + 5, null, null, new List<CityEvent>());
             Assert.AreEqual(0, garbage.ActiveTrucks);
             Assert.AreEqual(1, garbage.WaitingCount);
             Assert.GreaterOrEqual(garbage.AccOf(home.Id), GarbageSystem.ReadyThreshold);
@@ -81,7 +81,7 @@ namespace Citybuilder
             BuildingState home = Home(HouseAt);
             int readyTick = ReadyTick(home.Id);
             GarbageSystem garbage = Run(new List<BuildingState> { home }, readyTick + 1, Depot, FakePath,
-                new List<string>());
+                new List<CityEvent>());
             Assert.AreEqual(1, garbage.ActiveTrucks);
             Assert.AreEqual(0, garbage.WaitingCount);
             GarbageTrucks.Truck truck = garbage.TruckAt(0);
@@ -94,13 +94,14 @@ namespace Citybuilder
         public void PickUp_ResetsAccumulation_EmitsUniqueEvent()
         {
             BuildingState home = Home(HouseAt);
-            List<string> events = new List<string>();
+            List<CityEvent> events = new List<CityEvent>();
             int readyTick = ReadyTick(home.Id);
             GarbageSystem garbage = Run(new List<BuildingState> { home }, readyTick + 1, Depot, FakePath, events);
             garbage.Advance(10f);
             Assert.AreEqual(0, garbage.AccOf(home.Id));
             Assert.AreEqual(1, events.Count);
-            Assert.IsTrue(events[0].Contains("дома #" + home.Id.Value));
+            Assert.AreEqual(EventMessageCatalog.GarbageCollected, events[0].MessageKey);
+            Assert.AreEqual(home.Id.Value, events[0].Args[0]);
         }
 
         // Тикер: отмотка времени назад обнуляет накопление, очередь и мусоровозы.
@@ -126,7 +127,7 @@ namespace Citybuilder
         {
             BuildingState home = Home(HouseAt);
             GarbageSystem garbage = Run(new List<BuildingState> { home }, ReadyTick(home.Id) + 1, Depot, FakePath,
-                new List<string>());
+                new List<CityEvent>());
             garbage.Reset();
             Assert.AreEqual(0, garbage.AccOf(home.Id));
             Assert.AreEqual(0, garbage.WaitingCount);
@@ -162,10 +163,10 @@ namespace Citybuilder
 
         // Прогон тиков; depot/pathFinder опциональны, события собираются в список.
         private static GarbageSystem Run(List<BuildingState> homes, int ticks, GridPosition? depot,
-            Func<GridPosition, GridPosition, List<GridPosition>> pathFinder, List<string> events)
+            Func<GridPosition, GridPosition, List<GridPosition>> pathFinder, List<CityEvent> events)
         {
             GarbageSystem garbage = new GarbageSystem();
-            garbage.Collected += delegate (EventKind kind, string message, int tick) { events.Add(message); };
+            garbage.Collected += delegate (CityEvent cityEvent) { events.Add(cityEvent); };
             for (int t = 0; t < ticks; t++) garbage.Tick(t, homes, depot, pathFinder);
             return garbage;
         }

@@ -44,9 +44,9 @@ namespace Citybuilder
             garbage.Reset();
         }
 
-        private void OnGarbageEvent(EventKind kind, string message, int tick)
+        private void OnGarbageEvent(CityEvent cityEvent)
         {
-            if (log != null) log.Add(kind, message, tick);
+            if (log != null) log.Add(cityEvent);
         }
     }
 }
