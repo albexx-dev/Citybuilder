@@ -102,7 +102,9 @@ namespace Citybuilder
             { "decor_bush", new[] { "Куст", "Bush" } },
             { "decor_detailed", new[] { "Дерево (детальное)", "Tree (detailed)" } },
             { "decor_oak", new[] { "Дуб", "Oak" } },
-            { "decor_pine", new[] { "Сосна", "Pine" } }
+            { "decor_pine", new[] { "Сосна", "Pine" } },
+            // Разложение бюджета за час (issue #96): налоги − содержание − кражи + награды.
+            { "budget_breakdown", new[] { "Налоги {0} - Содержание {1} - Кражи {2} + Награды {3} = {4} $/ч", "Tax {0} - Upkeep {1} - Theft {2} + Rewards {3} = {4} $/h" } }
         };
 
         // Есть ли ключ в таблице: фолбэк имени здания на DisplayName, если перевода нет.

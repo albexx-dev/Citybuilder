@@ -13,9 +13,18 @@ namespace Citybuilder
         public EconomyTicker Economy;
         [Tooltip("Строка расхода: даёт содержание зданий. Пусто = ищется в сцене.")]
         public UpkeepView Upkeep;
+        [Tooltip("Панель квестов: даёт награды за час. Пусто = ищется в сцене.")]
+        public QuestLogView Quests;
+        [Tooltip("Драйвер часов: номер текущего тика. Пусто = ищется в сцене.")]
+        public SimulationRunner Runner;
 
         private Treasury treasury;
         private bool refsSearched;
+        private bool subscribed;
+        private int theftTick = -1;
+        private int theftFines;
+        private int rewardTick = -1;
+        private int rewards;
 
         // Ленивый доступ: после перезагрузки домена казна пересоздаётся.
         // Баланс при этом сбрасывается (чинятся сохранениями, не V1).
@@ -44,6 +53,9 @@ namespace Citybuilder
             }
         }
 
+        private void OnEnable() { Subscribe(); }
+        private void OnDisable() { Unsubscribe(); }
+
         private void OnGUI()
         {
             if (Treasury == null)
@@ -51,10 +63,11 @@ namespace Citybuilder
                 return;
             }
             ResolveRefs();
+            Subscribe();
             Color balanceColor = Treasury.IsInDeficit ? UpkeepView.DeficitColor : Color.white;
             HudText.Draw(10f, 10f, "$ " + Treasury.Balance, balanceColor);
             bool netDeficit;
-            string summary = BudgetLine(out netDeficit);
+            string summary = Breakdown(out netDeficit);
             if (summary != null)
             {
                 Color lineColor = netDeficit ? UpkeepView.DeficitColor : Color.white;
@@ -62,28 +75,63 @@ namespace Citybuilder
             }
         }
 
-        // Строка бюджета «Доход - Расход = Итог» и признак минусового итога.
+        // Строка разложения за час: налоги − содержание − кражи + награды = итог.
         // Без данных (нет экономики, налога или расхода) — null, строка не рисуется.
-        private string BudgetLine(out bool netDeficit)
+        private string Breakdown(out bool netDeficit)
         {
             netDeficit = false;
-            if (Economy == null || Economy.Tax == null || Upkeep == null)
-            {
-                return null;
-            }
-            int income = IncomePerHour();
+            if (Economy == null || Economy.Tax == null || Upkeep == null) return null;
+            int income = Economy.IncomePerHour();
             int upkeep = Upkeep.CurrentUpkeep();
-            netDeficit = BudgetSummaryPolicy.IsNetDeficit(income, upkeep);
-            return BudgetSummaryPolicy.Line(income, upkeep);
+            int tick = CurrentTick();
+            int thefts = theftTick == tick ? theftFines : 0;
+            int earned = rewardTick == tick ? rewards : 0;
+            netDeficit = BudgetBreakdown.IsDeficit(income, upkeep, thefts, earned);
+            return BudgetBreakdown.Line(income, upkeep, thefts, earned);
         }
 
-        // Доход за час по активной политике EconomyTicker: зональной (эпик #49) или фиксированной.
-        private int IncomePerHour()
+        private int CurrentTick()
         {
-            return Economy.IncomePerHour();
+            return Runner != null && Runner.Clock != null
+                ? (int)Runner.Clock.CurrentTime.TickCount : -1;
         }
 
-        // Ссылки ищутся один раз: экономика и строка расхода живут на других объектах HUD.
+        // Подписка на уже существующие события домена: новые поля в системах не нужны.
+        private void Subscribe()
+        {
+            if (subscribed) return;
+            if (Economy == null || Quests == null || Quests.Quests == null) return;
+            Economy.Crimes.Fired += OnCrime;
+            Quests.Quests.QuestCompleted += OnQuestReward;
+            subscribed = true;
+        }
+
+        private void Unsubscribe()
+        {
+            if (!subscribed) return;
+            Economy.Crimes.Fired -= OnCrime;
+            Quests.Quests.QuestCompleted -= OnQuestReward;
+            subscribed = false;
+        }
+
+        // Штрафы за кражи текущего часа: событие само несёт номер тика.
+        private void OnCrime(EventKind kind, string message, int tick)
+        {
+            if (kind != EventKind.Crime) return;
+            if (tick != theftTick) { theftTick = tick; theftFines = 0; }
+            theftFines += CrimeSystem.FinePerTheft;
+        }
+
+        // Награды текущего часа: в границе тика часы уже обновлены.
+        private void OnQuestReward(QuestDefinition quest)
+        {
+            if (quest == null) return;
+            int tick = CurrentTick();
+            if (tick != rewardTick) { rewardTick = tick; rewards = 0; }
+            rewards += quest.Reward;
+        }
+
+        // Ссылки ищутся один раз: контроллеры живут на других объектах HUD.
         private void ResolveRefs()
         {
             if (refsSearched)
@@ -93,6 +141,8 @@ namespace Citybuilder
             refsSearched = true;
             if (Economy == null) Economy = FindFirstObjectByType<EconomyTicker>();
             if (Upkeep == null) Upkeep = FindFirstObjectByType<UpkeepView>();
+            if (Quests == null) Quests = FindFirstObjectByType<QuestLogView>();
+            if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
         }
     }
 }
