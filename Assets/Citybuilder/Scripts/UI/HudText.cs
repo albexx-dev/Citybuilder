@@ -6,6 +6,11 @@ namespace Citybuilder
     // Нужен, чтобы строки читались поверх светлой сетки. Состояние GUI не портит.
     public static class HudText
     {
+        // Вертикальный запас подложки сверху и снизу от метки.
+        public const float BackingPadY = 2f;
+        // Оценочная высота подложки одной строки: метка ~18 px + запас 4 px.
+        public const float BackingRowHeight = 22f;
+
         // Рисует строку с подложкой. Пустой текст молча пропускается.
         public static void Draw(float x, float y, string text)
         {
@@ -25,7 +30,7 @@ namespace Citybuilder
             Color savedContentColor = GUI.contentColor;
             // Полупрозрачный чёрный: whiteTexture тонируется через GUI.color.
             GUI.color = new Color(0f, 0f, 0f, 0.55f);
-            GUI.DrawTexture(new Rect(x - 4f, y - 2f, size.x + 8f, size.y + 4f), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(x - 4f, y - BackingPadY, size.x + 8f, size.y + 2f * BackingPadY), Texture2D.whiteTexture);
             GUI.color = savedColor;
             GUI.contentColor = textColor;
             GUI.Label(new Rect(x, y, size.x, size.y), text);
