@@ -26,12 +26,12 @@ namespace Citybuilder
             get { return isOpen; }
         }
 
-        // Сборка строки ленты только во view: домен хранит сообщение и тик (ADR-007/013).
+        // Сборка строки ленты только во view: домен хранит ключ и аргументы (ADR-007/013).
         public static string FormatLine(CityEvent e)
         {
             int day = e.Tick / SimulationTime.TicksPerDay;
             int hour = e.Tick % SimulationTime.TicksPerDay;
-            return Localization.T("event_log_prefix", day, hour) + e.Message;
+            return Localization.T("event_log_prefix", day, hour) + Localization.T(e.MessageKey, e.Args);
         }
 
         // Смена языка пересобирает кеш уже существующих записей, без вызовов Add (ADR-013).
@@ -69,9 +69,9 @@ namespace Citybuilder
             }
         }
 
-        public void Record(EventKind kind, string message, int tick)
+        public void Record(EventKind kind, string messageKey, object[] args, int tick)
         {
-            if (log.Add(kind, message, tick))
+            if (log.Add(kind, messageKey, args, tick))
             {
                 if (popCooldown.ShouldPlayDeficit(Time.unscaledTime)) AudioController.PlayPopGlobal();
                 if (isOpen) RebuildCache();
