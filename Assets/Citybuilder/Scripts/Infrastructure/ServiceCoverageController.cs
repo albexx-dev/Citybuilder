@@ -23,7 +23,12 @@ namespace Citybuilder
         [Tooltip("Пауза между пересчётами в секундах. Минимум 0.5.")]
         public float RefreshIntervalSec = 2f;
 
+        [Header("Tick")]
+        [Tooltip("Часы: снимок пересчитывается в каждом тике до пожаров/краж/квестов. Пусто = ищется в сцене.")]
+        public SimulationRunner Runner;
+
         private readonly ServiceBuildingSystem system = new ServiceBuildingSystem();
+        private readonly CoverageTickBinding tickBinding = new CoverageTickBinding();
         private float timer;
 
         public ServiceBuildingSystem System
@@ -76,6 +81,23 @@ namespace Citybuilder
         {
             ClampSettings();
         }
+
+        // Тик: TickStarted всегда раньше TickCompleted (пожары/кражи/квесты).
+        // Один пересчёт от TickStarted на тик; Update сохраняет 2-секундное HUD-освежение
+        // как страховку для паузы/редактора.
+        private void OnEnable()
+        {
+            if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
+            if (Runner == null || Runner.Clock == null) return;
+            tickBinding.Bind(Runner.Clock, OnTickStarted);
+        }
+
+        private void OnDisable()
+        {
+            tickBinding.Unbind();
+        }
+
+        private void OnTickStarted(SimulationTime time) { RefreshNow(); }
 
         private void Update()
         {
