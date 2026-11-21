@@ -20,6 +20,7 @@ namespace Citybuilder
         [Tooltip("Меню режимов: гасит кнопку и режим «Декор». Пусто = ищется в сцене.")] public BuildModeMenu Menu;
         [Tooltip("Автосейв: интервал в игровых часах. Пусто = ищется в сцене.")] public AutosaveController Autosave;
         [Tooltip("Эмбиент: громкость применяется сразу. Пусто = ищется в сцене.")] public AmbientAudioView Ambient;
+        [Tooltip("Туториал: кнопка «Повторить обучение». Пусто = ищется в сцене.")] public TutorialView Tutorial;
 
         private readonly GameSettings settings = new GameSettings();
         private bool isOpen;
@@ -125,7 +126,7 @@ namespace Citybuilder
             y += 30f;
             SettingsPanels.DrawSound(settings, x, ref y);
             SettingsPanels.DrawGameplay(settings, x, ref y);
-            SettingsPanels.DrawFooter(settings, this, x, y);
+            SettingsPanels.DrawFooter(settings, this, Tutorial, x, y);
         }
 
         // Каждое реальное изменение: профиль в PlayerPrefs и на лету подключённым системам.
@@ -171,6 +172,7 @@ namespace Citybuilder
             if (Menu == null) Menu = FindFirstObjectByType<BuildModeMenu>();
             if (Autosave == null) Autosave = FindFirstObjectByType<AutosaveController>();
             if (Ambient == null) Ambient = FindFirstObjectByType<AmbientAudioView>();
+            if (Tutorial == null) Tutorial = FindFirstObjectByType<TutorialView>();
         }
     }
 }

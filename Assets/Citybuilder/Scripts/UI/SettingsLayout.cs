@@ -10,8 +10,8 @@ namespace Citybuilder
     public static class SettingsLayout
     {
         public const float PanelWidth = 460f;
-        // 340 -> 372: строка слайдера «Эмбиент» в блоке «Звук» (хвост #71).
-        public const float PanelHeight = 372f;
+        // 340 -> 372: слайдер «Эмбиент» (#71); 372 -> 448: кнопка повтора и справка (#97).
+        public const float PanelHeight = 448f;
         public const int AgentStep = 8;
         public const int AutosaveStep = 5;
         // Ряд кнопок меню нижней панели: «Статистика/Лента/Задачи/Настройки» (4-я — EPIC-69).
