@@ -81,7 +81,9 @@ namespace Citybuilder
         public void ApplyTwice_NoRepeatedRewardsOrTheftEvents()
         {
             QuestSystem quests = new QuestSystem();
+            // Первый тик добирает активные задачи из каталога, второй — закрывает доступную.
             quests.Tick(1, Context(10, 0, 0), null, null);
+            quests.Tick(2, Context(10, 0, 0), null, null);
             Assert.AreEqual(1, quests.CompletedCount);
             CitySnapshot slot = new CitySnapshot();
             QuestSnapshot.Write(quests, slot);

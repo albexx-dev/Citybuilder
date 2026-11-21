@@ -12,7 +12,7 @@ namespace Citybuilder
         [TearDown]
         public void TearDown() { for (int i = 0; i < assets.Count; i++) Object.DestroyImmediate(assets[i]); assets.Clear(); }
 
-        // Игрок: дом вырос до 2, станцию улучшил до 3. Серия комфорта в слот не пишется — обнуляется.
+        // Игрок: дом вырос до 2, станцию улучшил до 3. С v6 серия комфорта тоже пишется в слот и восстанавливается.
         [Test]
         public void Roundtrip_GrownHouseAndUpgradedStation_AreRestoredByLevel()
         {
@@ -20,7 +20,7 @@ namespace Citybuilder
             BuildingState station = NewState(NewDef("power_plant"), 6, 6); station.ApplyUpgrade(); station.ApplyUpgrade();
             CitySnapshot slot = SlotOf(One(home), One(station));
             List<BuildingState> homes = ReloadHomes(slot, "house"); List<BuildingState> placed = ReloadManual(slot, "power_plant");
-            Assert.AreEqual(2, homes[0].Level); Assert.AreEqual(0, homes[0].ComfortStreak); Assert.AreEqual(3, placed[0].Level);
+            Assert.AreEqual(2, homes[0].Level); Assert.AreEqual(40, homes[0].ComfortStreak); Assert.AreEqual(3, placed[0].Level);
             Assert.AreEqual(5, BuildingLevelPolicy.ServiceRadius(3, placed[0].Level)); Assert.AreEqual(12, BuildingLevelPolicy.ScaledOutput(6, placed[0].Level));
         }
 
