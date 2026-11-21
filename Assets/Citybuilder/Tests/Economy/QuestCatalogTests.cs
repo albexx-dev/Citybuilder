@@ -82,13 +82,14 @@ namespace Citybuilder
         }
 
         [Test]
-        public void TryNext_EverythingDone_ReturnsFalse()
+        public void TryNext_CompletedMilestone_OffersNextStep()
         {
             HashSet<string> completed = MakeCompletedStarters();
             completed.Add("q_res_ms_250");
             completed.Add("q_balance_ms_5000");
             QuestDefinition quest;
-            Assert.IsFalse(QuestCatalog.TryNext(MakeContext(220, 12, 4000), completed, new List<string>(), out quest));
+            Assert.IsTrue(QuestCatalog.TryNext(MakeContext(220, 12, 4000), completed, new List<string>(), out quest));
+            Assert.AreEqual("q_res_ms_300", quest.Id);
         }
 
         private static HashSet<string> MakeCompletedStarters()

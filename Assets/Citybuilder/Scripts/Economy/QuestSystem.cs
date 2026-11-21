@@ -58,10 +58,11 @@ namespace Citybuilder
         {
             if (ids == null) return;
             active.Clear();
+            HashSet<string> added = new HashSet<string>(); // дубли id в слоте не дают двойную награду
             foreach (string id in ids)
             {
                 if (active.Count >= MaxActive) break;
-                if (completed.Contains(id)) continue; // битый слот: id в двух списках — награда не должна повториться
+                if (completed.Contains(id) || !added.Add(id)) continue;
                 QuestDefinition quest;
                 if (QuestCatalog.TryFind(id, out quest)) active.Add(quest);
             }
