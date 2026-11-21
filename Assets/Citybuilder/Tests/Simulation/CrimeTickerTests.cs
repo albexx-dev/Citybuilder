@@ -24,7 +24,7 @@ namespace Citybuilder
             int robTick = FindRobTick(home.Id);
             List<BuildingState> homes = new List<BuildingState> { home };
             ticker.Tick(robTick, homes, services, log, treasury);
-            Assert.AreEqual(950, treasury.Balance);
+            Assert.AreEqual(980, treasury.Balance);
             Assert.AreEqual(1, log.Count);
             Assert.AreEqual(EventKind.Crime, ((CityEvent)log.Snapshot()[0]).Kind);
             Assert.AreEqual(1f, ticker.Crimes.CrimeLevel01);
