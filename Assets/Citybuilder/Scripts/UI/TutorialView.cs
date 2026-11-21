@@ -14,28 +14,66 @@ namespace Citybuilder
         [Tooltip("Ручная стройка зданий. Пусто = ищется на этом же объекте.")] public BuildingPlacementController Placement;
         [Tooltip("Палитра типов зданий. Пусто = ищется на этом же объекте.")] public BuildPaletteView Palette;
 
+        [Header("События v1.2")]
+        [Tooltip("Экономика: снимок пожаров. Пусто = ищется в сцене.")] public EconomyTicker Economy;
+        [Tooltip("Квесты: награды. Пусто = ищется в сцене.")] public QuestLogView Quests;
+        [Tooltip("Лента города: первый вывоз мусора. Пусто = ищется в сцене.")] public EventLogView Log;
+        [Tooltip("Часы: наступление ночи. Пусто = ищется в сцене.")] public SimulationRunner Runner;
+
+        private readonly TutorialEventView events = new TutorialEventView();
         private bool dismissed;
 
         public TutorialPolicy.Step CurrentStep { get { return PickStep(); } }
         public string CurrentText { get { return TutorialPolicy.FormatText(CurrentStep, SelectedId()); } }
         public bool IsDismissed { get { return dismissed; } }
 
-        public void Dismiss() { dismissed = true; UiClickGuard.Set("tutorial_dismiss", new Rect()); }
+        // Загрузка сейта вызывает Dismiss: подсказки событий тоже гаснут, не включаются сами.
+        public void Dismiss() { ResetState(true); }
+        public void ResetTutorial() { ResetState(false); }
 
-        public void ResetTutorial() { dismissed = false; }
+        private void ResetState(bool value)
+        {
+            ResolveRefs();
+            dismissed = value;
+            events.Reset(Quests, Runner);
+            if (value) UiClickGuard.Set("tutorial_dismiss", new Rect());
+        }
 
         public void OnDisable() { UiClickGuard.Set("tutorial_dismiss", new Rect()); }
 
         private void OnGUI()
         {
+            ResolveRefs();
+            events.Sample(Economy, Quests, Log, Runner, HasPlaced("fire_station"), Time.unscaledTime);
+            TutorialEventPolicy.Kind eventKind = events.Current;
+            if (eventKind != TutorialEventPolicy.Kind.None)
+            {
+                DrawBanner(TutorialEventPolicy.FormatText(eventKind), true);
+                TutorialArrowView.Draw(EventArrowTarget(eventKind), Time.unscaledTime);
+                return;
+            }
             TutorialPolicy.Step step = CurrentStep;
             string text = TutorialPolicy.FormatText(step, SelectedId());
             if (string.IsNullOrEmpty(text)) { UiClickGuard.Set("tutorial_dismiss", new Rect()); return; }
-            DrawBanner(text);
+            DrawBanner(text, false);
             TutorialArrowView.Draw(ArrowTarget(step), Time.unscaledTime);
         }
 
-        private void DrawBanner(string text)
+        // Для событий v1.2 стрелка целится в карточку каталога (пожарная станция).
+        private Rect EventArrowTarget(TutorialEventPolicy.Kind kind)
+        {
+            string id = TutorialEventPolicy.TargetBuildingId(kind);
+            if (id == null || Placement == null || Placement.Definitions == null) return new Rect();
+            int defIndex = IndexOfId(Placement.Definitions, id);
+            if (defIndex < 0) return new Rect();
+            List<BuildingDefinition> cards = new List<BuildingDefinition>();
+            BuildCatalogView.FilterByCategory(Placement.Definitions, Placement.Definitions[defIndex].Category, cards);
+            int index = IndexOfId(cards, id);
+            return index < 0 ? new Rect()
+                : TutorialArrowView.CatalogCardRect(Screen.width, Screen.height, cards.Count, index);
+        }
+
+        private void DrawBanner(string text, bool isEvent)
         {
             if (!HudLayout.IsHudRowVisible(430f, 1, Screen.height))
             {
@@ -46,7 +84,7 @@ namespace Citybuilder
             HudText.Draw(10f, y, text);
             Rect btn = new Rect(Screen.width - 100f, y - 2f, 90f, 24f);
             UiClickGuard.Set("tutorial_dismiss", btn);
-            if (GUI.Button(btn, "Понятно")) Dismiss();
+            if (GUI.Button(btn, "Понятно")) { if (isEvent) events.Acknowledge(); else Dismiss(); }
         }
 
         // Цель стрелки: «x4» — кнопка скорости; шаги-стройки — кнопка здания в палитре
@@ -114,6 +152,10 @@ namespace Citybuilder
             if (Menu == null) Menu = GetComponent<BuildModeMenu>();
             if (Placement == null) Placement = GetComponent<BuildingPlacementController>();
             if (Palette == null) Palette = GetComponent<BuildPaletteView>();
+            if (Economy == null) Economy = FindFirstObjectByType<EconomyTicker>();
+            if (Quests == null) Quests = FindFirstObjectByType<QuestLogView>();
+            if (Log == null) Log = FindFirstObjectByType<EventLogView>();
+            if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
         }
 
         private int CountResidential()

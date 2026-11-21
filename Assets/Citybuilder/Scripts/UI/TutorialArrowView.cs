@@ -65,6 +65,15 @@ namespace Citybuilder
             return new Rect(x, popup.y, HudLayout.PaletteButtonWidth, popup.height);
         }
 
+        // Карточка каталога: та же математика, что в CatalogCards.Draw (эпик 97).
+        public static Rect CatalogCardRect(float screenWidth, float screenHeight, int itemCount, int index)
+        {
+            if (itemCount <= 0 || index < 0) return new Rect();
+            Rect strip = HudLayout.CatalogCardsRect(screenWidth, screenHeight, itemCount);
+            float x = strip.x + index * (HudLayout.CatalogCardWidth + HudLayout.ButtonGap);
+            return new Rect(x, strip.y, HudLayout.CatalogCardWidth, strip.height);
+        }
+
         // Индекс кнопки режима: «Дома [1]», «Зоны [3]», «Рост [4]» — порядок из BottomBarView.
         public static int ModeIndex(TutorialPolicy.TargetButton target)
         {
