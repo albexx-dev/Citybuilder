@@ -7,6 +7,19 @@ namespace Citybuilder
     // и базовом разрешении; математика степпера и подписи — без сцены.
     public class SettingsLayoutTests
     {
+        private LanguageTestScope languageScope;
+
+        [SetUp]
+        public void InjectLanguageScope()
+        {
+            languageScope = new LanguageTestScope();
+        }
+
+        [TearDown]
+        public void RestoreLanguageScope()
+        {
+            languageScope.Dispose();
+        }
         [TestCase(1024f, 600f)]
         [TestCase(1920f, 1080f)]
         public void PanelRect_IsCenteredAndInsideScreen(float width, float height)
@@ -18,7 +31,6 @@ namespace Citybuilder
             Assert.LessOrEqual(panel.xMax, width - HudLayout.BarPadding);
             Assert.LessOrEqual(panel.yMax, height);
         }
-
         // Эпик 97: кнопка «Повторить обучение» и справка по управлению требуют высоты 448.
         [Test]
         public void PanelHeight_FitsRepeatButtonAndControlsHint()

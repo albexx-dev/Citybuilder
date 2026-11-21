@@ -87,8 +87,10 @@ namespace Citybuilder
                 {
                     string key = arrays[a][i];
                     Assert.IsTrue(Localization.Has(key), key);
+                    Localization.SetLanguage(Language.Ru);
+                    Assert.IsFalse(string.IsNullOrEmpty(Localization.T(key)), "RU " + key);
                     Localization.SetLanguage(Language.En);
-                    Assert.IsFalse(string.IsNullOrEmpty(Localization.T(key)), key);
+                    Assert.IsFalse(string.IsNullOrEmpty(Localization.T(key)), "EN " + key);
                 }
             }
         }

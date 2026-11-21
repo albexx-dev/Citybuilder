@@ -7,6 +7,8 @@ namespace Citybuilder
     // ключ опроса — по (tick, kind, key, args), без разбора локализованного текста.
     public class AudioEventPolicyTests
     {
+        private LanguageTestScope languageScope;
+
         private static CityEvent FireStart(int tick, int home)
         {
             return new CityEvent(EventKind.Fire, EventSubtype.FireStart,
@@ -20,15 +22,15 @@ namespace Citybuilder
         }
 
         [SetUp]
-        public void UseRu()
+        public void InjectLanguageScope()
         {
-            Localization.SetLanguage(Language.Ru);
+            languageScope = new LanguageTestScope();
         }
 
         [TearDown]
-        public void RestoreRu()
+        public void RestoreLanguageScope()
         {
-            Localization.SetLanguage(Language.Ru);
+            languageScope.Dispose();
         }
 
         [Test]
