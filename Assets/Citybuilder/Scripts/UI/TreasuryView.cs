@@ -109,8 +109,8 @@ namespace Citybuilder
         private void Unsubscribe()
         {
             if (!subscribed) return;
-            Economy.Crimes.Fired -= OnCrime;
-            Quests.Quests.QuestCompleted -= OnQuestReward;
+            if (Economy != null) Economy.Crimes.Fired -= OnCrime;
+            if (Quests != null && Quests.Quests != null) Quests.Quests.QuestCompleted -= OnQuestReward;
             subscribed = false;
         }
 
