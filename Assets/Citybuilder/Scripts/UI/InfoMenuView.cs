@@ -127,23 +127,23 @@ namespace Citybuilder
         // Строка преступности (EPIC-47): процент = 1 − покрытие полиции города.
         private static string CrimeLine(CrimeSystem crimes)
         {
-            return "Преступность: " + Mathf.RoundToInt(crimes.CrimeLevel01 * 100f) + "%";
+            return Localization.T("info_crime", Mathf.RoundToInt(crimes.CrimeLevel01 * 100f));
         }
 
         private void DrawCachedSections(float width)
         {
             float y = 4f;
-            DrawSection(ref y, "=== Город ===", cachedLines[0]);
-            DrawSection(ref y, "=== Цель ===", cachedLines[1]);
-            DrawHeader(ref y, "=== Сети ===");
+            DrawSection(ref y, Localization.T("info_section_city"), cachedLines[0]);
+            DrawSection(ref y, Localization.T("info_section_goal"), cachedLines[1]);
+            DrawHeader(ref y, Localization.T("info_section_networks"));
             for (int i = 2; i <= 6; i++) DrawLine(ref y, cachedLines[i]);
-            DrawHeader(ref y, "=== Службы ===");
+            DrawHeader(ref y, Localization.T("info_section_services"));
             DrawLine(ref y, cachedLines[7]);
             DrawLine(ref y, cachedLines[8]);
             DrawLine(ref y, cachedLines[11]);
             DrawLine(ref y, cachedLines[12]);
             DrawBudgetSection(ref y, width);
-            DrawHeader(ref y, "=== Развитие ===");
+            DrawHeader(ref y, Localization.T("info_section_development"));
             DrawLine(ref y, cachedLines[9]);
             DrawLine(ref y, cachedLines[10]);
             MetricsGraphView.Draw(ref y, width);
@@ -151,7 +151,7 @@ namespace Citybuilder
 
         private void DrawBudgetSection(ref float y, float width)
         {
-            DrawHeader(ref y, "=== Бюджет ===");
+            DrawHeader(ref y, Localization.T("info_section_budget"));
             if (Tax != null) DrawTaxRows(ref y, width);
             if (Upkeep != null)
             {
