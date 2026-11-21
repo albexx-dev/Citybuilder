@@ -35,10 +35,9 @@ namespace Citybuilder
         // Кражи (EPIC-47) для InfoMenuView: уровень преступности и модификаторы досуга домов.
         public CrimeSystem Crimes { get { return crimeTicker.Crimes; } }
 
-        public void ResetSound()
+        public void ResetSimulation()
         {
-            soundPolicy.Reset();
-            eventThrottle.Reset();
+            soundPolicy.Reset(); eventThrottle.Reset(); fireTicker.Reset(); crimeTicker.Reset();
         }
 
         // Фактический налоговый доход за час: зональная политика или фиксированная ставка.
@@ -177,7 +176,6 @@ namespace Citybuilder
             }
             // Звука на тиковые события нет: лента читаема (троттлинг), награды целей звучат в GoalView.
         }
-
         // Пожары (EPIC-43, ADR-009): тик FireSystem по домам, разрушение и лента.
         private void TickFires(int tick)
         {

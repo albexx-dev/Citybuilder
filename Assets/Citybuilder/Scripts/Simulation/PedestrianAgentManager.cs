@@ -65,6 +65,7 @@ namespace Citybuilder
         {
             for (int i = 0; i < MaxPedestrians; i++) agents[i] = default(PedestrianAgent);
             spawnCursor = 0;
+            Wander.Reset();
         }
 
         // Спавн у жилого дома: свободная клетка рядом и цель в радиусе. Неудача — тихий пропуск.

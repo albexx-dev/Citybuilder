@@ -37,6 +37,16 @@ namespace Citybuilder
             fires.Tick(tick, homes, HouseCoverage, BurnDown);
         }
 
+        // Сброс по команде хоста (LoadController.ClearAll): горение не сериализуется (ADR-009).
+        public void Reset()
+        {
+            fires.Reset();
+            coverage = null;
+            log = null;
+            population = null;
+            demolishState = null;
+        }
+
         // Порядок сноса — как в SettlementDemolitionController.DemolishOne: сначала выселение.
         private void BurnDown(BuildingState home)
         {

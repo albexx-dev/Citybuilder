@@ -36,6 +36,14 @@ namespace Citybuilder
             manager.Wander.IsBlocked = IsBlocked;
         }
 
+        // Сброс по команде загрузки/«Новая игра» (LoadController.ClearAll): без него
+        // равное число жителей не вызовет OnPopulationChanged и старые агенты останутся.
+        public void ResetAgents()
+        {
+            if (manager != null) manager.Clear();
+            lastResidents = -1;
+        }
+
         // Занятость клетки для блуждания: здания и дороги занимают клетки сетки.
         private bool IsBlocked(GridPosition cell) { return GridVisualizer.Grid.IsOccupied(cell); }
 
@@ -58,7 +66,7 @@ namespace Citybuilder
         }
 
         // Граница игрового часа: пересчитать агентов только при изменившемся населении.
-        // «Новая» и загрузка сбрасывают население — на следующем тике пул очищается сам.
+        // «Новая» и загрузка идут через ResetAgents — здесь lastResidents уже равен -1.
         private void OnClockTick(SimulationTime time)
         {
             if (manager == null || Population == null) return;

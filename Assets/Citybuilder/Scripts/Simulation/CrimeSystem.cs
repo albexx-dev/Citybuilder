@@ -33,6 +33,14 @@ namespace Citybuilder
             get { return totalThefts; }
         }
 
+        // Сброс несериализуемых краж и модификаторов перед «Новая игра»/загрузкой.
+        public void Reset()
+        {
+            robbedAt.Clear();
+            totalThefts = 0;
+            CrimeLevel01 = 0f;
+        }
+
         // Один тик часов: обновить уровень преступности и проверить дома без полиции.
         public void Tick(int tick, List<BuildingState> homes, Func<BuildingState, float> coverage,
             float crimeLevel01, Action<BuildingState> steal)

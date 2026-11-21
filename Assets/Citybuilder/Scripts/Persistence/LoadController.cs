@@ -78,6 +78,8 @@ namespace Citybuilder
 
         public void ClearAll()
         {
+            // ID, горение и кражи не сериализуются: повторная загрузка даёт те же номера и чистое состояние.
+            EntityId.Reset();
             if (Demolition != null) Demolition.ClearGrown();
             if (Zones != null) Zones.ClearZones();
             if (Roads != null) Roads.ClearRoads();
@@ -90,13 +92,15 @@ namespace Citybuilder
             EventLogView eventLog = FindFirstObjectByType<EventLogView>();
             if (eventLog != null) eventLog.ClearLog();
             EconomyTicker ticker = FindFirstObjectByType<EconomyTicker>();
-            if (ticker != null) ticker.ResetSound();
+            if (ticker != null) ticker.ResetSimulation();
             MetricsRecorder metricsRecorder = FindFirstObjectByType<MetricsRecorder>();
             if (metricsRecorder != null) metricsRecorder.Clear();
             QuestLogView questLog = FindFirstObjectByType<QuestLogView>();
             if (questLog != null) questLog.ResetQuests();
             GarbageTruckView garbage = FindFirstObjectByType<GarbageTruckView>();
             if (garbage != null) garbage.ResetGarbage();
+            PedestrianAgentHost pedestrians = FindFirstObjectByType<PedestrianAgentHost>();
+            if (pedestrians != null) pedestrians.ResetAgents();
         }
 
         private List<BuildingState> ApplyCity(CitySnapshot snapshot)

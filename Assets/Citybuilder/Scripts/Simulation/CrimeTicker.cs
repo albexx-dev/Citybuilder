@@ -35,6 +35,15 @@ namespace Citybuilder
             crimes.Tick(tick, homes, HouseCoverage, CrimeLevel(coverageSystem), FineTreasury);
         }
 
+        // Сброс по команде хоста (LoadController.ClearAll): кражи не сериализуются.
+        public void Reset()
+        {
+            crimes.Reset();
+            coverage = null;
+            log = null;
+            treasury = null;
+        }
+
         // NaN при отсутствии снимка — CrimeSystem считает дом в безопасности (план тестов эпика).
         private float HouseCoverage(BuildingState home)
         {
