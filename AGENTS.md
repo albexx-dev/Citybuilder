@@ -97,7 +97,7 @@ Reviewer (субагент, только чтение):
 
 ## Текущее состояние (v1.1, после задачи 104)
 
-`HANDOFF.md` удалён в v1.1. Актуальные точки входа: `README.md`, `ONBOARDING.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `DECISIONS/`. Планы эпиков и трекинг ведутся в GitHub Issues; архив планов v1.1 остался в истории git (папка с планами удалена из репозитория).
+`HANDOFF.md` удалён в v1.1. Актуальные точки входа: `README.md`, `ONBOARDING.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `DECISIONS/`, `TASKS/README.md`. Трекинг эпиков ведётся в GitHub Issues; детальные планы шагов хранятся в репозитории: `TASKS/` (32 отслеживаемых файла — `README.md` и `EPIC-*.md`). Валидатор требует `TASKS/README.md`; папка не удалена и её воссоздание не запрещено.
 
 Играбельно в редакторе и в билде windows64 (90 МиБ, пересобран на 102, smoke пройден):
 
