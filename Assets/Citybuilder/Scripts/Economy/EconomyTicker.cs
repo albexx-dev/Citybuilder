@@ -35,10 +35,11 @@ namespace Citybuilder
         // Кражи (EPIC-47) для InfoMenuView: уровень преступности и модификаторы досуга домов.
         public CrimeSystem Crimes { get { return crimeTicker.Crimes; } }
 
-        public void ResetSound()
+        // Полный сброс несериализуемых состояний перед «Новая игра»/загрузкой.
+        public void ResetSimulation()
         {
-            soundPolicy.Reset();
-            eventThrottle.Reset();
+            soundPolicy.Reset(); eventThrottle.Reset();
+            fireTicker.Reset(); crimeTicker.Reset();
         }
 
         // Фактический налоговый доход за час: зональная политика или фиксированная ставка.

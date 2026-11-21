@@ -25,6 +25,9 @@ namespace Citybuilder
             get { return burning.Count; }
         }
 
+        // Сброс несериализуемого горения перед «Новая игра»/загрузкой (ADR-009).
+        public void Reset() { burning.Clear(); }
+
         // Горит ли конкретный дом.
         public bool IsBurning(EntityId id)
         {
