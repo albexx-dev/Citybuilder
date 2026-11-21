@@ -75,8 +75,8 @@ namespace Citybuilder
             ICollection<string> activeIds, out QuestDefinition quest)
         {
             if (ServicesReady(completed) && TryOpen(ServicesAll, context, completed, activeIds, out quest)) return true;
-            if (TryOpen(ResidentsMilestone(context), context, completed, activeIds, out quest)) return true;
-            return TryOpen(BalanceMilestone(context), context, completed, activeIds, out quest);
+            if (TryOpen(ResidentsMilestone(context, completed), context, completed, activeIds, out quest)) return true;
+            return TryOpen(BalanceMilestone(context, completed), context, completed, activeIds, out quest);
         }
 
         // Полный сервис открывается после трёх квестов покрытия служб.
@@ -87,22 +87,28 @@ namespace Citybuilder
         }
 
         // Вехи жителей: после 200 — каждые +50, бесконечно (250, 300, ...).
-        private static QuestDefinition ResidentsMilestone(QuestContext context)
+        // Выполненные id пропускаются: после упадка населения генератор выдаёт следующую веху.
+        private static QuestDefinition ResidentsMilestone(QuestContext context, HashSet<string> completed)
         {
             if (context.Residents < MilestoneFromResidents) return default(QuestDefinition);
             int threshold = MilestoneFromResidents + MilestoneStep;
             while (threshold <= context.Residents && threshold <= int.MaxValue - MilestoneStep) threshold += MilestoneStep;
+            while (threshold <= int.MaxValue - MilestoneStep && completed.Contains("q_res_ms_" + threshold))
+                threshold += MilestoneStep;
             return new QuestDefinition("q_res_ms_" + threshold, "quest_title_res_milestone",
                 "quest_desc_residents", new object[] { threshold }, 200 + threshold,
                 c => c.Residents >= threshold);
         }
 
         // Вехи баланса: от $5000 — удвоение (5000, 10000, ...) в подросшем городе.
-        private static QuestDefinition BalanceMilestone(QuestContext context)
+        // Выполненные id пропускаются: после упадка казны генератор выдаёт следующую веху.
+        private static QuestDefinition BalanceMilestone(QuestContext context, HashSet<string> completed)
         {
             if (context.Buildings < BalanceCityBuildings) return default(QuestDefinition);
             int threshold = BalanceMilestoneFrom;
             while (threshold <= context.Balance && threshold > 0) threshold *= 2;
+            while (threshold > 0 && threshold <= int.MaxValue / 2
+                && completed.Contains("q_balance_ms_" + threshold)) threshold *= 2;
             if (threshold <= 0) return default(QuestDefinition);
             return new QuestDefinition("q_balance_ms_" + threshold, "quest_title_balance_milestone",
                 "quest_desc_balance", new object[] { threshold }, threshold / 5,

@@ -21,7 +21,6 @@ namespace Citybuilder
         [Tooltip("Снимок покрытия служб. Пусто = ищется в сцене; без него дома считаются защищёнными.")] public ServiceCoverageController Coverage;
         private EmploymentSystem employment;
         private TaxSystem tax;
-        private readonly SoundCooldownPolicy soundPolicy = new SoundCooldownPolicy();
         private readonly EventThrottlePolicy eventThrottle = new EventThrottlePolicy(10);
         private readonly FireTicker fireTicker = new FireTicker();
         private readonly CrimeTicker crimeTicker = new CrimeTicker();
@@ -32,7 +31,7 @@ namespace Citybuilder
         public CrimeSystem Crimes { get { return crimeTicker.Crimes; } }
         public void ResetSimulation()
         {
-            soundPolicy.Reset(); eventThrottle.Reset(); fireTicker.Reset(); crimeTicker.Reset();
+            eventThrottle.Reset(); fireTicker.Reset(); crimeTicker.Reset();
         }
         // Фактический налоговый доход за час: зональная политика или фиксированная ставка.
         public int IncomePerHour()
@@ -153,7 +152,6 @@ namespace Citybuilder
         {
             if (Treasury == null || Treasury.Treasury == null || !Treasury.Treasury.IsInDeficit) return;
             if (!eventThrottle.Allow(EventKind.Treasury.ToString(), tick)) return;
-            if (!soundPolicy.ShouldPlayDeficit(Time.unscaledTime)) return;
             log.Add(EventKind.Treasury, EventMessageCatalog.TreasuryDeficit,
                 new object[] { Treasury.Treasury.Balance }, tick);
         }
