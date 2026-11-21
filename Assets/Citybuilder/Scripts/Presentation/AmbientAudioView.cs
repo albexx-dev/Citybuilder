@@ -35,7 +35,6 @@ namespace Citybuilder
 
         private AudioSource daySource;
         private AudioSource nightSource;
-        private SettingsView settingsView;
         private float dayTarget;
         private float nightTarget;
         private float dayCurrent;
@@ -59,15 +58,8 @@ namespace Citybuilder
         private void Update()
         {
             ResolveRefs();
-            ApplyAmbientFromProfile();
             UpdateTargets();
             SmoothVolumes();
-        }
-
-        // Слайдер «Эмбиент» (хвост #71): профиль читаем каждый кадр, как лимит машин в VehicleAgentHost.
-        private void ApplyAmbientFromProfile()
-        {
-            if (settingsView != null) SettingsAppliers.ApplyAmbient(settingsView.Settings, this);
         }
 
         // Активность города: доля населения от референса, clamp 0..1 (бриф #71).
@@ -130,7 +122,6 @@ namespace Citybuilder
         {
             if (DayNight == null) DayNight = FindFirstObjectByType<DayNightController>();
             if (Population == null) Population = FindFirstObjectByType<PopulationController>();
-            if (settingsView == null) settingsView = FindFirstObjectByType<SettingsView>();
         }
     }
 }

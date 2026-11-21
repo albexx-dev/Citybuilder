@@ -19,6 +19,7 @@ namespace Citybuilder
         [Tooltip("Декор сцены: вкл/выкл применяется сразу. Пусто = ищется в сцене.")] public DecorManager Decor;
         [Tooltip("Меню режимов: гасит кнопку и режим «Декор». Пусто = ищется в сцене.")] public BuildModeMenu Menu;
         [Tooltip("Автосейв: интервал в игровых часах. Пусто = ищется в сцене.")] public AutosaveController Autosave;
+        [Tooltip("Эмбиент: громкость применяется сразу. Пусто = ищется в сцене.")] public AmbientAudioView Ambient;
 
         private readonly GameSettings settings = new GameSettings();
         private bool isOpen;
@@ -141,6 +142,7 @@ namespace Citybuilder
             lastDayNightEnabled = settings.DayNightEnabled;
             SettingsAppliers.ApplyDecor(settings, Decor, Menu);
             SettingsAppliers.ApplyAutosave(settings, Autosave);
+            SettingsAppliers.ApplyAmbient(settings, Ambient);
         }
 
         // Готовая точка AudioController: SetVolume/SetMuted сами ведут свои ключи PlayerPrefs.
@@ -168,6 +170,7 @@ namespace Citybuilder
             if (Decor == null) Decor = FindFirstObjectByType<DecorManager>();
             if (Menu == null) Menu = FindFirstObjectByType<BuildModeMenu>();
             if (Autosave == null) Autosave = FindFirstObjectByType<AutosaveController>();
+            if (Ambient == null) Ambient = FindFirstObjectByType<AmbientAudioView>();
         }
     }
 }
