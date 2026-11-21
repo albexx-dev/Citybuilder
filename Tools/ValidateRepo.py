@@ -134,8 +134,8 @@ if "com.unity.multiplayer.center" in manifest.get("dependencies", {}):
     fail("Packages/manifest.json still contains unused com.unity.multiplayer.center")
 
 project_settings = read_text(ROOT / "ProjectSettings/ProjectSettings.asset")
-if not re.search(r"^  bundleVersion:\s*1\.1\s*$", project_settings, re.M):
-    fail("ProjectSettings/ProjectSettings.asset: bundleVersion must be 1.1")
+if not re.search(r"^  bundleVersion:\s*1\.2\s*$", project_settings, re.M):
+    fail("ProjectSettings/ProjectSettings.asset: bundleVersion must be 1.2")
 
 secret_pattern = re.compile(
     r"(?i)(api[_-]?key|secret|password|token|bearer)\s*[:=]\s*['\"][^'\"]{8,}['\"]"

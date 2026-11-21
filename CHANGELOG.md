@@ -12,7 +12,40 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 - Documentation no longer points at the removed `TASKS/` folder; the static validator now rejects its re-creation.
 
+## [v1.2.0] - 2026-11-21
+
+Complete release of the **v1.2 «Живой город»** product milestone (Epics #43–#48, #50–#53, #58–#68, #71, #72 + owner specs).
+
+### Added
+
+- **Deterministic fires (EPIC-43, ADR-009):** uncovered homes can ignite via FNV-1a hash(tick, EntityId); fire stations extinguish in one tick, uncovered homes burn down after 6 ticks (cells freed, residents evicted); flame overlay; «Пожарные 0%» warning long before the first fire.
+- **Crime & police (EPIC-47):** homes below police coverage can be robbed (salt-separated hash), treasury fine and temporary leisure penalty per theft, crime line in the info menu.
+- **Quest milestones (EPIC-48, ADR-012):** 10 starter quests + endless milestone generator (residents +50, balance doubling, full service), 3 active quests with domain-computed progress lines, rewards to treasury, «Задачи» panel.
+- **Garbage trucks (EPIC-52):** homes accumulate waste (deterministic FNV-1a gains, salt 0x5A), depot dispatches a 2-truck fleet on depot → homes → depot routes (≤4 homes per run), pickup events in the log, «Вывоз мусора» HUD line; Kenney truck models in the scene.
+- **Day/night cycle (EPIC-58):** sun/moon/ambient from HourOfDay with 6 key points (0/6/9/12/18/22).
+- **House levels (EPIC-59):** levels 1–3 with comfort hysteresis, saved in snapshot v5.
+- **Construction sites for all buildings (EPIC-61):** universal scaffolding sites with per-type durations.
+- **Minimap (EPIC-67):** schematic 140px minimap (zones/roads/buildings, Kenney color parity), 0.5s repaint throttle, click-to-focus camera teleport.
+- **Info-menu graphs (EPIC-68):** population/treasury/needs/power graphs for the last 8 game days (GraphMath decimation with safe axes).
+- **Settings window (EPIC-69):** volume/mute, day-night toggle, agent limit, autosave interval, decor toggle, defaults — persisted via GameSettings profile (PlayerPrefs), applied live to AudioController and DayNightController.
+- **Ambient day/night audio (EPIC-71):** procedural 24s seamless loops (birds by day, crickets at night), crossfade by HourOfDay scaled by city activity.
+- **RU/EN localization (EPIC-72):** Localization registry (19 keys), RU/EN toggle button in the HUD, persisted choice.
+- **UI icons & tooltips (EPIC-66):** 16 CC0 Kenney icons on all bottom-bar buttons and zone brushes, hover tooltips, StreamingAssets delivery (works in editor and windows64 build).
+
+### Changed
+
+- **Balance pass v1.2 (EPIC-53):** real upkeep for industry and services (Factory 7, Shop 5, Hospital 12, Fire/Police 6, Park 3), stations hire 3; zonal tax ladder 2/4/6 → **1/2/4** (default Normal 2/2/2). Equilibrium: Normal +164$/h, High +564$/h, Low −36$/h — first service reachable, full coverage is a budget decision.
+- **Save v5 (EPIC-64):** building levels and three per-zone tax rates survive save/load with validation.
+- **Transport polish (EPIC-44/45/46):** vehicle agents with morning/evening spawn windows, congestion load recoloring, pedestrian crowd.
+- **Zonal taxes & service upgrades (EPIC-49/51):** three-zone ladders with per-zone jobs distribution; service stations upgrade levels (base+level radius).
+
+### Fixed
+
+- Quest rewards fire after state mutations (subscriber Reset-safety), panel hotkey exclusivity for Tab/L across all right-side windows, InfoMenu cachedLines sizing.
+- Color assertions tolerate RGBA32 quantization; IMGUI-free test seams (MinimapView.ProcessClick/Hide, MetricsGraphView.Advance/GraphWidth, clockOverride) — no GUI calls outside OnGUI in tests.
+
 ## [v1.1.0] - 2026-11-09
+
 
 Complete release of the **v1.1** product milestone (Epics #1–#6, #8–#21).
 
