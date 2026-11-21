@@ -29,7 +29,7 @@ MonoBehaviour:
   WaterOutput: 0
   WasteOutput: 3
   WasteCapacity: 0
-  UpkeepPerHour: 2
+  UpkeepPerHour: 7
   VariantCount: 1
   Prefab: {fileID: 8612412200041099302, guid: a18829284c22f6648b70cdae5f827e65, type: 3}
   Category: 2

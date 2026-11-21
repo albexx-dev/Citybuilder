@@ -293,6 +293,58 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &751421545
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 751421547}
+  - component: {fileID: 751421546}
+  m_Layer: 0
+  m_Name: GarbageTrucks
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &751421546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 751421545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72d03e585eae440b8ed18ae9afd69661, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.GarbageTruckView
+  Economy: {fileID: 594737064}
+  Visualizer: {fileID: 985593152}
+  TruckModels:
+  - {fileID: 919132149155446097, guid: fac1405327d21a4499d7bf674c077c92, type: 3}
+  - {fileID: 919132149155446097, guid: 747ee18022037544bb7d598d2fdb9d26, type: 3}
+  ModelYawOffset: 180
+  ModelScale: 0.06
+  RideHeight: 0.05
+--- !u!4 &751421547
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 751421545}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &985593151
 GameObject:
   m_ObjectHideFlags: 0
@@ -965,6 +1017,7 @@ MonoBehaviour:
   Progression: {fileID: 0}
   Population: {fileID: 0}
   Economy: {fileID: 0}
+  Garbage: {fileID: 0}
 --- !u!114 &985593188
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1679,3 +1732,4 @@ SceneRoots:
   - {fileID: 594737065}
   - {fileID: 1821543314}
   - {fileID: 1432023087}
+  - {fileID: 751421547}

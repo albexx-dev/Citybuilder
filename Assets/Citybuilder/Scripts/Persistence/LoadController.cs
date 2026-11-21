@@ -95,6 +95,8 @@ namespace Citybuilder
             if (metricsRecorder != null) metricsRecorder.Clear();
             QuestLogView questLog = FindFirstObjectByType<QuestLogView>();
             if (questLog != null) questLog.ResetQuests();
+            GarbageTruckView garbage = FindFirstObjectByType<GarbageTruckView>();
+            if (garbage != null) garbage.ResetGarbage();
         }
 
         private List<BuildingState> ApplyCity(CitySnapshot snapshot)

@@ -10,6 +10,7 @@ namespace Citybuilder
         Fire = 4,
         Info = 5,
         Blackout = 6,
-        Crime = 7
+        Crime = 7,
+        Garbage = 8
     }
 }
