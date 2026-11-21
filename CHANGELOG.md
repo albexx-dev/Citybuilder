@@ -4,6 +4,10 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Added
+
+- **ADR-014 (issue #93):** save v6 decision — optional garbage queues, theft counter, comfort streak and construction progress with v5 fallback, `SaveSlotStorage` validation, v1–v5 compatibility. Fires and vehicle agents stay non-serialized (ADR-009/ADR-011) and out of scope.
+
 ### Removed
 
 - `TASKS/` (22 v1.1 epic-plan files): the plans remain in git history. Task tracking now lives in GitHub Issues and the pull request workflow; see `ONBOARDING.md` and `CONTRIBUTING.md`.
