@@ -28,7 +28,6 @@ namespace Citybuilder
             Assert.IsFalse(speed.Overlaps(mode));
             Assert.IsFalse(mode.Overlaps(menu));
         }
-
         [Test]
         public void ModeGroupRect_FitsSixModeButtons_AtMinimumWidth()
         {
@@ -37,7 +36,6 @@ namespace Citybuilder
             Assert.LessOrEqual(mode.xMax, 1024f - HudLayout.BarPadding);
             Assert.LessOrEqual(mode.xMax, SettingsLayout.MenuButtonsRect(1024f, 600f).x);
         }
-
         [TestCase(1024f, 600f)]
         [TestCase(1920f, 1080f)]
         public void PalettePopup_StaysAboveBottomBar(float width, float height)
@@ -83,6 +81,16 @@ namespace Citybuilder
             Assert.IsFalse(panel.Overlaps(bar));
             Assert.IsFalse(panel.Overlaps(popup));
             if (panel.height > 0f) Assert.LessOrEqual(panel.yMax, popup.y);
+        }
+        [TestCase(800f, 600f)]
+        [TestCase(640f, 480f)]
+        public void SmallWindow_InfoPanelFitsSevenLinesAboveBar(float width, float height)
+        {
+            Rect bar = HudLayout.BottomBarRect(width, height);
+            Rect panel = HudLayout.InfoPanelRect(width, height);
+            Assert.GreaterOrEqual(panel.height, 8f + 6f * 24f + 20f);
+            Assert.LessOrEqual(panel.yMax, bar.y - HudLayout.SubRowOffset);
+            Assert.LessOrEqual(panel.xMax, width);
         }
 
         [TestCase(600f)]

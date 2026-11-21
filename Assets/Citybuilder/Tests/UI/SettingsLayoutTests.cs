@@ -77,5 +77,61 @@ namespace Citybuilder
             Assert.AreEqual(SettingsLayout.MenuButtonCount * HudLayout.MenuButtonWidth
                 + (SettingsLayout.MenuButtonCount - 1) * HudLayout.ButtonGap, row.width, 0.01f);
         }
+
+        [TestCase(800f, 600f)]
+        [TestCase(640f, 480f)]
+        [TestCase(400f, 320f)]
+        public void PanelRect_SmallWindow_StaysInsideScreen(float width, float height)
+        {
+            Rect panel = SettingsLayout.PanelRect(width, height);
+            Assert.GreaterOrEqual(panel.x, 0f);
+            Assert.GreaterOrEqual(panel.y, 0f);
+            Assert.LessOrEqual(panel.xMax, width);
+            Assert.LessOrEqual(panel.yMax, height);
+        }
+
+        [TestCase(800f, 600f)]
+        [TestCase(640f, 480f)]
+        public void NarrowMenu_AllFourButtons_VisibleInsideScreen(float width, float height)
+        {
+            Assert.IsTrue(SettingsLayout.IsNarrow(width));
+            for (int i = 0; i < SettingsLayout.MenuButtonCount; i++)
+            {
+                Rect button = SettingsLayout.MenuButtonRect(width, height, i);
+                Assert.Greater(button.width, 0f);
+                Assert.GreaterOrEqual(button.x, 0f);
+                Assert.LessOrEqual(button.xMax, width + 0.01f);
+                Assert.LessOrEqual(button.yMax, HudLayout.BottomBarRect(width, height).y);
+            }
+        }
+
+        [TestCase(800f, 600f)]
+        [TestCase(640f, 480f)]
+        public void NarrowMenuRows_ClearBottomBarAndSubRow(float width, float height)
+        {
+            Rect bar = HudLayout.BottomBarRect(width, height);
+            Rect subRow = HudLayout.PaletteRect(width, height, 1);
+            for (int row = 0; row < SettingsLayout.MenuRowCount; row++)
+            {
+                Rect menu = SettingsLayout.MenuRowRect(width, height, row);
+                Assert.LessOrEqual(menu.yMax, subRow.y);
+                Assert.LessOrEqual(menu.xMax, bar.xMax);
+                Assert.GreaterOrEqual(menu.y, 0f);
+            }
+        }
+
+        [TestCase(800f, 600f)]
+        [TestCase(640f, 480f)]
+        public void CompactTutorialBanner_StaysInsideScreen(float width, float height)
+        {
+            Rect banner = SettingsLayout.CompactBannerRect(width, height);
+            Rect button = SettingsLayout.CompactDismissRect(width, height);
+            Assert.GreaterOrEqual(banner.x, 0f);
+            Assert.Greater(banner.width, 0f);
+            Assert.LessOrEqual(banner.xMax, button.x);
+            Assert.LessOrEqual(button.xMax, width);
+            Assert.GreaterOrEqual(button.y, 0f);
+            Assert.LessOrEqual(button.yMax, height);
+        }
     }
 }

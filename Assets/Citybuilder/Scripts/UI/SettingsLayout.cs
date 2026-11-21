@@ -16,17 +16,34 @@ namespace Citybuilder
         public const int AutosaveStep = 5;
         // Ряд кнопок меню нижней панели: «Статистика/Лента/Задачи/Настройки» (4-я — EPIC-69).
         public const int MenuButtonCount = 4;
+        // Узкое окно: 4 кнопки не помещаются справа от режимов, используются два ряда слева.
+        public const float NarrowWidth = 900f;
+        public const int MenuRowCount = 2;
+        public const int NarrowColumns = 2;
 
-        // Центр экрана, как у меню сохранения (SaveMenuView.CenterRect).
+        public static bool IsNarrow(float screenWidth) { return screenWidth < NarrowWidth; }
+
+        // Центр экрана, как у меню сохранения (SaveMenuView.CenterRect), с клампом по окну.
         public static Rect PanelRect(float screenWidth, float screenHeight)
         {
-            return new Rect((screenWidth - PanelWidth) * 0.5f, (screenHeight - PanelHeight) * 0.5f, PanelWidth, PanelHeight);
+            return CenteredRect(PanelWidth, PanelHeight, screenWidth, screenHeight);
+        }
+
+        // Центрированная панель целиком внутри экрана, даже когда окно меньше панели.
+        public static Rect CenteredRect(float width, float height, float screenWidth, float screenHeight)
+        {
+            float w = Mathf.Min(width, Mathf.Max(0f, screenWidth));
+            float h = Mathf.Min(height, Mathf.Max(0f, screenHeight));
+            float x = Mathf.Clamp((screenWidth - w) * 0.5f, 0f, Mathf.Max(0f, screenWidth - w));
+            float y = Mathf.Clamp((screenHeight - h) * 0.5f, 0f, Mathf.Max(0f, screenHeight - h));
+            return new Rect(x, y, w, h);
         }
 
         // Ряд 4 кнопок меню: продолжение HudLayout.MenuButtonsRect. При узком окне ряд
         // сжимается, чтобы не наезжать на группу режимов (семантика BottomBarLayoutTests).
         public static Rect MenuButtonsRect(float screenWidth, float screenHeight)
         {
+            if (IsNarrow(screenWidth)) return MenuRowRect(screenWidth, screenHeight, MenuRowCount - 1);
             Rect mode = HudLayout.ModeGroupRect(screenWidth, screenHeight);
             float natural = MenuButtonCount * HudLayout.MenuButtonWidth + (MenuButtonCount - 1) * HudLayout.ButtonGap;
             float available = Mathf.Max(0f, screenWidth - HudLayout.BarPadding - mode.xMax - HudLayout.GroupGap);
@@ -35,11 +52,45 @@ namespace Citybuilder
             return new Rect(x, HudLayout.SpeedGroupRect(screenWidth, screenHeight).y, width, HudLayout.ButtonHeight);
         }
 
+        // Узкий fallback: два ряда по две кнопки слева над подстрокой панели.
+        public static Rect MenuRowRect(float screenWidth, float screenHeight, int row)
+        {
+            Rect bar = HudLayout.BottomBarRect(screenWidth, screenHeight);
+            float y = bar.y - HudLayout.SubRowOffset - HudLayout.ButtonGap - HudLayout.ButtonHeight;
+            y -= (MenuRowCount - 1 - row) * (HudLayout.ButtonHeight + HudLayout.ButtonGap);
+            float natural = NarrowColumns * HudLayout.MenuButtonWidth + (NarrowColumns - 1) * HudLayout.ButtonGap;
+            float width = Mathf.Min(natural, Mathf.Max(0f, screenWidth - 2f * HudLayout.BarPadding));
+            return new Rect(HudLayout.BarPadding, Mathf.Max(0f, y), width, HudLayout.ButtonHeight);
+        }
+
         // Прямоугольник кнопки в ряду: ширина ряда делится поровну между кнопками.
         public static Rect MenuButtonRect(Rect row, int index)
         {
             float buttonWidth = (row.width - (MenuButtonCount - 1) * HudLayout.ButtonGap) / MenuButtonCount;
             return new Rect(row.x + index * (buttonWidth + HudLayout.ButtonGap), row.y, buttonWidth, row.height);
+        }
+
+        // Кнопка меню по индексу: широкий ряд или две колонки узкого fallback-а.
+        public static Rect MenuButtonRect(float screenWidth, float screenHeight, int index)
+        {
+            if (!IsNarrow(screenWidth)) return MenuButtonRect(MenuButtonsRect(screenWidth, screenHeight), index);
+            Rect row = MenuRowRect(screenWidth, screenHeight, index / NarrowColumns);
+            float width = (row.width - (NarrowColumns - 1) * HudLayout.ButtonGap) / NarrowColumns;
+            return new Rect(row.x + (index % NarrowColumns) * (width + HudLayout.ButtonGap), row.y, width, row.height);
+        }
+
+        // Компактный баннер туториала: строка вверху слева, кнопка «Понятно» справа от текста.
+        public static Rect CompactBannerRect(float screenWidth, float screenHeight)
+        {
+            float dismissX = CompactDismissRect(screenWidth, screenHeight).x;
+            float width = Mathf.Max(0f, dismissX - 2f * HudLayout.BarPadding - HudLayout.ButtonGap);
+            return new Rect(HudLayout.BarPadding, HudLayout.InfoMenuTop, width, HudLayout.ButtonHeight);
+        }
+
+        public static Rect CompactDismissRect(float screenWidth, float screenHeight)
+        {
+            float x = Mathf.Max(HudLayout.BarPadding + 90f, screenWidth - 100f);
+            return new Rect(x, HudLayout.InfoMenuTop - 2f, 90f, HudLayout.ButtonHeight);
         }
 
         // Шаг степпера с клампом: за границей диапазона остаёмся на границе.
