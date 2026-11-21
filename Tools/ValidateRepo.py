@@ -29,6 +29,166 @@ def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8-sig", errors="replace")
 
 
+def cs_clean_lines(text: str) -> list[str]:
+    """C# lines with comments and literals blanked out for structural scans."""
+    result: list[str] = []
+    in_block = False
+    for raw in text.splitlines():
+        line = raw
+        if in_block:
+            end = line.find("*/")
+            if end < 0:
+                result.append("")
+                continue
+            line = line[end + 2:]
+            in_block = False
+        while "/*" in line:
+            start = line.find("/*")
+            end = line.find("*/", start + 2)
+            if end < 0:
+                line = line[:start]
+                in_block = True
+                break
+            line = line[:start] + line[end + 2:]
+        line = re.sub(r"//.*$", "", line)
+        line = re.sub(r'"(?:\\.|[^"\\])*"', '""', line)
+        line = re.sub(r"'(?:\\.|[^'\\])*'", "''", line)
+        result.append(line)
+    return result
+
+
+CS_MODIFIERS = r"(?:public|private|protected|internal|static|sealed|override|virtual|partial|extern|new|async|unsafe|abstract|readonly)\s+"
+CS_START = re.compile(
+    r"^\s*(?:\[[^\]]+\]\s*)*(?:" + CS_MODIFIERS + r")*[\w<>,\[\]\.\?]+\s+(\w+)\s*\("
+)
+CS_NOT_METHODS = {
+    "if", "for", "foreach", "while", "switch", "catch", "using", "lock",
+    "return", "new", "else", "do", "fixed", "checked", "unchecked",
+    "when", "where", "select", "get", "set", "init", "add", "remove",
+    "delegate", "operator", "base", "this",
+}
+
+
+def csharp_methods(lines: list[str]) -> list[tuple[int, int]]:
+    """Return (start line, length) for methods, signature through closing brace."""
+    found: list[tuple[int, int]] = []
+    index = 0
+    while index < len(lines):
+        match = CS_START.match(lines[index])
+        if not match or match.group(1) in CS_NOT_METHODS:
+            index += 1
+            continue
+        signature = lines[index]
+        balance = signature.count("(") - signature.count(")")
+        last = index
+        while balance > 0 and last + 1 < len(lines):
+            last += 1
+            balance += lines[last].count("(") - lines[last].count(")")
+            signature += " " + lines[last]
+        if balance != 0 or ";" in signature[signature.rfind(")") + 1:]:
+            index = last + 1
+            continue
+        opener = last
+        while opener < len(lines) and not any(
+            token in lines[opener] for token in ("{", ";", "=>")
+        ):
+            opener += 1
+        if opener >= len(lines) or ";" in lines[opener]:
+            index = opener + 1
+            continue
+        if "=>" in lines[opener]:
+            found.append((index + 1, opener + 1 - index))
+            index = opener + 1
+            continue
+        depth = 0
+        end = opener
+        while end < len(lines):
+            depth += lines[end].count("{") - lines[end].count("}")
+            if depth <= 0:
+                break
+            end += 1
+        found.append((index + 1, end + 1 - index))
+        index = end + 1
+    return found
+
+
+CS_TYPE = re.compile(r"\b(class|interface|struct|enum|record|delegate)\s+\w+")
+
+
+def top_level_types(lines: list[str]) -> list[tuple[int, str]]:
+    """Type declarations directly in the namespace (or file scope)."""
+    found: list[tuple[int, str]] = []
+    depth = 0
+    for number, line in enumerate(lines, 1):
+        if depth <= 1:
+            match = CS_TYPE.search(line)
+            if match:
+                found.append((number, match.group(1)))
+        depth += line.count("{") - line.count("}")
+    return found
+
+
+LINQ_CALLS = (
+    "Select", "SelectMany", "Where", "OrderBy", "OrderByDescending",
+    "ThenBy", "GroupBy", "Any", "All", "First", "FirstOrDefault",
+    "Last", "LastOrDefault", "Single", "SingleOrDefault", "Sum",
+    "Average", "Min", "Max", "Distinct", "Aggregate", "ToList",
+    "ToArray", "Count", "LongCount", "Skip", "Take", "Join", "OfType",
+)
+LINQ_CALL = re.compile(r"\.(" + "|".join(LINQ_CALLS) + r")\s*\(")
+FORBIDDEN_CS = {
+    "regex": re.compile(r"\bRegex\b|System\.Text\.RegularExpressions"),
+    "async/await": re.compile(r"\basync\b|\bawait\b|\bTask\s*<|Task\.Run"),
+    "reflection": re.compile(r"\bBindingFlags\b|\bMethodInfo\b|\bActivator\b|\bAssembly\b|GetType\(\)"),
+    "DI container": re.compile(r"\bIServiceCollection\b|\bServiceCollection\b|\bDependencyInjection\b|\bInject\b"),
+}
+
+
+def linq_chain_lengths(text: str) -> list[int]:
+    """Lengths of adjacent LINQ call chains; needs `using System.Linq` (gated by caller)."""
+    spans: list[tuple[int, int]] = []
+    for match in LINQ_CALL.finditer(text):
+        depth = 1
+        pos = match.end()
+        while pos < len(text) and depth:
+            if text[pos] == "(":
+                depth += 1
+            elif text[pos] == ")":
+                depth -= 1
+            pos += 1
+        spans.append((match.start(), pos))
+    chains: list[list[tuple[int, int]]] = []
+    for span in spans:
+        if chains and not text[chains[-1][-1][1]:span[0]].strip():
+            chains[-1].append(span)
+        else:
+            chains.append([span])
+    return [len(chain) for chain in chains]
+
+
+def check_csharp_source(rel: str, text: str) -> None:
+    clean = cs_clean_lines(text)
+    for line, length in csharp_methods(clean):
+        if length > 30:
+            warn(f"{rel}:{line}: method exceeds 30 lines ({length})")
+    types = top_level_types(clean)
+    if len(types) > 1:
+        classes = [item for item in types if item[1] in ("class", "interface", "record")]
+        if len(classes) > 1:
+            fail(f"{rel}: {len(types)} top-level types — one file must hold one class")
+        else:
+            warn(f"{rel}: {len(types)} top-level types — AGENTS.md prefers one class per file")
+    if "using System.Linq;" in text or "System.Linq.Enumerable." in text:
+        for size in linq_chain_lengths(text):
+            if size > 2:
+                fail(f"{rel}: LINQ chain of {size} calls exceeds 2 (AGENTS.md:77)")
+    if rel.startswith("Assets/Citybuilder/Scripts/"):
+        for label, pattern in FORBIDDEN_CS.items():
+            match = pattern.search(text)
+            if match:
+                fail(f"{rel}: forbidden {label} API ({match.group(0)})")
+
+
 def tracked_files() -> list[Path]:
     try:
         output = subprocess.check_output(
@@ -75,6 +235,7 @@ for path in files:
         warn(f"{rel}: {line_count} lines exceeds soft C# limit 150")
     if rel.startswith("Assets/Citybuilder/Scripts/") and "namespace Citybuilder" not in text:
         fail(f"{rel}: missing namespace Citybuilder")
+    check_csharp_source(rel, text)
 
 guids: dict[str, str] = {}
 for path in files:
@@ -134,13 +295,28 @@ if "com.unity.multiplayer.center" in manifest.get("dependencies", {}):
     fail("Packages/manifest.json still contains unused com.unity.multiplayer.center")
 
 project_settings = read_text(ROOT / "ProjectSettings/ProjectSettings.asset")
-if not re.search(r"^  bundleVersion:\s*1\.2\s*$", project_settings, re.M):
-    fail("ProjectSettings/ProjectSettings.asset: bundleVersion must be 1.2")
+bundle = re.search(r"^  bundleVersion:\s*(\d+\.\d+(?:\.\d+)?)\s*$", project_settings, re.M)
+if not bundle:
+    fail("ProjectSettings/ProjectSettings.asset: missing bundleVersion")
+else:
+    version = bundle.group(1)
+    readme_release = re.search(
+        r"Current release:\s*\*\*v?(\d+\.\d+(?:\.\d+)?)\*\*", read_text(ROOT / "README.md")
+    )
+    latest_release = re.search(
+        r"^## \[v?(\d+\.\d+(?:\.\d+)?)\]", read_text(ROOT / "CHANGELOG.md"), re.M
+    )
+    if not readme_release or not latest_release:
+        fail("version mismatch: README.md / CHANGELOG.md release not found")
+    elif readme_release.group(1) != latest_release.group(1):
+        fail(f"version drift: README {readme_release.group(1)} vs CHANGELOG {latest_release.group(1)}")
+    elif latest_release.group(1) != version and not latest_release.group(1).startswith(version + "."):
+        fail(f"bundleVersion {version} does not match release {latest_release.group(1)}")
 
 secret_pattern = re.compile(
     r"(?i)(api[_-]?key|secret|password|token|bearer)\s*[:=]\s*['\"][^'\"]{8,}['\"]"
 )
-scanned_suffixes = {".cs", ".json", ".yml", ".yaml", ".md", ".ps1", ".bat", ".asset", ".unity", ".txt"}
+scanned_suffixes = {".cs", ".json", ".yml", ".yaml", ".md", ".ps1", ".bat", ".asset", ".unity", ".txt", ".py"}
 for path in files:
     rel = path.relative_to(ROOT).as_posix()
     if path.suffix not in scanned_suffixes:
