@@ -95,10 +95,35 @@ Core
 
 Ориентир V1 / v1.1: сетка 50x50 = 2500 клеток только логика, без 2500 GameObject. Визуал сетки и оверлея радиуса — процедурные меши (`GridMeshBuilder`). Перекраска пробок выполняется строго 1 раз за тик часов, а кеш строк `InfoMenuView` и `EventLogView` обновляется не чаще 2 раз в секунду.
 
-## 15. Current implementation scope (v1.1.0)
+## 15. Current implementation scope (v1.2.x)
 
-Все эпики фаз 1–6 версии **v1.1.0** (`EPIC-01`..`EPIC-06`, `EPIC-08`..`EPIC-21`) полностью реализованы, покрыты тестами и смержены в `main`. Доктрина бесконечной партии (`GAME_DESIGN.md §19`) соблюдена: `GoalSystem.Won/Lost` полностью удалены из кодовой базы (EPIC-08).
+v1.1 systems (see v1.1.0 scope history in git) plus the v1.2 «Living city» milestone:
 
-## 16. Future decisions (v1.2+)
+### Simulation (deterministic domain, plain C#)
 
-Пожары как активное событие (`EPIC-07`, требует ADR-009), визуальный трафик машин на дорогах, расширение 3D-моделей на остальные типы зданий — в очереди версии v1.2.
+- **Fires (EPIC-43, ADR-009):** `FireSystem` ignites uncovered homes via FNV-1a hash(tick, EntityId); stations extinguish in one tick, uncovered homes burn down after 6 ticks (cells freed, residents evicted). State is not serialized.
+- **Crime (EPIC-47):** `CrimeSystem` thefts below police coverage (salt-separated hash), treasury fine + temporary leisure penalty.
+- **Vehicle agents (ADR-011, EPIC-44/45):** `AgentManager` spawns one vehicle **per newly built road cell** (owner decision — no time windows), routes through `RouteSystem` over player roads, congestion slows agents and recolors roads.
+- **Pedestrians (EPIC-46):** `PedestrianAgentManager` crowd (1:5 residents).
+- **Garbage trucks (EPIC-52):** `GarbageSystem` waste accumulation (salt 0x5A), 2-truck fleet dispatched from depot over roads via `RouteSystem` with nearest-road leg mapping.
+- **Quests (EPIC-48, ADR-012):** `QuestSystem`/`QuestCatalog`/`QuestTicker` — 10 starter quests + endless milestone generator, 3 active, treasury rewards; chain persists in snapshot v5 (active/completed ids).
+
+### Presentation
+
+- **Day/night (EPIC-58)** by HourOfDay; **house levels (EPIC-59)** 1–3 with comfort hysteresis; **construction sites (EPIC-61)** for all building types; **Kenney models** for vehicles/buildings/decor; **minimap (EPIC-67)** with click-to-focus; **info-menu graphs (EPIC-68)** for the last 8 game days.
+- **Ambient audio (EPIC-71):** procedural day/night loops crossfaded by HourOfDay, scaled by city activity; **event sounds** (fire/crime) via log polling (`AudioEventView`).
+- **UI icons & tooltips (EPIC-66):** CC0 Kenney icons on all buttons, 0.4s hover delay; **RU/EN localization (EPIC-72)** registry for HUD/menus (domain event log stays RU).
+- **Settings window (EPIC-69):** volume, ambient volume, day/night, agent limit, autosave interval, decor toggle — applied live to systems, persisted in `GameSettings` profile.
+
+### Persistence
+
+- **Save v5 (EPIC-64):** building levels, per-zone tax rates, quest chain ids; validation on load.
+
+### Balance (EPIC-53)
+
+- Real upkeep for industry/services, zonal tax ladder **1/2/4** (default Normal), verified by `EconomyBalanceV12Tests` scenarios.
+
+
+## 16. Future decisions (v1.3+)
+
+Event-log localization (domain strings), catalog display names from assets, garbage depot variants, per-building ambient occlusion — candidates for the next milestone.
