@@ -19,6 +19,7 @@ namespace Citybuilder
         private readonly GameSettings settings = new GameSettings();
         private bool isOpen;
         private bool lastDayNightEnabled = true;
+        private bool subscribed;
         private SimulationSpeed speedBeforeOpen = SimulationSpeed.Playing;
 
         public bool IsOpen { get { return isOpen; } }
@@ -26,17 +27,23 @@ namespace Citybuilder
         // Шов для слушателей шага 3 эпика: тот же профиль, что редактирует окно.
         public GameSettings Settings { get { return settings; } }
 
-        private void OnEnable()
-        {
-            ResolveRefs();
-            GameSettingsStore.Load(settings);
-            settings.Changed += OnSettingsChanged;
-            ApplyToListeners(); // профиль из прошлой сессии применяем до первого открытия
-        }
+        private void OnEnable() { Init(); }
 
         private void OnDisable()
         {
-            if (settings != null) settings.Changed -= OnSettingsChanged;
+            if (subscribed && settings != null) settings.Changed -= OnSettingsChanged;
+            subscribed = false;
+        }
+
+        // Публичная инициализация: в EditMode-тестах AddComponent не вызывает OnEnable
+        // (внутри теста нет тика редактора), поэтому тесты зовут Init() вручную.
+        public void Init()
+        {
+            ResolveRefs();
+            GameSettingsStore.Load(settings);
+            if (!subscribed) settings.Changed += OnSettingsChanged;
+            subscribed = true;
+            ApplyToListeners(); // профиль из прошлой сессии применяем до первого открытия
         }
 
         private void Update()

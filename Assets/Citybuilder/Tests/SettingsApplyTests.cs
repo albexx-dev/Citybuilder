@@ -70,6 +70,7 @@ namespace Citybuilder
             try
             {
                 SettingsView view = go.AddComponent<SettingsView>();
+                view.Init(); // в EditMode AddComponent не вызывает OnEnable
                 AudioController audio = go.AddComponent<AudioController>();
                 view.Audio = audio;
 
@@ -95,6 +96,7 @@ namespace Citybuilder
                 SimulationRunner runner = go.AddComponent<SimulationRunner>();
                 PauseMenuView pause = go.AddComponent<PauseMenuView>();
                 SettingsView view = go.AddComponent<SettingsView>();
+                view.Init(); // в EditMode AddComponent не вызывает OnEnable
                 view.Runner = runner; view.Pause = pause;
                 runner.SetSpeed(SimulationSpeed.Playing);
 
@@ -118,6 +120,7 @@ namespace Citybuilder
                 EventLogView log = go.AddComponent<EventLogView>();
                 QuestLogView quests = go.AddComponent<QuestLogView>();
                 SettingsView view = go.AddComponent<SettingsView>();
+                view.Init(); // в EditMode AddComponent не вызывает OnEnable
                 SimulationRunner runner = go.AddComponent<SimulationRunner>();
                 view.Runner = runner;
                 runner.SetSpeed(SimulationSpeed.Playing);
