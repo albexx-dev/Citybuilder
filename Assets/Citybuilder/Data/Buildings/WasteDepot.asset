@@ -34,3 +34,4 @@ MonoBehaviour:
   VariantCount: 1
   Prefab: {fileID: 8633018356087800775, guid: c3a4a507400e64148bc24889850e268c, type: 3}
   Category: 3
+  IsWasteDepot: 1

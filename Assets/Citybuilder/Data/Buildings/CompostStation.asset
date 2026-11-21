@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6806e511684bf264e962078ccaf5f775, type: 3}
+  m_Name: CompostStation
+  m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.BuildingDefinition
+  Id: compost_station
+  DisplayName: Compost Station
+  DisplayNameKey: building_compost_station
+  Footprint: {x: 2, y: 2}
+  ConstructionCost: 260
+  ConstructionTicks: 5
+  UnlockBuildings: 0
+  AllowedZone: 3
+  ResidentCapacity: 0
+  JobsProvided: 4
+  ServiceKind: 0
+  ServiceRadius: 0
+  PowerDemand: 0
+  PowerOutput: 0
+  WaterDemand: 0
+  WaterOutput: 0
+  WasteOutput: 0
+  WasteCapacity: 20
+  UpkeepPerHour: 4
+  VariantCount: 1
+  Prefab: {fileID: 9100200344555667, guid: 7b1a2c3d4e5f40618293a4b5c6d7e8f9, type: 3}
+  Category: 3
+  IsWasteDepot: 1

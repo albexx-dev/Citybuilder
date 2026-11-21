@@ -42,6 +42,32 @@ namespace Citybuilder
             for (int i = 0; i < MaxTrucks; i++) trucks[i] = default(Truck);
         }
 
+        // Кандидат депо без Unity-зависимостей: позиция и ёмкость из BuildingDefinition.
+        public struct DepotCandidate
+        {
+            public GridPosition Origin;
+            public int Capacity;
+
+            public DepotCandidate(GridPosition origin, int capacity)
+            {
+                Origin = origin;
+                Capacity = capacity;
+            }
+        }
+
+        // Выбор депо (issue #90): 0 → null, 1 → оно, ≥2 → самое ёмкое;
+        // равная ёмкость → первое в списке (детерминизм, без System.Random).
+        public static GridPosition? SelectDepot(List<DepotCandidate> depots)
+        {
+            if (depots == null || depots.Count == 0) return null;
+            int best = 0;
+            for (int i = 1; i < depots.Count; i++)
+            {
+                if (depots[i].Capacity > depots[best].Capacity) best = i;
+            }
+            return depots[best].Origin;
+        }
+
         // Выезд: если полигон есть и очередь не пуста, свободный слот берёт первый рейс.
         public void Dispatch(GridPosition? depot, List<GarbageSystem.Pickup> ready,
             Func<GridPosition, GridPosition, List<GridPosition>> pathFinder)

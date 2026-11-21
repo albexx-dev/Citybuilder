@@ -7,8 +7,9 @@ namespace Citybuilder
     // Вид мусоровозов (EPIC-52): владеет GarbageTicker (как QuestLogView владеет
     // QuestTicker, ADR-012) и пулом моделей GarbageTruckPool. На TickCompleted подаёт
     // дома, полигон, ленту и делегат дорог RouteSystem.FindPath, в Update двигает и
-    // рисует мусоровозы. Полигон — ручная постройка waste_depot; нет полигона —
-    // мусоровозы не выезжают, мусор копится.
+    // рисует мусоровозы. Полигон — ручная постройка с признаком депо (issue #90);
+    // нет полигона — мусоровозы не выезжают, мусор копится. Из нескольких депо
+    // GarbageTrucks.SelectDepot выбирает самое ёмкое.
     public class GarbageTruckView : MonoBehaviour
     {
         [Header("References")]
@@ -91,7 +92,7 @@ namespace Citybuilder
             subscribed = true;
         }
 
-        // Граница игрового часа: дома, полигон waste_depot, лента и делегат дорог — в тикер.
+        // Граница игрового часа: дома, выбранное депо, лента и делегат дорог — в тикер.
         private void OnClockTick(SimulationTime time)
         {
             if (Economy == null || Economy.Growth == null) return;
@@ -133,18 +134,20 @@ namespace Citybuilder
             return best < int.MaxValue;
         }
 
-        // Полигон = первая ручная постройка waste_depot. Нет постройки — null (вывоза нет).
+        // Депо = ручная постройка с IsWasteDepot. Нет депо — null (вывоза нет);
+        // несколько — GarbageTrucks.SelectDepot берёт самое ёмкое (issue #90).
         private GridPosition? FindDepot()
         {
             if (Economy == null || Economy.Placement == null || Economy.Placement.Placed == null) return null;
-            System.Collections.Generic.List<BuildingState> placed = Economy.Placement.Placed;
+            List<BuildingState> placed = Economy.Placement.Placed;
+            List<GarbageTrucks.DepotCandidate> candidates = new List<GarbageTrucks.DepotCandidate>(placed.Count);
             for (int i = 0; i < placed.Count; i++)
             {
                 BuildingState depot = placed[i];
-                if (depot == null || depot.Definition == null || depot.Definition.Id != "waste_depot") continue;
-                return depot.Origin;
+                if (depot == null || depot.Definition == null || !depot.Definition.IsWasteDepot) continue;
+                candidates.Add(new GarbageTrucks.DepotCandidate(depot.Origin, depot.Definition.WasteCapacity));
             }
-            return null;
+            return GarbageTrucks.SelectDepot(candidates);
         }
     }
 }
