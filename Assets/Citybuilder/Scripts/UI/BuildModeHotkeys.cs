@@ -53,23 +53,27 @@ namespace Citybuilder
 
         private void Update()
         {
-            if (GUIUtility.keyboardControl != 0) return;
             BuildModeMenu menu = ResolveMenu();
             if (menu == null) return;
             ResolveModalRefs();
-            if ((SaveMenu != null && SaveMenu.IsOpen) || (LoadMenu != null && LoadMenu.IsOpen) || (Settings != null && Settings.IsOpen)) return;
             bool mainOpen = Main != null && Main.IsOpen;
             bool pauseOpen = Pause != null && Pause.IsOpen;
+            bool slotModalOpen = (SaveMenu != null && SaveMenu.IsOpen)
+                || (LoadMenu != null && LoadMenu.IsOpen)
+                || (Settings != null && Settings.IsOpen);
 
             if (Input.GetKeyDown(KeyCode.Escape))
             {
+                // Esc работает при открытых паузе/главном меню, но глотается слотами и вводом текста.
+                if (slotModalOpen || GUIUtility.keyboardControl != 0) return;
                 EscAction act = EvaluateEsc(mainOpen, pauseOpen, menu.CurrentMode);
                 if (act == EscAction.ClosePause && Pause != null) Pause.Close();
                 else if (act == EscAction.TurnOffMode) menu.SetMode(BuildModeMenu.Mode.Off);
                 else if (act == EscAction.OpenPause && Pause != null) Pause.Open();
                 return;
             }
-            if (mainOpen || pauseOpen) return;
+            // Единый гард хоткеев 1-5 (issue #42): формула только в CanProcessHotkeys.
+            if (!CanProcessHotkeys(mainOpen || pauseOpen || slotModalOpen, GUIUtility.keyboardControl)) return;
             if (Input.GetKeyDown(KeyCode.Alpha1)) SelectMode(menu, BuildModeMenu.Mode.Houses);
             else if (Input.GetKeyDown(KeyCode.Alpha2)) SelectMode(menu, BuildModeMenu.Mode.Roads);
             else if (Input.GetKeyDown(KeyCode.Alpha3)) SelectMode(menu, BuildModeMenu.Mode.Zones);
