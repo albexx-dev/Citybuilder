@@ -18,7 +18,7 @@ namespace Citybuilder
             Rect bar = HudLayout.BottomBarRect(width, height);
             Rect speed = HudLayout.SpeedGroupRect(width, height);
             Rect mode = HudLayout.ModeGroupRect(width, height);
-            Rect menu = HudLayout.MenuButtonsRect(width, height);
+            Rect menu = SettingsLayout.MenuButtonsRect(width, height);
 
             Assert.AreEqual(width, bar.width, 0.01f);
             Assert.AreEqual(height - HudLayout.BarHeight, bar.y, 0.01f);
@@ -35,7 +35,7 @@ namespace Citybuilder
             Rect mode = HudLayout.ModeGroupRect(1024f, 600f);
             Assert.AreEqual(6f * HudLayout.ModeButtonWidth + 5f * HudLayout.ButtonGap, mode.width, 0.01f);
             Assert.LessOrEqual(mode.xMax, 1024f - HudLayout.BarPadding);
-            Assert.LessOrEqual(mode.xMax, HudLayout.MenuButtonsRect(1024f, 600f).x);
+            Assert.LessOrEqual(mode.xMax, SettingsLayout.MenuButtonsRect(1024f, 600f).x);
         }
 
         [TestCase(1024f, 600f)]

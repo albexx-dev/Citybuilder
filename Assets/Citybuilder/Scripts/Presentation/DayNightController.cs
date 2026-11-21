@@ -103,6 +103,13 @@ namespace Citybuilder
             Apply(time.HourOfDay);
         }
 
+        // Настройки (EPIC-69) меняют DayNightEnabled на паузе: переприменяем фазу сразу, не дожидаясь тика.
+        public void Reapply()
+        {
+            if (Runner == null || Runner.Clock == null) return;
+            Apply(ClockHour());
+        }
+
         // Единственная точка применения: Policy отдаёт параметры, здесь только Unity.
         private void Apply(int hour)
         {

@@ -78,6 +78,7 @@ namespace Citybuilder
             InfoMenuView menu = FindFirstObjectByType<InfoMenuView>();
             QuestLogView quests = FindFirstObjectByType<QuestLogView>();
             if (menu != null) menu.SetOpen(false);
+            SettingsView.CloseIfOpen();
             if (quests != null) quests.SetOpen(false);
         }
 

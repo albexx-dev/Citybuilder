@@ -14,6 +14,7 @@ namespace Citybuilder
         [Tooltip("Информационное меню статистики (EPIC-14). Пусто = ищется на этом же объекте.")] public InfoMenuView InfoMenu;
         [Tooltip("Событийная лента города (EPIC-09). Пусто = ищется на этом же объекте.")] public EventLogView EventLog;
         [Tooltip("Панель задач-вех (EPIC-48). Пусто = ищется на этом же объекте.")] public QuestLogView QuestLog;
+        [Tooltip("Окно настроек (EPIC-69). Пусто = ищется в сцене.")] public SettingsView Settings;
 
         // Доступность зарезервированных кнопок меню (включатся в EPIC-14 и EPIC-09).
         public bool StatsEnabled;
@@ -29,7 +30,7 @@ namespace Citybuilder
             BottomBarStyle.DrawBarBackground(bar);
             DrawSpeedGroup(HudLayout.SpeedGroupRect(sw, sh));
             DrawModeGroup(HudLayout.ModeGroupRect(sw, sh));
-            DrawMenuGroup(HudLayout.MenuButtonsRect(sw, sh));
+            DrawMenuGroup(SettingsLayout.MenuButtonsRect(sw, sh));
             BuildCatalogView.ResetGuards();
             DrawSubRow(sw, sh);
             MinimapView.Draw(InfoMenu != null && InfoMenu.IsOpen, EventLog != null && EventLog.IsOpen);
@@ -42,6 +43,7 @@ namespace Citybuilder
             if (InfoMenu == null) InfoMenu = GetComponent<InfoMenuView>();
             if (EventLog == null) EventLog = GetComponent<EventLogView>();
             if (QuestLog == null) QuestLog = GetComponent<QuestLogView>();
+            if (Settings == null) Settings = FindFirstObjectByType<SettingsView>();
             if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
         }
 
@@ -78,35 +80,31 @@ namespace Citybuilder
 
         private void DrawMenuGroup(Rect group)
         {
-            Rect stats = new Rect(group.x, group.y, HudLayout.MenuButtonWidth, group.height);
-            Rect log = new Rect(stats.xMax + HudLayout.ButtonGap, group.y, HudLayout.MenuButtonWidth, group.height);
-            Rect quests = new Rect(log.xMax + HudLayout.ButtonGap, group.y, HudLayout.MenuButtonWidth, group.height);
-            if (InfoMenu == null && !StatsEnabled) BottomBarStyle.DrawDisabledButton(stats, "Статистика");
-            else if (BottomBarStyle.DrawButton(stats, "Статистика", InfoMenu != null && InfoMenu.IsOpen) && InfoMenu != null)
-            {
-                ClosePanels(false, true, true);
-                InfoMenu.Toggle();
-            }
-            if (EventLog == null && !EventLogEnabled) BottomBarStyle.DrawDisabledButton(log, "Лента");
-            else if (BottomBarStyle.DrawButton(log, "Лента", EventLog != null && EventLog.IsOpen) && EventLog != null)
-            {
-                ClosePanels(true, false, true);
-                EventLog.Toggle();
-            }
-            if (QuestLog == null) BottomBarStyle.DrawDisabledButton(quests, "Задачи");
-            else if (BottomBarStyle.DrawButton(quests, "Задачи", QuestLog.IsOpen))
-            {
-                ClosePanels(true, true, false);
-                QuestLog.Toggle();
-            }
+            DrawMenuButton(0, group, "Статистика", InfoMenu == null && !StatsEnabled, InfoMenu != null && InfoMenu.IsOpen,
+                () => { if (InfoMenu != null) { ClosePanels(false, true, true); InfoMenu.Toggle(); } });
+            DrawMenuButton(1, group, "Лента", EventLog == null && !EventLogEnabled, EventLog != null && EventLog.IsOpen,
+                () => { if (EventLog != null) { ClosePanels(true, false, true); EventLog.Toggle(); } });
+            DrawMenuButton(2, group, "Задачи", QuestLog == null, QuestLog != null && QuestLog.IsOpen,
+                () => { ClosePanels(true, true, false); QuestLog.Toggle(); });
+            DrawMenuButton(3, group, "Настройки", Settings == null, Settings != null && Settings.IsOpen,
+                () => { if (!Settings.IsOpen) ClosePanels(true, true, true); Settings.Toggle(); });
         }
 
-        // Панели меню взаимоисключающие (EPIC-14/09/48): открытие одной закрывает остальные.
+        // Кнопка меню нижней панели: без компонента неактивна, открытие одной гасит остальные (образец «Задачи», EPIC-48).
+        private static void DrawMenuButton(int index, Rect group, string label, bool disabled, bool open, System.Action action)
+        {
+            Rect rect = SettingsLayout.MenuButtonRect(group, index);
+            if (disabled) { BottomBarStyle.DrawDisabledButton(rect, label); return; }
+            if (BottomBarStyle.DrawButton(rect, label, open) && action != null) action();
+        }
+
+        // Панели меню взаимоисключающие (EPIC-14/09/48/69): открытие одной закрывает остальные и настройки.
         private void ClosePanels(bool stats, bool log, bool quests)
         {
             if (stats && InfoMenu != null) InfoMenu.SetOpen(false);
             if (log && EventLog != null) EventLog.SetOpen(false);
             if (quests && QuestLog != null) QuestLog.SetOpen(false);
+            if (Settings != null && Settings.IsOpen) Settings.Close();
         }
 
         private void DrawSubRow(float sw, float sh)

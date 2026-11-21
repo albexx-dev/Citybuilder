@@ -11,6 +11,7 @@ namespace Citybuilder
         [Tooltip("Меню сохранения в слоты.")] public SaveMenuView SaveMenu;
         [Tooltip("Меню загрузки слотов.")] public LoadMenuView LoadMenu;
         [Tooltip("Главное меню.")] public MainMenu MainMenu;
+        [Tooltip("Окно настроек (EPIC-69). Пусто = ищется в сцене.")] public SettingsView Settings;
         [Tooltip("Контроллер звука (EPIC-19).")] public AudioController Audio;
 
         private bool isOpen;
@@ -77,6 +78,10 @@ namespace Citybuilder
             if (GUI.Button(new Rect(x, y, 300f, 30f), "Загрузить") && LoadMenu != null)
             { AudioController.PlayClickGlobal(); Close(); LoadMenu.Open(); }
             y += 36f;
+            if (Settings == null) BottomBarStyle.DrawDisabledButton(new Rect(x, y, 300f, 30f), "Настройки");
+            else if (GUI.Button(new Rect(x, y, 300f, 30f), "Настройки"))
+            { AudioController.PlayClickGlobal(); Close(); Settings.Open(); }
+            y += 36f;
             DrawAudioControls(x, ref y);
             if (GUI.Button(new Rect(x, y, 300f, 30f), "В главное меню"))
             {
@@ -133,6 +138,8 @@ namespace Citybuilder
             if (SaveMenu == null) SaveMenu = GetComponent<SaveMenuView>();
             if (LoadMenu == null) LoadMenu = GetComponent<LoadMenuView>();
             if (MainMenu == null) MainMenu = GetComponent<MainMenu>();
+            if (Settings == null) Settings = GetComponent<SettingsView>();
+            if (Settings == null) Settings = FindFirstObjectByType<SettingsView>();
             if (Audio == null) Audio = FindFirstObjectByType<AudioController>();
         }
     }
