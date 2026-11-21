@@ -133,7 +133,8 @@ namespace Citybuilder
         public static Rect InfoPanelRect(float screenWidth, float screenHeight)
         {
             const float width = 320f;
-            const float defaultHeight = 166f;
+            // 196: 8 отступ + 6 шагов по 24 + высота строки; 7 строк не выходят за подложку.
+            const float defaultHeight = 196f;
             float x = Mathf.Max(BarPadding, screenWidth - width - BarPadding);
             float maxBottom = BottomBarRect(screenWidth, screenHeight).y - SubRowOffset - InfoMenuBottomGap;
             float availableHeight = Mathf.Max(0f, maxBottom - InfoMenuTop);

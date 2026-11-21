@@ -59,7 +59,7 @@ namespace Citybuilder
             Rect full = new Rect(0f, 0f, Screen.width, Screen.height);
             UiClickGuard.Set("pause_menu", full);
             BottomBarStyle.DrawPopupBackground(full);
-            Rect panel = new Rect((Screen.width - 340f) * 0.5f, (Screen.height - 300f) * 0.5f, 340f, 300f);
+            Rect panel = SettingsLayout.CenteredRect(340f, 300f, Screen.width, Screen.height);
             BottomBarStyle.DrawBarBackground(panel);
             if (confirmingExit) DrawConfirm(panel.x + 20f, panel.y + 16f);
             else DrawButtons(panel.x + 20f, panel.y + 14f);

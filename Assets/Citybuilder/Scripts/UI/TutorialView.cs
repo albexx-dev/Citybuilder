@@ -22,11 +22,9 @@ namespace Citybuilder
 
         private readonly TutorialEventView events = new TutorialEventView();
         private bool dismissed;
-
         public TutorialPolicy.Step CurrentStep { get { return PickStep(); } }
         public string CurrentText { get { return TutorialPolicy.FormatText(CurrentStep, SelectedId()); } }
         public bool IsDismissed { get { return dismissed; } }
-
         // Загрузка сейта вызывает Dismiss: подсказки событий тоже гаснут, не включаются сами.
         public void Dismiss() { ResetState(true); }
         public void ResetTutorial() { ResetState(false); }
@@ -38,9 +36,7 @@ namespace Citybuilder
             events.Reset(Quests, Runner);
             if (value) UiClickGuard.Set("tutorial_dismiss", new Rect());
         }
-
         public void OnDisable() { UiClickGuard.Set("tutorial_dismiss", new Rect()); }
-
         private void OnGUI()
         {
             ResolveRefs();
@@ -58,7 +54,6 @@ namespace Citybuilder
             DrawBanner(text, false);
             TutorialArrowView.Draw(ArrowTarget(step), Time.unscaledTime);
         }
-
         // Для событий v1.2 стрелка целится в карточку каталога (пожарная станция).
         private Rect EventArrowTarget(TutorialEventPolicy.Kind kind)
         {
@@ -75,14 +70,26 @@ namespace Citybuilder
 
         private void DrawBanner(string text, bool isEvent)
         {
-            if (!HudLayout.IsHudRowVisible(430f, 1, Screen.height))
+            if (SettingsLayout.IsNarrow(Screen.width) || !HudLayout.IsHudRowVisible(430f, 1, Screen.height))
             {
-                UiClickGuard.Set("tutorial_dismiss", new Rect());
+                DrawCompactBanner(text, isEvent);
                 return;
             }
             float y = HudLayout.FixedOrBottom(430f, 1);
             HudText.Draw(10f, y, text);
             Rect btn = new Rect(Screen.width - 100f, y - 2f, 90f, 24f);
+            UiClickGuard.Set("tutorial_dismiss", btn);
+            if (GUI.Button(btn, "Понятно")) { if (isEvent) events.Acknowledge(); else Dismiss(); }
+        }
+
+        // Компактный баннер: в узком/низком окне подсказка не исчезает, текст обрезается группой.
+        private void DrawCompactBanner(string text, bool isEvent)
+        {
+            Rect rect = SettingsLayout.CompactBannerRect(Screen.width, Screen.height);
+            GUI.BeginGroup(rect);
+            HudText.Draw(0f, 0f, text);
+            GUI.EndGroup();
+            Rect btn = SettingsLayout.CompactDismissRect(Screen.width, Screen.height);
             UiClickGuard.Set("tutorial_dismiss", btn);
             if (GUI.Button(btn, "Понятно")) { if (isEvent) events.Acknowledge(); else Dismiss(); }
         }

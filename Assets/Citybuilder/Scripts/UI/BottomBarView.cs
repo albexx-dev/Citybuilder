@@ -29,7 +29,7 @@ namespace Citybuilder
             BottomBarStyle.DrawBarBackground(bar);
             DrawSpeedGroup(HudLayout.SpeedGroupRect(sw, sh));
             DrawModeGroup(HudLayout.ModeGroupRect(sw, sh));
-            DrawMenuGroup(SettingsLayout.MenuButtonsRect(sw, sh));
+            DrawMenuGroup(sw, sh);
             BuildCatalogView.ResetGuards();
             DrawSubRow(sw, sh);
             MinimapView.Draw(InfoMenu != null && InfoMenu.IsOpen, EventLog != null && EventLog.IsOpen, QuestLog != null && QuestLog.IsOpen, Settings != null && Settings.IsOpen);
@@ -80,23 +80,23 @@ namespace Citybuilder
             }
         }
 
-        private void DrawMenuGroup(Rect group)
+        private void DrawMenuGroup(float sw, float sh)
         {
-            DrawMenuButton(0, group, "Статистика", InfoMenu == null && !StatsEnabled, InfoMenu != null && InfoMenu.IsOpen,
+            DrawMenuButton(0, sw, sh, "Статистика", InfoMenu == null && !StatsEnabled, InfoMenu != null && InfoMenu.IsOpen,
                 () => { if (InfoMenu != null) { ClosePanels(false, true, true); InfoMenu.Toggle(); } });
-            DrawMenuButton(1, group, "Лента", EventLog == null && !EventLogEnabled, EventLog != null && EventLog.IsOpen,
+            DrawMenuButton(1, sw, sh, "Лента", EventLog == null && !EventLogEnabled, EventLog != null && EventLog.IsOpen,
                 () => { if (EventLog != null) { ClosePanels(true, false, true); EventLog.Toggle(); } });
-            DrawMenuButton(2, group, "Задачи", QuestLog == null, QuestLog != null && QuestLog.IsOpen,
+            DrawMenuButton(2, sw, sh, "Задачи", QuestLog == null, QuestLog != null && QuestLog.IsOpen,
                 () => { ClosePanels(true, true, false); QuestLog.Toggle(); });
-            DrawMenuButton(3, group, "Настройки", Settings == null, Settings != null && Settings.IsOpen,
+            DrawMenuButton(3, sw, sh, "Настройки", Settings == null, Settings != null && Settings.IsOpen,
                 () => { if (!Settings.IsOpen) ClosePanels(true, true, true); Settings.Toggle(); });
         }
 
         // Кнопка меню нижней панели: без компонента неактивна, открытие одной гасит остальные (EPIC-48/69),
         // иконка + тултип из IconBook (EPIC-66).
-        private static void DrawMenuButton(int index, Rect group, string label, bool disabled, bool open, System.Action action)
+        private static void DrawMenuButton(int index, float sw, float sh, string label, bool disabled, bool open, System.Action action)
         {
-            Rect rect = SettingsLayout.MenuButtonRect(group, index);
+            Rect rect = SettingsLayout.MenuButtonRect(sw, sh, index);
             if (disabled) { BottomBarStyle.DrawDisabledButton(rect, label); return; }
             if (BottomBarStyle.DrawButton(rect, IconBook.Get(BottomBarIcons.MenuKeys[index]), label,
                 BottomBarIcons.MenuTips[index], open) && action != null) action();

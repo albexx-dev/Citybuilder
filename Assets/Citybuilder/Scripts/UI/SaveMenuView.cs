@@ -55,7 +55,7 @@ namespace Citybuilder
         {
             if (!isOpen) return;
             ResolveRefs();
-            Rect panel = CenterRect(460f, 230f);
+            Rect panel = SettingsLayout.CenteredRect(460f, 230f, Screen.width, Screen.height);
             UiClickGuard.Set("save_menu", panel);
             BottomBarStyle.DrawBarBackground(panel);
             float x = panel.x + 14f;
@@ -92,11 +92,6 @@ namespace Citybuilder
             if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
             if (Pause == null) Pause = GetComponent<PauseMenuView>();
             if (Pause == null) Pause = FindFirstObjectByType<PauseMenuView>();
-        }
-
-        private static Rect CenterRect(float width, float height)
-        {
-            return new Rect((Screen.width - width) * 0.5f, (Screen.height - height) * 0.5f, width, height);
         }
     }
 }
