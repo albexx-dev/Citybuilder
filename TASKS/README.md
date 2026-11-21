@@ -36,7 +36,7 @@
 | #50 | [Блэкауты](EPIC-50-blackouts.md) | mechanics | **done** (task/188) |
 | #51 | [Апгрейд служб](EPIC-51-service-upgrades.md) | mechanics | **done** (task/187; хвосты: MarkDirty → task/192, уровень в сейве → #64) |
 | #52 | [Мусоровозы](EPIC-52-garbage-trucks.md) | mechanics | **done** (task/206) |
-| #53 | [Баланс-проход v1.2](EPIC-53-balance-v12.md) | mechanics | not started |
+| #53 | [Баланс-проход v1.2](EPIC-53-balance-v12.md) | mechanics | **done** (task/207) |
 | #54 | [Модели всех зданий](EPIC-54-building-models.md) | content | **done** (task/163) |
 | #55 | [CREDITS.md](EPIC-55-credits.md) | content | **done** (task/163) |
 | #56 | [Деревья и декор](EPIC-56-decor.md) | content | **done** (task/165) |
