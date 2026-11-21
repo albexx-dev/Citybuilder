@@ -9,6 +9,7 @@ namespace Citybuilder
     public static class GameSettingsStore
     {
         public const string VolumeKey = "citybuilder_volume";
+        public const string AmbientVolumeKey = "citybuilder_ambient";
         public const string MuteKey = "citybuilder_muted";
         public const string AgentLimitKey = "citybuilder_agent_limit";
         public const string DecorKey = "citybuilder_decor";
@@ -20,6 +21,7 @@ namespace Citybuilder
         {
             if (settings == null) return;
             settings.Volume = PlayerPrefs.GetFloat(VolumeKey, GameSettings.DefaultVolume);
+            settings.AmbientVolume = PlayerPrefs.GetFloat(AmbientVolumeKey, GameSettings.DefaultAmbientVolume);
             settings.Muted = PlayerPrefs.GetInt(MuteKey, 0) != 0;
             settings.AgentLimit = PlayerPrefs.GetInt(AgentLimitKey, GameSettings.DefaultAgentLimit);
             settings.DecorEnabled = PlayerPrefs.GetInt(DecorKey, 1) != 0;
@@ -32,6 +34,7 @@ namespace Citybuilder
         {
             if (settings == null) return;
             PlayerPrefs.SetFloat(VolumeKey, settings.Volume);
+            PlayerPrefs.SetFloat(AmbientVolumeKey, settings.AmbientVolume);
             PlayerPrefs.SetInt(MuteKey, settings.Muted ? 1 : 0);
             PlayerPrefs.SetInt(AgentLimitKey, settings.AgentLimit);
             PlayerPrefs.SetInt(DecorKey, settings.DecorEnabled ? 1 : 0);
