@@ -6,8 +6,9 @@ namespace Citybuilder
     // и кнопкой «Настройки» в нижней панели (образец «Задачи» из QuestLogView).
     // Панель меняет GameSettings: каждое реальное изменение persist через GameSettingsStore
     // и применяется к системам с готовыми точками: AudioController (громкость/мут),
-    // DayNightController (сутки вкл/выкл, Reapply показывает смену сразу). Лимит машин,
-    // декор и интервал автосейва ждут слушателей в шаге 3 эпика — UI уже хранит значения.
+    // DayNightController (сутки вкл/выкл, Reapply показывает смену сразу), а в шаге 3 эпика —
+    // DecorManager/BuildModeMenu (декор) и AutosaveController (интервал) через SettingsAppliers.
+    // Лимит машин VehicleAgentHost читает из Settings.AgentLimit напрямую на каждом Update.
     public class SettingsView : MonoBehaviour
     {
         [Header("References")]
@@ -15,6 +16,9 @@ namespace Citybuilder
         [Tooltip("Драйвер игровых часов: окно ставит игру на паузу. Пусто = ищется в сцене.")] public SimulationRunner Runner;
         [Tooltip("Контроллер звука: громкость и мут применяются на лету. Пусто = ищется в сцене.")] public AudioController Audio;
         [Tooltip("Цикл дня и ночи: вкл/выкл применяется сразу. Пусто = ищется в сцене.")] public DayNightController DayNight;
+        [Tooltip("Декор сцены: вкл/выкл применяется сразу. Пусто = ищется в сцене.")] public DecorManager Decor;
+        [Tooltip("Меню режимов: гасит кнопку и режим «Декор». Пусто = ищется в сцене.")] public BuildModeMenu Menu;
+        [Tooltip("Автосейв: интервал в игровых часах. Пусто = ищется в сцене.")] public AutosaveController Autosave;
 
         private readonly GameSettings settings = new GameSettings();
         private bool isOpen;
@@ -135,6 +139,8 @@ namespace Citybuilder
             ApplyAudio(settings, Audio);
             if (settings.DayNightEnabled != lastDayNightEnabled) ApplyDayNight(settings, DayNight);
             lastDayNightEnabled = settings.DayNightEnabled;
+            SettingsAppliers.ApplyDecor(settings, Decor, Menu);
+            SettingsAppliers.ApplyAutosave(settings, Autosave);
         }
 
         // Готовая точка AudioController: SetVolume/SetMuted сами ведут свои ключи PlayerPrefs.
@@ -159,6 +165,9 @@ namespace Citybuilder
             if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
             if (Audio == null) Audio = FindFirstObjectByType<AudioController>();
             if (DayNight == null) DayNight = FindFirstObjectByType<DayNightController>();
+            if (Decor == null) Decor = FindFirstObjectByType<DecorManager>();
+            if (Menu == null) Menu = FindFirstObjectByType<BuildModeMenu>();
+            if (Autosave == null) Autosave = FindFirstObjectByType<AutosaveController>();
         }
     }
 }

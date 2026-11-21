@@ -69,6 +69,12 @@ namespace Citybuilder
             {
                 float x = group.x + i * (HudLayout.ModeButtonWidth + HudLayout.ButtonGap);
                 Rect rect = new Rect(x, group.y, HudLayout.ModeButtonWidth, group.height);
+                // Выключенный декор (EPIC-69 шаг 3): кнопка «Декор [5]» неактивна, образец DrawMenuButton.
+                if (Menu != null && !Menu.DecorBuildEnabled && modes[i] == BuildModeMenu.Mode.Decor)
+                {
+                    BottomBarStyle.DrawDisabledButton(rect, labels[i]);
+                    continue;
+                }
                 bool active = Menu != null && Menu.CurrentMode == modes[i];
                 if (BottomBarStyle.DrawButton(rect, IconBook.Get(BottomBarIcons.ModeKeys[i]), labels[i], BottomBarIcons.ModeTips[i], active) && Menu != null) Menu.SetMode(modes[i]);
             }

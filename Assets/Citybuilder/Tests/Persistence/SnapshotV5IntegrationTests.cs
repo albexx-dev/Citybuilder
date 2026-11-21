@@ -97,7 +97,7 @@ namespace Citybuilder
         [Test]
         public void Autosave_On24thTick_WritesV5Slot_AndLoadNowRestoresLevelsAndRates()
         {
-            for (int t = 1; t <= AutosaveController.AutosaveIntervalTicks; t++) autosave.OnClockTick(new SimulationTime(t));
+            for (int t = 1; t <= AutosaveController.DefaultAutosaveIntervalTicks; t++) autosave.OnClockTick(new SimulationTime(t));
             Assert.IsTrue(SaveSlotStorage.Validate(dir, SaveSlotIndex.AutosaveSlot), "autosave.json не записан");
             DistortCity(); Assert.IsTrue(load.LoadNow(SaveSlotIndex.AutosaveSlot)); AssertRestored();
         }
