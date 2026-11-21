@@ -117,8 +117,8 @@ Electricity, Water, Food, Materials, Fuel, Waste. Вводить по одном
 | Параметр | Значение | Источник |
 |----------|----------|----------|
 | Стартовая казна | 1500 $ | `UI/TreasuryView.cs:10`, `Prototype.unity` |
-| Ставка налога за работающего в час | Low 1, Normal 2, High 3; режим по умолчанию Normal | `Economy/TaxPolicy.cs:31-36`, `:16` |
-| Формула сбора | занятые × ставка за час; ставка ≤ 0 — сбора нет | `Economy/TaxPolicy.cs:48-52`, `Economy/TaxSystem.cs:32-39` |
+| Ставка налога за работающего в час | Low 1, Normal 2, High 4; режим по умолчанию Normal | `Economy/TaxPolicy.cs:37-43` (High — `:40`), `:18-20` (дефолт) |
+| Формула сбора | занятые × ставка за час; ставка ≤ 0 — сбора нет | `Economy/TaxPolicy.cs:62-67`, `Economy/TaxSystem.cs:54-76` |
 | Занятые | `min(жители, рабочие места)` | `Population/EmploymentSystem.cs:26-29` |
 | Содержание за час | сумма `UpkeepPerHour` по выросшим + ручным зданиям | `Core/UpkeepPolicy.cs:22,48`, `Economy/EconomyTicker.cs:139-140` |
 | Списывается ли содержание при нуле | да, казна уходит в минус (`Balance < 0` = дефицит), сохраняется/загружается | `Economy/Treasury.cs`, `Persistence/SaveSystem.cs` |
