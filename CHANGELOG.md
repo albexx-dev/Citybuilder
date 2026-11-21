@@ -4,16 +4,30 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+## [v1.3.0] - 2026-11-21
+
+Полная линия v1.3: локализация, видимость систем, сейв v6 и стабильность. 20 задач (#86–#106), 1038 EditMode-тестов.
+
 ### Added
 
-- **ADR-014 (issue #93):** save v6 decision — optional garbage queues, theft counter, comfort streak and construction progress with v5 fallback, `SaveSlotStorage` validation, v1–v5 compatibility. Fires and vehicle agents stay non-serialized (ADR-009/ADR-011) and out of scope.
+- **ADR-013 и локализация ленты (#86–#88, #104):** запись ленты хранит `kind + messageKey + args + tick`; дедуп не зависит от языка; форматирование переехало в view; звук выбирается по подтипу события, а не по тексту. Добавлены сигналы Garbage/Blackout; `coin.wav` звучит только на наградах ступеней цели.
+- **Локализация каталога и UI (#89, #100):** имена 11 зданий и 4 видов декора приходят из ассетов через ключи; RU/EN переведены нижняя панель и тултипы, тексты квестов и генератор вех, настройки, инфоменю, инспекция и статус роста (`HousesWord` для 1/2/5/11/21). Реестр разнесён по таблицам, всего 190 ключей без дублей.
+- **ADR-014 и сейв v6 (#93, #106):** опциональные `GarbageQueue`, `TheftCounter`, `ComfortStreak`, `ConstructionProgress` с fallback на v5, валидацией и дедупом по клетке; обратная совместимость v1–v5; пожары и агенты остаются несериализуемыми (ADR-009/011).
+- **Ангарные варианты (#90):** компостная станция с ёмкостью 20, детерминированный выбор депо по `WasteCapacity` вместо хардкода Id; 6 типов зданий подключены к готовым Kenney-моделям (#103).
+- **Видимость систем (#94, #97):** оверлей переполнения мусором и маркер уровня дома; события-подсказки туториала (пожар, награда, вывоз, ночь), кнопка «Повторить обучение» и справка управления.
+- **Прозрачный бюджет (#96):** в HUD разложена строка «налоги − содержание − кражи + награды = итог» (баланс не менялся).
 
 ### Changed
 
-- Documentation now matches the repository: `TASKS/` is still tracked (32 files, `git ls-files TASKS`), `TASKS/README.md` remains the epic queue, and the validator requires it. Earlier notes claiming the folder was removed and that re-creating it was rejected were inaccurate; ADR-005 carries a superseding update.
-- `Tools/ValidateRepo.py` now warns on methods over 30 lines and files with several top-level types, cross-checks `bundleVersion` against README/CHANGELOG instead of a hardcoded `1.2`, rejects AGENTS.md:77 APIs (regex, long LINQ chains, async/await, reflection, DI) and scans `.py` for credentials. The required `Static validation` check name is unchanged.
-- Connectivity metric counts manual residential buildings in the denominator; service stations (`ResidentCapacity == 0`) do not grow it — confirmed intended (issue #42).
-- Accepted ADR-013: the city event log stores messages as a localization key + args with language-independent dedup and sound resolved from event type instead of `message.Contains` text markers.
+- **Детерминизм и загрузка (#91):** пешеходы используют FNV-1a вместо `System.Random`; при «Новой игре»/загрузке сбрасываются агенты, пожары, кражи и счётчик `EntityId`.
+- **Снимок покрытия (#92):** пересчитывается в такте (`TickStarted`) до пожаров/краж/квестов, а не раз в 2 с реального времени; добавлен идемпотентный биндинг подписки.
+- **Настройки и декор (#95):** тумблер «Декор» скрывает и ручной декор; эмбиент применяется одним путём без per-frame чтения профиля; мёртвый авто-спавн декора убран.
+- **Малое окно (#98, #99):** мини-карта прячется при открытых «Задачах»/«Настройках», единый гард Tab/L и приоритет Esc; панели клампятся по экрану, меню переходят в два ряда, туториал показывает компактный баннер.
+- **Документация и валидатор (#101, #102):** восстановлена истина про `TASKS/` (32 файла отслеживаются); числа тестов и LFS-объектов сведены к факту; `ValidateRepo.py` проверяет лимиты методов/типов, версии и запрещённые API без жёсткого `1.2`.
+
+### Fixed
+
+- Реальные ошибки интеграции, пойманные гейтом: подписка `TreasuryView` под новую сигнатуру `Action<CityEvent>` (`dd604cc`); равенство `CityEvent` по значениям `Args` и непустой ключ «нет события» (`41f8fb1`); дедуп v6 для последовательности A,B,A (`38e7507`); вызов реального тика в событиях снабжения (`cd93efc`). Фантомно-зелёные прогоны `run_tests` при упавшей компиляции больше не принимаются — `read_console errors` обязателен.
 
 ## [v1.2.2] - 2026-11-21
 

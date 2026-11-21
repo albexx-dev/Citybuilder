@@ -118,13 +118,13 @@ v1.1 systems (see v1.1.0 scope history in git) plus the v1.2 «Living city» mil
 ### Persistence
 
 - **Save v5 (EPIC-64):** building levels, per-zone tax rates, quest chain ids; validation on load.
-- **Save v6 (planned, v1.3, issue #93, ADR-014):** optional garbage/theft/comfort/construction fields with v5 fallback, validation in `SaveSlotStorage`, v1–v5 slots stay loadable. Fires and vehicle agents stay non-serialized (ADR-009/ADR-011) and are out of scope. Specified in ADR-014; code lands in later v1.3 steps.
+- **Save v6 (v1.3, issue #106, ADR-014):** optional garbage/theft/comfort/construction fields with v5 fallback, validation in `SaveSlotStorage`, v1–v5 slots stay loadable. Fires and vehicle agents stay non-serialized (ADR-009/ADR-011).
 
 ### Balance (EPIC-53)
 
 - Real upkeep for industry/services, zonal tax ladder **1/2/4** (default Normal), verified by `EconomyBalanceV12Tests` scenarios.
 
 
-## 16. Future decisions (v1.3+)
+## 16. Future decisions (v1.4+)
 
-Catalog display names from assets, garbage depot variants, per-building ambient occlusion — candidates for the next milestone. Event-log localization is decided in `DECISIONS/ADR-013-event-localization.md`: records store a message key + args, dedup is language-independent, sound resolves from event type. Save v6 is specified in `DECISIONS/ADR-014-save-v6.md` (issue #93); fires/agents remain ephemeral per ADR-009/ADR-011.
+Per-building ambient occlusion and deeper agent LOD are candidates for the next milestone. v1.3 decisions already shipped: event-log localization (`DECISIONS/ADR-013-event-localization.md`: key + args, language-independent dedup, typed audio), catalog names from assets, depot variants and save v6 (`DECISIONS/ADR-014-save-v6.md`); fires/agents remain ephemeral per ADR-009/ADR-011.
