@@ -38,20 +38,9 @@ namespace Citybuilder
         public bool IsOpen { get { return isOpen; } }
 
         // Смена языка пересобирает кеш строк: инфоменю держит готовые тексты, а не ключи (как EventLogView).
-        private void OnLanguageChanged()
-        {
-            if (isOpen) RebuildCache();
-        }
-
-        private void OnEnable()
-        {
-            Localization.LanguageChanged += OnLanguageChanged;
-        }
-
-        private void OnDisable()
-        {
-            Localization.LanguageChanged -= OnLanguageChanged;
-        }
+        private void OnLanguageChanged() { if (isOpen) RebuildCache(); }
+        private void OnEnable() { Localization.LanguageChanged += OnLanguageChanged; }
+        private void OnDisable() { Localization.LanguageChanged -= OnLanguageChanged; }
 
         public void Toggle() { SetOpen(!isOpen); }
 
@@ -59,15 +48,8 @@ namespace Citybuilder
         {
             if (isOpen != open) AudioController.PlaySwooshGlobal();
             isOpen = open;
-            if (isOpen)
-            {
-                ResolveRefs();
-                RebuildCache();
-            }
-            else
-            {
-                UiClickGuard.Set("info_menu", new Rect());
-            }
+            if (isOpen) { ResolveRefs(); RebuildCache(); }
+            else UiClickGuard.Set("info_menu", new Rect());
         }
 
         private void Update()
