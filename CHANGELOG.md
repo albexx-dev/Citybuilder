@@ -13,6 +13,36 @@ All notable changes to this project are documented here. Format follows [Keep a 
 - Documentation no longer points at the removed `TASKS/` folder; the static validator now rejects its re-creation.
 - Connectivity metric counts manual residential buildings in the denominator; service stations (`ResidentCapacity == 0`) do not grow it — confirmed intended (issue #42).
 
+## [v1.2.2] - 2026-11-21
+
+Follow-up wave after v1.2.0/1.2.1 owner feedback — all remaining epic tails.
+
+### Added
+
+- **Quests persist (tail #48/#64):** active/completed quest ids in snapshot v5 — chains continue after load; unknown/milestone ids skip silently, broken slots can not double-reward.
+- **Garbage trucks route over player roads (tail #52):** route ends map to nearest road cells (review fix), direct L-route stays as fallback when roads are absent.
+- **Settings apply step 3 (EPIC-69):** decor toggle hides/shows decor instantly and disables the Decor build mode; autosave interval follows the settings stepper.
+- **Event sounds (tail #71):** procedural fire-alarm and theft-dissonance clips played from the city event log with per-kind cooldown; **ambient volume slider** in settings (persisted).
+- **Tooltip hover delay 0.4 s** (tail #66) with pure-logic policy tests.
+- **RU/EN menus (tail #72):** pause/main/save/load menus and zone brushes through the localization registry (27 new keys, RU outputs byte-identical).
+
+### Fixed
+
+- Quest rewards fire after state mutations; `QuestTicker.lastTick` reset on load (stale-tick rewind guard).
+- Issue #42 closed: utility stations excluded from service coverage denominators (confirmed intended), menu speed restore, congestion count symmetry, single hotkey guard.
+
+## [v1.2.1] - 2026-11-21
+
+Patch after v1.2.0 owner feedback (giant cars, spawn flood, backwards driving, fast economy drain).
+
+### Fixed
+
+- **Vehicles spawn only when roads are built:** one new road cell — one vehicle (if a home is connected to a job via roads and the limit allows); time windows removed.
+- **Vehicle scale auto-fits road cells** (~1.6 cells long instead of ~6.7) and cars face the driving direction (180° yaw).
+- **Vehicle limit 12** with the settings slider actually applying live (8–120, default 12).
+- **Red occupied-cell overlays removed** from under buildings and roads (debug grid layer).
+- **Softer early economy:** thefts less frequent (0.0005) and fine 20$ instead of 50$.
+
 ## [v1.2.0] - 2026-11-21
 
 Complete release of the **v1.2 «Живой город»** product milestone (Epics #43–#48, #50–#53, #58–#68, #71, #72 + owner specs).
