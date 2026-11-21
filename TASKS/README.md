@@ -49,13 +49,13 @@
 | #63 | [Статистика-ядро](EPIC-63-metrics-core.md) | architecture | **done** (task/182; интеграция + гард в task/183) |
 | #64 | [Сейв v5](EPIC-64-save-v5.md) | architecture | **done** (друг: ПРы #77–#79, донесено в main) |
 | #65 | [Техдолг #42 + сплиты](EPIC-65-tech-debt.md) | architecture | **done** (task/183) |
-| #66 | [Иконки UI + тултипы](EPIC-66-ui-icons.md) | ux | not started |
+| #66 | [Иконки UI + тултипы](EPIC-66-ui-icons.md) | ux | шаг 1 **done** (task/209; тултип-задержка — хвост) |
 | #67 | [Мини-карта](EPIC-67-minimap.md) | ux | **done** (друг: ПРы #81–#82; швы-фиксы в main) |
 | #68 | [Графики в инфоменю](EPIC-68-graphs.md) | ux | **done** (друг: ПРы #83–#84; швы-фиксы в main) |
-| #69 | [Окно настроек](EPIC-69-settings.md) | ux | шаг 1 **done** (друг: ПР #85 GameSettings); view осталась |
+| #69 | [Окно настроек](EPIC-69-settings.md) | ux | шаг 2 **done** (task/208; применение AgentLimit/Decor/Autosave — шаг 3) |
 | #70 | [Туториал v3](EPIC-70-tutorial-v3.md) | ux | not started |
-| #71 | [Звук v2](EPIC-71-sound-v2.md) | ux | optional |
-| #72 | [Локализация EN](EPIC-72-localization.md) | ux | optional |
+| #71 | [Звук v2](EPIC-71-sound-v2.md) | ux | шаг ambient **done** (task/210; событийные звуки — хвост) |
+| #72 | [Локализация EN](EPIC-72-localization.md) | ux | шаг 1 **done** (task/211; лента/ассеты — хвосты) |
 | #73 | [Релиз v1.2.0](EPIC-73-release.md) | release | not started |
 
 Прогресс отмечается здесь и чекбоксами в issue #74. Две задачи параллельно запрещены.
