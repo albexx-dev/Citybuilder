@@ -126,4 +126,4 @@ v1.1 systems (see v1.1.0 scope history in git) plus the v1.2 «Living city» mil
 
 ## 16. Future decisions (v1.3+)
 
-Event-log localization (domain strings), catalog display names from assets, garbage depot variants, per-building ambient occlusion — candidates for the next milestone.
+Catalog display names from assets, garbage depot variants, per-building ambient occlusion — candidates for the next milestone. Event-log localization is decided in `DECISIONS/ADR-013-event-localization.md`: records store a message key + args, dedup is language-independent, sound resolves from event type.
