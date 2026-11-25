@@ -22,7 +22,7 @@ namespace Citybuilder
         [Tooltip("Мусоровозы (эпик #52). Пусто = ищется в сцене.")] public GarbageTruckView Garbage;
 
         private const float RefreshIntervalSec = 0.5f;
-        private const float ContentHeight = 834f; // + секция «История» (EPIC-68) и строка вывоза мусора
+        private const float ContentHeight = 860f; // + кнопка масштаба 8/30 (#113), секция «История» и вывоз мусора
 
         // Порядок строк налогов в бюджете (эпик #49).
         private static readonly ZoneType[] BudgetZones =
@@ -144,6 +144,7 @@ namespace Citybuilder
             DrawHeader(ref y, Localization.T("info_section_development"));
             DrawLine(ref y, cachedLines[9]);
             DrawLine(ref y, cachedLines[10]);
+            InfoMenuGraphRangeButton.Draw(ref y, width); // масштаб 8/30 дней (issue #113)
             MetricsGraphView.Draw(ref y, width);
         }
 

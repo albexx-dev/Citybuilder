@@ -27,6 +27,25 @@ namespace Citybuilder
             return written;
         }
 
+        // Децимация 30 дней: по паре min/max на интервал, всплески между выборками не теряются.
+        // При maxPoints=64 даёт 32 интервала × 2 точки; результат — в буфер вызывающего, без аллокаций.
+        public static int DecimateBuckets(float[] values, int count, float[] output, int maxPoints)
+        {
+            int safeCount = SafeCount(values, count);
+            int limit = maxPoints < 2 ? 1 : maxPoints / 2;
+            if (output == null || safeCount == 0) return 0;
+            int buckets = safeCount < limit ? safeCount : limit;
+            int written = 0;
+            for (int b = 0; b < buckets && written + 1 < output.Length; b++)
+            {
+                int from = b * safeCount / buckets;
+                int to = (b + 1) * safeCount / buckets;
+                BucketExtremes(values, count, from, to, output, written);
+                written += 2;
+            }
+            return written;
+        }
+
         // Оси по данным: NaN пропускается, пустая серия даёт 0..0.
         // Плоская линия расширяется на единицу, чтобы нормализация не делила на ноль.
         public static void Axes(float[] values, int count, out float min, out float max)
@@ -92,6 +111,21 @@ namespace Citybuilder
             if (minIndex < 0) return;
             Place(output, written, stride, Safe(values[minIndex]), minIndex);
             Place(output, written, stride, Safe(values[maxIndex]), maxIndex);
+        }
+
+        // Минимум и максимум интервала пишутся в две соседние ячейки; NaN → 0.
+        private static void BucketExtremes(float[] values, int count, int from, int to, float[] output, int slot)
+        {
+            float min = float.MaxValue, max = float.MinValue;
+            for (int i = from; i < to && i < count; i++)
+            {
+                float value = Safe(values[i]);
+                if (value < min) min = value;
+                if (value > max) max = value;
+            }
+            if (min == float.MaxValue) { min = 0f; max = 0f; }
+            output[slot] = min;
+            output[slot + 1] = max;
         }
 
         private static void Place(float[] output, int written, int stride, float value, int sourceIndex)

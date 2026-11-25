@@ -108,6 +108,8 @@ namespace Citybuilder
             { "progression_all", new[] { "Все типы открыты", "All types unlocked" } },
             { "progression_next", new[] { "Дальше: {0} — {1} зд.", "Next: {0} — {1} buildings" } },
             { "metrics_title", new[] { "=== История ===", "=== History ===" } },
+            // Масштаб графиков (#113): кнопка показывает текущий диапазон и переключает 8/30 дней.
+            { "metrics_range", new[] { "Масштаб: {0} дн. (8/30)", "Range: {0} d (8/30)" } },
             { "metrics_empty", new[] { "Копится с началом игровых часов", "Accumulates as game hours pass" } },
             { "metric_name_population", new[] { "Население", "Population" } },
             { "metric_name_treasury", new[] { "Казна", "Treasury" } },

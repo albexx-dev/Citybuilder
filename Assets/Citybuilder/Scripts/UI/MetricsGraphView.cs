@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Секция «История» в инфоменю (EPIC-68 шаг 2): четыре графика за 8 игровых дней.
+    // Секция «История» в инфоменю (EPIC-68 шаг 2): шесть графиков, 8 или 30 дней (#113).
     // Вызывается из InfoMenuView.DrawCachedSections внутри его scroll-view, поэтому координаты
     // локальные (x = 12, как у остальных строк меню). Линии — готовые текстуры MetricsGraphTexture.
     // Историю пишет MetricsRecorder (#63); после загрузки она копится заново — это ожидаемо.
@@ -12,8 +12,29 @@ namespace Citybuilder
         public const float RowHeight = 54f;
         public const float HeaderHeight = 24f;
         public const float EmptyHeight = 48f;
+        public const int ShortRangeDays = 8;  // диапазон по умолчанию
+        public const int LongRangeDays = 30;  // полная история ADR-016
 
         private static MetricsRecorder recorder;
+        private static int rangeDays = ShortRangeDays;
+
+        public static int RangeDays { get { return rangeDays; } }
+        public static int SampleCount { get { return rangeDays * MetricsHistory.HoursPerDay; } }
+
+        // Переключатель 8/30 дней; сброс таймера заставляет текстуры перерисоваться сразу.
+        public static bool ToggleRange()
+        {
+            rangeDays = rangeDays == ShortRangeDays ? LongRangeDays : ShortRangeDays;
+            MetricsGraphTexture.Reset();
+            return rangeDays == LongRangeDays;
+        }
+
+        // Возврат к 8 дням (тесты и явный сброс): состояние диапазона не зависит от сцены.
+        public static void ResetRange()
+        {
+            rangeDays = ShortRangeDays;
+            MetricsGraphTexture.Reset();
+        }
 
         // Высота секции: пустая история — только заголовок и подсказка.
         public static float SectionHeight(MetricsHistory history)

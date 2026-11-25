@@ -14,7 +14,7 @@ namespace Citybuilder
         [Test]
         public void Record_200Snapshots_KeepsLast192OldestToNewest()
         {
-            MetricsHistory history = new MetricsHistory();
+            MetricsHistory history = new MetricsHistory(192);
             for (int i = 0; i < 200; i++) history.Record(Sample(i, 50f));
 
             MetricsSnapshot[] all = history.Snapshot();
@@ -31,7 +31,7 @@ namespace Citybuilder
         [Test]
         public void Count_GrowsUpToCapacityAndStops()
         {
-            MetricsHistory history = new MetricsHistory();
+            MetricsHistory history = new MetricsHistory(192);
             for (int i = 0; i < 195; i++) history.Record(Sample(i, 50f));
             Assert.AreEqual(192, history.Count);
         }
