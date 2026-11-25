@@ -144,6 +144,7 @@ namespace Citybuilder
             SettingsAppliers.ApplyDecor(settings, Decor, Menu);
             SettingsAppliers.ApplyAutosave(settings, Autosave);
             SettingsAppliers.ApplyAmbient(settings, Ambient);
+            SettingsAppliers.ApplyOverlays(settings, FindFirstObjectByType<GridVisualizer>(), FindFirstObjectByType<RoadView>());
         }
 
         // Готовая точка AudioController: SetVolume/SetMuted сами ведут свои ключи PlayerPrefs.

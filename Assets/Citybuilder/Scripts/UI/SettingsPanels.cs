@@ -40,6 +40,13 @@ namespace Citybuilder
             y += 24f;
             DrawStepper(x, ref y, SettingsLayout.AutosaveLabel(s.AutosaveHours), s.AutosaveHours,
                 GameSettings.MinAutosaveHours, GameSettings.MaxAutosaveHours, SettingsLayout.AutosaveStep, v => s.AutosaveHours = v);
+            bool coverage = GUI.Toggle(new Rect(x, y, 140f, 22f), s.ServiceCoverageOverlayEnabled, " " + Localization.T("settings_overlay_coverage"));
+            if (coverage != s.ServiceCoverageOverlayEnabled) s.ServiceCoverageOverlayEnabled = coverage;
+            bool congestion = GUI.Toggle(new Rect(x + 144f, y, 140f, 22f), s.CongestionOverlayEnabled, " " + Localization.T("settings_overlay_congestion"));
+            if (congestion != s.CongestionOverlayEnabled) s.CongestionOverlayEnabled = congestion;
+            bool grid = GUI.Toggle(new Rect(x + 288f, y, 140f, 22f), s.GridOverlayEnabled, " " + Localization.T("settings_overlay_grid"));
+            if (grid != s.GridOverlayEnabled) s.GridOverlayEnabled = grid;
+            y += 26f;
         }
 
         // Степпер «− значение +»: клик меняет настройку, кламп по диапазону GameSettings.

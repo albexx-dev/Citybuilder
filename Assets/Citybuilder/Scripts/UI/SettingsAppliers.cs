@@ -27,5 +27,18 @@ namespace Citybuilder
             if (source == null || ambient == null) return;
             ambient.AmbientVolume = source.AmbientVolume;
         }
+
+        // Оверлеи (issue #114): адаптеры читают флаги профиля, а не хардкод.
+        public static void ApplyOverlays(GameSettings source, GridVisualizer grid, RoadView roads)
+        {
+            if (source == null) return;
+            if (grid != null)
+            {
+                grid.GridOverlayEnabled = source.GridOverlayEnabled;
+                grid.ServiceCoverageOverlayEnabled = source.ServiceCoverageOverlayEnabled;
+                grid.RefreshOverlays();
+            }
+            if (roads != null) roads.SetCongestionOverlayEnabled(source.CongestionOverlayEnabled);
+        }
     }
 }
