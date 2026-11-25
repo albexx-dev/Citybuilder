@@ -22,7 +22,7 @@ namespace Citybuilder
         [TearDown]
         public void TearDown()
         {
-            Object.DestroyImmediate(host);
+            UnityEngine.Object.DestroyImmediate(host);
             ClearKeys();
         }
 
