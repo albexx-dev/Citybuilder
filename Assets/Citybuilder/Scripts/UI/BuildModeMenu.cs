@@ -49,6 +49,12 @@ namespace Citybuilder
             if (mode == Mode.Decor && !DecorBuildEnabled) mode = Mode.Off; // настройка DecorEnabled
             current = mode;
             EnsureRefs();
+            ApplyModeFlags(mode);
+        }
+
+        // Применение флагов режимов (issue #127): состав действий не меняется.
+        private void ApplyModeFlags(Mode mode)
+        {
             if (Houses != null)
             {
                 Houses.enabled = (mode == Mode.Houses);
