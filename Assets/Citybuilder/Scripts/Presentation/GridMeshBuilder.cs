@@ -91,7 +91,7 @@ namespace Citybuilder
             MeshFilter linesFilter = lines == null ? null : lines.GetComponent<MeshFilter>();
             bool linesReady = linesFilter != null && linesFilter.sharedMesh != null && linesFilter.sharedMesh.vertexCount > 0;
             if (linesReady) return;
-            if (lines != null) Destroy(lines);
+            if (lines != null) { if (Application.isPlaying) Destroy(lines); else DestroyImmediate(lines); }
             BuildGridLines();
         }
 
@@ -156,7 +156,8 @@ namespace Citybuilder
             go.transform.SetParent(transform, false);
             go.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
             go.transform.localScale = new Vector3(Visualizer.CellSize, Visualizer.CellSize, 1f);
-            Destroy(go.GetComponent<Collider>());
+            Collider collider = go.GetComponent<Collider>();
+            if (collider != null) { if (Application.isPlaying) Destroy(collider); else DestroyImmediate(collider); }
             go.GetComponent<MeshRenderer>().material = BuildMaterial(color);
             return go;
         }
