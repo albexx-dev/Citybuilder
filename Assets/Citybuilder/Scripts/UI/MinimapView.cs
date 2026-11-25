@@ -13,6 +13,12 @@ namespace Citybuilder
         private const string GuardKey = "minimap";
         private const string TooltipKey = "minimap_tip";
 
+        // Масштаб живёт в памяти сессии и сохраняется при скрытии окна панелями.
+        private static readonly MinimapZoom zoom = new MinimapZoom(MinimapTexture.Size);
+
+        public static int ZoomLevel { get { return zoom.Level; } }
+        public static void ResetZoom() { zoom.Reset(MinimapTexture.Size); }
+
         private static GridVisualizer visualizer;
         private static ZonePaintingController painter;
         private static RoadNetworkStore roads;
@@ -54,7 +60,11 @@ namespace Citybuilder
         {
             Texture2D map = MinimapTexture.Current;
             if (map == null) { Hide(); return; }
-            GUI.DrawTexture(rect, map);
+            GUI.DrawTextureWithTexCoords(rect, map, zoom.TexCoords(MinimapTexture.Size));
+            Rect plus, minus;
+            MinimapZoom.ButtonRects(rect, out plus, out minus);
+            GUI.Box(plus, "+");
+            GUI.Box(minus, "-");
             BottomBarStyle.DrawTooltip(rect, Localization.T(TooltipKey));
             ProcessClick(click, rect, grid, target);
         }
@@ -68,18 +78,40 @@ namespace Citybuilder
 
         private static void HandleClick(Event click, Rect rect, GridSystem grid, FreeCameraController target)
         {
-            if (click == null || target == null) return;
-            if (click.type != EventType.MouseDown || click.button != 0) return;
-            if (!rect.Contains(click.mousePosition)) return;
+            if (click == null || !rect.Contains(click.mousePosition)) return;
+            Rect plus, minus;
+            MinimapZoom.ButtonRects(rect, out plus, out minus);
+            if (TryZoomButton(click, plus, minus)) return;
+            if (click.type == EventType.ScrollWheel)
+            {
+                // В IMGUI колесо вверх даёт отрицательный delta.y (как в CatalogScroll).
+                float delta = Mathf.Abs(click.delta.x) > Mathf.Abs(click.delta.y) ? click.delta.x : click.delta.y;
+                zoom.Step(delta < 0f ? 1 : -1, MinimapTexture.Size);
+                click.Use();
+                return;
+            }
+            if (target == null || click.type != EventType.MouseDown || click.button != 0) return;
             float pixelX, pixelY, worldX, worldZ;
-            MinimapMapping.RectToPixel(rect, click.mousePosition.x, click.mousePosition.y,
+            zoom.RectToPixel(rect, click.mousePosition.x, click.mousePosition.y,
                 MinimapTexture.Size, out pixelX, out pixelY);
             int cellX, cellY, unused;
             MinimapMapping.PixelToCell(pixelX, 0f, MinimapTexture.Size, grid.Size.Width, out cellX, out unused);
             MinimapMapping.PixelToCell(0f, pixelY, MinimapTexture.Size, grid.Size.Height, out unused, out cellY);
             MinimapMapping.CellToWorld(cellX, cellY, grid.CellSize, out worldX, out worldZ);
+            zoom.Focus(pixelX, pixelY, MinimapTexture.Size);
             target.FocusOn(worldX, worldZ);
             click.Use();
+        }
+
+        // Клик по кнопке меняет масштаб и не телепортирует камеру.
+        private static bool TryZoomButton(Event click, Rect plus, Rect minus)
+        {
+            if (click.type != EventType.MouseDown || click.button != 0) return false;
+            bool onPlus = plus.Contains(click.mousePosition);
+            if (!onPlus && !minus.Contains(click.mousePosition)) return false;
+            zoom.Step(onPlus ? 1 : -1, MinimapTexture.Size);
+            click.Use();
+            return true;
         }
 
         // Окно скрыто: гард обнуляется, иначе прошлый rect навсегда закрыл бы клики по миру.
