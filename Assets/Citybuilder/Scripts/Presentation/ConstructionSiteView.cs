@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Стройплощадка (EPIC-61): рост по тикам; снимок v6 — в ConstructionSnapshot.
-    public class ConstructionSiteView : MonoBehaviour
+    public partial class ConstructionSiteView : MonoBehaviour
     {
         public const float TargetHeight = 2f;
         public const float TargetWidthFactor = 0.9f;
@@ -140,20 +140,5 @@ namespace Citybuilder
             if (runner != null && runner.Clock != null) runner.Clock.TickCompleted -= OnClockTick;
         }
 
-        // Скачок к накопленным тикам v6 без перепроигрывания событий.
-        public void SetElapsed(int ticks)
-        {
-            if (!isConstructing) return;
-            ticksElapsed = ConstructionProgress.ClampTicks(ticks);
-            if (ticksElapsed > totalTicks) ticksElapsed = totalTicks;
-            if (ConstructionProgress.IsDone(ticksElapsed, totalTicks)) Finish();
-            else ApplyProgress();
-        }
-        private void OnDestroy()
-        {
-            ConstructionSnapshot.Unregister(this);
-            UnsubscribeClock();
-            scaffold.Clear();
-        }
     }
 }
