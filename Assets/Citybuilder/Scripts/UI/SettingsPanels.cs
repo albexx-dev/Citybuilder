@@ -45,6 +45,13 @@ namespace Citybuilder
             // Короткая подпись: полная «каждые N ч» при 150% перекрыла бы степпер шрифта (#122 review).
             DrawStepper(x, ref y, Localization.T("settings_autosave_short", s.AutosaveHours), s.AutosaveHours,
                 GameSettings.MinAutosaveHours, GameSettings.MaxAutosaveHours, SettingsLayout.AutosaveStep, v => s.AutosaveHours = v);
+            DrawOverlayToggles(s, x, y);
+            y += 52f;
+        }
+
+        // Переключатели оверлеев (issue #127): порядок и координаты не меняются.
+        private static void DrawOverlayToggles(GameSettings s, float x, float y)
+        {
             bool coverage = GUI.Toggle(new Rect(x, y, 140f, 22f), s.ServiceCoverageOverlayEnabled, " " + Localization.T("settings_overlay_coverage"));
             if (coverage != s.ServiceCoverageOverlayEnabled) s.ServiceCoverageOverlayEnabled = coverage;
             bool congestion = GUI.Toggle(new Rect(x + 144f, y, 140f, 22f), s.CongestionOverlayEnabled, " " + Localization.T("settings_overlay_congestion"));
@@ -53,7 +60,6 @@ namespace Citybuilder
             if (grid != s.GridOverlayEnabled) s.GridOverlayEnabled = grid;
             bool trucks = GUI.Toggle(new Rect(x, y + 26f, 200f, 22f), s.ShowGarbageTrucks, " " + Localization.T("settings_garbage_trucks"));
             if (trucks != s.ShowGarbageTrucks) s.ShowGarbageTrucks = trucks;
-            y += 52f;
         }
 
         // Степпер масштаба шрифта HUD (#122): шаг 10%, кламп 1..1.5 в GameSettings.
