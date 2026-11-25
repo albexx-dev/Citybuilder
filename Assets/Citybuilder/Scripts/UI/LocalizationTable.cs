@@ -4,7 +4,7 @@ namespace Citybuilder
 {
     // Таблица реестра локализации (issue #100): ключи вынесены из фасада Localization,
     // чтобы хвосты UI можно было добавлять, не приближая фасад к лимиту строк файла.
-    public static class LocalizationTable
+    public static partial class LocalizationTable
     {
         private static readonly Dictionary<string, string[]> values = new Dictionary<string, string[]>
         {
