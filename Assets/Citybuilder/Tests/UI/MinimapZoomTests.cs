@@ -74,7 +74,7 @@ namespace Citybuilder
             zoom.Focus(-20f, 900f, TextureSize);
             Assert.AreEqual(view * 0.5f, zoom.CenterX, 0.01f);
             Assert.AreEqual(TextureSize - view * 0.5f, zoom.CenterY, 0.01f);
-            Assert.AreEqual(2f, 140f / view, 0.001f, "уровень 4 уменьшает окно вчетверо");
+            Assert.AreEqual(MinimapZoom.MaxLevel, (float)TextureSize / view, 0.001f, "уровень 4 уменьшает окно вчетверо");
         }
 
         [Test]
