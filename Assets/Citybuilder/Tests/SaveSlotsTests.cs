@@ -83,6 +83,45 @@ namespace Citybuilder
         }
 
         [Test]
+        public void Rename_WritesNameToIndex_WithoutTouchingSnapshotOrTimestamps()
+        {
+            SaveSlotStorage.Save(tempDir, 1, MakeSnapshot(700, 48), "Старое имя");
+            SaveSlotStorage.Save(tempDir, SaveSlotIndex.AutosaveSlot, MakeSnapshot(999, 72));
+            string stamp = SaveSlotIndex.GetMeta(tempDir, 1).savedAtReal;
+
+            Assert.IsTrue(SaveSlotIndex.Rename(tempDir, 1, "  Новый город  "));
+            SaveSlotIndex.SlotMeta meta = SaveSlotIndex.GetMeta(tempDir, 1);
+            Assert.AreEqual("Новый город", meta.name);
+            Assert.AreEqual(48, meta.savedAtTick);
+            Assert.AreEqual(stamp, meta.savedAtReal);
+            Assert.AreEqual(700, SaveSlotStorage.Load(tempDir, 1).Balance);
+            Assert.AreEqual("Автосейв", SaveSlotIndex.GetMeta(tempDir, SaveSlotIndex.AutosaveSlot).name);
+        }
+
+        [Test]
+        public void Rename_EmptyOrTooLongOrMissingSlot_KeepsPreviousName()
+        {
+            SaveSlotStorage.Save(tempDir, 0, MakeSnapshot(500, 24), "Исходное");
+            string longName = new string('x', SaveSlotIndex.MaxNameLength + 1);
+            Assert.IsFalse(SaveSlotIndex.Rename(tempDir, 0, null));
+            Assert.IsFalse(SaveSlotIndex.Rename(tempDir, 0, "   "));
+            Assert.IsFalse(SaveSlotIndex.Rename(tempDir, 0, longName));
+            Assert.IsFalse(SaveSlotIndex.Rename(tempDir, 2, "Пустой"));
+            Assert.AreEqual("Исходное", SaveSlotIndex.GetMeta(tempDir, 0).name);
+            Assert.IsNull(SaveSlotIndex.GetMeta(tempDir, 2));
+        }
+
+        [Test]
+        public void UpdateEntry_NormalizesEmptyAndLongNames()
+        {
+            SaveSlotIndex.UpdateEntry(tempDir, 0, "", 10);
+            Assert.AreEqual(SaveSlotIndex.DefaultName(0), SaveSlotIndex.GetMeta(tempDir, 0).name);
+            string longName = new string('A', SaveSlotIndex.MaxNameLength + 5);
+            SaveSlotIndex.UpdateEntry(tempDir, 0, longName, 11);
+            Assert.AreEqual(SaveSlotIndex.MaxNameLength, SaveSlotIndex.GetMeta(tempDir, 0).name.Length);
+        }
+
+        [Test]
         public void AutosaveCounter_FiresAt24Ticks_PausesWhenClockPaused_AndSkipsManualSaveSameTick()
         {
             int counter = 0;
