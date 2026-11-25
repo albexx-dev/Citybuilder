@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Экономика часов: сбор налога, списание содержания и запись событий города на границе тика (EPIC-09 шаг 3, EPIC-19).
-    public class EconomyTicker : MonoBehaviour
+    public partial class EconomyTicker : MonoBehaviour
     {
         [Header("References")]
         [Tooltip("Население: даёт PopulationSystem для занятости. Пусто = ищется в сцене.")] public PopulationController Population;
@@ -140,43 +140,6 @@ namespace Citybuilder
             if (eventThrottle.Allow(EventKind.Supply.ToString(), tick)) Growth.SupplyGrowth.ReportTick(log, tick);
             // Блэкаут (EPIC-50) вне троттлинга: сам гейтится изменением числа отключённых.
             Growth.SupplyGrowth.ReportBlackout(log, tick);
-        }
-        private void ReportCongestion(CityEventLog log, int tick)
-        {
-            if (Growth == null || Growth.Congestion == null || Growth.Congestion.GrowthTickMultiplier <= 1) return;
-            if (!eventThrottle.Allow(EventKind.Congestion.ToString(), tick)) return;
-            log.Add(EventKind.Congestion, EventMessageCatalog.CongestionSlowdown,
-                new object[] { Growth.Congestion.GrowthTickMultiplier }, tick);
-        }
-        private void ReportDeficit(CityEventLog log, int tick)
-        {
-            if (Treasury == null || Treasury.Treasury == null || !Treasury.Treasury.IsInDeficit) return;
-            if (!eventThrottle.Allow(EventKind.Treasury.ToString(), tick)) return;
-            log.Add(EventKind.Treasury, EventMessageCatalog.TreasuryDeficit,
-                new object[] { Treasury.Treasury.Balance }, tick);
-        }
-        private void ReportEmployment(CityEventLog log, int tick)
-        {
-            if (employment == null || Population.Population.TotalResidents <= 0) return;
-            if (employment.EmploymentRate >= Population.MinEmployment) return;
-            if (!eventThrottle.Allow(EventKind.Employment.ToString(), tick)) return;
-            int pct = (int)Math.Round(employment.EmploymentRate * 100f);
-            log.Add(EventKind.Employment, EventMessageCatalog.UnemploymentHigh, new object[] { pct }, tick);
-        }
-        // Пожары (EPIC-43, ADR-009): тик FireSystem по домам, разрушение и лента.
-        private void TickFires(int tick)
-        {
-            if (Growth == null) return;
-            fireTicker.Tick(tick, Growth.Homes, Coverage != null ? Coverage.System : null,
-                EventLog != null ? EventLog.Log : null,
-                Population != null ? Population.Population : null, Growth.DemolishState);
-        }
-        // Кражи (EPIC-47): дома без покрытия полиции воруют — штраф казне и событие в ленту.
-        private void TickCrimes(int tick)
-        {
-            crimeTicker.Tick(tick, Growth != null ? Growth.Homes : null,
-                Coverage != null ? Coverage.System : null, EventLog != null ? EventLog.Log : null,
-                Treasury.Treasury);
         }
         private void ClampLimits() { if (TaxPerWorker < 0) TaxPerWorker = 0; }
     }
