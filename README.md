@@ -48,6 +48,18 @@ Connected systems:
 
 Ready-to-play Windows64 build: [GitHub Release v1.3.3](https://github.com/albexx-dev/Citybuilder/releases/tag/v1.3.3) — download `Citybuilder-v1.3.3-windows64.zip`, unzip and run `CityBuilder.exe`.
 
+## Regenerating audio
+
+`Tools/GenerateWav.py` (Python 3.10+, stdlib only, seed `125`) rebuilds the audio clips with fixed parameters and refuses to write inside `Assets/Citybuilder/Audio/` (the committed sources):
+
+```bash
+python Tools/GenerateWav.py --out Tools/generated-wav      # write copies
+python Tools/GenerateWav.py --verify                       # SHA-256 vs committed WAVs
+python Tools/GenerateWav.py --verify-exact                 # bit-exact subset only
+```
+
+Bit-for-bit identical to the committed files: `click.wav`, `coin.wav`, `pop.wav`. The other five (`swoosh.wav`, `event-fire.wav`, `event-crime.wav`, `ambient-day.wav`, `ambient-night.wav`) are deterministic but **not** byte-identical: the original per-sample formulas were never committed, only the sound descriptions in `Assets/Citybuilder/Audio/LICENSE-NOTES.md`. RIFF headers match (44 bytes, 22.05 kHz, 16-bit mono); the samples differ — see `CREDITS.md`.
+
 ## Documentation
 
 - `ONBOARDING.md` — (RU) step-by-step setup for a new contributor, from clone to first PR.
