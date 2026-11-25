@@ -11,14 +11,25 @@ namespace Citybuilder
         public void SetUp()
         {
             HudText.Profile = null;
-            PlayerPrefs.DeleteKey(GameSettingsStore.HudFontScaleKey);
-            PlayerPrefs.DeleteKey(GameSettingsStore.HighContrastKey);
+            PlayerPrefs.DeleteKey(GameSettingsStore.HudFontScaleKey); PlayerPrefs.DeleteKey(GameSettingsStore.HighContrastKey);
         }
 
         [TearDown]
         public void TearDown()
         {
             HudText.Profile = null;
+            PlayerPrefs.DeleteKey(GameSettingsStore.HudFontScaleKey); PlayerPrefs.DeleteKey(GameSettingsStore.HighContrastKey);
+        }
+
+        [Test]
+        public void ScaledFontSize_UsesFallbackWhenSkinSizeIsZero()
+        {
+            GameSettings settings = new GameSettings(); settings.HudFontScale = 1.5f;
+            SettingsAppliers.ApplyHud(settings);
+            Assert.Greater(HudText.ScaledFontSize(0), HudText.DefaultFontSize);
+            Assert.AreEqual(24, HudText.ScaledFontSize(0)); Assert.AreEqual(18, HudText.ScaledFontSize(12));
+            settings.HudFontScale = GameSettings.MinHudFontScale;
+            Assert.AreEqual(HudText.DefaultFontSize, HudText.ScaledFontSize(0));
         }
 
         [Test]
@@ -27,31 +38,25 @@ namespace Citybuilder
             GameSettings settings = new GameSettings();
             int changes = 0;
             settings.Changed += delegate { changes++; };
-            settings.HudFontScale = 4f;
-            Assert.AreEqual(GameSettings.MaxHudFontScale, settings.HudFontScale, 0.001f);
-            settings.HudFontScale = float.NaN;
-            Assert.AreEqual(GameSettings.MinHudFontScale, settings.HudFontScale, 0.001f);
+            settings.HudFontScale = 4f; Assert.AreEqual(GameSettings.MaxHudFontScale, settings.HudFontScale, 0.001f);
+            settings.HudFontScale = float.NaN; Assert.AreEqual(GameSettings.MinHudFontScale, settings.HudFontScale, 0.001f);
             Assert.AreEqual(2, changes);
-            settings.HudFontScale = GameSettings.MinHudFontScale;
-            Assert.AreEqual(2, changes);
-            settings.HudFontScale = 1.25f;
-            Assert.AreEqual(3, changes);
+            settings.HudFontScale = GameSettings.MinHudFontScale; Assert.AreEqual(2, changes);
+            settings.HudFontScale = 1.25f; Assert.AreEqual(3, changes);
         }
 
         [Test]
         public void ApplyHud_BindsProfileForHudText()
         {
             GameSettings settings = new GameSettings();
-            settings.HudFontScale = 1.4f;
-            settings.HighContrast = true;
+            settings.HudFontScale = 1.4f; settings.HighContrast = true;
             SettingsAppliers.ApplyHud(settings);
             Assert.AreEqual(settings, HudText.Profile);
             Assert.AreEqual(1.4f, HudText.FontScale, 0.001f);
             Assert.IsTrue(HudText.HighContrast);
             Assert.AreEqual(0.9f, HudText.BackingAlpha, 0.001f);
             settings.HighContrast = false;
-            Assert.IsFalse(HudText.HighContrast);
-            Assert.AreEqual(0.55f, HudText.BackingAlpha, 0.001f);
+            Assert.IsFalse(HudText.HighContrast); Assert.AreEqual(0.55f, HudText.BackingAlpha, 0.001f);
         }
 
         [Test]
@@ -90,16 +95,12 @@ namespace Citybuilder
         [TestCase(1080f)]
         public void BottomHudRows_ClearBottomBar_AtMaxFontScale(float screenHeight)
         {
-            GameSettings settings = new GameSettings();
-            settings.HudFontScale = GameSettings.MaxHudFontScale;
+            GameSettings settings = new GameSettings(); settings.HudFontScale = GameSettings.MaxHudFontScale;
             SettingsAppliers.ApplyHud(settings);
             Rect bar = HudLayout.BottomBarRect(1280f, screenHeight);
             float backing = HudLayout.BackingHeight(18f);
             for (int i = 0; i < 3; i++)
-            {
-                float y = HudLayout.FixedOrBottom(454f - i * 24f, i, screenHeight);
-                Assert.LessOrEqual(y + backing, bar.y);
-            }
+                Assert.LessOrEqual(HudLayout.FixedOrBottom(454f - i * 24f, i, screenHeight) + backing, bar.y);
             Assert.AreEqual(HudLayout.BarHeight, bar.height, 0.001f);
         }
 
@@ -139,6 +140,7 @@ namespace Citybuilder
             LocalizationTable.AddTo(table);
             Assert.IsTrue(table.ContainsKey("settings_hud_scale"));
             Assert.IsTrue(table.ContainsKey("settings_high_contrast"));
+            Assert.IsTrue(table.ContainsKey("settings_autosave_short"));
             Assert.AreEqual("Шрифт 100%", string.Format(table["settings_hud_scale"][0], 100));
             Assert.AreEqual("Font 100%", string.Format(table["settings_hud_scale"][1], 100));
         }

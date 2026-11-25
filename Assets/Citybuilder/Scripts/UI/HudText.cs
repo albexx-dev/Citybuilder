@@ -11,6 +11,8 @@ namespace Citybuilder
         public const float BackingPadY = 2f;
         // Оценочная высота подложки одной строки: метка ~18 px + запас 4 px.
         public const float BackingRowHeight = 22f;
+        // Fallback для скинов, где fontSize == 0 (дефолтный IMGUI-скин).
+        public const int DefaultFontSize = 16;
 
         private const float NormalBackingAlpha = 0.55f;
         private const float ContrastBackingAlpha = 0.9f;
@@ -21,6 +23,13 @@ namespace Citybuilder
         public static float FontScale { get { return profile == null ? 1f : profile.HudFontScale; } }
         public static bool HighContrast { get { return profile != null && profile.HighContrast; } }
         public static float BackingAlpha { get { return HighContrast ? ContrastBackingAlpha : NormalBackingAlpha; } }
+
+        // Чистая математика масштаба: нулевой базовый размер заменяется на DefaultFontSize.
+        public static int ScaledFontSize(int baseFontSize)
+        {
+            int size = baseFontSize > 0 ? baseFontSize : DefaultFontSize;
+            return Mathf.RoundToInt(size * FontScale);
+        }
 
         // Рисует строку с подложкой. Пустой текст молча пропускается.
         public static void Draw(float x, float y, string text)
@@ -34,9 +43,8 @@ namespace Citybuilder
         {
             if (string.IsNullOrEmpty(text)) return;
             int savedFontSize = GUI.skin.label.fontSize;
-            float scale = FontScale;
-            if (scale > 1f && savedFontSize > 0)
-                GUI.skin.label.fontSize = Mathf.RoundToInt(savedFontSize * scale);
+            if (FontScale > 1f)
+                GUI.skin.label.fontSize = ScaledFontSize(savedFontSize);
             try
             {
                 Vector2 size = GUI.skin.label.CalcSize(new GUIContent(text));

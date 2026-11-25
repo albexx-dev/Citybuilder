@@ -42,7 +42,8 @@ namespace Citybuilder
             HudText.Draw(x, y, Localization.T("settings_section_game"));
             y += 24f;
             DrawScaleStepper(x + 228f, y, s); // тот же ряд, что и автосейв: высота панели #123 не меняется
-            DrawStepper(x, ref y, SettingsLayout.AutosaveLabel(s.AutosaveHours), s.AutosaveHours,
+            // Короткая подпись: полная «каждые N ч» при 150% перекрыла бы степпер шрифта (#122 review).
+            DrawStepper(x, ref y, Localization.T("settings_autosave_short", s.AutosaveHours), s.AutosaveHours,
                 GameSettings.MinAutosaveHours, GameSettings.MaxAutosaveHours, SettingsLayout.AutosaveStep, v => s.AutosaveHours = v);
             bool coverage = GUI.Toggle(new Rect(x, y, 140f, 22f), s.ServiceCoverageOverlayEnabled, " " + Localization.T("settings_overlay_coverage"));
             if (coverage != s.ServiceCoverageOverlayEnabled) s.ServiceCoverageOverlayEnabled = coverage;
