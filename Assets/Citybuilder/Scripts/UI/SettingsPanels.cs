@@ -35,9 +35,13 @@ namespace Citybuilder
             y += 26f;
             bool dayNight = GUI.Toggle(new Rect(x, y, 220f, 22f), s.DayNightEnabled, Localization.T("settings_day_night"));
             if (dayNight != s.DayNightEnabled) s.DayNightEnabled = dayNight;
+            // Доступность (#122): контраст в том же ряду, чтобы панель не росла.
+            bool contrast = GUI.Toggle(new Rect(x + 228f, y, 196f, 22f), s.HighContrast, " " + Localization.T("settings_high_contrast"));
+            if (contrast != s.HighContrast) s.HighContrast = contrast;
             y += 28f;
             HudText.Draw(x, y, Localization.T("settings_section_game"));
             y += 24f;
+            DrawScaleStepper(x + 228f, y, s); // тот же ряд, что и автосейв: высота панели #123 не меняется
             DrawStepper(x, ref y, SettingsLayout.AutosaveLabel(s.AutosaveHours), s.AutosaveHours,
                 GameSettings.MinAutosaveHours, GameSettings.MaxAutosaveHours, SettingsLayout.AutosaveStep, v => s.AutosaveHours = v);
             bool coverage = GUI.Toggle(new Rect(x, y, 140f, 22f), s.ServiceCoverageOverlayEnabled, " " + Localization.T("settings_overlay_coverage"));
@@ -47,6 +51,17 @@ namespace Citybuilder
             bool grid = GUI.Toggle(new Rect(x + 288f, y, 140f, 22f), s.GridOverlayEnabled, " " + Localization.T("settings_overlay_grid"));
             if (grid != s.GridOverlayEnabled) s.GridOverlayEnabled = grid;
             y += 26f;
+        }
+
+        // Степпер масштаба шрифта HUD (#122): шаг 10%, кламп 1..1.5 в GameSettings.
+        private static void DrawScaleStepper(float x, float y, GameSettings s)
+        {
+            const float step = 0.1f;
+            if (BottomBarStyle.DrawButton(new Rect(x, y, 26f, 26f), "-", false))
+                s.HudFontScale = GameSettings.ClampHudFontScale(s.HudFontScale - step);
+            HudText.Draw(x + 32f, y + 3f, Localization.T("settings_hud_scale", Mathf.RoundToInt(s.HudFontScale * 100f)));
+            if (BottomBarStyle.DrawButton(new Rect(x + 164f, y, 26f, 26f), "+", false))
+                s.HudFontScale = GameSettings.ClampHudFontScale(s.HudFontScale + step);
         }
 
         // Степпер «− значение +»: клик меняет настройку, кламп по диапазону GameSettings.

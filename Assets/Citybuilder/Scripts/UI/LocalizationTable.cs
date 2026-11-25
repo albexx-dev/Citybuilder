@@ -138,7 +138,7 @@ namespace Citybuilder
             { "quest_progress_fire", new[] { "Пожарные {0}/100", "Fire {0}/100" } },
             { "quest_log_title", new[] { "=== Задачи города ===", "=== City quests ===" } },
             { "quest_log_empty", new[] { "Задач пока нет.", "No quests yet." } },
-            { "quest_reward", new[] { "(+{0}$)", "(+{0}$)" } }
+            { "quest_reward", new[] { "(+{0}$)", "(+{0}$)" } }, { "settings_hud_scale", new[] { "Шрифт {0}%", "Font {0}%" } }, { "settings_high_contrast", new[] { "Контраст", "Contrast" } }
         };
 
         // Перенос в фасад: исходный реестр остаётся тем же словарём, ключи не дублируются.

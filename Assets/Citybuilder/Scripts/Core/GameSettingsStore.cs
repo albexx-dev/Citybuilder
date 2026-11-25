@@ -18,6 +18,8 @@ namespace Citybuilder
         public const string ServiceCoverageOverlayKey = "citybuilder_overlay_coverage";
         public const string CongestionOverlayKey = "citybuilder_overlay_congestion";
         public const string GridOverlayKey = "citybuilder_overlay_grid";
+        public const string HudFontScaleKey = "citybuilder_hud_font_scale";
+        public const string HighContrastKey = "citybuilder_high_contrast";
 
         // Прочитать профиль: отсутствующие ключи → дефолты, мусор → клампы GameSettings.
         public static void Load(GameSettings settings)
@@ -33,6 +35,8 @@ namespace Citybuilder
             settings.ServiceCoverageOverlayEnabled = PlayerPrefs.GetInt(ServiceCoverageOverlayKey, 1) != 0;
             settings.CongestionOverlayEnabled = PlayerPrefs.GetInt(CongestionOverlayKey, 1) != 0;
             settings.GridOverlayEnabled = PlayerPrefs.GetInt(GridOverlayKey, 1) != 0;
+            settings.HudFontScale = PlayerPrefs.GetFloat(HudFontScaleKey, GameSettings.DefaultHudFontScale);
+            settings.HighContrast = PlayerPrefs.GetInt(HighContrastKey, 0) != 0;
         }
 
         // Записать профиль. Значения уже клампнуты сеттерами GameSettings.
@@ -49,6 +53,8 @@ namespace Citybuilder
             PlayerPrefs.SetInt(ServiceCoverageOverlayKey, settings.ServiceCoverageOverlayEnabled ? 1 : 0);
             PlayerPrefs.SetInt(CongestionOverlayKey, settings.CongestionOverlayEnabled ? 1 : 0);
             PlayerPrefs.SetInt(GridOverlayKey, settings.GridOverlayEnabled ? 1 : 0);
+            PlayerPrefs.SetFloat(HudFontScaleKey, settings.HudFontScale);
+            PlayerPrefs.SetInt(HighContrastKey, settings.HighContrast ? 1 : 0);
             PlayerPrefs.Save();
         }
     }
