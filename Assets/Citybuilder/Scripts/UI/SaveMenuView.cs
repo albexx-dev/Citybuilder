@@ -15,6 +15,8 @@ namespace Citybuilder
         private int warningSlot = -1;
         private bool isOpen;
         private SimulationSpeed speedBeforeOpen = SimulationSpeed.Playing;
+        private string transferPath;
+        private string transferStatus = string.Empty;
 
         public bool IsOpen { get { return isOpen; } }
 
@@ -30,6 +32,8 @@ namespace Citybuilder
                     : SaveSlotIndex.DefaultName(i);
             }
             warningSlot = -1;
+            transferPath = SlotTransfer.DefaultPath(baseDir);
+            transferStatus = Localization.T("slot_transfer_hint");
             isOpen = true;
             speedBeforeOpen = Runner != null ? Runner.Speed : SimulationSpeed.Playing;
             if (Runner != null) Runner.SetSpeed(SimulationSpeed.Paused);
@@ -71,6 +75,8 @@ namespace Citybuilder
                 y += 48f;
             }
             if (GUI.Button(new Rect(x, y + 6f, 120f, 28f), Localization.T("save_close"))) ReturnToPause();
+            transferPath = GUI.TextField(new Rect(x, y + 40f, 300f, 22f), transferPath ?? string.Empty);
+            HudText.Draw(x + 310f, y + 40f, transferStatus);
         }
 
         private void DrawSlotRow(float x, float y, int slot, string baseDir)
@@ -101,6 +107,17 @@ namespace Citybuilder
                 Save.SaveNow(slot, slotNames[slot]);
                 Close();
             }
+            DrawExportButton(x, y, slot, baseDir);
+        }
+
+        private void DrawExportButton(float x, float y, int slot, string baseDir)
+        {
+            Rect btn = new Rect(x + 330f, y + 28f, 100f, 18f);
+            if (!GUI.Button(btn, Localization.T("slot_export"))) return;
+            CitySnapshot snapshot = SaveSlotStorage.Load(baseDir, slot);
+            transferStatus = snapshot != null && SlotTransfer.Export(transferPath, snapshot)
+                ? Localization.T("slot_transfer_ok")
+                : Localization.T("slot_transfer_invalid");
         }
 
         private void ResolveRefs()

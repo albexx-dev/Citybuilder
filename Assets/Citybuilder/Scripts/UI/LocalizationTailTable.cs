@@ -12,6 +12,12 @@ namespace Citybuilder
             { "save_rename", new[] { "Переименовать", "Rename" } },
             { "save_name_hint", new[] { "Имя: 1–{0} симв.", "Name: 1–{0} chars" } },
             { "save_name_invalid", new[] { "Имя пустое или длиннее {0} симв.", "Name empty or over {0} chars" } },
+            // Перенос слота файлом (#118, ADR-016): кнопки, подсказка и результат.
+            { "slot_export", new[] { "Экспорт", "Export" } },
+            { "slot_import", new[] { "Импорт", "Import" } },
+            { "slot_transfer_hint", new[] { "Файл слота для переноса", "Slot file for transfer" } },
+            { "slot_transfer_ok", new[] { "Готово", "Done" } },
+            { "slot_transfer_invalid", new[] { "Файл бит или версия > 6", "Invalid file or version > 6" } },
             // Настройки: звук, качество, gameplay и футер окна.
             { "settings_title", new[] { "=== Настройки ===", "=== Settings ===" } },
             { "settings_section_sound", new[] { "Звук", "Sound" } },
