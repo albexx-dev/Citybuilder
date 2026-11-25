@@ -5,7 +5,7 @@ namespace Citybuilder
 {
     // Пробки транспорта (T3, этап 057; EPIC-15 шаги 1 и 3). Чистая логика без Unity.
     // Множитель времени растёт с нагрузкой клетки; ниже порога — без эффекта.
-    public class CongestionSystem
+    public partial class CongestionSystem
     {
         private readonly Func<GridPosition, int> loadOf;
         private readonly GridSystem grid;
@@ -140,21 +140,5 @@ namespace Citybuilder
             return r > 1f ? 1f : r;
         }
 
-        public int GrowthTickMultiplier()
-        {
-            float worst = WorstMultiplier();
-            if (float.IsNaN(worst)) return 1;
-            int ticks = (int)Math.Round(worst);
-            return ticks < 1 ? 1 : ticks;
-        }
-
-        // Форматирует строку для инфоменю (EPIC-15 шаг 3): «Пробки: N (худшая клетка Z%, рост ×M)».
-        public string FormatSummaryLine()
-        {
-            int count = CongestedCellsCount();
-            int pct = (int)Math.Round(WorstLoad01() * 100f);
-            int mult = GrowthTickMultiplier();
-            return "Пробки: " + count + " (худшая клетка " + pct + "%, рост ×" + mult + ")";
-        }
     }
 }
