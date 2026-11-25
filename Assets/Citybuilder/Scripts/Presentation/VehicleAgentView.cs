@@ -30,8 +30,8 @@ namespace Citybuilder
         public float ModelScale = 1f;
 
         [Header("Visibility")]
-        [Tooltip("Дальность отсечения в клетках (камера до 80 м, карта 50×50).")]
-        public float ViewDistanceCells = 160f;
+        [Tooltip("Дальность в клетках: диагональ карты 50×50 ≈71; при зуме выше — не менее высоты камеры.")]
+        public float ViewDistanceCells = 72f;
         [Tooltip("Запас по краю пирамиды в клетках, чтобы машины не дёргались.")]
         public float FrustumMarginCells = 2f;
 
@@ -42,7 +42,6 @@ namespace Citybuilder
         // Замер ADR-001: машины, прошедшие и отсеянные в последнем Sync.
         public int LastVisibleCars { get { return visibility.VisibleCount; } }
         public int LastHiddenCars { get { return visibility.HiddenCount; } }
-
         // Обновить все виды из менеджера. Вызывается хостом каждый кадр после Advance.
         public void Sync(AgentManager manager)
         {
@@ -60,7 +59,8 @@ namespace Citybuilder
             float cell = Mathf.Max(0.01f, Visualizer.Grid.CellSize);
             Transform t = camera.transform;
             Vector3 p = t.position, f = t.forward, r = t.right, u = t.up;
-            visibility.Configure(camera.fieldOfView, camera.aspect, ViewDistanceCells * cell, FrustumMarginCells * cell);
+            float distance = Mathf.Max(ViewDistanceCells * cell, Mathf.Max(0f, p.y) + 1f);
+            visibility.Configure(camera.fieldOfView, camera.aspect, Mathf.Min(camera.farClipPlane, distance), FrustumMarginCells * cell);
             visibility.SetCamera(p.x, p.y, p.z, f.x, f.y, f.z, r.x, r.y, r.z, u.x, u.y, u.z);
             return visibility;
         }

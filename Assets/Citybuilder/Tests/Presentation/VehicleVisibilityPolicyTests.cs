@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 
 namespace Citybuilder
@@ -80,6 +81,28 @@ namespace Citybuilder
             policy.SetCamera(0f, 0f, 0f, 0f, 0f, 1f, 1f, 0f, 0f, 0f, 1f, 0f);
             Assert.IsTrue(policy.IsVisible(0f, 0f, 0.5f));
             Assert.IsFalse(policy.IsVisible(0f, 0f, 2f));
+        }
+
+        [Test]
+        public void IsVisible_SetCamera_NoAllocations()
+        {
+            VehicleVisibilityPolicy policy = MakePolicy();
+            // Прогрев: ленивая инициализация рантайма не должна попасть в замер.
+            policy.SetCamera(0f, 0f, 0f, 0f, 0f, 1f, 1f, 0f, 0f, 0f, 1f, 0f);
+            policy.IsVisible(0f, 0f, 10f);
+            // Три прохода: первые два прогревают тиризацию JIT, третий измеряет без шума.
+            for (int pass = 0; pass < 3; pass++)
+            {
+                long before = GC.GetAllocatedBytesForCurrentThread();
+                for (int i = 0; i < 1000; i++)
+                {
+                    policy.SetCamera(0f, 0f, 0f, 0f, 0f, 1f, 1f, 0f, 0f, 0f, 1f, 0f);
+                    policy.IsVisible(0f, 0f, 10f);
+                    policy.IsVisible(3f, 2f, 10f);
+                }
+                long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+                if (pass == 2) Assert.AreEqual(0L, allocated);
+            }
         }
     }
 }
