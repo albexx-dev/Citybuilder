@@ -139,12 +139,12 @@ namespace Citybuilder
         private void ApplyToListeners()
         {
             ApplyAudio(settings, Audio);
-            if (settings.DayNightEnabled != lastDayNightEnabled) ApplyDayNight(settings, DayNight);
-            lastDayNightEnabled = settings.DayNightEnabled;
+            if (settings.DayNightEnabled != lastDayNightEnabled) { ApplyDayNight(settings, DayNight); lastDayNightEnabled = settings.DayNightEnabled; }
             SettingsAppliers.ApplyDecor(settings, Decor, Menu);
             SettingsAppliers.ApplyAutosave(settings, Autosave);
             SettingsAppliers.ApplyAmbient(settings, Ambient);
             SettingsAppliers.ApplyOverlays(settings, FindFirstObjectByType<GridVisualizer>(), FindFirstObjectByType<RoadView>());
+            SettingsAppliers.ApplyGarbageTrucks(settings, FindFirstObjectByType<GarbageTruckView>());
         }
 
         // Готовая точка AudioController: SetVolume/SetMuted сами ведут свои ключи PlayerPrefs.

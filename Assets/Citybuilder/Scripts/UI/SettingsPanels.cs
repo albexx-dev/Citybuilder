@@ -46,7 +46,9 @@ namespace Citybuilder
             if (congestion != s.CongestionOverlayEnabled) s.CongestionOverlayEnabled = congestion;
             bool grid = GUI.Toggle(new Rect(x + 288f, y, 140f, 22f), s.GridOverlayEnabled, " " + Localization.T("settings_overlay_grid"));
             if (grid != s.GridOverlayEnabled) s.GridOverlayEnabled = grid;
-            y += 26f;
+            bool trucks = GUI.Toggle(new Rect(x, y + 26f, 200f, 22f), s.ShowGarbageTrucks, " " + Localization.T("settings_garbage_trucks"));
+            if (trucks != s.ShowGarbageTrucks) s.ShowGarbageTrucks = trucks;
+            y += 52f;
         }
 
         // Степпер «− значение +»: клик меняет настройку, кламп по диапазону GameSettings.
