@@ -8,6 +8,10 @@ namespace Citybuilder
     {
         private static readonly Dictionary<string, string[]> values = new Dictionary<string, string[]>
         {
+            // Переименование слота (#117): кнопка и подсказка валидации имени.
+            { "save_rename", new[] { "Переименовать", "Rename" } },
+            { "save_name_hint", new[] { "Имя: 1–{0} симв.", "Name: 1–{0} chars" } },
+            { "save_name_invalid", new[] { "Имя пустое или длиннее {0} симв.", "Name empty or over {0} chars" } },
             // Настройки: звук, качество, gameplay и футер окна.
             { "settings_title", new[] { "=== Настройки ===", "=== Settings ===" } },
             { "settings_section_sound", new[] { "Звук", "Sound" } },

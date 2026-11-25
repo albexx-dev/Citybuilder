@@ -12,6 +12,7 @@ namespace Citybuilder
         [Tooltip("Меню паузы.")] public PauseMenuView Pause;
 
         private readonly string[] slotNames = new string[SaveSlotIndex.ManualSlotCount];
+        private int warningSlot = -1;
         private bool isOpen;
         private SimulationSpeed speedBeforeOpen = SimulationSpeed.Playing;
 
@@ -28,6 +29,7 @@ namespace Citybuilder
                     ? meta.name
                     : SaveSlotIndex.DefaultName(i);
             }
+            warningSlot = -1;
             isOpen = true;
             speedBeforeOpen = Runner != null ? Runner.Speed : SimulationSpeed.Playing;
             if (Runner != null) Runner.SetSpeed(SimulationSpeed.Paused);
@@ -55,7 +57,7 @@ namespace Citybuilder
         {
             if (!isOpen) return;
             ResolveRefs();
-            Rect panel = SettingsLayout.CenteredRect(460f, 230f, Screen.width, Screen.height);
+            Rect panel = SettingsLayout.CenteredRect(460f, 262f, Screen.width, Screen.height);
             UiClickGuard.Set("save_menu", panel);
             BottomBarStyle.DrawBarBackground(panel);
             float x = panel.x + 14f;
@@ -66,19 +68,34 @@ namespace Citybuilder
             for (int i = 0; i < SaveSlotIndex.ManualSlotCount; i++)
             {
                 DrawSlotRow(x, y, i, baseDir);
-                y += 40f;
+                y += 48f;
             }
             if (GUI.Button(new Rect(x, y + 6f, 120f, 28f), Localization.T("save_close"))) ReturnToPause();
         }
 
         private void DrawSlotRow(float x, float y, int slot, string baseDir)
         {
-            slotNames[slot] = GUI.TextField(new Rect(x, y, 160f, 26f), slotNames[slot] ?? string.Empty, 32);
+            slotNames[slot] = GUI.TextField(new Rect(x, y, 160f, 26f),
+                slotNames[slot] ?? string.Empty, SaveSlotIndex.MaxNameLength);
             SaveSlotIndex.SlotMeta meta = SaveSlotIndex.GetMeta(baseDir, slot);
             string info = meta == null
                 ? Localization.T("save_slot_empty")
                 : Localization.T("save_slot_info", meta.savedAtTick / 24, meta.savedAtReal);
             HudText.Draw(x + 170f, y + 2f, info);
+            if (GUI.Button(new Rect(x, y + 28f, 160f, 18f), Localization.T("save_rename")))
+            {
+                bool renamed = SaveSlotIndex.Rename(baseDir, slot, slotNames[slot]);
+                warningSlot = renamed ? -1 : slot;
+                if (renamed)
+                {
+                    SaveSlotIndex.SlotMeta updated = SaveSlotIndex.GetMeta(baseDir, slot);
+                    if (updated != null) slotNames[slot] = updated.name;
+                }
+            }
+            string hint = warningSlot == slot
+                ? Localization.T("save_name_invalid", SaveSlotIndex.MaxNameLength)
+                : Localization.T("save_name_hint", SaveSlotIndex.MaxNameLength);
+            HudText.Draw(x + 170f, y + 28f, hint);
             if (GUI.Button(new Rect(x + 330f, y, 100f, 26f), Localization.T("save_save")) && Save != null)
             {
                 Save.SaveNow(slot, slotNames[slot]);
