@@ -89,7 +89,7 @@ namespace Citybuilder
         {
             GameObject lines = FindChild("GridLines");
             MeshFilter linesFilter = lines == null ? null : lines.GetComponent<MeshFilter>();
-            bool linesReady = linesFilter != null && linesFilter.mesh != null && linesFilter.mesh.vertexCount > 0;
+            bool linesReady = linesFilter != null && linesFilter.sharedMesh != null && linesFilter.sharedMesh.vertexCount > 0;
             if (linesReady) return;
             if (lines != null) Destroy(lines);
             BuildGridLines();
@@ -106,7 +106,7 @@ namespace Citybuilder
             if (occupiedMesh == null)
             {
                 GameObject overlay = FindChild("OccupiedOverlay");
-                if (overlay != null) occupiedMesh = overlay.GetComponent<MeshFilter>().mesh;
+                if (overlay != null) occupiedMesh = overlay.GetComponent<MeshFilter>().sharedMesh;
                 else RebuildOccupied();
             }
         }
@@ -122,7 +122,8 @@ namespace Citybuilder
             GameObject go = new GameObject("GridLines");
             go.transform.SetParent(transform, false);
             MeshFilter filter = go.AddComponent<MeshFilter>();
-            filter.mesh = new Mesh();
+            Mesh mesh = new Mesh();
+            filter.sharedMesh = mesh;
             go.AddComponent<MeshRenderer>().material = BuildMaterial(DimmedLineColor(Visualizer.LineColor));
             int vertical = Visualizer.Width + 1, horizontal = Visualizer.Height + 1;
             int count = (vertical + horizontal) * 2;
@@ -143,9 +144,9 @@ namespace Citybuilder
                 vertices[i + 1] = new Vector3(totalX, 0f, pz);
             }
             for (int v = 0; v < count; v++) indices[v] = v;
-            filter.mesh.vertices = vertices;
-            filter.mesh.SetIndices(indices, MeshTopology.Lines, 0);
-            filter.mesh.RecalculateBounds();
+            mesh.vertices = vertices;
+            mesh.SetIndices(indices, MeshTopology.Lines, 0);
+            mesh.RecalculateBounds();
         }
 
         private GameObject BuildQuad(Color color)
