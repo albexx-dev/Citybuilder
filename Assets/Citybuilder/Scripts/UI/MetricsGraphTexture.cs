@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Текстуры графиков инфоменю (EPIC-68 шаг 2): население, казна, нужды, энергия,
-    // пожары и кражи (#112).
+    // пожары и кражи (#112), диапазон 8/30 дней (#113).
     // Линия рисуется в пиксельный буфер (IMGUI не умеет DrawLine), поэтому OnGUI только
     // выводит готовую текстуру: пересчёт не чаще раза в 0.5 с и только при открытом меню.
     // Прореживание и оси — GraphMath; история — MetricsHistory (#63), в сейв не пишется.
@@ -32,21 +32,32 @@ namespace Citybuilder
         };
 
         private static readonly Texture2D[] textures = new Texture2D[SeriesCount];
+        private static readonly MetricsSnapshot[] snapshots = new MetricsSnapshot[MetricsHistory.Capacity];
         private static readonly float[] source = new float[MetricsHistory.Capacity];
         private static readonly float[] points = new float[GraphMath.DefaultMaxPoints];
         private static readonly Color[] buffer = new Color[Width * Height];
         private static float nextRefreshTime;
+        private static int lastSampleCount;
 
         // Пересчитать, если пора. Возвращает true при перерисовке; пустая история — false.
         // clockOverride >= 0 подменяет часы (шов для EditMode-тестов: Time не подставить напрямую).
         public static bool RefreshIfDue(MetricsHistory history, float clockOverride = -1f)
         {
+            return RefreshIfDue(history, MetricsGraphView.SampleCount, clockOverride);
+        }
+
+        // Тестируемый шов с явным числом часовых точек (8 дней = 192, 30 дней = 720).
+        public static bool RefreshIfDue(MetricsHistory history, int sampleCount, float clockOverride = -1f)
+        {
             if (history == null || history.Count == 0) return false;
+            int samples = sampleCount < 1 ? MetricsGraphView.SampleCount : sampleCount;
+            if (samples > history.BufferCapacity) samples = history.BufferCapacity;
             float now = clockOverride >= 0f ? clockOverride : Time.unscaledTime;
-            if (now < nextRefreshTime) return false;
+            if (now < nextRefreshTime && samples == lastSampleCount) return false;
             nextRefreshTime = now + RefreshIntervalSec;
-            MetricsSnapshot[] snapshots = history.Snapshot();
-            for (int i = 0; i < SeriesCount; i++) Repaint(snapshots, i);
+            lastSampleCount = samples;
+            int count = history.CopyRecent(snapshots, samples);
+            for (int i = 0; i < SeriesCount; i++) Repaint(count, i);
             return true;
         }
 
@@ -76,13 +87,12 @@ namespace Citybuilder
         }
 
         // Забыть таймер (тесты, «Новая игра»): следующий вызов пересчитает сразу.
-        public static void Reset() { nextRefreshTime = 0f; }
+        public static void Reset() { nextRefreshTime = 0f; lastSampleCount = 0; }
 
-        private static void Repaint(MetricsSnapshot[] snapshots, int index)
+        private static void Repaint(int count, int index)
         {
-            int count = snapshots.Length > source.Length ? source.Length : snapshots.Length;
             for (int i = 0; i < count; i++) source[i] = ValueAt(index, snapshots[i]);
-            int written = GraphMath.Decimate(source, count, points, Width);
+            int written = GraphMath.DecimateBuckets(source, count, points, Width);
             float min, max;
             GraphMath.Axes(points, written, out min, out max);
             for (int i = 0; i < buffer.Length; i++) buffer[i] = Background;

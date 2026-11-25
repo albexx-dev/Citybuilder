@@ -22,7 +22,7 @@ namespace Citybuilder
         [Tooltip("Мусоровозы (эпик #52). Пусто = ищется в сцене.")] public GarbageTruckView Garbage;
 
         private const float RefreshIntervalSec = 0.5f;
-        private const float ContentHeight = 834f; // + секция «История» (EPIC-68) и строка вывоза мусора
+        private const float ContentHeight = 860f; // + кнопка масштаба 8/30 (#113), секция «История» и вывоз мусора
 
         // Порядок строк налогов в бюджете (эпик #49).
         private static readonly ZoneType[] BudgetZones =
@@ -144,7 +144,21 @@ namespace Citybuilder
             DrawHeader(ref y, Localization.T("info_section_development"));
             DrawLine(ref y, cachedLines[9]);
             DrawLine(ref y, cachedLines[10]);
+            DrawRangeButton(ref y, width);
             MetricsGraphView.Draw(ref y, width);
+        }
+
+        // Кнопка масштаба истории: 8 дней по умолчанию, 30 дней после клика (issue #113).
+        private void DrawRangeButton(ref float y, float width)
+        {
+            string text = Localization.T("metrics_range", MetricsGraphView.RangeDays);
+            if (GUI.Button(new Rect(4f, y, Mathf.Min(260f, width - 8f), 24f), text))
+            {
+                AudioController.PlayClickGlobal();
+                MetricsGraphView.ToggleRange();
+                RebuildCache();
+            }
+            y += 26f;
         }
 
         private void DrawBudgetSection(ref float y, float width)
