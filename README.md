@@ -50,7 +50,7 @@ Ready-to-play Windows64 build: [GitHub Release v1.3.3](https://github.com/albexx
 
 ## Regenerating audio
 
-`Tools/GenerateWav.py` (Python 3.10+, stdlib only, seed `125`) rebuilds the audio clips with fixed parameters and never writes into `Assets/`:
+`Tools/GenerateWav.py` (Python 3.10+, stdlib only, seed `125`) rebuilds the audio clips with fixed parameters and refuses to write inside `Assets/Citybuilder/Audio/` (the committed sources):
 
 ```bash
 python Tools/GenerateWav.py --out Tools/generated-wav      # write copies

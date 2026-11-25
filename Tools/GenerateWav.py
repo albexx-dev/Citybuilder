@@ -165,6 +165,10 @@ def main() -> int:
         return verify(names, args.verbose)
     if not args.out:
         parser.error("нужно --out или --verify")
+    if args.out.resolve().is_relative_to(AUDIO.resolve()):
+        print(f"ERROR: --out не может быть внутри {AUDIO.as_posix()}: "
+              "исходные WAV перезаписывать запрещено", file=sys.stderr)
+        return 2
     args.out.mkdir(parents=True, exist_ok=True)
     for name, build in SPEC.items():
         target = args.out / name
