@@ -33,7 +33,7 @@ namespace Citybuilder
         }
         // Эпик 97 и issue #123: кнопка повтора и три строки подсказок требуют высоты 480.
         [Test]
-        public void PanelHeight_FitsRepeatButtonAndControlsHint()
+        public void PanelHeight_FitsRepeatButtonAndControlsHints()
         {
             Assert.AreEqual(480f, SettingsLayout.PanelHeight);
             Assert.LessOrEqual(SettingsLayout.PanelRect(1024f, 600f).yMax, 600f);
