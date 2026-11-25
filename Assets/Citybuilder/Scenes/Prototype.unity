@@ -215,7 +215,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Citybuilder::Citybuilder.VehicleAgentView
   Visualizer: {fileID: 985593152}
-  MaxViews: 12
+  MaxViews: 40
   RideHeight: 0.05
   CarModels:
   - {fileID: 919132149155446097, guid: fac1405327d21a4499d7bf674c077c92, type: 3}
@@ -380,6 +380,7 @@ MonoBehaviour:
   ModelYawOffset: 180
   ModelScale: 1
   RideHeight: 0.05
+  ShowTruckVisuals: 0
 --- !u!4 &751421547
 Transform:
   m_ObjectHideFlags: 0
