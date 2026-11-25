@@ -87,27 +87,9 @@ namespace Citybuilder
         [Test]
         public void BuildSnapshotFromStates_UtilityManualBuilding_ExcludedFromDenominator()
         {
-            BuildingDefinition fireStation = ScriptableObject.CreateInstance<BuildingDefinition>();
-            fireStation.Id = "fire_station"; fireStation.DisplayName = "Fire Station";
-            fireStation.ResidentCapacity = 0; fireStation.ServiceKind = ServiceKind.Fire; fireStation.ServiceRadius = 6;
-            BuildingDefinition power = ScriptableObject.CreateInstance<BuildingDefinition>();
-            power.Id = "power_station"; power.DisplayName = "Power Station";
-            power.ResidentCapacity = 0; power.ServiceKind = ServiceKind.None;
-            BuildingDefinition house = ScriptableObject.CreateInstance<BuildingDefinition>();
-            house.Id = "house"; house.DisplayName = "House";
-            house.ResidentCapacity = 4; house.ServiceKind = ServiceKind.None;
-            List<BuildingState> placed = new List<BuildingState>
-            {
-                new BuildingState(EntityId.New(), fireStation, new GridPosition(0, 0),
-                    new List<GridPosition> { new GridPosition(0, 0) }),
-                new BuildingState(EntityId.New(), power, new GridPosition(4, 4),
-                    new List<GridPosition> { new GridPosition(4, 4) }),
-            };
-            List<BuildingState> grown = new List<BuildingState>
-            {
-                new BuildingState(EntityId.New(), house, new GridPosition(2, 2),
-                    new List<GridPosition> { new GridPosition(2, 2) }),
-            };
+            BuildingDefinition fireStation, power, house;
+            List<BuildingState> placed, grown;
+            MakeFixture(out fireStation, out power, out house, out placed, out grown);
             try
             {
                 ServiceBuildingSystem system = new ServiceBuildingSystem();
@@ -123,6 +105,33 @@ namespace Citybuilder
                 ScriptableObject.DestroyImmediate(power);
                 ScriptableObject.DestroyImmediate(house);
             }
+        }
+
+        // Фикстура ручных построек и выросшего дома (issue #127).
+        private static void MakeFixture(out BuildingDefinition fireStation, out BuildingDefinition power,
+            out BuildingDefinition house, out List<BuildingState> placed, out List<BuildingState> grown)
+        {
+            fireStation = ScriptableObject.CreateInstance<BuildingDefinition>();
+            fireStation.Id = "fire_station"; fireStation.DisplayName = "Fire Station";
+            fireStation.ResidentCapacity = 0; fireStation.ServiceKind = ServiceKind.Fire; fireStation.ServiceRadius = 6;
+            power = ScriptableObject.CreateInstance<BuildingDefinition>();
+            power.Id = "power_station"; power.DisplayName = "Power Station";
+            power.ResidentCapacity = 0; power.ServiceKind = ServiceKind.None;
+            house = ScriptableObject.CreateInstance<BuildingDefinition>();
+            house.Id = "house"; house.DisplayName = "House";
+            house.ResidentCapacity = 4; house.ServiceKind = ServiceKind.None;
+            placed = new List<BuildingState>
+            {
+                new BuildingState(EntityId.New(), fireStation, new GridPosition(0, 0),
+                    new List<GridPosition> { new GridPosition(0, 0) }),
+                new BuildingState(EntityId.New(), power, new GridPosition(4, 4),
+                    new List<GridPosition> { new GridPosition(4, 4) }),
+            };
+            grown = new List<BuildingState>
+            {
+                new BuildingState(EntityId.New(), house, new GridPosition(2, 2),
+                    new List<GridPosition> { new GridPosition(2, 2) }),
+            };
         }
 
     }
