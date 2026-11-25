@@ -24,7 +24,7 @@ namespace Citybuilder
         {
             Rect rect = new Rect(HudLayout.TopLeftX, HudLayout.TopLeftRowY(4), ButtonWidth, ButtonHeight);
             UiClickGuard.Set(GuardKey, rect);
-            GUIContent content = new GUIContent(Label, "Переключить язык / Toggle language");
+            GUIContent content = new GUIContent(Label, Localization.T("language_toggle_tip"));
             if (GUI.Button(rect, content))
             {
                 Toggle();
