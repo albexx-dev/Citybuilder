@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Данные строки «Расход: N $/ч»: фактическое содержание выросших и построенных зданий.
+    // Данные строки «Расход: N $/ч»: фактическое списание (базовое содержание ÷8).
     // Отрисовка перенесена в InfoMenuView (EPIC-14 шаг 2); здесь остаются CurrentText/CurrentLook.
     public class UpkeepView : MonoBehaviour
     {
@@ -54,12 +54,12 @@ namespace Citybuilder
             Debug.LogWarning("UpkeepView: нет SettlementGrowthController — строка расхода будет нулевой.", this);
         }
 
-        // Фактическое содержание за час. Публично: строка бюджета в TreasuryView читает то же число.
+        // Фактическое списание за час. Публично: строка бюджета в TreasuryView читает то же число.
         public int CurrentUpkeep()
         {
             List<BuildingState> grown = Growth != null ? Growth.Homes : null;
             List<BuildingState> placed = Placement != null ? Placement.Placed : null;
-            return UpkeepPolicy.UpkeepPerHour(grown, placed);
+            return EffectiveUpkeepPolicy.Apply(UpkeepPolicy.UpkeepPerHour(grown, placed));
         }
 
         // Казна идёт через Growth.Treasury: отдельной ссылки в сцене не требуется.
