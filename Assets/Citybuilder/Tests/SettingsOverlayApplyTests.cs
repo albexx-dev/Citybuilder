@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -26,9 +28,24 @@ namespace Citybuilder
 
         private static void ClearKeys()
         {
+            PlayerPrefs.DeleteKey(GameSettingsStore.VolumeKey);
+            PlayerPrefs.DeleteKey(GameSettingsStore.AmbientVolumeKey);
+            PlayerPrefs.DeleteKey(GameSettingsStore.MuteKey);
+            PlayerPrefs.DeleteKey(GameSettingsStore.AgentLimitKey);
+            PlayerPrefs.DeleteKey(GameSettingsStore.DecorKey);
+            PlayerPrefs.DeleteKey(GameSettingsStore.DayNightKey);
+            PlayerPrefs.DeleteKey(GameSettingsStore.AutosaveHoursKey);
             PlayerPrefs.DeleteKey(GameSettingsStore.ServiceCoverageOverlayKey);
             PlayerPrefs.DeleteKey(GameSettingsStore.CongestionOverlayKey);
             PlayerPrefs.DeleteKey(GameSettingsStore.GridOverlayKey);
+        }
+
+        private static int MeshVertexCount(GameObject host, string child)
+        {
+            Transform node = host.transform.Find(child);
+            if (node == null) return 0;
+            MeshFilter filter = node.GetComponent<MeshFilter>();
+            return filter == null || filter.sharedMesh == null ? 0 : filter.sharedMesh.vertexCount;
         }
 
         [Test]
@@ -76,6 +93,34 @@ namespace Citybuilder
             Assert.IsFalse(roads.CongestionOverlayEnabled);
             SettingsAppliers.ApplyOverlays(null, null, roads);
             Assert.IsFalse(roads.CongestionOverlayEnabled);
+        }
+
+        [Test]
+        public void SetCongestionOverlay_OffThenOn_SameTick_RestoresMesh()
+        {
+            RoadView roads = host.AddComponent<RoadView>();
+            List<GridPosition> cells = new List<GridPosition> { new GridPosition(1, 1) };
+            Func<GridPosition, float> load = cell => 1f;
+            roads.RefreshCongestionOncePerTick(7, cells, 1f, load);
+            Assert.AreEqual(4, MeshVertexCount(host, "RoadsRed"));
+            roads.SetCongestionOverlayEnabled(false);
+            Assert.AreEqual(0, MeshVertexCount(host, "RoadsRed"));
+            roads.SetCongestionOverlayEnabled(true);
+            Assert.AreEqual(4, MeshVertexCount(host, "RoadsRed"));
+        }
+
+        [Test]
+        public void ApplyOverlays_CachedCoverageRadius_SurvivesOffThenOn()
+        {
+            GridVisualizer grid = host.AddComponent<GridVisualizer>();
+            grid.ShowRadiusOverlay(new GridPosition(4, 4), 2, ServiceKind.Fire);
+            Assert.Greater(MeshVertexCount(host, "RadiusOverlay"), 0);
+            settings.ServiceCoverageOverlayEnabled = false;
+            SettingsAppliers.ApplyOverlays(settings, grid, null);
+            Assert.AreEqual(0, MeshVertexCount(host, "RadiusOverlay"));
+            settings.ServiceCoverageOverlayEnabled = true;
+            SettingsAppliers.ApplyOverlays(settings, grid, null);
+            Assert.Greater(MeshVertexCount(host, "RadiusOverlay"), 0);
         }
 
         [Test]
