@@ -13,12 +13,16 @@ namespace Citybuilder
 
         private bool isOpen;
         private SimulationSpeed speedBeforeOpen = SimulationSpeed.Playing;
+        private string transferPath;
+        private string transferStatus = string.Empty;
 
         public bool IsOpen { get { return isOpen; } }
 
         public void Open()
         {
             ResolveRefs();
+            transferPath = SlotTransfer.DefaultPath(Application.persistentDataPath);
+            transferStatus = Localization.T("slot_transfer_hint");
             isOpen = true;
             speedBeforeOpen = Runner != null ? Runner.Speed : SimulationSpeed.Playing;
             if (Runner != null) Runner.SetSpeed(SimulationSpeed.Paused);
@@ -62,6 +66,8 @@ namespace Citybuilder
             DrawRow(x, y, SaveSlotIndex.AutosaveSlot, baseDir);
             y += 44f;
             if (GUI.Button(new Rect(x, y, 120f, 28f), Localization.T("load_close"))) ReturnToPause();
+            transferPath = GUI.TextField(new Rect(x, y + 36f, 300f, 22f), transferPath ?? string.Empty);
+            HudText.Draw(x + 310f, y + 36f, transferStatus);
         }
 
         private void DrawRow(float x, float y, int slot, string baseDir)
@@ -84,6 +90,25 @@ namespace Citybuilder
                 Load.LoadNow(slot);
                 Close();
             }
+            if (slot != SaveSlotIndex.AutosaveSlot)
+            {
+                Rect transfer = new Rect(x + 330f, y + 28f, 100f, 18f);
+                if (GUI.Button(transfer, Localization.T("slot_import"))) ImportInto(slot, baseDir);
+            }
+        }
+
+        // Импорт в существующий слот: имя слота сохраняется, валидация — в SlotTransfer.
+        private void ImportInto(int slot, string baseDir)
+        {
+            CitySnapshot snapshot = SlotTransfer.Import(transferPath);
+            if (snapshot == null)
+            {
+                transferStatus = Localization.T("slot_transfer_invalid");
+                return;
+            }
+            SaveSlotIndex.SlotMeta meta = SaveSlotIndex.GetMeta(baseDir, slot);
+            bool saved = SaveSlotStorage.Save(baseDir, slot, snapshot, meta == null ? null : meta.name);
+            transferStatus = saved ? Localization.T("slot_transfer_ok") : Localization.T("slot_transfer_invalid");
         }
 
         private void ResolveRefs()
