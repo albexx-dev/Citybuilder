@@ -23,6 +23,8 @@
 | Эмбиент день/ночь | проект Citybuilder (процедурные, эпик 71, задача 210) | CC0 1.0 (собственная генерация) | `Assets/Citybuilder/Audio/ambient-day.wav`, `Assets/Citybuilder/Audio/ambient-night.wav` |
 | Событийные звуки ленты | проект Citybuilder (процедурные, хвосты #71/#66, задача 104) | CC0 1.0 (собственная генерация, `Assets/Citybuilder/Audio/LICENSE-NOTES.md`) | `Assets/Citybuilder/Audio/event-fire.wav`, `Assets/Citybuilder/Audio/event-crime.wav` |
 
+Генератор этих клипов — `Tools/GenerateWav.py` (только stdlib, фиксированный seed `125`, 22.05 кГц / 16-bit mono). Проверка `python Tools/GenerateWav.py --verify-exact`: `click.wav`, `coin.wav`, `pop.wav` совпадают с закоммиченными байтами (SHA-256 совпадает). Остальные пять (`swoosh.wav`, `event-fire.wav`, `event-crime.wav`, `ambient-day.wav`, `ambient-night.wav`) воспроизводятся детерминированно, но **не** битово идентичны: оригинальные по-сэмпльные формулы не были сохранены в репозитории, в `LICENSE-NOTES.md` описан лишь характер звука. Полная проверка `python Tools/GenerateWav.py --verify` честно показывает 5 расхождений; это различие сэмплов, а не метаданных RIFF — заголовки 44 байта и формат совпадают. Сгенерированные копии пишутся только в указанную `--out` папку, существующие WAV не перезаписываются.
+
 Клипы ленты переиспользуются без новых ассетов: Fire → `event-fire.wav`, Crime → `event-crime.wav`,
 Garbage → `event-crime.wav` на высоком питче, Blackout → `event-fire.wav` на низком питче
 (тихий сигнал, per-kind cooldown). `coin.wav` звучит только на наградах целей (`GoalView.cs:64`),
