@@ -46,13 +46,8 @@ namespace Citybuilder
             {
                 return;
             }
-            float boost = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) ? 3f : 1f;
-            float moveStep = Mathf.Max(MoveSpeed, 1f) * Time.deltaTime * boost;
-            float turnStep = Mathf.Max(RotateSpeed, 1f) * Time.deltaTime;
-            float right = (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow) ? 1f : 0f)
-                - (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow) ? 1f : 0f);
-            float forward = (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow) ? 1f : 0f)
-                - (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow) ? 1f : 0f);
+            ReadMovement(out float right, out float forward, out float moveStep,
+                out float turnStep, out float boost);
             if (right != 0f || forward != 0f)
             {
                 Pan(right * moveStep, forward * moveStep);
@@ -120,5 +115,18 @@ namespace Citybuilder
             Vector3 angles = camera.transform.eulerAngles;
             camera.transform.rotation = Quaternion.Euler(angles.x, ReadYaw(angles) + degrees, 0f);
         }
+        // Чтение ввода камеры (issue #127): значения не меняются, только вынесены в хелпер.
+        private void ReadMovement(out float right, out float forward, out float moveStep,
+            out float turnStep, out float boost)
+        {
+            boost = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) ? 3f : 1f;
+            moveStep = Mathf.Max(MoveSpeed, 1f) * Time.deltaTime * boost;
+            turnStep = Mathf.Max(RotateSpeed, 1f) * Time.deltaTime;
+            right = (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow) ? 1f : 0f)
+                - (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow) ? 1f : 0f);
+            forward = (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow) ? 1f : 0f)
+                - (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow) ? 1f : 0f);
+        }
+
     }
 }

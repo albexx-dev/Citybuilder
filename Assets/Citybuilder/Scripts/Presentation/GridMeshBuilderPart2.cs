@@ -17,22 +17,9 @@ namespace Citybuilder
             go.AddComponent<MeshRenderer>().material = BuildMaterial(DimmedLineColor(Visualizer.LineColor));
             int vertical = Visualizer.Width + 1, horizontal = Visualizer.Height + 1;
             int count = (vertical + horizontal) * 2;
-            Vector3[] vertices = new Vector3[count];
             int[] indices = new int[count];
             float totalX = Visualizer.Width * Visualizer.CellSize, totalZ = Visualizer.Height * Visualizer.CellSize;
-            int i = 0;
-            for (int x = 0; x < vertical; x++, i += 2)
-            {
-                float px = x * Visualizer.CellSize;
-                vertices[i] = new Vector3(px, 0f, 0f);
-                vertices[i + 1] = new Vector3(px, 0f, totalZ);
-            }
-            for (int z = 0; z < horizontal; z++, i += 2)
-            {
-                float pz = z * Visualizer.CellSize;
-                vertices[i] = new Vector3(0f, 0f, pz);
-                vertices[i + 1] = new Vector3(totalX, 0f, pz);
-            }
+            Vector3[] vertices = BuildGridVertices(vertical, horizontal, totalX, totalZ);
             for (int v = 0; v < count; v++) indices[v] = v;
             mesh.vertices = vertices;
             mesh.SetIndices(indices, MeshTopology.Lines, 0);
@@ -66,5 +53,26 @@ namespace Citybuilder
         {
             return Color.Lerp(line, new Color(0.12f, 0.24f, 0.10f), 0.65f);
         }
+        // Вершины сетки (issue #127): две петли перенесены в отдельный хелпер.
+        private Vector3[] BuildGridVertices(int vertical, int horizontal, float totalX, float totalZ)
+        {
+            int count = (vertical + horizontal) * 2;
+            Vector3[] vertices = new Vector3[count];
+            int i = 0;
+            for (int x = 0; x < vertical; x++, i += 2)
+            {
+                float px = x * Visualizer.CellSize;
+                vertices[i] = new Vector3(px, 0f, 0f);
+                vertices[i + 1] = new Vector3(px, 0f, totalZ);
+            }
+            for (int z = 0; z < horizontal; z++, i += 2)
+            {
+                float pz = z * Visualizer.CellSize;
+                vertices[i] = new Vector3(0f, 0f, pz);
+                vertices[i + 1] = new Vector3(totalX, 0f, pz);
+            }
+            return vertices;
+        }
+
     }
 }
