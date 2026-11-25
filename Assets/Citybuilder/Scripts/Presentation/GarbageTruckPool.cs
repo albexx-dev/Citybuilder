@@ -13,7 +13,7 @@ namespace Citybuilder
         private readonly float cellSize;
         private readonly float yawOffset;
         private readonly float rideHeight;
-        private readonly bool showVisuals;
+        private bool showVisuals;
 
         public GarbageTruckPool(Transform parent, GameObject[] models, int count,
             float modelScale, float yawOffset, float rideHeight, float cellSize, bool showVisuals)
@@ -43,6 +43,14 @@ namespace Citybuilder
             }
             car.SetActive(false);
             return car;
+        }
+
+        // Опция #115: переключение на лету; выключение гасит слоты сразу, включение — в Sync.
+        public void SetShowVisuals(bool show)
+        {
+            showVisuals = show;
+            if (show) return;
+            for (int i = 0; i < cars.Length; i++) cars[i].SetActive(false);
         }
 
         // Обновить все виды из системы: активные мусоровозы на маршруте, остальные скрыты.

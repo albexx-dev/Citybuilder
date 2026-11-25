@@ -26,6 +26,7 @@ namespace Citybuilder
         private bool serviceCoverageOverlayEnabled = true;
         private bool congestionOverlayEnabled = true;
         private bool gridOverlayEnabled = true;
+        private bool showGarbageTrucks = false;
 
         // Системы переприменяют значения на лету; вызывается только при реальном изменении.
         public event Action Changed;
@@ -79,6 +80,9 @@ namespace Citybuilder
         public bool CongestionOverlayEnabled { get { return congestionOverlayEnabled; } set { Set(ref congestionOverlayEnabled, value); } }
         public bool GridOverlayEnabled { get { return gridOverlayEnabled; } set { Set(ref gridOverlayEnabled, value); } }
 
+        // Мусоровозы (issue #115): дефолт false — вид выключен, логика вывоза работает.
+        public bool ShowGarbageTrucks { get { return showGarbageTrucks; } set { Set(ref showGarbageTrucks, value); } }
+
         public static float ClampVolume(float value)
         {
             if (float.IsNaN(value) || value < 0f) return 0f;
@@ -103,7 +107,7 @@ namespace Citybuilder
             bool changed = volume != DefaultVolume || ambientVolume != DefaultAmbientVolume || muted
                 || agentLimit != DefaultAgentLimit || !decorEnabled || !dayNightEnabled
                 || autosaveHours != DefaultAutosaveHours || !serviceCoverageOverlayEnabled
-                || !congestionOverlayEnabled || !gridOverlayEnabled;
+                || !congestionOverlayEnabled || !gridOverlayEnabled || showGarbageTrucks;
             volume = DefaultVolume;
             ambientVolume = DefaultAmbientVolume;
             muted = false;
@@ -114,6 +118,7 @@ namespace Citybuilder
             serviceCoverageOverlayEnabled = true;
             congestionOverlayEnabled = true;
             gridOverlayEnabled = true;
+            showGarbageTrucks = false;
             if (changed && Changed != null) Changed();
         }
 

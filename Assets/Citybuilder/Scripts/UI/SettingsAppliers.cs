@@ -40,5 +40,12 @@ namespace Citybuilder
             }
             if (roads != null) roads.SetCongestionOverlayEnabled(source.CongestionOverlayEnabled);
         }
+
+        // Мусоровозы (issue #115): только вид, логика вывоза и HUD работают при любом флаге.
+        public static void ApplyGarbageTrucks(GameSettings source, GarbageTruckView trucks)
+        {
+            if (source == null || trucks == null) return;
+            trucks.SetShowTruckVisuals(source.ShowGarbageTrucks);
+        }
     }
 }

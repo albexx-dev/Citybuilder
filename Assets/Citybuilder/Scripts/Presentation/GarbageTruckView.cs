@@ -38,12 +38,15 @@ namespace Citybuilder
         public GarbageSystem Garbage { get { return ticker.Garbage; } }
         public bool HasDepot { get { return cachedDepot.HasValue; } }
 
-        // Сброс по команде LoadController.ClearAll; также срабатывает при отмотке часов.
-        public void ResetGarbage()
+        // Опция #115: только вид. Компонент, подписка на часы, GarbageSystem и HUD остаются.
+        public void SetShowTruckVisuals(bool show)
         {
-            ticker.Reset();
-            RefreshDepot();
+            ShowTruckVisuals = show;
+            if (pool != null) pool.SetShowVisuals(show);
         }
+
+        // Сброс по команде LoadController.ClearAll; также срабатывает при отмотке часов.
+        public void ResetGarbage() { ticker.Reset(); RefreshDepot(); }
 
         public void RefreshDepot()
         {
@@ -51,11 +54,7 @@ namespace Citybuilder
             if (Economy != null && Economy.Placement != null) placedRevision = Economy.Placement.PlacedRevision;
         }
 
-        private void OnEnable()
-        {
-            subscribed = false;
-            TrySubscribe();
-        }
+        private void OnEnable() { subscribed = false; TrySubscribe(); }
 
         private void OnDisable()
         {
