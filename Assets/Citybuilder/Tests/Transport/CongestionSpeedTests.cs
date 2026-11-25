@@ -87,17 +87,11 @@ namespace Citybuilder
         [Test]
         public void AgentManager_Load01_EndToEnd_JamSlowsAgent()
         {
-            GridSystem grid = new GridSystem(new GridSize(10, 10), 2f);
-            List<GridPosition> roads = MakeList(
-                new GridPosition(1, 0), new GridPosition(2, 0), new GridPosition(3, 0),
-                new GridPosition(4, 0), new GridPosition(5, 0));
-            RouteSystem routes = new RouteSystem(grid, roads);
-            CongestionSystem jam = new CongestionSystem(routes, grid);
+            GridSystem grid;
+            RouteSystem routes;
+            List<GridPosition> roads;
+            CongestionSystem jam = MakeJam(out routes, out roads, out grid);
             CongestionSystem clean = new CongestionSystem(routes, grid);
-            List<GridPosition> jamTrip = new List<GridPosition> { new GridPosition(2, 0) };
-            for (int i = 0; i < 25; i++) jam.TrackTrip(jamTrip);
-            Assert.AreEqual(1f, jam.Load01(new GridPosition(2, 0)), 1e-4f);
-            Assert.AreEqual(0.3f, CongestionSpeedPolicy.SpeedForLoad01(jam.Load01(new GridPosition(2, 0))), 1e-4f);
 
             AgentManager jammed = new AgentManager(jam) { PathFinder = routes.FindPath };
             AgentManager free = new AgentManager(clean) { PathFinder = routes.FindPath };
@@ -118,6 +112,23 @@ namespace Citybuilder
             Assert.AreEqual(0, free.ActiveCount);
             Assert.AreEqual(1, jammed.ActiveCount);
             Assert.Less(jammed.AgentAt(0).Progress, jammed.AgentAt(0).Path.Count - 1, "заторная не доехала");
+        }
+
+        // Пробка на клетке (2,0) (issue #127): входы теста не меняются.
+        private static CongestionSystem MakeJam(out RouteSystem routes, out List<GridPosition> roads,
+            out GridSystem grid)
+        {
+            roads = MakeList(
+                new GridPosition(1, 0), new GridPosition(2, 0), new GridPosition(3, 0),
+                new GridPosition(4, 0), new GridPosition(5, 0));
+            grid = new GridSystem(new GridSize(10, 10), 2f);
+            routes = new RouteSystem(grid, roads);
+            CongestionSystem jam = new CongestionSystem(routes, grid);
+            List<GridPosition> jamTrip = new List<GridPosition> { new GridPosition(2, 0) };
+            for (int i = 0; i < 25; i++) jam.TrackTrip(jamTrip);
+            Assert.AreEqual(1f, jam.Load01(new GridPosition(2, 0)), 1e-4f);
+            Assert.AreEqual(0.3f, CongestionSpeedPolicy.SpeedForLoad01(jam.Load01(new GridPosition(2, 0))), 1e-4f);
+            return jam;
         }
     }
 }

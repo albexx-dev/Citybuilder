@@ -16,6 +16,13 @@ namespace Citybuilder
             runner = root.AddComponent<SimulationRunner>();
             runner.enabled = false;
             GridVisualizer grid = root.AddComponent<GridVisualizer>();
+            BuildGrowthChain(grid);
+            BuildTickerAndSave(grid);
+        }
+
+        // Зоны, рост и определение дома (issue #127).
+        private void BuildGrowthChain(GridVisualizer grid)
+        {
             zones = root.AddComponent<ZonePaintingController>();
             zones.GridVisualizer = grid;
             zones.placementActive = false;
@@ -32,6 +39,11 @@ namespace Citybuilder
             growth.Treasury = treasury;
             growth.TicksPerGrowth = 1;
             growth.Definitions.Add(def);
+        }
+
+        // Тикер и контроллеры сохранения (issue #127).
+        private void BuildTickerAndSave(GridVisualizer grid)
+        {
             // OnEnable тикера требует Growth: добавляем на неактивном объекте и включаем после привязки.
             bool rootWasActive = root.activeSelf;
             root.SetActive(false);
