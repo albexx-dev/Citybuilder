@@ -138,7 +138,8 @@ namespace Citybuilder
             growth.Treasury = treasury;
             growth.TicksPerGrowth = 1;
             growth.Definitions.Add(def);
-            root.AddComponent<SettlementGrowthTicker>().Growth = growth;
+            SettlementGrowthTicker ticker = root.AddComponent<SettlementGrowthTicker>(); // OnEnable требует Growth
+            ticker.enabled = false; ticker.Growth = growth; ticker.enabled = true;
             SettlementDemolitionController demolition = root.AddComponent<SettlementDemolitionController>();
             demolition.GridVisualizer = grid;
             demolition.Growth = growth;
