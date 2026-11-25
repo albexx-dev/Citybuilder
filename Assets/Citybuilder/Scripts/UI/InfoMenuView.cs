@@ -144,21 +144,8 @@ namespace Citybuilder
             DrawHeader(ref y, Localization.T("info_section_development"));
             DrawLine(ref y, cachedLines[9]);
             DrawLine(ref y, cachedLines[10]);
-            DrawRangeButton(ref y, width);
+            InfoMenuGraphRangeButton.Draw(ref y, width); // масштаб 8/30 дней (issue #113)
             MetricsGraphView.Draw(ref y, width);
-        }
-
-        // Кнопка масштаба истории: 8 дней по умолчанию, 30 дней после клика (issue #113).
-        private void DrawRangeButton(ref float y, float width)
-        {
-            string text = Localization.T("metrics_range", MetricsGraphView.RangeDays);
-            if (GUI.Button(new Rect(4f, y, Mathf.Min(260f, width - 8f), 24f), text))
-            {
-                AudioController.PlayClickGlobal();
-                MetricsGraphView.ToggleRange();
-                RebuildCache();
-            }
-            y += 26f;
         }
 
         private void DrawBudgetSection(ref float y, float width)
