@@ -32,6 +32,7 @@ namespace Citybuilder
             { "settings_overlay_coverage", new[] { "Покрытие", "Coverage" } },
             { "settings_overlay_congestion", new[] { "Пробки", "Traffic" } },
             { "settings_overlay_grid", new[] { "Сетка", "Grid" } },
+            { "settings_garbage_trucks", new[] { "Мусоровоз", "Garbage truck" } },
             // Инфоменю: заголовки разделов и строка преступности.
             { "info_section_city", new[] { "=== Город ===", "=== City ===" } },
             { "info_section_goal", new[] { "=== Цель ===", "=== Goal ===" } },
