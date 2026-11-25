@@ -4,6 +4,10 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Changed
+
+- Содержание списывается в 8 раз медленнее: `EffectiveUpkeepPolicy.Apply` делит базовую сумму нацело; казна и HUD показывают фактическое списание. Базовые `UpkeepPerHour` в ассетах, `UpkeepPolicy`, налоги и `EconomyMath` не изменены; кражи, рост и ручная стройка не задеты.
+
 ## [v1.4.0] - 2026-11-25
 
 Версия «глубина и качество жизни» — 20 задач (#111–#130). 1145 EditMode-тестов в 169 файлах (937 `[Test]` + 208 `[TestCase]`), 2 PlayMode-теста.

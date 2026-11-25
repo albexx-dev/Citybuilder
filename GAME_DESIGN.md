@@ -120,11 +120,14 @@ Electricity, Water, Food, Materials, Fuel, Waste. Вводить по одном
 | Ставка налога за работающего в час | Low 1, Normal 2, High 4; режим по умолчанию Normal | `Economy/TaxPolicy.cs:37-43` (High — `:40`), `:18-20` (дефолт) |
 | Формула сбора | занятые × ставка за час; ставка ≤ 0 — сбора нет | `Economy/TaxPolicy.cs:62-67`, `Economy/TaxSystem.cs:54-76` |
 | Занятые | `min(жители, рабочие места)` | `Population/EmploymentSystem.cs:26-29` |
-| Содержание за час | сумма `UpkeepPerHour` по выросшим + ручным зданиям | `Core/UpkeepPolicy.cs:22,48`, `Economy/EconomyTicker.cs:139-140` |
+| Базовое содержание за час | сумма `UpkeepPerHour` по выросшим + ручным зданиям (значения ассетов не изменены) | `Core/UpkeepPolicy.cs:22,48` |
+| Фактическое списание за час | базовое содержание ÷ 8 целочисленно; HUD показывает ту же цифру | `Economy/EffectiveUpkeepPolicy.cs:8,12-14`, `Economy/EconomyTicker.cs:119-121`, `UI/UpkeepView.cs:58-62` |
 | Списывается ли содержание при нуле | да, казна уходит в минус (`Balance < 0` = дефицит), сохраняется/загружается | `Economy/Treasury.cs`, `Persistence/SaveSystem.cs` |
 | Стройка и рост при нехватке денег | отказ (`TrySpend`), рост платит `ConstructionCost` типа | `Economy/Treasury.cs`, `Population/SettlementGrowthController.cs` |
 | Оплата дороги | новые клетки × `CostPerCell` | `Construction/RoadPlacementController.cs`, `Construction/RoadSystem.cs` |
 | Награды ступеней цели | 1000 / 2000 / 4000 $ за 50 / 100 / 200 жителей | `Population/GoalStages.cs:9-10`, `Population/GoalRewardController.cs` |
+
+Пример: база 236 $/ч → фактическое списание 29 $/ч (236/8, усечение к нулю). Делится только систематическое содержание: кражи, штрафы, плата за рост и ручную стройка остаются полными.
 
 ### Pace and gates
 
