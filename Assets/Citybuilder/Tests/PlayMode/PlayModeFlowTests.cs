@@ -138,13 +138,17 @@ namespace Citybuilder
             growth.Treasury = treasury;
             growth.TicksPerGrowth = 1;
             growth.Definitions.Add(def);
-            SettlementGrowthTicker ticker = root.AddComponent<SettlementGrowthTicker>(); // OnEnable требует Growth
-            ticker.enabled = false; ticker.Growth = growth; ticker.enabled = true;
+            // OnEnable тикера требует Growth: добавляем на неактивном объекте и включаем после привязки.
+            bool rootWasActive = root.activeSelf;
+            root.SetActive(false);
+            SettlementGrowthTicker ticker = root.AddComponent<SettlementGrowthTicker>();
+            ticker.Growth = growth;
             SettlementDemolitionController demolition = root.AddComponent<SettlementDemolitionController>();
             demolition.GridVisualizer = grid;
             demolition.Growth = growth;
             save = root.AddComponent<SaveController>();
             load = root.AddComponent<LoadController>();
+            root.SetActive(rootWasActive);
         }
     }
 }
