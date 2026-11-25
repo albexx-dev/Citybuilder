@@ -11,22 +11,9 @@ namespace Citybuilder
         public void Query_GrownHomeWithResidentsAndServices_ReturnsAccurateSnapshot()
         {
             GridSize size = new GridSize(50, 50);
-            BuildingDefinition houseDef = ScriptableObject.CreateInstance<BuildingDefinition>();
-            houseDef.Id = "house";
-            houseDef.DisplayName = "House";
-            houseDef.ResidentCapacity = 4;
-            houseDef.ConstructionCost = 100;
-
-            BuildingState home = new BuildingState(
-                EntityId.New(), houseDef, new GridPosition(2, 2),
-                new List<GridPosition> { new GridPosition(2, 2), new GridPosition(3, 2) });
-
-            PopulationSystem pop = new PopulationSystem();
-            pop.MoveIn(home, 4);
-
-            ServiceBuildingSystem services = new ServiceBuildingSystem();
-            services.SetSources(ServiceKind.Fire, new List<ServiceSource> { new ServiceSource(new GridPosition(2, 2), 6) });
-            services.BuildSnapshot(new List<GridPosition> { new GridPosition(2, 2) });
+            PopulationSystem pop;
+            ServiceBuildingSystem services;
+            BuildingState home = MakeHomeWithFireService(out pop, out services);
 
             BuildingInfo info = BuildingInfoQuery.Query(
                 new GridPosition(3, 2), size,
@@ -42,6 +29,29 @@ namespace Citybuilder
             Assert.AreEqual(0f, info.PoliceCoverage01, 1e-4f);
             Assert.AreEqual(0f, info.HealthCoverage01, 1e-4f);
             Assert.IsTrue(info.RoadConnected);
+        }
+
+        // Снимок дома с пожарным покрытием (issue #127): входы теста не меняются.
+        private static BuildingState MakeHomeWithFireService(out PopulationSystem pop,
+            out ServiceBuildingSystem services)
+        {
+            BuildingDefinition houseDef = ScriptableObject.CreateInstance<BuildingDefinition>();
+            houseDef.Id = "house";
+            houseDef.DisplayName = "House";
+            houseDef.ResidentCapacity = 4;
+            houseDef.ConstructionCost = 100;
+
+            BuildingState home = new BuildingState(
+                EntityId.New(), houseDef, new GridPosition(2, 2),
+                new List<GridPosition> { new GridPosition(2, 2), new GridPosition(3, 2) });
+
+            pop = new PopulationSystem();
+            pop.MoveIn(home, 4);
+
+            services = new ServiceBuildingSystem();
+            services.SetSources(ServiceKind.Fire, new List<ServiceSource> { new ServiceSource(new GridPosition(2, 2), 6) });
+            services.BuildSnapshot(new List<GridPosition> { new GridPosition(2, 2) });
+            return home;
         }
 
         [Test]
