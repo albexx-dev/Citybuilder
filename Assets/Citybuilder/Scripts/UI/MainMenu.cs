@@ -57,7 +57,12 @@ namespace Citybuilder
             Rect panel = new Rect((Screen.width - 320f) * 0.5f, (Screen.height - 230f) * 0.5f, 320f, 230f);
             BottomBarStyle.DrawBarBackground(panel);
             float x = panel.x + 20f;
-            float y = panel.y + 14f;
+            DrawMenuButtons(x, panel.y + 14f);
+        }
+
+        // Кнопки главного меню (issue #127): обработчики и подписи сохранены.
+        private void DrawMenuButtons(float x, float y)
+        {
             HudText.Draw(x, y, Localization.T("main_menu_title"));
             y += 34f;
             if (GUI.Button(new Rect(x, y, 280f, 32f), Localization.T("main_menu_continue")))

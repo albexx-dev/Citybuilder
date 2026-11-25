@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Тесты декора (EPIC-56): чистая уборка по занятости/зонам и поведение контроллера в редакторе.
-    public class DecorPlacementTests
+    public partial class DecorPlacementTests
     {
         private static List<GridPosition> Cells(params int[] xy)
         {
@@ -131,29 +131,5 @@ namespace Citybuilder
             }
         }
 
-        [Test]
-        public void CanPlaceAt_OccupiedZonedOrOutside_Rejected()
-        {
-            GameObject go = new GameObject("DecorCanPlaceTest");
-            DecorDefinition tree = MakeTree("tree_fir");
-            try
-            {
-                GridVisualizer viz = go.AddComponent<GridVisualizer>();
-                DecorPlacementController decor = NewDecor(go, tree);
-                viz.Grid.Occupy(new GridPosition(1, 1), EntityId.New());
-                Assert.IsFalse(decor.CanPlaceAt(new GridPosition(1, 1)));
-                ZonePaintingController painter = go.AddComponent<ZonePaintingController>();
-                painter.GridVisualizer = viz;
-                decor.ZonePainter = painter;
-                Assert.IsTrue(painter.Zones.SetZone(new GridPosition(2, 2), ZoneType.Industrial));
-                Assert.IsFalse(decor.CanPlaceAt(new GridPosition(2, 2)));
-                Assert.IsFalse(decor.CanPlaceAt(new GridPosition(99, 99)));
-            }
-            finally
-            {
-                ScriptableObject.DestroyImmediate(tree);
-                Object.DestroyImmediate(go);
-            }
-        }
     }
 }

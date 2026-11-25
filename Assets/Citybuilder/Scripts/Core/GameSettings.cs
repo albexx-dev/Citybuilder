@@ -5,7 +5,7 @@ namespace Citybuilder
     // Настройки игрока (EPIC-69 шаг 1): профиль, а не состояние партии — в сейв города не пишется.
     // Чистый C#: значения, клампы и событие Changed для систем-слушателей.
     // Чтение/запись PlayerPrefs — GameSettingsStore; окно настроек — следующий шаг.
-    public class GameSettings
+    public partial class GameSettings
     {
         public const float DefaultVolume = 0.5f, DefaultAmbientVolume = 1f;
         public const int DefaultAgentLimit = 12, MinAgentLimit = 8, MaxAgentLimit = 120;
@@ -144,11 +144,5 @@ namespace Citybuilder
             if (Changed != null) Changed();
         }
 
-        private void Set(ref bool field, bool value)
-        {
-            if (field == value) return;
-            field = value;
-            if (Changed != null) Changed();
-        }
     }
 }

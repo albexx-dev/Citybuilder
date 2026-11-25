@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Хоткеи режимов, панелей и паузы (EPIC-16, issue #123): Esc идёт через единый арбитр.
-    public class BuildModeHotkeys : MonoBehaviour
+    public partial class BuildModeHotkeys : MonoBehaviour
     {
         [Header("References")]
         [Tooltip("Меню режимов. Пусто = ищется на этом же объекте.")]
@@ -76,12 +76,7 @@ namespace Citybuilder
             bool infoPanelOpen = InfoPanel != null && InfoPanel.IsOpen;
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                UiEscapePriority.Target target = UiEscapePriority.Resolve(GUIUtility.keyboardControl, Time.frameCount,
-                    mainOpen, pauseOpen, menu.CurrentMode, infoPanelOpen,
-                    Settings != null && Settings.IsOpen, SaveMenu != null && SaveMenu.IsOpen,
-                    LoadMenu != null && LoadMenu.IsOpen, AnyPanelOpen());
-                if (target != UiEscapePriority.Target.None)
-                    UiEscapePriority.Apply(target, menu, Pause, InfoPanel, Settings, SaveMenu, LoadMenu, InfoMenu, EventLog, Quests);
+                HandleEscape(menu, mainOpen, pauseOpen, infoPanelOpen);
                 return;
             }
             // O закрывает настройки, хотя IsModalOpen блокирует остальные хоткеи панелей.

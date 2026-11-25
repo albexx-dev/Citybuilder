@@ -4,7 +4,7 @@ namespace Citybuilder
 {
     // Нижняя панель действий (EPIC-13): скорости, режимы, кисти зон и кнопки меню.
     // Вешать на Grid; прямоугольники из HudLayout, иконки/тултипы из BottomBarIcons (EPIC-66).
-    public class BottomBarView : MonoBehaviour
+    public partial class BottomBarView : MonoBehaviour
     {
         [Header("References")]
         [Tooltip("Драйвер игровых часов. Пусто = ищется в сцене.")] public SimulationRunner Runner;
@@ -134,28 +134,5 @@ namespace Citybuilder
             UiClickGuard.Set("bottom_subrow", new Rect());
         }
 
-        private void DrawZoneBrushes(float sw, float sh)
-        {
-            ZoneType[] brushes = { ZoneType.Residential, ZoneType.Commercial, ZoneType.Industrial };
-            string[] labels = BottomBarIcons.ZoneBrushLabels();
-            Rect popup = HudLayout.PaletteRect(sw, sh, brushes.Length);
-            UiClickGuard.Set("bottom_subrow", popup);
-            BottomBarStyle.DrawPopupBackground(popup);
-            for (int i = 0; i < brushes.Length; i++)
-            {
-                float x = popup.x + i * (HudLayout.PaletteButtonWidth + HudLayout.ButtonGap);
-                Rect rect = new Rect(x, popup.y, HudLayout.PaletteButtonWidth, popup.height);
-                bool active = Menu.Zones != null && Menu.Zones.Brush == brushes[i];
-                if (BottomBarStyle.DrawButton(rect, IconBook.Get(BottomBarIcons.BrushKeys[i]), labels[i], Localization.T(BottomBarIcons.BrushTipKeys[i]), active)) Menu.SetBrush(brushes[i]);
-            }
-        }
-
-        // Подписи считаются каждый кадр: язык мог смениться между отрисовками IMGUI.
-        private static string[] Localized(string[] keys)
-        {
-            string[] labels = new string[keys.Length];
-            for (int i = 0; i < keys.Length; i++) labels[i] = Localization.T(keys[i]);
-            return labels;
-        }
     }
 }

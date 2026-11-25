@@ -5,7 +5,7 @@ namespace Citybuilder
 {
     // Чистый запрос сведений о здании под клеткой сетки (EPIC-12 шаг 1).
     // Не зависит от MonoBehaviour: собирает снимок из списков выросших/ручных зданий и чистых систем.
-    public static class BuildingInfoQuery
+    public static partial class BuildingInfoQuery
     {
         public static BuildingInfo Query(
             GridPosition cell,
@@ -26,27 +26,8 @@ namespace Citybuilder
             if (state == null || state.Definition == null) return info;
 
             BuildingDefinition def = state.Definition;
-            info.Found = true;
-            info.IsGrown = isGrown;
-            info.Id = def.Id ?? string.Empty;
-            info.DisplayName = string.IsNullOrEmpty(def.DisplayName) ? info.Id : def.DisplayName;
-            info.DisplayNameKey = def.DisplayNameKey ?? string.Empty;
-            info.Origin = state.Origin;
-            info.Cost = def.ConstructionCost;
-            info.UpkeepPerHour = BuildingLevelPolicy.ScaledUpkeep(
-                def.UpkeepPerHour < 0 ? 0 : def.UpkeepPerHour, state.Level);
-            info.Capacity = def.ResidentCapacity;
-            info.Level = state.Level;
-            info.JobsProvided = def.JobsProvided;
-            info.Residents = isGrown && population != null ? population.ResidentsIn(state) : 0;
-            info.ServiceKind = def.ServiceKind;
-            info.ServiceRadius = BuildingLevelPolicy.ServiceRadius(def.ServiceRadius, state.Level);
-            info.PowerRate01 = Sanitize01(powerRate01);
-            info.WaterRate01 = Sanitize01(waterRate01);
-            info.WasteRate01 = Sanitize01(wasteRate01);
-            info.RoadConnected = isRoadConnected != null && isRoadConnected(state);
-            info.UpgradePrice = UpgradeController.PriceFor(def, state.Level);
-            info.Upgradeable = info.UpgradePrice > 0;
+            FillCommonFields(ref info, def, state, isGrown, population,
+                powerRate01, waterRate01, wasteRate01, isRoadConnected);
             FillServiceFields(ref info, state, grownHomes, services);
             return info;
         }

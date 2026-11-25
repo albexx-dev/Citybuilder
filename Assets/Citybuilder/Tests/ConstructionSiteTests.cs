@@ -6,7 +6,7 @@ namespace Citybuilder
 {
     // Стройплощадка на prefab-пути (EPIC-61): площадка вместо готового вида, замена по завершении,
     // мгновенное появление при 0 тиков. Домен при фазе стройки не меняется; снос — деньги не возвращаются.
-    public class ConstructionSiteTests
+    public partial class ConstructionSiteTests
     {
         [Test]
         public void PrefabPath_StartsAsSite_AndReplacedByPrefabAfterTicks()
@@ -16,6 +16,26 @@ namespace Citybuilder
             try
             {
                 SettlementView view = host.AddComponent<SettlementView>();
+                BuildingState state = MakeSiteState(prefab);
+                GameObject siteGo = view.AddBuilding(state, state.Definition, 1f, false);
+                Assert.IsNotNull(siteGo);
+                Assert.AreEqual("ConstructionSite", siteGo.name);
+                ConstructionSiteView site = siteGo.GetComponent<ConstructionSiteView>();
+                Assert.IsNotNull(site);
+                Assert.IsTrue(site.IsConstructing);
+                Assert.IsNull(host.transform.Find("FakePrefab(Clone)"));
+                AssertPrefabReplacesSite(host, site);
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+                Object.DestroyImmediate(prefab);
+            }
+        }
+
+        // Состояние здания с фазой стройки (issue #127).
+        private static BuildingState MakeSiteState(GameObject prefab)
+        {
                 BuildingDefinition def = ScriptableObject.CreateInstance<BuildingDefinition>();
                 def.Footprint = new Vector2Int(2, 2);
                 def.ConstructionTicks = 4;
@@ -23,15 +43,12 @@ namespace Citybuilder
                 BuildingState state = new BuildingState(
                     EntityId.New(), def, new GridPosition(0, 0),
                     new List<GridPosition> { new GridPosition(0, 0) });
+            return state;
+        }
 
-                GameObject siteGo = view.AddBuilding(state, def, 1f, false);
-                Assert.IsNotNull(siteGo);
-                Assert.AreEqual("ConstructionSite", siteGo.name);
-                ConstructionSiteView site = siteGo.GetComponent<ConstructionSiteView>();
-                Assert.IsNotNull(site);
-                Assert.IsTrue(site.IsConstructing);
-                Assert.IsNull(host.transform.Find("FakePrefab(Clone)"));
-
+        // Прогон тиков и проверка замены площадки префабом (issue #127).
+        private static void AssertPrefabReplacesSite(GameObject host, ConstructionSiteView site)
+        {
                 site.OnClockTick(new SimulationTime(1));
                 site.OnClockTick(new SimulationTime(2));
                 site.OnClockTick(new SimulationTime(3));
@@ -42,13 +59,8 @@ namespace Citybuilder
                 Assert.IsFalse(site.IsConstructing);
                 Assert.IsNull(host.GetComponentInChildren<ConstructionSiteView>());
                 Assert.IsNotNull(host.transform.Find("FakePrefab(Clone)"));
-            }
-            finally
-            {
-                Object.DestroyImmediate(host);
-                Object.DestroyImmediate(prefab);
-            }
         }
+
 
         [Test]
         public void PrefabPath_ZeroTicks_AppearsInstantly()
@@ -82,17 +94,9 @@ namespace Citybuilder
         [Test]
         public void ConstructionPhase_DoesNotTouchDomainMetrics()
         {
-            BuildingDefinition withPhase = ScriptableObject.CreateInstance<BuildingDefinition>();
-            withPhase.Footprint = new Vector2Int(2, 2);
-            withPhase.ConstructionTicks = 5;
-            BuildingDefinition instant = ScriptableObject.CreateInstance<BuildingDefinition>();
-            instant.Footprint = new Vector2Int(2, 2);
-            instant.ConstructionTicks = 0;
-
-            GridSystem gridA = new GridSystem(new GridSize(10, 10), 1f);
-            GridSystem gridB = new GridSystem(new GridSize(10, 10), 1f);
-            BuildingState a = new BuildingSystem(gridA).Place(withPhase, new GridPosition(2, 2));
-            BuildingState b = new BuildingSystem(gridB).Place(instant, new GridPosition(2, 2));
+            GridSystem gridA, gridB;
+            BuildingState a, b;
+            PlacePhasedAndInstant(out gridA, out gridB, out a, out b);
 
             Assert.IsNotNull(a);
             Assert.IsNotNull(b);
@@ -113,27 +117,23 @@ namespace Citybuilder
             Assert.AreEqual(0, gridB.OccupiedCount);
         }
 
-        // Правила v1.1: снос в стройке освобождает клетку, деньги не возвращаются.
-        [Test]
-        public void DemolishDuringConstruction_FreesCells_KeepsMoneySpent()
+        // Две сетки: фаза стройки и мгновенная постройка (issue #127).
+        private static void PlacePhasedAndInstant(out GridSystem gridA, out GridSystem gridB,
+            out BuildingState a, out BuildingState b)
         {
-            BuildingDefinition def = ScriptableObject.CreateInstance<BuildingDefinition>();
-            def.Footprint = new Vector2Int(2, 2);
-            def.ConstructionCost = 100;
-            def.ConstructionTicks = 3;
-            Treasury treasury = new Treasury(150);
-            GridSystem grid = new GridSystem(new GridSize(10, 10), 1f);
-            BuildingSystem system = new BuildingSystem(grid);
+            BuildingDefinition withPhase = ScriptableObject.CreateInstance<BuildingDefinition>();
+            withPhase.Footprint = new Vector2Int(2, 2);
+            withPhase.ConstructionTicks = 5;
+            BuildingDefinition instant = ScriptableObject.CreateInstance<BuildingDefinition>();
+            instant.Footprint = new Vector2Int(2, 2);
+            instant.ConstructionTicks = 0;
 
-            BuildingState state = system.Place(def, new GridPosition(0, 0));
-            Assert.IsNotNull(state);
-            Assert.IsTrue(treasury.TrySpend(def.ConstructionCost, def.Id).Success);
-            Assert.AreEqual(50, treasury.Balance);
-
-            Assert.IsTrue(system.Demolish(state));
-            Assert.IsFalse(grid.IsOccupied(new GridPosition(0, 0)));
-            Assert.IsFalse(grid.IsOccupied(new GridPosition(1, 1)));
-            Assert.AreEqual(50, treasury.Balance);
+            gridA = new GridSystem(new GridSize(10, 10), 1f);
+            gridB = new GridSystem(new GridSize(10, 10), 1f);
+            a = new BuildingSystem(gridA).Place(withPhase, new GridPosition(2, 2));
+            b = new BuildingSystem(gridB).Place(instant, new GridPosition(2, 2));
         }
+
+
     }
 }

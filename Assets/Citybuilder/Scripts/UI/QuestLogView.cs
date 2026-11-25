@@ -6,7 +6,7 @@ namespace Citybuilder
     // Владеет QuestTicker (как GoalView владеет целью): на TickCompleted подаёт контекст
     // города из полей EconomyTicker в QuestSystem, награды идут в казну, события — в ленту.
     // По образцу EventLogView (EPIC-09). Хоткей J обрабатывает BuildModeHotkeys (issue #123): Q — поворот камеры.
-    public class QuestLogView : MonoBehaviour
+    public partial class QuestLogView : MonoBehaviour
     {
         private const float LineHeight = 24f;
 
@@ -129,31 +129,5 @@ namespace Citybuilder
             return lines;
         }
 
-        private void DrawQuests(QuestSystem quests)
-        {
-            float y = 4f;
-            HudText.Draw(4f, y, Localization.T("quest_log_title"));
-            y += LineHeight;
-            if (quests == null || quests.Active.Count == 0)
-            {
-                HudText.Draw(12f, y, Localization.T("quest_log_empty"));
-                return;
-            }
-            for (int i = 0; i < quests.Active.Count; i++)
-            {
-                y = DrawQuest(y, quests.Active[i], quests.LastContext);
-            }
-        }
-
-        // Строка задачи: титул с наградой, описание и прогресс («Жители 12/50»).
-        private static float DrawQuest(float y, QuestDefinition quest, QuestContext context)
-        {
-            HudText.Draw(12f, y, quest.Title + "  " + Localization.T("quest_reward", quest.Reward));
-            HudText.Draw(20f, y + LineHeight, quest.Description);
-            string progress = QuestSystem.ProgressLine(quest, context);
-            if (progress == null) return y + LineHeight * 2f;
-            HudText.Draw(20f, y + LineHeight * 2f, progress);
-            return y + LineHeight * 3f;
-        }
     }
 }

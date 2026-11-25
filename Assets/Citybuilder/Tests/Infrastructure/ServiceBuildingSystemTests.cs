@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Тесты обобщённой системы служб ServiceBuildingSystem (EPIC-01 шаг 1).
-    public class ServiceBuildingSystemTests
+    public partial class ServiceBuildingSystemTests
     {
         private const float Tolerance = 0.0001f;
 
@@ -87,27 +87,9 @@ namespace Citybuilder
         [Test]
         public void BuildSnapshotFromStates_UtilityManualBuilding_ExcludedFromDenominator()
         {
-            BuildingDefinition fireStation = ScriptableObject.CreateInstance<BuildingDefinition>();
-            fireStation.Id = "fire_station"; fireStation.DisplayName = "Fire Station";
-            fireStation.ResidentCapacity = 0; fireStation.ServiceKind = ServiceKind.Fire; fireStation.ServiceRadius = 6;
-            BuildingDefinition power = ScriptableObject.CreateInstance<BuildingDefinition>();
-            power.Id = "power_station"; power.DisplayName = "Power Station";
-            power.ResidentCapacity = 0; power.ServiceKind = ServiceKind.None;
-            BuildingDefinition house = ScriptableObject.CreateInstance<BuildingDefinition>();
-            house.Id = "house"; house.DisplayName = "House";
-            house.ResidentCapacity = 4; house.ServiceKind = ServiceKind.None;
-            List<BuildingState> placed = new List<BuildingState>
-            {
-                new BuildingState(EntityId.New(), fireStation, new GridPosition(0, 0),
-                    new List<GridPosition> { new GridPosition(0, 0) }),
-                new BuildingState(EntityId.New(), power, new GridPosition(4, 4),
-                    new List<GridPosition> { new GridPosition(4, 4) }),
-            };
-            List<BuildingState> grown = new List<BuildingState>
-            {
-                new BuildingState(EntityId.New(), house, new GridPosition(2, 2),
-                    new List<GridPosition> { new GridPosition(2, 2) }),
-            };
+            BuildingDefinition fireStation, power, house;
+            List<BuildingState> placed, grown;
+            MakeFixture(out fireStation, out power, out house, out placed, out grown);
             try
             {
                 ServiceBuildingSystem system = new ServiceBuildingSystem();
@@ -125,39 +107,32 @@ namespace Citybuilder
             }
         }
 
-        // EPIC-51: станция уровня 2 покрывает дом на клетку дальше, уровня 1 — не покрывает.
-        [Test]
-        public void LevelTwoStation_RadiusGrowsByOneCell()
+        // Фикстура ручных построек и выросшего дома (issue #127).
+        private static void MakeFixture(out BuildingDefinition fireStation, out BuildingDefinition power,
+            out BuildingDefinition house, out List<BuildingState> placed, out List<BuildingState> grown)
         {
-            BuildingDefinition fireStation = ScriptableObject.CreateInstance<BuildingDefinition>();
-            fireStation.Id = "fire_station"; fireStation.ResidentCapacity = 0;
-            fireStation.ServiceKind = ServiceKind.Fire; fireStation.ServiceRadius = 3;
-            BuildingState station = new BuildingState(EntityId.New(), fireStation, new GridPosition(0, 0),
-                new List<GridPosition> { new GridPosition(0, 0) });
-            BuildingDefinition house = ScriptableObject.CreateInstance<BuildingDefinition>();
-            house.Id = "house"; house.ResidentCapacity = 4;
-            List<BuildingState> placed = new List<BuildingState> { station };
-            List<BuildingState> grown = new List<BuildingState>
+            fireStation = ScriptableObject.CreateInstance<BuildingDefinition>();
+            fireStation.Id = "fire_station"; fireStation.DisplayName = "Fire Station";
+            fireStation.ResidentCapacity = 0; fireStation.ServiceKind = ServiceKind.Fire; fireStation.ServiceRadius = 6;
+            power = ScriptableObject.CreateInstance<BuildingDefinition>();
+            power.Id = "power_station"; power.DisplayName = "Power Station";
+            power.ResidentCapacity = 0; power.ServiceKind = ServiceKind.None;
+            house = ScriptableObject.CreateInstance<BuildingDefinition>();
+            house.Id = "house"; house.DisplayName = "House";
+            house.ResidentCapacity = 4; house.ServiceKind = ServiceKind.None;
+            placed = new List<BuildingState>
             {
-                new BuildingState(EntityId.New(), house, new GridPosition(4, 0),
-                    new List<GridPosition> { new GridPosition(4, 0) }),
+                new BuildingState(EntityId.New(), fireStation, new GridPosition(0, 0),
+                    new List<GridPosition> { new GridPosition(0, 0) }),
+                new BuildingState(EntityId.New(), power, new GridPosition(4, 4),
+                    new List<GridPosition> { new GridPosition(4, 4) }),
             };
-            try
+            grown = new List<BuildingState>
             {
-                ServiceBuildingSystem system = new ServiceBuildingSystem();
-                system.BuildSnapshotFromStates(placed, grown);
-                Assert.AreEqual(1, system.TotalHomesCount());
-                Assert.AreEqual(0, system.CoveredHomesCount(ServiceKind.Fire));
-                station.ApplyUpgrade(); // уровень 2: радиус 3 → 4
-                system.BuildSnapshotFromStates(placed, grown);
-                Assert.AreEqual(1, system.CoveredHomesCount(ServiceKind.Fire));
-                Assert.AreEqual(1f, system.Coverage01(ServiceKind.Fire, new GridPosition(4, 0)), Tolerance);
-            }
-            finally
-            {
-                ScriptableObject.DestroyImmediate(fireStation);
-                ScriptableObject.DestroyImmediate(house);
-            }
+                new BuildingState(EntityId.New(), house, new GridPosition(2, 2),
+                    new List<GridPosition> { new GridPosition(2, 2) }),
+            };
         }
+
     }
 }

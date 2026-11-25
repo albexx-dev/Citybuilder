@@ -9,7 +9,7 @@ namespace Citybuilder
 {
     // PlayMode-оркестратор ключевого пути: зоны → рост → слот v6 и RU/EN → панели.
     // Все входы — публичные швы контроллеров; OnGUI и Input в тесте не вызываются.
-    public class PlayModeFlowTests
+    public partial class PlayModeFlowTests
     {
         private const int Slot = 2;
         private GameObject root;
@@ -117,38 +117,5 @@ namespace Citybuilder
             for (int i = 0; i < count; i++) runner.Clock.Update(1f);
         }
 
-        private void BuildCity()
-        {
-            runner = root.AddComponent<SimulationRunner>();
-            runner.enabled = false;
-            GridVisualizer grid = root.AddComponent<GridVisualizer>();
-            zones = root.AddComponent<ZonePaintingController>();
-            zones.GridVisualizer = grid;
-            zones.placementActive = false;
-            TreasuryView treasury = root.AddComponent<TreasuryView>();
-            def = ScriptableObject.CreateInstance<BuildingDefinition>();
-            def.Id = "house";
-            def.Footprint = new Vector2Int(1, 1);
-            def.ConstructionCost = 0;
-            def.AllowedZone = ZoneType.Residential;
-            growth = root.AddComponent<SettlementGrowthController>();
-            growth.GridVisualizer = grid;
-            growth.ZonePainter = zones;
-            growth.Runner = runner;
-            growth.Treasury = treasury;
-            growth.TicksPerGrowth = 1;
-            growth.Definitions.Add(def);
-            // OnEnable тикера требует Growth: добавляем на неактивном объекте и включаем после привязки.
-            bool rootWasActive = root.activeSelf;
-            root.SetActive(false);
-            SettlementGrowthTicker ticker = root.AddComponent<SettlementGrowthTicker>();
-            ticker.Growth = growth;
-            SettlementDemolitionController demolition = root.AddComponent<SettlementDemolitionController>();
-            demolition.GridVisualizer = grid;
-            demolition.Growth = growth;
-            save = root.AddComponent<SaveController>();
-            load = root.AddComponent<LoadController>();
-            root.SetActive(rootWasActive);
-        }
     }
 }

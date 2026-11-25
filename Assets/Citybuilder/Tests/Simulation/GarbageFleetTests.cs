@@ -7,7 +7,7 @@ namespace Citybuilder
 {
     // Флот мусоровозов (EPIC-52): лимит домов на рейс и уникальные события ленты
     // при вывозе двух домов за один прогон. Накопление/порог/очередь — GarbageSystemTests.
-    public class GarbageFleetTests
+    public partial class GarbageFleetTests
     {
         private static readonly GridPosition Depot = new GridPosition(0, 0);
 
@@ -140,12 +140,5 @@ namespace Citybuilder
             return -1;
         }
 
-        private static GarbageSystem Run(List<BuildingState> homes, int ticks, GridPosition? depot,
-            Func<GridPosition, GridPosition, List<GridPosition>> pathFinder)
-        {
-            GarbageSystem garbage = new GarbageSystem();
-            for (int t = 0; t < ticks; t++) garbage.Tick(t, homes, depot, pathFinder);
-            return garbage;
-        }
     }
 }

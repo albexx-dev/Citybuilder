@@ -5,7 +5,7 @@ namespace Citybuilder
 {
     // Автовырастание домов: тонкий адаптер тик → policy → действие, правило — в GrowthEligibilityPolicy.
     // Снос — в SettlementDemolitionController, тики — SettlementGrowthTicker. Runner обязателен, по умолчанию выключен.
-    public class SettlementGrowthController : MonoBehaviour
+    public partial class SettlementGrowthController : MonoBehaviour
     {
         [Header("References")]
         [Tooltip("Сетка. Обязателен: даёт Grid и клетку под курсором.")] public GridVisualizer GridVisualizer;
@@ -137,16 +137,6 @@ namespace Citybuilder
                 for (int c = 0; c < cells.Count; c++) if (cells[c] == cell) return states[i];
             }
             return null;
-        }
-        // Снос одного выросшего дома: занятость, вид, список, сетка. Выселение — в Demolition.
-        public void DemolishState(BuildingState state)
-        {
-            if (state == null || settlement == null) return;
-            settlement.Demolish(state);
-            View.RemoveBuilding(state);
-            states.Remove(state);
-            GridVisualizer.RefreshOccupied();
-            if (Save != null) Save.MarkDirty();
         }
         private void ClampLimits() { TicksPerGrowth = Mathf.Max(1, TicksPerGrowth); MaxSettlements = Mathf.Max(1, MaxSettlements); }
     }

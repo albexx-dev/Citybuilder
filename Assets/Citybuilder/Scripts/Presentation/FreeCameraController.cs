@@ -4,7 +4,7 @@ namespace Citybuilder
 {
     // Свободная камера: WASD/стрелки — панорама, колесо — зум, Q/E и ПКМ-drag — поворот.
     // Настройка сцены: компонент на MainCamera, Target можно оставить пустым.
-    public class FreeCameraController : MonoBehaviour
+    public partial class FreeCameraController : MonoBehaviour
     {
         private const float MinPitch = 20f;
         private const float MaxPitch = 90f;
@@ -46,13 +46,8 @@ namespace Citybuilder
             {
                 return;
             }
-            float boost = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) ? 3f : 1f;
-            float moveStep = Mathf.Max(MoveSpeed, 1f) * Time.deltaTime * boost;
-            float turnStep = Mathf.Max(RotateSpeed, 1f) * Time.deltaTime;
-            float right = (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow) ? 1f : 0f)
-                - (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow) ? 1f : 0f);
-            float forward = (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow) ? 1f : 0f)
-                - (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow) ? 1f : 0f);
+            ReadMovement(out float right, out float forward, out float moveStep,
+                out float turnStep, out float boost);
             if (right != 0f || forward != 0f)
             {
                 Pan(right * moveStep, forward * moveStep);
@@ -120,57 +115,18 @@ namespace Citybuilder
             Vector3 angles = camera.transform.eulerAngles;
             camera.transform.rotation = Quaternion.Euler(angles.x, ReadYaw(angles) + degrees, 0f);
         }
-        // Наклон в градусах, pitch в [20, 90], крен всегда 0.
-        private void AddPitch(float degrees)
+        // Чтение ввода камеры (issue #127): значения не меняются, только вынесены в хелпер.
+        private void ReadMovement(out float right, out float forward, out float moveStep,
+            out float turnStep, out float boost)
         {
-            Camera camera = Target != null ? Target : Camera.main;
-            if (camera == null)
-            {
-                return;
-            }
-            Vector3 angles = camera.transform.eulerAngles;
-            float pitch = Mathf.Clamp(angles.x + degrees, MinPitch, MaxPitch);
-            camera.transform.rotation = Quaternion.Euler(pitch, ReadYaw(angles), 0f);
+            boost = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) ? 3f : 1f;
+            moveStep = Mathf.Max(MoveSpeed, 1f) * Time.deltaTime * boost;
+            turnStep = Mathf.Max(RotateSpeed, 1f) * Time.deltaTime;
+            right = (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow) ? 1f : 0f)
+                - (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow) ? 1f : 0f);
+            forward = (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow) ? 1f : 0f)
+                - (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow) ? 1f : 0f);
         }
-        // Поворот мышью при зажатой ПКМ. Только старый Input.
-        private void DragRotate(float turnStep)
-        {
-            if (Input.GetMouseButtonDown(1))
-            {
-                lookBlocked = UiClickGuard.IsOverMenu(Input.mousePosition);
-            }
-            if (!Input.GetMouseButton(1))
-            {
-                lookBlocked = false;
-                return;
-            }
-            if (lookBlocked)
-            {
-                return;
-            }
-            AddYaw(Input.GetAxis("Mouse X") * turnStep);
-            AddPitch(-Input.GetAxis("Mouse Y") * turnStep);
-        }
-        // Границы карты по XZ, высота в [MinHeight, MaxHeight].
-        private void ClampPosition(Camera camera)
-        {
-            float margin = Mathf.Max(Margin, 0f);
-            float low = Mathf.Min(MinHeight, MaxHeight);
-            float high = Mathf.Max(MinHeight, MaxHeight);
-            Vector3 point = camera.transform.position;
-            point.x = Mathf.Clamp(point.x, -margin, MapWidth + margin);
-            point.y = Mathf.Clamp(point.y, low, high);
-            point.z = Mathf.Clamp(point.z, -margin, MapHeight + margin);
-            camera.transform.position = point;
-        }
-        // На питче 90° yaw и roll вырождаются: истинный yaw = y − z.
-        public static float ReadYaw(Vector3 angles)
-        {
-            if (Mathf.Abs(angles.x - MaxPitch) < 0.05f)
-            {
-                return angles.y - angles.z;
-            }
-            return angles.y;
-        }
+
     }
 }

@@ -26,15 +26,8 @@ namespace Citybuilder
             try
             {
                 SettlementView view = host.AddComponent<SettlementView>();
-                BuildingDefinition def = ScriptableObject.CreateInstance<BuildingDefinition>();
-                def.Footprint = new Vector2Int(2, 2);
-                def.VariantCount = 3;
-                def.ConstructionTicks = 3;
-                BuildingState state = new BuildingState(
-                    EntityId.New(), def, new GridPosition(0, 0),
-                    new List<GridPosition> { new GridPosition(0, 0) });
-
-                GameObject go = view.AddBuilding(state, def, 1f, false);
+                BuildingState state = MakeCubeState();
+                GameObject go = view.AddBuilding(state, state.Definition, 1f, false);
                 Assert.IsNotNull(go);
                 ConstructionSiteView site = go.GetComponent<ConstructionSiteView>();
                 Assert.IsNotNull(site);
@@ -42,7 +35,31 @@ namespace Citybuilder
                 Assert.AreEqual(0, site.TicksElapsed);
                 Assert.Less(go.transform.localScale.y, 0.01f);
                 Assert.IsFalse(go.transform.GetChild(0).gameObject.activeSelf);
+                AssertGrowthTicks(go, site);
+                AssertRestoreAndDemolish(view, state.Definition);
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+            }
+        }
 
+        // Состояние куба с тремя тиками стройки (issue #127).
+        private static BuildingState MakeCubeState()
+        {
+                BuildingDefinition def = ScriptableObject.CreateInstance<BuildingDefinition>();
+                def.Footprint = new Vector2Int(2, 2);
+                def.VariantCount = 3;
+                def.ConstructionTicks = 3;
+                BuildingState state = new BuildingState(
+                    EntityId.New(), def, new GridPosition(0, 0),
+                    new List<GridPosition> { new GridPosition(0, 0) });
+            return state;
+        }
+
+        // Рост по тикам (issue #127): проверки сохранены.
+        private static void AssertGrowthTicks(GameObject go, ConstructionSiteView site)
+        {
                 site.OnClockTick(new SimulationTime(1));
                 Assert.Greater(go.transform.localScale.y, 0.01f);
                 site.OnClockTick(new SimulationTime(2));
@@ -51,7 +68,11 @@ namespace Citybuilder
                 Assert.IsFalse(site.IsConstructing);
                 Assert.Greater(go.transform.localScale.y, 0.9f);
                 Assert.IsTrue(go.transform.GetChild(0).gameObject.activeSelf);
+        }
 
+        // Восстановление и снос в фазе стройки (issue #127).
+        private static void AssertRestoreAndDemolish(SettlementView view, BuildingDefinition def)
+        {
                 // Восстановление из сейва пропускает фазу стройки.
                 BuildingState restored = new BuildingState(
                     EntityId.New(), def, new GridPosition(4, 4),
@@ -65,11 +86,6 @@ namespace Citybuilder
                     new List<GridPosition> { new GridPosition(8, 8) });
                 view.AddBuilding(midBuild, def, 1f, false);
                 Assert.DoesNotThrow(() => view.RemoveBuilding(midBuild));
-            }
-            finally
-            {
-                Object.DestroyImmediate(host);
-            }
         }
     }
 }

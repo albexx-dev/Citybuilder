@@ -6,7 +6,7 @@ namespace Citybuilder
     // Вывоз мусора (EPIC-52): дома копят, флот (GarbageTrucks) объезжает очередь от полигона.
     // Прирост детерминирован FNV-1a
     // (паттерн ADR-009). В v6 (ADR-014) в слот пишутся накопление и адреса очереди, не флот.
-    public class GarbageSystem
+    public partial class GarbageSystem
     {
         public const int ReadyThreshold = 20;
         private const byte Salt = 0x5A;
@@ -138,16 +138,5 @@ namespace Citybuilder
             return hash;
         }
 
-        // Прирост за тик: WasteOutput здания плюс младший бит хеша — детерминированный джиттер.
-        public static int GainPerTick(int tick, EntityId id, int wasteOutput)
-        {
-            int baseOutput = wasteOutput < 0 ? 0 : wasteOutput;
-            return baseOutput + (int)(Hash(tick, id) & 1u);
-        }
-
-        private static uint MixByte(uint hash, byte value)
-        {
-            return (hash ^ value) * 16777619u;
-        }
     }
 }

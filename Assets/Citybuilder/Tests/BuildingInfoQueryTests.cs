@@ -5,28 +5,15 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Тесты чистого запроса сведений о здании и клеток радиуса (EPIC-12 шаг 1 и 3).
-    public class BuildingInfoQueryTests
+    public partial class BuildingInfoQueryTests
     {
         [Test]
         public void Query_GrownHomeWithResidentsAndServices_ReturnsAccurateSnapshot()
         {
             GridSize size = new GridSize(50, 50);
-            BuildingDefinition houseDef = ScriptableObject.CreateInstance<BuildingDefinition>();
-            houseDef.Id = "house";
-            houseDef.DisplayName = "House";
-            houseDef.ResidentCapacity = 4;
-            houseDef.ConstructionCost = 100;
-
-            BuildingState home = new BuildingState(
-                EntityId.New(), houseDef, new GridPosition(2, 2),
-                new List<GridPosition> { new GridPosition(2, 2), new GridPosition(3, 2) });
-
-            PopulationSystem pop = new PopulationSystem();
-            pop.MoveIn(home, 4);
-
-            ServiceBuildingSystem services = new ServiceBuildingSystem();
-            services.SetSources(ServiceKind.Fire, new List<ServiceSource> { new ServiceSource(new GridPosition(2, 2), 6) });
-            services.BuildSnapshot(new List<GridPosition> { new GridPosition(2, 2) });
+            PopulationSystem pop;
+            ServiceBuildingSystem services;
+            BuildingState home = MakeHomeWithFireService(out pop, out services);
 
             BuildingInfo info = BuildingInfoQuery.Query(
                 new GridPosition(3, 2), size,
@@ -42,6 +29,29 @@ namespace Citybuilder
             Assert.AreEqual(0f, info.PoliceCoverage01, 1e-4f);
             Assert.AreEqual(0f, info.HealthCoverage01, 1e-4f);
             Assert.IsTrue(info.RoadConnected);
+        }
+
+        // Снимок дома с пожарным покрытием (issue #127): входы теста не меняются.
+        private static BuildingState MakeHomeWithFireService(out PopulationSystem pop,
+            out ServiceBuildingSystem services)
+        {
+            BuildingDefinition houseDef = ScriptableObject.CreateInstance<BuildingDefinition>();
+            houseDef.Id = "house";
+            houseDef.DisplayName = "House";
+            houseDef.ResidentCapacity = 4;
+            houseDef.ConstructionCost = 100;
+
+            BuildingState home = new BuildingState(
+                EntityId.New(), houseDef, new GridPosition(2, 2),
+                new List<GridPosition> { new GridPosition(2, 2), new GridPosition(3, 2) });
+
+            pop = new PopulationSystem();
+            pop.MoveIn(home, 4);
+
+            services = new ServiceBuildingSystem();
+            services.SetSources(ServiceKind.Fire, new List<ServiceSource> { new ServiceSource(new GridPosition(2, 2), 6) });
+            services.BuildSnapshot(new List<GridPosition> { new GridPosition(2, 2) });
+            return home;
         }
 
         [Test]
@@ -124,55 +134,5 @@ namespace Citybuilder
             Assert.AreEqual(0f, info.PoliceCoverage01, 1e-4f);
         }
 
-        [Test]
-        public void Query_PoliceStation_ReturnsServiceRadiusAndCounts()
-        {
-            GridSize size = new GridSize(50, 50);
-            BuildingDefinition houseDef = ScriptableObject.CreateInstance<BuildingDefinition>();
-            BuildingDefinition policeDef = ScriptableObject.CreateInstance<BuildingDefinition>();
-            policeDef.Id = "police_station"; policeDef.DisplayName = "Police Station";
-            policeDef.ServiceKind = ServiceKind.Police; policeDef.ServiceRadius = 5; policeDef.UpkeepPerHour = 6;
-
-            BuildingState h1 = new BuildingState(EntityId.New(), houseDef, new GridPosition(2, 2), new List<GridPosition> { new GridPosition(2, 2) });
-            BuildingState h2 = new BuildingState(EntityId.New(), houseDef, new GridPosition(30, 30), new List<GridPosition> { new GridPosition(30, 30) });
-            BuildingState st = new BuildingState(EntityId.New(), policeDef, new GridPosition(0, 0), new List<GridPosition> { new GridPosition(0, 0) });
-
-            BuildingInfo info = BuildingInfoQuery.Query(new GridPosition(0, 0), size, new List<BuildingState> { h1, h2 }, new List<BuildingState> { st }, null, null, 1f, 1f, 1f, null);
-            Assert.IsTrue(info.Found); Assert.IsTrue(info.HasServiceRadius);
-            Assert.AreEqual(ServiceKind.Police, info.ServiceKind); Assert.AreEqual(5, info.ServiceRadius);
-            Assert.AreEqual(1, info.CoveredHomes); Assert.AreEqual(2, info.TotalHomes);
-        }
-
-        [Test]
-        public void CanProcessHotkeys_TypingOrModal_GuardsHotkeys()
-        {
-            Assert.IsFalse(BuildModeHotkeys.CanProcessHotkeys(true, 0));
-            Assert.IsFalse(BuildModeHotkeys.CanProcessHotkeys(false, 42));
-            Assert.IsFalse(BuildModeHotkeys.CanProcessHotkeys(true, 42));
-            Assert.IsTrue(BuildModeHotkeys.CanProcessHotkeys(false, 0));
-        }
-
-        [Test]
-        public void BuildModeHotkeys_IsModalOpen_DetectsActiveModals()
-        {
-            GameObject go = new GameObject("TestHotkeysModal");
-            try
-            {
-                BuildModeHotkeys hotkeys = go.AddComponent<BuildModeHotkeys>();
-                PauseMenuView pause = go.AddComponent<PauseMenuView>();
-                SaveMenuView save = go.AddComponent<SaveMenuView>();
-                LoadMenuView load = go.AddComponent<LoadMenuView>();
-                MainMenu main = go.AddComponent<MainMenu>();
-
-                hotkeys.Pause = pause; hotkeys.SaveMenu = save; hotkeys.LoadMenu = load; hotkeys.Main = main;
-                Assert.IsFalse(hotkeys.IsModalOpen());
-                pause.Open(); Assert.IsTrue(hotkeys.IsModalOpen()); pause.Close();
-                save.Open(); Assert.IsTrue(hotkeys.IsModalOpen()); save.Close();
-                load.Open(); Assert.IsTrue(hotkeys.IsModalOpen()); load.Close();
-                main.Open(); Assert.IsTrue(hotkeys.IsModalOpen()); main.Close();
-                Assert.IsFalse(hotkeys.IsModalOpen());
-            }
-            finally { Object.DestroyImmediate(go); }
-        }
     }
 }

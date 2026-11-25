@@ -5,7 +5,7 @@ namespace Citybuilder
 {
     // Кисть зон: ЛКМ красит drag-полосой, ПКМ стирает. Только старый Input.
     // Настройка сцены: компонент на объекте с GridVisualizer, по умолчанию выключен.
-    public class ZonePaintingController : MonoBehaviour
+    public partial class ZonePaintingController : MonoBehaviour
     {
         [Header("References")]
         [Tooltip("Сетка. Обязателен: даёт Grid и клетку под курсором.")]
@@ -136,52 +136,5 @@ namespace Citybuilder
             return true;
         }
 
-        private void RefreshView()
-        {
-            View.Rebuild(BuildGroups(), GridVisualizer.Grid.CellSize);
-        }
-
-        private Dictionary<ZoneType, List<GridPosition>> BuildGroups()
-        {
-            Dictionary<ZoneType, List<GridPosition>> groups = new Dictionary<ZoneType, List<GridPosition>>();
-            groups[ZoneType.Residential] = new List<GridPosition>();
-            groups[ZoneType.Commercial] = new List<GridPosition>();
-            groups[ZoneType.Industrial] = new List<GridPosition>();
-            List<KeyValuePair<GridPosition, ZoneType>> painted = system.GetZonedCells();
-            for (int i = 0; i < painted.Count; i++)
-            {
-                List<GridPosition> list;
-                if (groups.TryGetValue(painted[i].Value, out list))
-                {
-                    list.Add(painted[i].Key);
-                }
-            }
-            return groups;
-        }
-
-        // Перерисовать вид по живым зонам (после загрузки слота).
-        public void RepaintAll()
-        {
-            if (!EnsureReady() || system == null)
-            {
-                return;
-            }
-            RefreshView();
-        }
-
-        // Снять все зоны и перерисовать (первый шаг загрузки слота).
-        public void ClearZones()
-        {
-            if (!EnsureReady() || system == null)
-            {
-                return;
-            }
-            List<KeyValuePair<GridPosition, ZoneType>> cells = system.GetZonedCells();
-            for (int i = 0; i < cells.Count; i++)
-            {
-                system.SetZone(cells[i].Key, ZoneType.None);
-            }
-            RefreshView();
-        }
     }
 }
