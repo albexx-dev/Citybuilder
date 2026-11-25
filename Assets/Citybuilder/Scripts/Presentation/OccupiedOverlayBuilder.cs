@@ -14,7 +14,7 @@ namespace Citybuilder
             GameObject go = new GameObject("OccupiedOverlay");
             go.transform.SetParent(parent, false);
             MeshFilter filter = go.AddComponent<MeshFilter>();
-            filter.mesh = mesh;
+            filter.sharedMesh = mesh;
             MeshRenderer renderer = go.AddComponent<MeshRenderer>();
             Shader shader = Shader.Find("Unlit/Color");
             Material material = new Material(shader);
