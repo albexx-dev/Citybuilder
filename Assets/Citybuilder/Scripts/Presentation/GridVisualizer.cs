@@ -73,8 +73,8 @@ namespace Citybuilder
             Builder.EnsureVisuals();
             Transform lines = transform.Find("GridLines");
             if (lines != null) lines.gameObject.SetActive(GridOverlayEnabled);
-            if (hasRadiusRequest && ServiceCoverageOverlayEnabled)
-                ShowRadiusOverlay(radiusCenter, radiusCells, radiusKind);
+            // Повторный ShowRadiusOverlay сохраняет запрос и гасит меш, пока тумблер выключен.
+            if (hasRadiusRequest) ShowRadiusOverlay(radiusCenter, radiusCells, radiusKind);
             else ClearRadiusOverlay();
         }
         public static Color ColorForService(ServiceKind kind)
