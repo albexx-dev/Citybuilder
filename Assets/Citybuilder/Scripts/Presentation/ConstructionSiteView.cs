@@ -11,7 +11,16 @@ namespace Citybuilder
         private const float MinHeight = 0.001f;
         private static readonly Color FillColor = new Color(0.5f, 0.5f, 0.5f);
         // Один неизменяемый материал на все стройки — общий, удалять нельзя.
-        private static readonly Material FillMaterial = new Material(Shader.Find("Unlit/Color")) { color = FillColor };
+        // Shader.Find нельзя вызывать в статическом инициализаторе MonoBehaviour → лениво по первому использованию.
+        private static Material fillMaterial;
+        private static Material FillMaterial
+        {
+            get
+            {
+                if (fillMaterial == null) fillMaterial = new Material(Shader.Find("Unlit/Color")) { color = FillColor };
+                return fillMaterial;
+            }
+        }
         private readonly ConstructionScaffold scaffold = new ConstructionScaffold();
         private SimulationRunner runner;
         private Transform sprout;
