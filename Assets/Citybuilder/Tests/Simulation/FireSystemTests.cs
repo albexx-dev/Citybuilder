@@ -6,7 +6,7 @@ namespace Citybuilder
 {
     // Тесты FireSystem (EPIC-43, ADR-009): детерминизм двух прогонов, порог хеша,
     // покрытие и NaN, тушение станцией за 1 тик, разрушение с выселением, форс-хук.
-    public class FireSystemTests
+    public partial class FireSystemTests
     {
         private const int ProbeTicks = 100000;
 
@@ -143,18 +143,5 @@ namespace Citybuilder
             return -1;
         }
 
-        // Прогон дома тиков с заданным покрытием; события собираются в список.
-        private static FireSystem Run(BuildingState home, int startTick, int ticks, float coverage,
-            List<CityEvent> events)
-        {
-            FireSystem fires = new FireSystem();
-            fires.Fired += delegate (CityEvent cityEvent) { events.Add(cityEvent); };
-            List<BuildingState> homes = new List<BuildingState> { home };
-            for (int t = startTick; t < startTick + ticks; t++)
-            {
-                fires.Tick(t, homes, delegate { return coverage; }, delegate { });
-            }
-            return fires;
-        }
     }
 }
