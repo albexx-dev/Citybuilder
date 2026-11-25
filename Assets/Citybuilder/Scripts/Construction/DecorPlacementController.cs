@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Ручной декор (EPIC-56 «Декор [5]»): деревья на клетках, домен не трогаем, клетки не занимают.
-    // ЛКМ — поставить (замена), ПКМ — снести, Esc — выйти; раз в RefreshInterval уборка из-под зданий и зон.
+    // ЛКМ — поставить (замена), ПКМ — снести; Esc выходит через BuildModeHotkeys. Раз в RefreshInterval уборка из-под зданий и зон.
     public class DecorPlacementController : MonoBehaviour
     {
         [Header("References")]
@@ -36,12 +36,6 @@ namespace Citybuilder
         private void Update()
         {
             if (!EnsureReady() || !placementActive) return;
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                placementActive = false;
-                ghostView.Hide();
-                return;
-            }
             GridPosition cell;
             if (!GridVisualizer.TryGetHoveredCell(out cell))
             {

@@ -2,8 +2,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Хоткеи меню режимов и паузы (EPIC-16): Esc сначала гасит режим, при Выкл — открывает/закрывает паузу;
-    // открытые меню блокируют 1-5; переключение 1-5 переключает режим без изменения состояния города.
+    // Хоткеи режимов, панелей и паузы (EPIC-16, issue #123): Esc идёт через единый арбитр.
     public class BuildModeHotkeys : MonoBehaviour
     {
         [Header("References")]
@@ -19,6 +18,9 @@ namespace Citybuilder
         [Tooltip("Меню загрузки.")] public LoadMenuView LoadMenu;
         [Tooltip("Окно настроек (EPIC-69).")] public SettingsView Settings;
         [Tooltip("Инфопанель выбранного здания: её Esc имеет приоритет над паузой (issue #98).")] public InfoPanelView InfoPanel;
+        [Tooltip("Меню статистики (Tab).")] public InfoMenuView InfoMenu;
+        [Tooltip("Лента событий (L).")] public EventLogView EventLog;
+        [Tooltip("Журнал задач (J).")] public QuestLogView Quests;
 
         public enum EscAction
         {
@@ -28,20 +30,16 @@ namespace Citybuilder
             OpenPause = 3
         }
 
-        // Чистая логика приоритета Esc (EPIC-16).
         public static EscAction EvaluateEsc(bool mainOpen, bool pauseOpen, BuildModeMenu.Mode mode)
         {
-            if (mainOpen) return EscAction.None;
-            if (pauseOpen) return EscAction.ClosePause;
-            if (mode != BuildModeMenu.Mode.Off) return EscAction.TurnOffMode;
-            return EscAction.OpenPause;
+            return UiEscapePriority.ToLegacyAction(UiEscapePriority.Evaluate(
+                mainOpen, pauseOpen, mode, false, false, false, false, false));
         }
 
-        // Приоритет Esc (issue #98): открытая инфопанель гасит себя и не открывает паузу в этом кадре.
         public static EscAction EvaluateEsc(bool mainOpen, bool pauseOpen, BuildModeMenu.Mode mode, bool infoPanelOpen)
         {
-            if (infoPanelOpen) return EscAction.None;
-            return EvaluateEsc(mainOpen, pauseOpen, mode);
+            return UiEscapePriority.ToLegacyAction(UiEscapePriority.Evaluate(
+                mainOpen, pauseOpen, mode, infoPanelOpen, false, false, false, false));
         }
 
         public static bool CanProcessHotkeys(bool isModalOpen, int keyboardControl)
@@ -49,7 +47,7 @@ namespace Citybuilder
             return !isModalOpen && keyboardControl == 0;
         }
 
-        // Единый гард для Tab (статистика) и L (лента): формула не дублируется, модалки спрашиваем здесь.
+        // Единый гард для Tab, L, J и O: формула не дублируется, модалки спрашиваем здесь.
         public static bool CanProcessPanelHotkeys()
         {
             BuildModeHotkeys hotkeys = FindFirstObjectByType<BuildModeHotkeys>();
@@ -80,25 +78,39 @@ namespace Citybuilder
             bool infoPanelOpen = InfoPanel != null && InfoPanel.IsOpen;
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                // Esc работает при открытых паузе/главном меню, но глотается слотами и вводом текста.
                 if (!CanProcessHotkeys(slotModalOpen, GUIUtility.keyboardControl)) return;
-                EscAction act = EvaluateEsc(mainOpen, pauseOpen, menu.CurrentMode, infoPanelOpen);
-                if (!TryBeginEscape(act, Time.frameCount)) return;
-                if (act == EscAction.ClosePause && Pause != null) Pause.Close();
-                else if (act == EscAction.TurnOffMode) menu.SetMode(BuildModeMenu.Mode.Off);
-                else if (act == EscAction.OpenPause && Pause != null) Pause.Open();
+                UiEscapePriority.Target target = UiEscapePriority.Evaluate(mainOpen, pauseOpen, menu.CurrentMode,
+                    infoPanelOpen, Settings != null && Settings.IsOpen, SaveMenu != null && SaveMenu.IsOpen,
+                    LoadMenu != null && LoadMenu.IsOpen, AnyPanelOpen());
+                if (!UiEscapePriority.TryBegin(target, Time.frameCount)) return;
+                UiEscapePriority.Apply(target, menu, Pause, InfoPanel, Settings, SaveMenu, LoadMenu, InfoMenu, EventLog, Quests);
                 return;
             }
-            // Единый гард хоткеев 1-5 (issue #42): формула только в CanProcessHotkeys.
             if (!CanProcessHotkeys(mainOpen || pauseOpen || slotModalOpen, GUIUtility.keyboardControl)) return;
             if (Input.GetKeyDown(KeyCode.Alpha1)) SelectMode(menu, BuildModeMenu.Mode.Houses);
             else if (Input.GetKeyDown(KeyCode.Alpha2)) SelectMode(menu, BuildModeMenu.Mode.Roads);
             else if (Input.GetKeyDown(KeyCode.Alpha3)) SelectMode(menu, BuildModeMenu.Mode.Zones);
             else if (Input.GetKeyDown(KeyCode.Alpha4)) SelectMode(menu, BuildModeMenu.Mode.Growth);
             else if (Input.GetKeyDown(KeyCode.Alpha5)) SelectMode(menu, BuildModeMenu.Mode.Decor);
+            if (Input.GetKeyDown(KeyCode.J) && Quests != null && CanProcessPanelHotkeys()) OpenQuests();
+            if (Input.GetKeyDown(KeyCode.O) && Settings != null && CanProcessPanelHotkeys()) Settings.Toggle();
         }
 
-        // Гард ставим только если Esc реально что-то делает: None не должен съедать кадр панели.
+        private void OpenQuests()
+        {
+            if (InfoMenu != null) InfoMenu.SetOpen(false);
+            if (EventLog != null) EventLog.SetOpen(false);
+            if (Settings != null && Settings.IsOpen) Settings.Close();
+            Quests.Toggle();
+        }
+
+        private bool AnyPanelOpen()
+        {
+            return (InfoMenu != null && InfoMenu.IsOpen)
+                || (EventLog != null && EventLog.IsOpen)
+                || (Quests != null && Quests.IsOpen);
+        }
+
         public static bool TryBeginEscape(EscAction act, int frame)
         {
             return act != EscAction.None && UiEscapeGuard.TryConsume(frame);
@@ -117,6 +129,9 @@ namespace Citybuilder
             if (LoadMenu == null) LoadMenu = GetComponent<LoadMenuView>() ?? FindFirstObjectByType<LoadMenuView>();
             if (Settings == null) Settings = GetComponent<SettingsView>() ?? FindFirstObjectByType<SettingsView>();
             if (InfoPanel == null) InfoPanel = FindFirstObjectByType<InfoPanelView>();
+            if (InfoMenu == null) InfoMenu = FindFirstObjectByType<InfoMenuView>();
+            if (EventLog == null) EventLog = FindFirstObjectByType<EventLogView>();
+            if (Quests == null) Quests = FindFirstObjectByType<QuestLogView>();
         }
 
         private BuildModeMenu ResolveMenu()

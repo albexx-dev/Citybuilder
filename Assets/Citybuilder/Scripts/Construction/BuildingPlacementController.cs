@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Ставит здания мышью: призрак, ЛКМ, Escape, ПКМ. Только старый Input.
+    // Ставит здания мышью: призрак, ЛКМ, ПКМ. Esc гасит режим через BuildModeHotkeys. Только старый Input.
     public class BuildingPlacementController : MonoBehaviour
     {
         [Header("References")]
@@ -66,12 +66,6 @@ namespace Citybuilder
         private void Update()
         {
             if (!EnsureReady() || system == null || !placementActive) return;
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                placementActive = false;
-                ghostView.Hide();
-                return;
-            }
             GridPosition cell;
             if (!GridVisualizer.TryGetHoveredCell(out cell))
             {
