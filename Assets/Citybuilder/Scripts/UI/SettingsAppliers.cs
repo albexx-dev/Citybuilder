@@ -40,5 +40,11 @@ namespace Citybuilder
             }
             if (roads != null) roads.SetCongestionOverlayEnabled(source.CongestionOverlayEnabled);
         }
+
+        // Доступность (issue #122): один раз связать профиль — HudText/HudLayout читают его сами.
+        public static void ApplyHud(GameSettings source)
+        {
+            HudText.Profile = source;
+        }
     }
 }
