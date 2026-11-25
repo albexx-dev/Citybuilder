@@ -10,6 +10,9 @@ namespace Citybuilder
         public const float YellowThreshold = 0.33f;
         public const float RedThreshold = 0.66f;
 
+        [Header("Overlay")]
+        [Tooltip("Подсветка пробок видна. По умолчанию включено.")] public bool CongestionOverlayEnabled = true;
+
         private Mesh builtMesh;
         private Mesh previewMesh;
         private Mesh yellowMesh;
@@ -50,6 +53,7 @@ namespace Citybuilder
         {
             if (tick == lastTick) return false;
             lastTick = tick;
+            if (!CongestionOverlayEnabled) return false;
             EnsureCongestionMeshes();
             List<GridPosition> yellow = new List<GridPosition>();
             List<GridPosition> red = new List<GridPosition>();
@@ -66,7 +70,14 @@ namespace Citybuilder
             FillMesh(redMesh, red, cellSize, 0.019f);
             return true;
         }
-
+        public void SetCongestionOverlayEnabled(bool enabled)
+        {
+            CongestionOverlayEnabled = enabled;
+            if (enabled) return;
+            EnsureCongestionMeshes();
+            FillMesh(yellowMesh, null, 0f, 0f);
+            FillMesh(redMesh, null, 0f, 0f);
+        }
         private void EnsureBuilt()
         {
             if (builtMesh != null) return;
