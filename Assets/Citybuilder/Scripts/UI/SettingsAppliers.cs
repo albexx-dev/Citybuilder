@@ -46,6 +46,8 @@ namespace Citybuilder
         {
             if (source == null || trucks == null) return;
             trucks.SetShowTruckVisuals(source.ShowGarbageTrucks);
+        }
+
         // Доступность (issue #122): один раз связать профиль — HudText/HudLayout читают его сами.
         public static void ApplyHud(GameSettings source)
         {

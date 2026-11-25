@@ -112,8 +112,7 @@ namespace Citybuilder
             bool changed = volume != DefaultVolume || ambientVolume != DefaultAmbientVolume || muted
                 || agentLimit != DefaultAgentLimit || !decorEnabled || !dayNightEnabled
                 || autosaveHours != DefaultAutosaveHours || !serviceCoverageOverlayEnabled
-                || !congestionOverlayEnabled || !gridOverlayEnabled || showGarbageTrucks;
-                || !congestionOverlayEnabled || !gridOverlayEnabled
+                || !congestionOverlayEnabled || !gridOverlayEnabled || showGarbageTrucks
                 || hudFontScale != DefaultHudFontScale || highContrast;
             volume = DefaultVolume;
             ambientVolume = DefaultAmbientVolume;
