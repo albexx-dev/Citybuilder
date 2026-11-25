@@ -127,4 +127,11 @@ v1.1 systems (see v1.1.0 scope history in git) plus the v1.2 «Living city» mil
 
 ## 16. Future decisions (v1.4+)
 
-Per-building ambient occlusion and deeper agent LOD are candidates for the next milestone. v1.3 decisions already shipped: event-log localization (`DECISIONS/ADR-013-event-localization.md`: key + args, language-independent dedup, typed audio), catalog names from assets, depot variants and save v6 (`DECISIONS/ADR-014-save-v6.md`); fires/agents remain ephemeral per ADR-009/ADR-011.
+v1.4 patterns are fixed by `DECISIONS/ADR-016-v14-scope.md` (issue #111, 2026-11-25), accepted before the first code step:
+
+- **Metrics:** `MetricsHistory` ring grows from 192 (8 days) to 720 hourly samples (30 days) and gains per-hour fire/theft counters; `MetricsRecorder` stays a thin `TickCompleted` adapter, history stays session-only (fires/agents are not serialized — ADR-009/011/014).
+- **Overlays:** player toggles in the settings window, persisted in the `GameSettings` profile; presentation layer only — simulation and HUD lines are unchanged.
+- **Slot export/import (optional):** reuses `CitySnapshot` v6 with all ADR-014 validation/fallback rules; no new format, serializer or cloud saves; fires and vehicle agents remain ephemeral.
+- **Agent LOD/culling:** blocked by ADR-001 until Profiler numbers (`TotalResidents > 1000` with tick pressure or simulation tick p95 > 5 ms); no Jobs/Burst/DOTS without a new ADR.
+
+Earlier decisions already shipped: event-log localization (`DECISIONS/ADR-013-event-localization.md`), catalog names from assets, depot variants and save v6 (`DECISIONS/ADR-014-save-v6.md`). Per-building ambient occlusion remains a candidate, but is outside the v1.4 scope above.
