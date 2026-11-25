@@ -5,7 +5,7 @@ namespace Citybuilder
     // Панель задач-вех (EPIC-48, ADR-012): кнопка «Задачи» в нижней панели, окно QuestLogRect.
     // Владеет QuestTicker (как GoalView владеет целью): на TickCompleted подаёт контекст
     // города из полей EconomyTicker в QuestSystem, награды идут в казну, события — в ленту.
-    // По образцу EventLogView (EPIC-09). Хоткей не назначен: Q занята поворотом камеры.
+    // По образцу EventLogView (EPIC-09). Хоткей J обрабатывает BuildModeHotkeys (issue #123): Q — поворот камеры.
     public class QuestLogView : MonoBehaviour
     {
         private const float LineHeight = 24f;

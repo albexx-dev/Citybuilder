@@ -55,7 +55,7 @@ namespace Citybuilder
             Dragging = false;
         }
 
-        // Полный сброс: выключение компонента, Escape или отмена коммита.
+        // Полный сброс: выключение компонента (в том числе по Esc через арбитр) или отмена коммита.
         public void Reset()
         {
             Dragging = false;

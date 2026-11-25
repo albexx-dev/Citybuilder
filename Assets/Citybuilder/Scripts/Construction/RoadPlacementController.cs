@@ -57,7 +57,7 @@ namespace Citybuilder
         private void Update()
         {
             if (!EnsureReady()) return;
-            if (!placementActive || Input.GetKeyDown(KeyCode.Escape))
+            if (!placementActive)
             {
                 CancelDrag();
                 return;

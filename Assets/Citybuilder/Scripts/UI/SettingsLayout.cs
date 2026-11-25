@@ -11,7 +11,7 @@ namespace Citybuilder
     {
         public const float PanelWidth = 460f;
         // 340 -> 372: слайдер «Эмбиент» (#71); 372 -> 448: кнопка повтора и справка (#97).
-        public const float PanelHeight = 448f;
+        public const float PanelHeight = 480f; // issue #123: три строки подсказок хоткеев в футере.
         public const int AgentStep = 8;
         public const int AutosaveStep = 5;
         // Ряд кнопок меню нижней панели: «Статистика/Лента/Задачи/Настройки» (4-я — EPIC-69).

@@ -31,11 +31,11 @@ namespace Citybuilder
             Assert.LessOrEqual(panel.xMax, width - HudLayout.BarPadding);
             Assert.LessOrEqual(panel.yMax, height);
         }
-        // Эпик 97: кнопка «Повторить обучение» и справка по управлению требуют высоты 448.
+        // Эпик 97 и issue #123: кнопка повтора и три строки подсказок требуют высоты 480.
         [Test]
-        public void PanelHeight_FitsRepeatButtonAndControlsHint()
+        public void PanelHeight_FitsRepeatButtonAndControlsHints()
         {
-            Assert.AreEqual(448f, SettingsLayout.PanelHeight);
+            Assert.AreEqual(480f, SettingsLayout.PanelHeight);
             Assert.LessOrEqual(SettingsLayout.PanelRect(1024f, 600f).yMax, 600f);
         }
 
