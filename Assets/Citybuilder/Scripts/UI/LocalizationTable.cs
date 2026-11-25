@@ -44,7 +44,7 @@ namespace Citybuilder
             { "main_menu_continue", new[] { "Продолжить", "Continue" } },
             { "main_menu_new_game", new[] { "Новая игра", "New game" } },
             { "main_menu_load", new[] { "Загрузить", "Load" } },
-            { "main_menu_exit", new[] { "Выход", "Exit" } },
+            { "main_menu_exit", new[] { "Выход", "Exit" } }, { "language_toggle_tip", new[] { "Переключить язык / Toggle language", "Toggle language" } },
             { "save_title", new[] { "=== Сохранить город ===", "=== Save city ===" } },
             { "save_save", new[] { "Сохранить", "Save" } },
             { "save_close", new[] { "Закрыть", "Close" } },
@@ -75,7 +75,7 @@ namespace Citybuilder
             { "decor_detailed", new[] { "Дерево (детальное)", "Tree (detailed)" } },
             { "decor_oak", new[] { "Дуб", "Oak" } },
             { "decor_pine", new[] { "Сосна", "Pine" } },
-            { "budget_breakdown", new[] { "Налоги {0} - Содержание {1} - Кражи {2} + Награды {3} = {4} $/ч", "Tax {0} - Upkeep {1} - Theft {2} + Rewards {3} = {4} $/h" } },
+            { "budget_breakdown", new[] { "Налоги {0} - Содержание {1} - Кражи {2} + Награды {3} = {4} $/ч", "Tax {0} - Upkeep {1} - Theft {2} + Rewards {3} = {4} $/h" } }, { "upkeep_line", new[] { "Расход: {0} $/ч", "Upkeep: {0} $/h" } },
             // Нижняя панель (issue #100 шаг 1): подписи и тултипы. Хоткей-суффиксы остаются в шаблоне.
             { "bottom_speed_pause", new[] { "Пауза", "Pause" } },
             { "bottom_speed_play", new[] { "Игра", "Play" } },
@@ -138,7 +138,7 @@ namespace Citybuilder
             { "quest_progress_fire", new[] { "Пожарные {0}/100", "Fire {0}/100" } },
             { "quest_log_title", new[] { "=== Задачи города ===", "=== City quests ===" } },
             { "quest_log_empty", new[] { "Задач пока нет.", "No quests yet." } },
-            { "quest_reward", new[] { "(+{0}$)", "(+{0}$)" } }
+            { "quest_reward", new[] { "(+{0}$)", "(+{0}$)" } }, { "metric_name_fires", new[] { "Пожары", "Fires" } }, { "metric_name_thefts", new[] { "Кражи", "Thefts" } }
         };
 
         // Перенос в фасад: исходный реестр остаётся тем же словарём, ключи не дублируются.

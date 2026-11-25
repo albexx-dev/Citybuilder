@@ -65,14 +65,10 @@ namespace Citybuilder
             return NameAt(index) + ": " + ValueAt(index, latest).ToString("0");
         }
 
-        // Новые ключи появятся в таблице локализации; до этого понятный фолбэк RU/EN.
+        // Имя серии всегда берётся из реестра: RU/EN-варианты заданы в LocalizationTable.
         private static string NameAt(int index)
         {
-            string key = NameKeys[index];
-            if (Localization.Has(key)) return Localization.T(key);
-            bool english = Localization.Language == Language.En;
-            if (index == 4) return english ? "Fires" : "Пожары";
-            return english ? "Thefts" : "Кражи";
+            return Localization.T(NameKeys[index]);
         }
 
         // Забыть таймер (тесты, «Новая игра»): следующий вызов пересчитает сразу.

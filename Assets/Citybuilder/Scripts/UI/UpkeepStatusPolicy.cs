@@ -13,7 +13,7 @@ namespace Citybuilder
         // N берётся из UpkeepPolicy без правок: при нулевом содержании строка честно показывает 0.
         public static string Text(int upkeepPerHour)
         {
-            return "Расход: " + upkeepPerHour + " $/ч";
+            return Localization.T("upkeep_line", upkeepPerHour);
         }
 
         // Источник признака — Treasury.IsInDeficit (баланс < 0): он и меняет вид строки.

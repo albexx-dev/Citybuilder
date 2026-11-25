@@ -49,6 +49,22 @@ namespace Citybuilder
             }
         }
 
+        // EN-аудит (issue #121): ни один ключ реестра не отдаёт кириллицу в английском режиме.
+        [Test]
+        public void AllRegistryKeys_HaveNoCyrillicInEnglish()
+        {
+            Localization.SetLanguage(Language.En);
+            foreach (string key in Localization.Keys)
+            {
+                string text = Localization.T(key);
+                for (int i = 0; i < text.Length; i++)
+                {
+                    char c = text[i];
+                    Assert.IsFalse(c >= '\u0400' && c <= '\u04FF', "EN " + key + ": " + text);
+                }
+            }
+        }
+
         [Test]
         public void RuOutput_EconomyMessages_ByteIdenticalToLegacy()
         {
