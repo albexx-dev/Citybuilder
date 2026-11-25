@@ -62,7 +62,7 @@ namespace Citybuilder
                 if (tutorial != null) tutorial.ResetTutorial();
                 view.Close();
             }
-            HudText.Draw(x, y + 76f, Localization.T("settings_controls"));
+            UiEscapePriority.DrawHints(x, y + 76f);
         }
     }
 }
