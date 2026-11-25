@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Хоткеи режимов, панелей и паузы (EPIC-16, issue #123): Esc идёт через единый арбитр.
-    public class BuildModeHotkeys : MonoBehaviour
+    public partial class BuildModeHotkeys : MonoBehaviour
     {
         [Header("References")]
         [Tooltip("Меню режимов. Пусто = ищется на этом же объекте.")]

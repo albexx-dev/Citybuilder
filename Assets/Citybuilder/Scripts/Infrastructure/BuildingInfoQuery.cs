@@ -5,7 +5,7 @@ namespace Citybuilder
 {
     // Чистый запрос сведений о здании под клеткой сетки (EPIC-12 шаг 1).
     // Не зависит от MonoBehaviour: собирает снимок из списков выросших/ручных зданий и чистых систем.
-    public static class BuildingInfoQuery
+    public static partial class BuildingInfoQuery
     {
         public static BuildingInfo Query(
             GridPosition cell,
