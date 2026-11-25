@@ -10,7 +10,7 @@ namespace Citybuilder
             Deficit
         }
 
-        // N берётся из UpkeepPolicy без правок: при нулевом содержании строка честно показывает 0.
+        // N уже эффективное (EffectiveUpkeepPolicy.Apply): при нулевом содержании строка честно показывает 0.
         public static string Text(int upkeepPerHour)
         {
             return Localization.T("upkeep_line", upkeepPerHour);
