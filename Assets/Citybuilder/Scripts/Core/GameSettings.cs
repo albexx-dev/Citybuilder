@@ -23,6 +23,9 @@ namespace Citybuilder
         private bool decorEnabled = true;
         private bool dayNightEnabled = true;
         private int autosaveHours = DefaultAutosaveHours;
+        private bool serviceCoverageOverlayEnabled = true;
+        private bool congestionOverlayEnabled = true;
+        private bool gridOverlayEnabled = true;
 
         // Системы переприменяют значения на лету; вызывается только при реальном изменении.
         public event Action Changed;
@@ -71,6 +74,11 @@ namespace Citybuilder
             set { Set(ref autosaveHours, ClampAutosaveHours(value)); }
         }
 
+        // Оверлеи (issue #114): дефолт true сохраняет текущую видимость покрытия, пробок и сетки.
+        public bool ServiceCoverageOverlayEnabled { get { return serviceCoverageOverlayEnabled; } set { Set(ref serviceCoverageOverlayEnabled, value); } }
+        public bool CongestionOverlayEnabled { get { return congestionOverlayEnabled; } set { Set(ref congestionOverlayEnabled, value); } }
+        public bool GridOverlayEnabled { get { return gridOverlayEnabled; } set { Set(ref gridOverlayEnabled, value); } }
+
         public static float ClampVolume(float value)
         {
             if (float.IsNaN(value) || value < 0f) return 0f;
@@ -94,7 +102,8 @@ namespace Citybuilder
         {
             bool changed = volume != DefaultVolume || ambientVolume != DefaultAmbientVolume || muted
                 || agentLimit != DefaultAgentLimit || !decorEnabled || !dayNightEnabled
-                || autosaveHours != DefaultAutosaveHours;
+                || autosaveHours != DefaultAutosaveHours || !serviceCoverageOverlayEnabled
+                || !congestionOverlayEnabled || !gridOverlayEnabled;
             volume = DefaultVolume;
             ambientVolume = DefaultAmbientVolume;
             muted = false;
@@ -102,6 +111,9 @@ namespace Citybuilder
             decorEnabled = true;
             dayNightEnabled = true;
             autosaveHours = DefaultAutosaveHours;
+            serviceCoverageOverlayEnabled = true;
+            congestionOverlayEnabled = true;
+            gridOverlayEnabled = true;
             if (changed && Changed != null) Changed();
         }
 

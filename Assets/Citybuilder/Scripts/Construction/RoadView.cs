@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-
 namespace Citybuilder
 {
     // Плоский вид дорог: серый меш построенных + оверлей пробок (жёлтый/красный, EPIC-15 шаг 2) + предпросмотр.
@@ -9,7 +8,8 @@ namespace Citybuilder
     {
         public const float YellowThreshold = 0.33f;
         public const float RedThreshold = 0.66f;
-
+        [Header("Overlay")]
+        [Tooltip("Подсветка пробок видна. По умолчанию включено.")] public bool CongestionOverlayEnabled = true;
         private Mesh builtMesh;
         private Mesh previewMesh;
         private Mesh yellowMesh;
@@ -17,38 +17,40 @@ namespace Citybuilder
         private MeshRenderer previewRenderer;
         private Material validMaterial;
         private Material invalidMaterial;
+        private IReadOnlyList<GridPosition> cachedCells;
+        private float cachedCellSize;
+        private Func<GridPosition, float> cachedLoad;
         private int lastTick = -1;
-
         public void Rebuild(List<GridPosition> cells, float cellSize)
         {
             EnsureBuilt();
             FillMesh(builtMesh, cells, cellSize, 0.015f);
         }
-
         public void ShowPreview(List<GridPosition> cells, float cellSize, bool valid)
         {
             EnsurePreview();
             FillMesh(previewMesh, cells, cellSize, 0.025f);
             previewRenderer.sharedMaterial = valid ? validMaterial : invalidMaterial;
         }
-
         public void HidePreview()
         {
             if (previewMesh != null) previewMesh.Clear();
         }
-
         // Классифицирует нагрузку дороги 0..1: 0 = свободно, 1 = жёлтая (0.33..0.66), 2 = красная (>0.66).
         public static int BucketForLoad01(float load01)
         {
             if (float.IsNaN(load01) || load01 <= YellowThreshold) return 0;
             return load01 <= RedThreshold ? 1 : 2;
         }
-
         // Обновляет покраску клеток дороги раз в тик (EPIC-15 шаг 2). Возвращает true, если меши пересобраны.
         public bool RefreshCongestionOncePerTick(
-            int tick, IReadOnlyList<GridPosition> roadCells, float cellSize, Func<GridPosition, float> loadOf)
+            int tick, IReadOnlyList<GridPosition> roadCells, float cellSize, Func<GridPosition, float> loadOf, bool force = false)
         {
-            if (tick == lastTick) return false;
+            cachedCells = roadCells;
+            cachedCellSize = cellSize;
+            cachedLoad = loadOf;
+            if (!CongestionOverlayEnabled) { ClearCongestion(); return false; }
+            if (!force && tick == lastTick) return false;
             lastTick = tick;
             EnsureCongestionMeshes();
             List<GridPosition> yellow = new List<GridPosition>();
@@ -66,19 +68,29 @@ namespace Citybuilder
             FillMesh(redMesh, red, cellSize, 0.019f);
             return true;
         }
-
+        public void SetCongestionOverlayEnabled(bool enabled)
+        {
+            CongestionOverlayEnabled = enabled;
+            if (!enabled) { ClearCongestion(); return; }
+            if (cachedLoad != null) RefreshCongestionOncePerTick(lastTick, cachedCells, cachedCellSize, cachedLoad, true);
+        }
+        // Пауза в настройках не даёт следующего тика: при включении меши красятся кэшем аргументов.
+        private void ClearCongestion()
+        {
+            EnsureCongestionMeshes();
+            FillMesh(yellowMesh, null, 0f, 0f);
+            FillMesh(redMesh, null, 0f, 0f);
+        }
         private void EnsureBuilt()
         {
             if (builtMesh != null) return;
             builtMesh = EnsureChildMesh("RoadsMesh", Color.gray, out _);
         }
-
         private void EnsureCongestionMeshes()
         {
             if (yellowMesh == null) yellowMesh = EnsureChildMesh("RoadsYellow", new Color(0.95f, 0.8f, 0.15f, 1f), out _);
             if (redMesh == null) redMesh = EnsureChildMesh("RoadsRed", new Color(0.9f, 0.2f, 0.15f, 1f), out _);
         }
-
         private void EnsurePreview()
         {
             if (previewMesh != null && previewRenderer != null) return;
@@ -87,7 +99,6 @@ namespace Citybuilder
             previewMesh = EnsureChildMesh("RoadPreview", new Color(0f, 1f, 0f, 0.4f), out previewRenderer);
             previewRenderer.sharedMaterial = validMaterial;
         }
-
         private Mesh EnsureChildMesh(string childName, Color color, out MeshRenderer renderer)
         {
             Transform found = transform.Find(childName);

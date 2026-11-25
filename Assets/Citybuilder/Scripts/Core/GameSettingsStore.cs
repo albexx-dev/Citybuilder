@@ -15,6 +15,9 @@ namespace Citybuilder
         public const string DecorKey = "citybuilder_decor";
         public const string DayNightKey = "citybuilder_daynight";
         public const string AutosaveHoursKey = "citybuilder_autosave_hours";
+        public const string ServiceCoverageOverlayKey = "citybuilder_overlay_coverage";
+        public const string CongestionOverlayKey = "citybuilder_overlay_congestion";
+        public const string GridOverlayKey = "citybuilder_overlay_grid";
 
         // Прочитать профиль: отсутствующие ключи → дефолты, мусор → клампы GameSettings.
         public static void Load(GameSettings settings)
@@ -27,6 +30,9 @@ namespace Citybuilder
             settings.DecorEnabled = PlayerPrefs.GetInt(DecorKey, 1) != 0;
             settings.DayNightEnabled = PlayerPrefs.GetInt(DayNightKey, 1) != 0;
             settings.AutosaveHours = PlayerPrefs.GetInt(AutosaveHoursKey, GameSettings.DefaultAutosaveHours);
+            settings.ServiceCoverageOverlayEnabled = PlayerPrefs.GetInt(ServiceCoverageOverlayKey, 1) != 0;
+            settings.CongestionOverlayEnabled = PlayerPrefs.GetInt(CongestionOverlayKey, 1) != 0;
+            settings.GridOverlayEnabled = PlayerPrefs.GetInt(GridOverlayKey, 1) != 0;
         }
 
         // Записать профиль. Значения уже клампнуты сеттерами GameSettings.
@@ -40,6 +46,9 @@ namespace Citybuilder
             PlayerPrefs.SetInt(DecorKey, settings.DecorEnabled ? 1 : 0);
             PlayerPrefs.SetInt(DayNightKey, settings.DayNightEnabled ? 1 : 0);
             PlayerPrefs.SetInt(AutosaveHoursKey, settings.AutosaveHours);
+            PlayerPrefs.SetInt(ServiceCoverageOverlayKey, settings.ServiceCoverageOverlayEnabled ? 1 : 0);
+            PlayerPrefs.SetInt(CongestionOverlayKey, settings.CongestionOverlayEnabled ? 1 : 0);
+            PlayerPrefs.SetInt(GridOverlayKey, settings.GridOverlayEnabled ? 1 : 0);
             PlayerPrefs.Save();
         }
     }

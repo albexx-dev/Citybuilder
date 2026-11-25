@@ -10,18 +10,21 @@ namespace Citybuilder
         [Tooltip("Клеток по X.")] public int Width = 50;
         [Tooltip("Клеток по Y.")] public int Height = 50;
         [Tooltip("Размер клетки в метрах.")] public float CellSize = 1f;
-
         [Header("Colors")]
         public Color LineColor = Color.white;
         public Color HoverColor = new Color(1f, 1f, 0f, 0.4f);
         public Color OccupiedColor = new Color(1f, 0f, 0f, 0f); // невидимая: владелец убрал красные подложки зданий
-
+        [Header("Overlays")]
+        [Tooltip("Линии сетки видны. По умолчанию включено.")] public bool GridOverlayEnabled = true;
+        [Tooltip("Подсветка радиуса служб видна. По умолчанию включено.")] public bool ServiceCoverageOverlayEnabled = true;
         [Header("References")]
         [Tooltip("Строитель мешей. Пусто = создастся на этом же объекте.")]
         public GridMeshBuilder Builder;
-
         private GridSystem grid;
-
+        private GridPosition radiusCenter;
+        private int radiusCells;
+        private ServiceKind radiusKind;
+        private bool hasRadiusRequest;
         public GridSystem Grid
         {
             get
@@ -32,35 +35,48 @@ namespace Citybuilder
         }
         public GridPosition HoveredCell { get; private set; }
         public bool HasHoveredCell { get; private set; }
-
         public bool TryGetHoveredCell(out GridPosition cell)
         {
             cell = HoveredCell;
             return HasHoveredCell;
         }
-
         public void RefreshOccupied()
         {
             EnsureBuilder();
             if (Builder == null) return;
             Builder.RebuildOccupied();
         }
-
         public void ShowRadiusOverlay(GridPosition center, int radius, ServiceKind kind)
         {
+            radiusCenter = center;
+            radiusCells = radius;
+            radiusKind = kind;
+            hasRadiusRequest = true;
             EnsureBuilder();
             if (Builder == null) return;
+            if (!ServiceCoverageOverlayEnabled) { Builder.RebuildRadius(null, Color.clear); return; }
             List<GridPosition> cells = BuildingInfoQuery.GetRadiusCells(center, radius, Grid.Size);
             Builder.RebuildRadius(cells, ColorForService(kind));
         }
-
         public void ClearRadiusOverlay()
         {
+            hasRadiusRequest = false;
             EnsureBuilder();
             if (Builder == null) return;
             Builder.RebuildRadius(null, Color.clear);
         }
-
+        // Флаги из SettingsAppliers: сетка и радиус служб переключаются без пересоздания мешей.
+        public void RefreshOverlays()
+        {
+            EnsureBuilder();
+            if (Builder == null) return;
+            Builder.EnsureVisuals();
+            Transform lines = transform.Find("GridLines");
+            if (lines != null) lines.gameObject.SetActive(GridOverlayEnabled);
+            // Повторный ShowRadiusOverlay сохраняет запрос и гасит меш, пока тумблер выключен.
+            if (hasRadiusRequest) ShowRadiusOverlay(radiusCenter, radiusCells, radiusKind);
+            else ClearRadiusOverlay();
+        }
         public static Color ColorForService(ServiceKind kind)
         {
             switch (kind)

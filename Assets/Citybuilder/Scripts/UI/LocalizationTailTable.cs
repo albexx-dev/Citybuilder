@@ -29,6 +29,9 @@ namespace Citybuilder
             { "settings_ambient", new[] { "Эмбиент: {0}%", "Ambient: {0}%" } },
             { "settings_agent_limit", new[] { "Машины: лимит {0}", "Vehicles: limit {0}" } },
             { "settings_autosave", new[] { "Автосейв: каждые {0} ч", "Autosave: every {0} h" } },
+            { "settings_overlay_coverage", new[] { "Покрытие", "Coverage" } },
+            { "settings_overlay_congestion", new[] { "Пробки", "Traffic" } },
+            { "settings_overlay_grid", new[] { "Сетка", "Grid" } },
             // Инфоменю: заголовки разделов и строка преступности.
             { "info_section_city", new[] { "=== Город ===", "=== City ===" } },
             { "info_section_goal", new[] { "=== Цель ===", "=== Goal ===" } },
