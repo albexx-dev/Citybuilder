@@ -5,23 +5,23 @@ namespace Citybuilder
     // Геометрия HUD, нижней панели, инфоменю, ленты и мини-карты: единый источник прямоугольников.
     public static class HudLayout
     {
-        public const float BarHeight = 38f;
-        public const float ButtonHeight = 28f;
-        public const float ButtonGap = 4f;
-        public const float GroupGap = 14f;
-        public const float BarPadding = 8f;
-        public const float SpeedButtonWidth = 56f;
-        public const float ModeButtonWidth = 84f;
-        public const float MenuButtonWidth = 84f;
-        public const float PaletteButtonWidth = 128f;
-        public const float SubRowOffset = 34f;
-        public const float InfoMenuTop = 10f;
-        public const float InfoMenuBottomGap = 8f;
+        public const float BarHeight = 38f, ButtonHeight = 28f, ButtonGap = 4f, GroupGap = 14f;
+        public const float BarPadding = 8f, SpeedButtonWidth = 56f, ModeButtonWidth = 84f;
+        public const float MenuButtonWidth = 84f, PaletteButtonWidth = 128f, SubRowOffset = 34f;
+        public const float InfoMenuTop = 10f, InfoMenuBottomGap = 8f;
         // Верхний левый угол: шаг ярусов больше высоты подложки строки HudText.
         public const float TopLeftX = 10f;
         public const float TopLeftY = 10f;
         public const float TopLeftLineStep = 26f;
+        public const float BackingGap = 2f;
         public static float TopLeftRowY(int index) => TopLeftY + index * TopLeftLineStep;
+
+        // Подложка HUD-строки: масштаб шрифта клампнут шагом яруса, поэтому строки не наезжают.
+        public static float BackingHeight(float labelHeight)
+        {
+            float baseline = (HudText.BackingRowHeight - 2f * HudText.BackingPadY) * HudText.FontScale;
+            return Mathf.Min(Mathf.Max(labelHeight, baseline) + 2f * HudText.BackingPadY, TopLeftLineStep - BackingGap);
+        }
         // Каталог постройки (задача 173): карточки фиксированной ширины, переполнение скроллит CatalogScroll.
         public const float CatalogCardWidth = 112f;
         public const float CatalogCardHeight = 96f;

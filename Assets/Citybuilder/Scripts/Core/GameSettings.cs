@@ -7,14 +7,11 @@ namespace Citybuilder
     // Чтение/запись PlayerPrefs — GameSettingsStore; окно настроек — следующий шаг.
     public class GameSettings
     {
-        public const float DefaultVolume = 0.5f;
-        public const float DefaultAmbientVolume = 1f;
-        public const int DefaultAgentLimit = 12;
-        public const int MinAgentLimit = 8;
-        public const int MaxAgentLimit = 120;
-        public const int DefaultAutosaveHours = 24;
-        public const int MinAutosaveHours = 5;
-        public const int MaxAutosaveHours = 120;
+        public const float DefaultVolume = 0.5f, DefaultAmbientVolume = 1f;
+        public const int DefaultAgentLimit = 12, MinAgentLimit = 8, MaxAgentLimit = 120;
+        public const int DefaultAutosaveHours = 24, MinAutosaveHours = 5, MaxAutosaveHours = 120;
+        // Доступность (issue #122): шрифт HUD только увеличивается, подложка клампнута шагом яруса.
+        public const float DefaultHudFontScale = 1f, MinHudFontScale = 1f, MaxHudFontScale = 1.5f;
 
         private float volume = DefaultVolume;
         private float ambientVolume = DefaultAmbientVolume;
@@ -27,6 +24,8 @@ namespace Citybuilder
         private bool congestionOverlayEnabled = true;
         private bool gridOverlayEnabled = true;
         private bool showGarbageTrucks = false;
+        private float hudFontScale = DefaultHudFontScale;
+        private bool highContrast;
 
         // Системы переприменяют значения на лету; вызывается только при реальном изменении.
         public event Action Changed;
@@ -82,6 +81,12 @@ namespace Citybuilder
 
         // Мусоровозы (issue #115): дефолт false — вид выключен, логика вывоза работает.
         public bool ShowGarbageTrucks { get { return showGarbageTrucks; } set { Set(ref showGarbageTrucks, value); } }
+        // Масштаб меток HUD и непрозрачная подложка: читаются HudText/HudLayout через апплайер.
+        public float HudFontScale { get { return hudFontScale; } set { Set(ref hudFontScale, ClampHudFontScale(value)); } }
+        public bool HighContrast { get { return highContrast; } set { Set(ref highContrast, value); } }
+
+        public static float ClampHudFontScale(float value) => float.IsNaN(value) || value < MinHudFontScale
+            ? MinHudFontScale : (value > MaxHudFontScale ? MaxHudFontScale : value);
 
         public static float ClampVolume(float value)
         {
@@ -108,6 +113,8 @@ namespace Citybuilder
                 || agentLimit != DefaultAgentLimit || !decorEnabled || !dayNightEnabled
                 || autosaveHours != DefaultAutosaveHours || !serviceCoverageOverlayEnabled
                 || !congestionOverlayEnabled || !gridOverlayEnabled || showGarbageTrucks;
+                || !congestionOverlayEnabled || !gridOverlayEnabled
+                || hudFontScale != DefaultHudFontScale || highContrast;
             volume = DefaultVolume;
             ambientVolume = DefaultAmbientVolume;
             muted = false;
@@ -119,6 +126,8 @@ namespace Citybuilder
             congestionOverlayEnabled = true;
             gridOverlayEnabled = true;
             showGarbageTrucks = false;
+            hudFontScale = DefaultHudFontScale;
+            highContrast = false;
             if (changed && Changed != null) Changed();
         }
 
