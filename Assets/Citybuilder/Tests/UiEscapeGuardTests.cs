@@ -94,5 +94,29 @@ namespace Citybuilder
             Assert.IsTrue(UiEscapePriority.TryBegin(UiEscapePriority.Target.BuildMode, frame + 1));
             UiEscapeGuard.Reset();
         }
+
+        [Test]
+        public void EscPriority_Resolve_InfoPanelWinsOverOpenSettingsAndConsumesFrame()
+        {
+            UiEscapeGuard.Reset();
+            int frame = 41;
+            UiEscapePriority.Target target = UiEscapePriority.Resolve(0, frame, false, false,
+                BuildModeMenu.Mode.Houses, true, true, true, true, true);
+            Assert.AreEqual(UiEscapePriority.Target.InfoPanel, target);
+            Assert.IsFalse(UiEscapeGuard.TryConsume(frame));
+            UiEscapeGuard.Reset();
+        }
+
+        [Test]
+        public void EscPriority_Resolve_SettingsTargetIsLiveAndKeyboardInputBlocksEsc()
+        {
+            UiEscapeGuard.Reset();
+            Assert.AreEqual(UiEscapePriority.Target.Settings, UiEscapePriority.Resolve(0, 42, false, false,
+                BuildModeMenu.Mode.Off, false, true, false, false, false));
+            Assert.AreEqual(UiEscapePriority.Target.None, UiEscapePriority.Resolve(1, 43, false, false,
+                BuildModeMenu.Mode.Off, false, true, false, false, false));
+            Assert.IsTrue(UiEscapeGuard.TryConsume(43));
+            UiEscapeGuard.Reset();
+        }
     }
 }

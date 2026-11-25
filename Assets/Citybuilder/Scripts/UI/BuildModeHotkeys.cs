@@ -46,8 +46,6 @@ namespace Citybuilder
         {
             return !isModalOpen && keyboardControl == 0;
         }
-
-        // Единый гард для Tab, L, J и O: формула не дублируется, модалки спрашиваем здесь.
         public static bool CanProcessPanelHotkeys()
         {
             BuildModeHotkeys hotkeys = FindFirstObjectByType<BuildModeHotkeys>();
@@ -78,14 +76,17 @@ namespace Citybuilder
             bool infoPanelOpen = InfoPanel != null && InfoPanel.IsOpen;
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                if (!CanProcessHotkeys(slotModalOpen, GUIUtility.keyboardControl)) return;
-                UiEscapePriority.Target target = UiEscapePriority.Evaluate(mainOpen, pauseOpen, menu.CurrentMode,
-                    infoPanelOpen, Settings != null && Settings.IsOpen, SaveMenu != null && SaveMenu.IsOpen,
+                UiEscapePriority.Target target = UiEscapePriority.Resolve(GUIUtility.keyboardControl, Time.frameCount,
+                    mainOpen, pauseOpen, menu.CurrentMode, infoPanelOpen,
+                    Settings != null && Settings.IsOpen, SaveMenu != null && SaveMenu.IsOpen,
                     LoadMenu != null && LoadMenu.IsOpen, AnyPanelOpen());
-                if (!UiEscapePriority.TryBegin(target, Time.frameCount)) return;
-                UiEscapePriority.Apply(target, menu, Pause, InfoPanel, Settings, SaveMenu, LoadMenu, InfoMenu, EventLog, Quests);
+                if (target != UiEscapePriority.Target.None)
+                    UiEscapePriority.Apply(target, menu, Pause, InfoPanel, Settings, SaveMenu, LoadMenu, InfoMenu, EventLog, Quests);
                 return;
             }
+            // O закрывает настройки, хотя IsModalOpen блокирует остальные хоткеи панелей.
+            if (Input.GetKeyDown(KeyCode.O) && Settings != null && GUIUtility.keyboardControl == 0
+                && (Settings.IsOpen || CanProcessPanelHotkeys())) Settings.Toggle();
             if (!CanProcessHotkeys(mainOpen || pauseOpen || slotModalOpen, GUIUtility.keyboardControl)) return;
             if (Input.GetKeyDown(KeyCode.Alpha1)) SelectMode(menu, BuildModeMenu.Mode.Houses);
             else if (Input.GetKeyDown(KeyCode.Alpha2)) SelectMode(menu, BuildModeMenu.Mode.Roads);
@@ -93,7 +94,6 @@ namespace Citybuilder
             else if (Input.GetKeyDown(KeyCode.Alpha4)) SelectMode(menu, BuildModeMenu.Mode.Growth);
             else if (Input.GetKeyDown(KeyCode.Alpha5)) SelectMode(menu, BuildModeMenu.Mode.Decor);
             if (Input.GetKeyDown(KeyCode.J) && Quests != null && CanProcessPanelHotkeys()) OpenQuests();
-            if (Input.GetKeyDown(KeyCode.O) && Settings != null && CanProcessPanelHotkeys()) Settings.Toggle();
         }
 
         private void OpenQuests()

@@ -30,6 +30,16 @@ namespace Citybuilder
             return target != Target.None && UiEscapeGuard.TryConsume(frame);
         }
 
+        // Единая точка входа: ввод, приоритет и гард. None — Esc в этом кадре не сработал.
+        public static Target Resolve(int keyboardControl, int frame, bool mainOpen, bool pauseOpen,
+            BuildModeMenu.Mode mode, bool infoPanelOpen, bool settingsOpen, bool saveOpen,
+            bool loadOpen, bool panelOpen)
+        {
+            if (!BuildModeHotkeys.CanProcessHotkeys(false, keyboardControl)) return Target.None;
+            Target target = Evaluate(mainOpen, pauseOpen, mode, infoPanelOpen, settingsOpen, saveOpen, loadOpen, panelOpen);
+            return TryBegin(target, frame) ? target : Target.None;
+        }
+
         // Обёртка совместимости со старым API EvaluateEsc (EPIC-16/issue #98).
         public static BuildModeHotkeys.EscAction ToLegacyAction(Target target)
         {
@@ -47,19 +57,11 @@ namespace Citybuilder
             SettingsView settings, SaveMenuView save, LoadMenuView load, InfoMenuView infoMenu,
             EventLogView log, QuestLogView quests)
         {
+            if (ApplySlot(target, settings, save, load)) return;
             switch (target)
             {
                 case Target.InfoPanel:
                     if (info != null) info.Close();
-                    return;
-                case Target.Settings:
-                    if (settings != null) settings.ReturnToPause();
-                    return;
-                case Target.SaveSlot:
-                    if (save != null) save.ReturnToPause();
-                    return;
-                case Target.LoadSlot:
-                    if (load != null) load.ReturnToPause();
                     return;
                 case Target.Panel:
                     CloseTopPanel(infoMenu, log, quests);
@@ -74,6 +76,15 @@ namespace Citybuilder
                     if (pause != null) pause.Open();
                     return;
             }
+        }
+
+        private static bool ApplySlot(Target target, SettingsView settings, SaveMenuView save, LoadMenuView load)
+        {
+            if (target == Target.Settings && settings != null) settings.ReturnToPause();
+            else if (target == Target.SaveSlot && save != null) save.ReturnToPause();
+            else if (target == Target.LoadSlot && load != null) load.ReturnToPause();
+            else return false;
+            return true;
         }
 
         private static void CloseTopPanel(InfoMenuView infoMenu, EventLogView log, QuestLogView quests)
