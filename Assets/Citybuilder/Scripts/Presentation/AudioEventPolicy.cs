@@ -11,23 +11,31 @@ namespace Citybuilder
         Burned = 2,
         Crime = 3,
         Garbage = 4,
-        Blackout = 5
+        Blackout = 5,
+        Supply = 6,
+        Congestion = 7,
+        Employment = 8
     }
 
     public static class AudioEventPolicy
     {
-        // Один сигнал на вид события: пожар, сгоревший дом, кража, вывоз мусора, отключение света.
-        // Потушенный пожар молчит (хорошая новость — достаточно записи в ленте).
+        // Один сигнал на вид события: пожар, сгоревший дом, кража, мусор, свет,
+        // снабжение, пробки, занятость. Потушенный пожар молчит: хорошая новость — запись в ленте.
         // Казна/доход молчат всегда: coin.wav — только награда цели (GoalView.cs:64).
         // Никакого разбора текста: подтип и ключ не зависят от языка (ADR-013).
         public static AudioEventSound Resolve(CityEvent cityEvent)
         {
+            // Пустой ключ — не запись ленты (CityEventLog её не добавит), в том числе default(CityEvent).
+            if (string.IsNullOrEmpty(cityEvent.MessageKey)) return AudioEventSound.None;
             if (cityEvent.Subtype == EventSubtype.Burned) return AudioEventSound.Burned;
             if (cityEvent.Subtype == EventSubtype.FireStart) return AudioEventSound.FireStart;
             if (cityEvent.Subtype == EventSubtype.Extinguished) return AudioEventSound.None;
             if (cityEvent.Kind == EventKind.Crime) return AudioEventSound.Crime;
             if (cityEvent.Kind == EventKind.Garbage) return AudioEventSound.Garbage;
             if (cityEvent.Kind == EventKind.Blackout) return AudioEventSound.Blackout;
+            if (cityEvent.Kind == EventKind.Supply) return AudioEventSound.Supply;
+            if (cityEvent.Kind == EventKind.Congestion) return AudioEventSound.Congestion;
+            if (cityEvent.Kind == EventKind.Employment) return AudioEventSound.Employment;
             return AudioEventSound.None;
         }
 
