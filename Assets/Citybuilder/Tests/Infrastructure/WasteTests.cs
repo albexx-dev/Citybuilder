@@ -94,6 +94,39 @@ namespace Citybuilder
         }
 
         [Test]
+        public void SelectDepot_RecyclingDepot_BeatsWasteDepotAndCompost()
+        {
+            List<GarbageTrucks.DepotCandidate> depots = new List<GarbageTrucks.DepotCandidate>
+            {
+                Depot(1, 1, 12), Depot(8, 9, 20), Depot(4, 6, 24)
+            };
+            Assert.AreEqual(new GridPosition(4, 6), GarbageTrucks.SelectDepot(depots).Value,
+                "перерабатывающий склад ёмче — рейс от него");
+        }
+
+        [Test]
+        public void SelectDepot_RecyclingDepot_FirstInList_StillWins()
+        {
+            List<GarbageTrucks.DepotCandidate> depots = new List<GarbageTrucks.DepotCandidate>
+            {
+                Depot(4, 6, 24), Depot(1, 1, 12), Depot(8, 9, 20)
+            };
+            Assert.AreEqual(new GridPosition(4, 6), GarbageTrucks.SelectDepot(depots).Value,
+                "порядок кандидатов не важен, важен максимум ёмкости");
+        }
+
+        [Test]
+        public void SelectDepot_AnotherDepotWithHigherCapacity_WinsOverRecycling()
+        {
+            List<GarbageTrucks.DepotCandidate> depots = new List<GarbageTrucks.DepotCandidate>
+            {
+                Depot(4, 6, 24), Depot(8, 9, 30)
+            };
+            Assert.AreEqual(new GridPosition(8, 9), GarbageTrucks.SelectDepot(depots).Value,
+                "выбор по ёмкости, а не по типу депо");
+        }
+
+        [Test]
         public void Dispatch_ThreeTimes_UsesAtMostTwoSlots()
         {
             GarbageTrucks fleet = new GarbageTrucks();
