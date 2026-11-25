@@ -29,7 +29,7 @@ Connected systems:
 
 - Unity **6000.3.25f1** (exact version in `ProjectSettings/ProjectVersion.txt`), Built-in Render Pipeline, one scene `Assets/Citybuilder/Scenes/Prototype.unity`; UI is IMGUI only.
 - Git LFS (`git lfs install`) — 19 tracked objects (textures and icons). Without it those files stay pointers.
-- 1057 EditMode tests (v1.3.3); run them via Unity Test Runner → EditMode.
+- 1057 EditMode tests (v1.3.3, 857 `[Test]` + 200 `[TestCase]` in 139 files); run them via Unity Test Runner → EditMode. CI runs the required `Static validation` check on every PR, but the `Unity EditMode tests` job is skipped until repository variable `ENABLE_UNITY_TESTS=true` and Unity license secrets are set — until then EditMode is a manual gate.
 - Python 3.10+ for the static validator `Tools/ValidateRepo.py`.
 - Optional MCP stack: Unity bridge on `127.0.0.1:8080`, Blender 4.5 LTS MCP on `127.0.0.1:9876`.
 
