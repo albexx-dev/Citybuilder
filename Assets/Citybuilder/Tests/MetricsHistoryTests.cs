@@ -99,5 +99,45 @@ namespace Citybuilder
 
             Assert.AreEqual(0, history.Snapshot()[0].Hour);
         }
+
+        // #112: новые поля переживают запись, NaN-гард и чтение через Snapshot().
+        [Test]
+        public void Record_FiresAndThefts_AreReadBack()
+        {
+            MetricsHistory history = new MetricsHistory();
+            history.Record(new MetricsSnapshot(7, 20, 100, 50f, 12f, 90f, 80f, 70f, 3, 9));
+            history.Record(new MetricsSnapshot(8, 20, 100, float.NaN, 12f, 90f, 80f, 70f, 1, 11));
+
+            MetricsSnapshot[] all = history.Snapshot();
+            Assert.AreEqual(2, all.Length);
+            Assert.AreEqual(3, all[0].Fires);
+            Assert.AreEqual(9, all[0].Thefts);
+            Assert.AreEqual(1, all[1].Fires, "fires survive NaN guard");
+            Assert.AreEqual(11, all[1].Thefts, "thefts survive NaN guard");
+            Assert.AreEqual(1, history.Latest().Fires);
+        }
+
+        // Старый вызов конструктора остаётся рабочим: новые поля по умолчанию нули.
+        [Test]
+        public void Record_LegacyConstructor_LeavesNewFieldsZero()
+        {
+            MetricsHistory history = new MetricsHistory();
+            history.Record(Sample(1, 50f));
+
+            Assert.AreEqual(0, history.Latest().Fires);
+            Assert.AreEqual(0, history.Latest().Thefts);
+        }
+
+        // Пустая история и пропущенные источники дают нули, а не мусор.
+        [Test]
+        public void Latest_EmptyHistory_NewFieldsAreZero()
+        {
+            MetricsHistory history = new MetricsHistory();
+            Assert.AreEqual(0, history.Count);
+            Assert.AreEqual(0, history.Latest().Fires);
+            Assert.AreEqual(0, history.Latest().Thefts);
+            history.Clear();
+            Assert.AreEqual(0, history.Latest().Thefts);
+        }
     }
 }

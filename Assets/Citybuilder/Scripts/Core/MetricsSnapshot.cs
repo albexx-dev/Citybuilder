@@ -16,7 +16,7 @@ namespace Citybuilder
         // (NeedSystem недоступен через публичный API) — пишется 0, см. MetricsRecorder.
         public readonly float NeedsAvg;
 
-        // Преступность, 0..100. Заглушка 0 до системы преступности (задача #47).
+        // Преступность, 0..100 (CrimeSystem.CrimeLevel01 * 100). Старые снимки — 0.
         public readonly float CrimePercent;
 
         // Покрытие сетей, 0..100 (Rate01 * 100).
@@ -24,9 +24,16 @@ namespace Citybuilder
         public readonly float WaterPercent;
         public readonly float WastePercent;
 
+        // Пожары прямо сейчас (FireSystem.BurningCount); опционально для старых вызовов.
+        public readonly int Fires;
+
+        // Краж всего за игру (CrimeSystem.TotalThefts); опционально для старых вызовов.
+        public readonly int Thefts;
+
         public MetricsSnapshot(int hour, int population, int balance,
             float needsAvg, float crimePercent,
-            float powerPercent, float waterPercent, float wastePercent)
+            float powerPercent, float waterPercent, float wastePercent,
+            int fires = 0, int thefts = 0)
         {
             Hour = hour;
             Population = population;
@@ -36,6 +43,8 @@ namespace Citybuilder
             PowerPercent = powerPercent;
             WaterPercent = waterPercent;
             WastePercent = wastePercent;
+            Fires = fires;
+            Thefts = thefts;
         }
     }
 }

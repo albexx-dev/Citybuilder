@@ -59,7 +59,9 @@ namespace Citybuilder
                 float.IsNaN(snapshot.CrimePercent) ? 0f : snapshot.CrimePercent,
                 float.IsNaN(snapshot.PowerPercent) ? 0f : snapshot.PowerPercent,
                 float.IsNaN(snapshot.WaterPercent) ? 0f : snapshot.WaterPercent,
-                float.IsNaN(snapshot.WastePercent) ? 0f : snapshot.WastePercent);
+                float.IsNaN(snapshot.WastePercent) ? 0f : snapshot.WastePercent,
+                snapshot.Fires,
+                snapshot.Thefts);
         }
     }
 }

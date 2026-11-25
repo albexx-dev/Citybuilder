@@ -2,7 +2,8 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Текстуры графиков инфоменю (EPIC-68 шаг 2): население, казна, нужды, энергия.
+    // Текстуры графиков инфоменю (EPIC-68 шаг 2): население, казна, нужды, энергия,
+    // пожары и кражи (#112).
     // Линия рисуется в пиксельный буфер (IMGUI не умеет DrawLine), поэтому OnGUI только
     // выводит готовую текстуру: пересчёт не чаще раза в 0.5 с и только при открытом меню.
     // Прореживание и оси — GraphMath; история — MetricsHistory (#63), в сейв не пишется.
@@ -10,7 +11,7 @@ namespace Citybuilder
     {
         public const int Width = 64;
         public const int Height = 32;
-        public const int SeriesCount = 4;
+        public const int SeriesCount = 6;
 
         private const float RefreshIntervalSec = 0.5f;
 
@@ -20,11 +21,14 @@ namespace Citybuilder
             new Color(0.45f, 0.85f, 0.45f), // население
             new Color(0.95f, 0.8f, 0.35f),  // казна
             new Color(0.5f, 0.8f, 0.95f),   // нужды
-            new Color(0.95f, 0.6f, 0.3f)    // энергия
+            new Color(0.95f, 0.6f, 0.3f),   // энергия
+            new Color(0.95f, 0.45f, 0.45f), // пожары (#112)
+            new Color(0.75f, 0.55f, 0.95f)  // кражи (#112)
         };
         private static readonly string[] NameKeys =
         {
-            "metric_name_population", "metric_name_treasury", "metric_name_needs", "metric_name_power"
+            "metric_name_population", "metric_name_treasury", "metric_name_needs", "metric_name_power",
+            "metric_name_fires", "metric_name_thefts"
         };
 
         private static readonly Texture2D[] textures = new Texture2D[SeriesCount];
@@ -58,7 +62,17 @@ namespace Citybuilder
         {
             if (index < 0 || index >= SeriesCount) return string.Empty;
             MetricsSnapshot latest = history != null ? history.Latest() : default(MetricsSnapshot);
-            return Localization.T(NameKeys[index]) + ": " + ValueAt(index, latest).ToString("0");
+            return NameAt(index) + ": " + ValueAt(index, latest).ToString("0");
+        }
+
+        // Новые ключи появятся в таблице локализации; до этого понятный фолбэк RU/EN.
+        private static string NameAt(int index)
+        {
+            string key = NameKeys[index];
+            if (Localization.Has(key)) return Localization.T(key);
+            bool english = Localization.Language == Language.En;
+            if (index == 4) return english ? "Fires" : "Пожары";
+            return english ? "Thefts" : "Кражи";
         }
 
         // Забыть таймер (тесты, «Новая игра»): следующий вызов пересчитает сразу.
@@ -111,7 +125,9 @@ namespace Citybuilder
             if (index == 0) return snapshot.Population;
             if (index == 1) return snapshot.Balance;
             if (index == 2) return snapshot.NeedsAvg;
-            return snapshot.PowerPercent;
+            if (index == 3) return snapshot.PowerPercent;
+            if (index == 4) return snapshot.Fires;
+            return snapshot.Thefts;
         }
 
         private static void EnsureTexture(int index)

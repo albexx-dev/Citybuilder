@@ -3,7 +3,8 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Писатель истории метрик (EPIC-63): подписан на TickCompleted и раз в игровой
-    // час кладёт снимок в MetricsHistory. Тонкий адаптер — домен историю не знает.
+    // час кладёт снимок в MetricsHistory. Тонкий адаптер — домен историю не знает:
+    // пожары и кражи читаются из FireSystem/CrimeSystem через EconomyTicker (#112), без новых событий.
     // Шаг 2 эпика: в сцену добавляет оркестратор на приёмке (объект Simulation).
     public class MetricsRecorder : MonoBehaviour
     {
@@ -15,6 +16,7 @@ namespace Citybuilder
         [Tooltip("Энергия. Пусто = ищется на объекте Growth.")] public PowerController Power;
         [Tooltip("Вода. Пусто = ищется на объекте Growth.")] public WaterController Water;
         [Tooltip("Мусор. Пусто = ищется на объекте Growth.")] public WasteController Waste;
+        [Tooltip("Экономика. Пусто = ищется в сцене: даёт снимки пожаров и краж (#112).")] public EconomyTicker Economy;
 
         private readonly MetricsHistory history = new MetricsHistory();
         private long lastRecordedTick = -1; // тик последней записи: повтор/откат времени — мимо
@@ -61,19 +63,24 @@ namespace Citybuilder
         private void Record(int hour)
         {
             ResolveCityRefs();
+            FireSystem fires = Economy != null ? Economy.Fires : null;
+            CrimeSystem crimes = Economy != null ? Economy.Crimes : null;
             history.Record(new MetricsSnapshot(
                 hour,
                 Population != null ? Population.Population.TotalResidents : 0,
                 Treasury != null && Treasury.Treasury != null ? Treasury.Treasury.Balance : 0,
                 0f, // NeedSystem не открыт наружу (PopulationController/NeedsView держат его приватно)
-                0f, // преступность — заглушка до системы #47
+                crimes != null ? crimes.CrimeLevel01 * 100f : 0f,
                 Power != null ? Power.Rate01 * 100f : 0f,
                 Water != null ? Water.Rate01 * 100f : 0f,
-                Waste != null ? Waste.Rate01 * 100f : 0f));
+                Waste != null ? Waste.Rate01 * 100f : 0f,
+                fires != null ? fires.BurningCount : 0,
+                crimes != null ? crimes.TotalThefts : 0));
         }
 
         private void ResolveCityRefs()
         {
+            if (Economy == null) Economy = FindFirstObjectByType<EconomyTicker>();
             if (Population == null) Population = FindFirstObjectByType<PopulationController>();
             if (Treasury == null) Treasury = FindFirstObjectByType<TreasuryView>();
             if (Growth == null) Growth = FindFirstObjectByType<SettlementGrowthController>();
