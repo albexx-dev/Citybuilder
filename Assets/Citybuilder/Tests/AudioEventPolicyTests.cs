@@ -65,12 +65,12 @@ namespace Citybuilder
         }
 
         [Test]
-        public void Resolve_TreasurySupplyAndInfo_AreSilent()
+        public void Resolve_TreasuryIncomeAndInfo_AreSilent()
         {
             Assert.AreEqual(AudioEventSound.None, AudioEventPolicy.Resolve(
                 new CityEvent(EventKind.Treasury, EventMessageCatalog.TreasuryDeficit, new object[] { 45 }, 5)));
             Assert.AreEqual(AudioEventSound.None, AudioEventPolicy.Resolve(
-                new CityEvent(EventKind.Supply, EventMessageCatalog.SupplyPowerDeficit, new object[] { 46 }, 5)));
+                new CityEvent(EventKind.Treasury, EventMessageCatalog.QuestCompleted, new object[] { "Цель", 120 }, 5)));
             Assert.AreEqual(AudioEventSound.None, AudioEventPolicy.Resolve(default(CityEvent)));
         }
 

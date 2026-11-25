@@ -3,13 +3,13 @@ using UnityEngine;
 
 namespace Citybuilder
 {
-    // Событийные звуки города (хвосты #71/#66, задача 104): тревожный сигнал пожара,
-    // низкий «удар» сгоревшего дома, короткий диссонанс кражи; вывоз мусора и отключение
-    // света — тихие сигналы на уже подключённых клипах. Домен пишет в CityEventLog без Unity,
-    // поэтому вью читает ленту опросом через EconomyTicker.EventLog (образец чтения
-    // FireOverlayView: снимок раз в PollIntervalSec). Кулдаун на вид сигнала —
-    // SoundCooldownPolicy (образец EventLogView.Record), сгоревший дом — тот же клип
-    // пожара на низком питче BurnedPitch. Казна/доход молчат: coin — только награда цели.
+    // Событийные звуки города (хвосты #71/#66, задачи 104/124): тревожный сигнал пожара,
+    // низкий «удар» сгоревшего дома, короткий диссонанс кражи; мусор, свет, снабжение,
+    // пробки и занятость — тихие сигналы на уже подключённых клипах. Домен пишет в CityEventLog
+    // без Unity, поэтому вью читает ленту опросом через EconomyTicker.EventLog (снимок раз
+    // в PollIntervalSec). Кулдаун отдельный на вид сигнала — AudioEventCooldowns; сгоревший
+    // дом — тот же клип пожара на низком питче BurnedPitch. Казна/доход молчат: coin —
+    // только награда цели.
     public class AudioEventView : MonoBehaviour
     {
         [Header("References")]
@@ -29,23 +29,23 @@ namespace Citybuilder
         private const float GarbagePitch = 1.6f;
         private const float BlackoutVolumeScale = 0.5f;
         private const float BlackoutPitch = 0.5f;
+        private const float SupplyVolumeScale = 0.35f;
+        private const float SupplyPitch = 0.8f;
+        private const float CongestionVolumeScale = 0.35f;
+        private const float CongestionPitch = 1.2f;
+        private const float EmploymentVolumeScale = 0.3f;
+        private const float EmploymentPitch = 1.3f;
         private const float MinPollIntervalSec = 0.05f;
 
         private AudioSource source;
-        private readonly SoundCooldownPolicy fireCooldown = new SoundCooldownPolicy();
-        private readonly SoundCooldownPolicy crimeCooldown = new SoundCooldownPolicy();
-        private readonly SoundCooldownPolicy garbageCooldown = new SoundCooldownPolicy();
-        private readonly SoundCooldownPolicy blackoutCooldown = new SoundCooldownPolicy();
+        private readonly AudioEventCooldowns cooldowns = new AudioEventCooldowns();
         private string lastEventKey = "";
         private float nextPollTime;
 
         // Новая игра/загрузка (LoadController.ClearAll): кулдауны и ключ ленты — с чистого листа.
         public void Reset()
         {
-            fireCooldown.Reset();
-            crimeCooldown.Reset();
-            garbageCooldown.Reset();
-            blackoutCooldown.Reset();
+            cooldowns.Reset();
             lastEventKey = "";
             nextPollTime = 0f;
         }
@@ -92,27 +92,24 @@ namespace Citybuilder
             return Economy.EventLog.Log;
         }
 
-        // Один звук на вид сигнала: кулдаун гасит серии, питч различает пожар и сгоревший дом.
-        // Garbage/Blackout: тихий чирп на клипе кражи и глухой «удар» на клипе пожара.
+        // Один звук на вид сигнала: кулдаун гасит серии, питч различает подтипы и источники.
         private void PlaySound(AudioEventSound sound)
         {
             if (sound == AudioEventSound.None || source == null) return;
-            if (sound == AudioEventSound.Crime)
-            {
-                if (crimeCooldown.ShouldPlayDeficit(Time.unscaledTime)) PlayOneShotSafe(CrimeClip, CrimeVolumeScale, 1f);
-                return;
-            }
-            if (sound == AudioEventSound.Garbage)
-            {
-                if (garbageCooldown.ShouldPlayDeficit(Time.unscaledTime)) PlayOneShotSafe(CrimeClip, GarbageVolumeScale, GarbagePitch);
-                return;
-            }
-            if (sound == AudioEventSound.Blackout)
-            {
-                if (blackoutCooldown.ShouldPlayDeficit(Time.unscaledTime)) PlayOneShotSafe(FireClip, BlackoutVolumeScale, BlackoutPitch);
-                return;
-            }
-            if (!fireCooldown.ShouldPlayDeficit(Time.unscaledTime)) return;
+            if (!cooldowns.ShouldPlay(sound, Time.unscaledTime)) return;
+            PlaySoundNow(sound);
+        }
+
+        // Garbage/Supply/Congestion — тихие чирпы клипа кражи, Employment/Blackout — приглушённый
+        // клип пожара; питч и громкость задают разный звук без новых ассетов и без coin.
+        private void PlaySoundNow(AudioEventSound sound)
+        {
+            if (sound == AudioEventSound.Crime) { PlayOneShotSafe(CrimeClip, CrimeVolumeScale, 1f); return; }
+            if (sound == AudioEventSound.Garbage) { PlayOneShotSafe(CrimeClip, GarbageVolumeScale, GarbagePitch); return; }
+            if (sound == AudioEventSound.Supply) { PlayOneShotSafe(CrimeClip, SupplyVolumeScale, SupplyPitch); return; }
+            if (sound == AudioEventSound.Congestion) { PlayOneShotSafe(CrimeClip, CongestionVolumeScale, CongestionPitch); return; }
+            if (sound == AudioEventSound.Employment) { PlayOneShotSafe(FireClip, EmploymentVolumeScale, EmploymentPitch); return; }
+            if (sound == AudioEventSound.Blackout) { PlayOneShotSafe(FireClip, BlackoutVolumeScale, BlackoutPitch); return; }
             float pitch = sound == AudioEventSound.Burned ? BurnedPitch : 1f;
             PlayOneShotSafe(FireClip, FireVolumeScale, pitch);
         }
