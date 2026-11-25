@@ -116,8 +116,9 @@ namespace Citybuilder
             if (tax == null) return;
             if (Policy != null) tax.Collect(Policy.Policy);
             else tax.Collect(TaxPerWorker);
-            Treasury.Treasury.Charge(UpkeepPolicy.UpkeepPerHour(Growth.Homes,
-                Placement != null ? Placement.Placed : null));
+            int baseUpkeep = UpkeepPolicy.UpkeepPerHour(Growth.Homes,
+                Placement != null ? Placement.Placed : null);
+            Treasury.Treasury.Charge(EffectiveUpkeepPolicy.Apply(baseUpkeep));
             ReportCityEvents(tickCount);
             TickFires(tickCount);
             TickCrimes(tickCount);

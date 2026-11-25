@@ -63,9 +63,9 @@ namespace Citybuilder
             Assert.AreEqual(0, UpkeepPolicy.UpkeepPerHour(placed));
         }
 
-        // Девять зданий после баланса v1.2 (эпик #53): 0+0+0 +5+5 +7 +3 +3 +3 = 26 $/ч и строка говорит 26.
+        // Девять зданий после баланса v1.2: база 26 $/ч, фактическое списание 26 ÷ 8 = 3 $/ч.
         [Test]
-        public void CityOfRebalancedBuildings_LineShowsRealSum()
+        public void CityOfRebalancedBuildings_LineShowsEffectiveCharge()
         {
             List<BuildingDefinition> placed = new List<BuildingDefinition>
             {
@@ -73,9 +73,11 @@ namespace Citybuilder
                 Load("Shop"), Load("Shop"),
                 Load("Factory"), Load("PowerStation"), Load("WaterTower"), Load("WasteDepot")
             };
-            int upkeep = UpkeepPolicy.UpkeepPerHour(placed);
-            Assert.AreEqual(26, upkeep);
-            Assert.AreEqual("Расход: 26 $/ч", UpkeepStatusPolicy.Text(upkeep));
+            int baseUpkeep = UpkeepPolicy.UpkeepPerHour(placed);
+            int upkeep = EffectiveUpkeepPolicy.Apply(baseUpkeep);
+            Assert.AreEqual(26, baseUpkeep);
+            Assert.AreEqual(3, upkeep);
+            Assert.AreEqual("Расход: 3 $/ч", UpkeepStatusPolicy.Text(upkeep));
         }
 
         private static BuildingDefinition Load(string name)
