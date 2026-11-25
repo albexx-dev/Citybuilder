@@ -22,7 +22,7 @@ namespace Citybuilder
             this.yawOffset = yawOffset;
             this.rideHeight = rideHeight;
             this.cellSize = cellSize > 0.001f ? cellSize : 1f;
-            if (showVisuals && (models == null || models.Length == 0))
+            if (models == null || models.Length == 0)
                 Debug.LogWarning("GarbageTruckView: задайте TruckModels (FBX Kenney Racing) в Inspector.");
             cars = new GameObject[count];
             for (int i = 0; i < count; i++) cars[i] = BuildCar(parent, models, i, modelScale);
@@ -33,7 +33,8 @@ namespace Citybuilder
         {
             GameObject car = new GameObject("GarbageTruck");
             car.transform.SetParent(parent, false);
-            if (showVisuals && models != null && models.Length > 0 && models[slot % models.Length] != null)
+            // Модели создаются всегда: тумблер #115 меняет только активность слотов.
+            if (models != null && models.Length > 0 && models[slot % models.Length] != null)
             {
                 GameObject model = Object.Instantiate(models[slot % models.Length]);
                 model.transform.SetParent(car.transform, false);
