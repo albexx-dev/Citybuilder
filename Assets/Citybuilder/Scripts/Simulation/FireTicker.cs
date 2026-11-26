@@ -37,6 +37,12 @@ namespace Citybuilder
             fires.Tick(tick, homes, HouseCoverage, BurnDown);
         }
 
+        // Точечное тушение по homeId из решения игрока (issue #167): событие уходит в ту же ленту.
+        public bool ExtinguishHome(int homeId, int tick)
+        {
+            return fires.ExtinguishHome(homeId, tick);
+        }
+
         // Сброс по команде хоста (LoadController.ClearAll): горение не сериализуется (ADR-009).
         public void Reset()
         {
