@@ -21,6 +21,12 @@ namespace Citybuilder
         public const string FireBurned = "event_fire_burned";
         public const string CrimeTheft = "event_crime_theft";
         public const string GarbageCollected = "event_garbage_collected";
+        public const string DecisionOffered = "event_decision_offered";
+        public const string DecisionSuppressed = "event_decision_suppressed";
+        public const string DecisionIgnored = "event_decision_ignored";
+        public const string DecisionTitle = "decision_title";
+        public const string DecisionSuppressButton = "decision_button_suppress";
+        public const string DecisionIgnoreButton = "decision_button_ignore";
 
         // Все ключи каталога: тест полноты берёт перечень отсюда, не хардкодя 15 строк.
         public static ICollection<string> Keys
@@ -44,7 +50,13 @@ namespace Citybuilder
             { FireExtinguished, new[] { "Пожар в доме #{0} потушен", "Fire in house #{0} extinguished" } },
             { FireBurned, new[] { "Дом #{0} сгорел дотла", "House #{0} burned down" } },
             { CrimeTheft, new[] { "Кража в доме #{0} (День {1})", "Theft in house #{0} (Day {1})" } },
-            { GarbageCollected, new[] { "Мусоровоз вывез мусор из дома #{0}", "Garbage truck collected waste from house #{0}" } }
+            { GarbageCollected, new[] { "Мусоровоз вывез мусор из дома #{0}", "Garbage truck collected waste from house #{0}" } },
+            { DecisionOffered, new[] { "Пожар в доме #{0}: тушить за ${1}?", "Fire in house #{0}: fight for ${1}?" } },
+            { DecisionSuppressed, new[] { "Пожар в доме #{0} потушен за ${1}", "Fire in house #{0} extinguished for ${1}" } },
+            { DecisionIgnored, new[] { "Пожар в доме #{0} проигнорирован", "Fire in house #{0} ignored" } },
+            { DecisionTitle, new[] { "Решение: пожар в доме #{0}", "Decision: fire in house #{0}" } },
+            { DecisionSuppressButton, new[] { "Тушить за ${0}", "Fight for ${0}" } },
+            { DecisionIgnoreButton, new[] { "Игнорировать", "Ignore" } }
         };
 
         // Регистрация в общем реестре: ключи ленты попадают в Localization.Keys.
