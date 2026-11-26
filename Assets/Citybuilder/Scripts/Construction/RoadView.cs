@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace Citybuilder
 {
-    // Плоский вид дорог: серый меш построенных + оверлей пробок (жёлтый/красный, EPIC-15 шаг 2) + предпросмотр.
+    // Плоский вид дорог: цветные полотна по типам, оверлей пробок и предпросмотр.
     public class RoadView : MonoBehaviour
     {
         public const float YellowThreshold = 0.33f;
@@ -21,10 +21,18 @@ namespace Citybuilder
         private float cachedCellSize;
         private Func<GridPosition, float> cachedLoad;
         private int lastTick = -1;
-        public void Rebuild(List<GridPosition> cells, float cellSize)
+        public void Rebuild(List<GridPosition> cells, float cellSize) { EnsureBuilt(); FillMesh(builtMesh, cells, cellSize, 0.015f); }
+        // Разные типы дорог рисуются отдельными мешами со своим цветом полотна.
+        public void RebuildByType(Dictionary<string, List<GridPosition>> cellsByType, float cellSize, Dictionary<string, Color> colorById)
         {
-            EnsureBuilt();
-            FillMesh(builtMesh, cells, cellSize, 0.015f);
+            if (cellsByType == null) { Rebuild(null, cellSize); return; }
+            foreach (KeyValuePair<string, List<GridPosition>> pair in cellsByType)
+            {
+                Color color;
+                if (colorById == null || !colorById.TryGetValue(pair.Key, out color)) color = Color.gray;
+                Mesh mesh = EnsureChildMesh("RoadsMesh_" + pair.Key, color, out _);
+                FillMesh(mesh, pair.Value, cellSize, 0.015f);
+            }
         }
         public void ShowPreview(List<GridPosition> cells, float cellSize, bool valid)
         {
@@ -32,19 +40,15 @@ namespace Citybuilder
             FillMesh(previewMesh, cells, cellSize, 0.025f);
             previewRenderer.sharedMaterial = valid ? validMaterial : invalidMaterial;
         }
-        public void HidePreview()
-        {
-            if (previewMesh != null) previewMesh.Clear();
-        }
-        // Классифицирует нагрузку дороги 0..1: 0 = свободно, 1 = жёлтая (0.33..0.66), 2 = красная (>0.66).
+        public void HidePreview() { if (previewMesh != null) previewMesh.Clear(); }
+        // Классифицирует нагрузку дороги 0..1: 0 = свободно, 1 = жёлтая, 2 = красная.
         public static int BucketForLoad01(float load01)
         {
             if (float.IsNaN(load01) || load01 <= YellowThreshold) return 0;
             return load01 <= RedThreshold ? 1 : 2;
         }
-        // Обновляет покраску клеток дороги раз в тик (EPIC-15 шаг 2). Возвращает true, если меши пересобраны.
-        public bool RefreshCongestionOncePerTick(
-            int tick, IReadOnlyList<GridPosition> roadCells, float cellSize, Func<GridPosition, float> loadOf, bool force = false)
+        // Обновляет покраску клеток дороги раз в тик. Возвращает true, если меши пересобраны.
+        public bool RefreshCongestionOncePerTick(int tick, IReadOnlyList<GridPosition> roadCells, float cellSize, Func<GridPosition, float> loadOf, bool force = false)
         {
             cachedCells = roadCells;
             cachedCellSize = cellSize;
@@ -74,18 +78,9 @@ namespace Citybuilder
             if (!enabled) { ClearCongestion(); return; }
             if (cachedLoad != null) RefreshCongestionOncePerTick(lastTick, cachedCells, cachedCellSize, cachedLoad, true);
         }
-        // Пауза в настройках не даёт следующего тика: при включении меши красятся кэшем аргументов.
-        private void ClearCongestion()
-        {
-            EnsureCongestionMeshes();
-            FillMesh(yellowMesh, null, 0f, 0f);
-            FillMesh(redMesh, null, 0f, 0f);
-        }
-        private void EnsureBuilt()
-        {
-            if (builtMesh != null) return;
-            builtMesh = EnsureChildMesh("RoadsMesh", Color.gray, out _);
-        }
+        // Пауза не даёт следующего тика: при включении меши красятся кэшем аргументов.
+        private void ClearCongestion() { EnsureCongestionMeshes(); FillMesh(yellowMesh, null, 0f, 0f); FillMesh(redMesh, null, 0f, 0f); }
+        private void EnsureBuilt() { if (builtMesh == null) builtMesh = EnsureChildMesh("RoadsMesh", Color.gray, out _); }
         private void EnsureCongestionMeshes()
         {
             if (yellowMesh == null) yellowMesh = EnsureChildMesh("RoadsYellow", new Color(0.95f, 0.8f, 0.15f, 1f), out _);
@@ -112,14 +107,12 @@ namespace Citybuilder
             renderer.sharedMaterial = PreviewMaterial(color);
             return filter.sharedMesh;
         }
-
         private static Material PreviewMaterial(Color color)
         {
             Material material = new Material(Shader.Find("Unlit/Color"));
             material.color = color;
             return material;
         }
-
         private static void FillMesh(Mesh mesh, List<GridPosition> cells, float cellSize, float height)
         {
             mesh.Clear();

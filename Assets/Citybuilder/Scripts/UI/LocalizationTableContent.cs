@@ -18,6 +18,7 @@ namespace Citybuilder
             values["decor_hedge"] = new[] { "Изгородь", "Hedge" };
             values["decor_flowerbed"] = new[] { "Клумба", "Flower bed" };
             values["decor_topiary"] = new[] { "Фигурное дерево", "Topiary" };
+            values["building_brick"] = new[] { "Кирпичная дорога", "Brick Road" };
         }
     }
 }

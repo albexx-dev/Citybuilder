@@ -9,24 +9,26 @@ namespace Citybuilder
         [Header("References")]
         [Tooltip("Сетка. Обязателен: даёт Grid для RoadSystem.")]
         public GridVisualizer GridVisualizer;
-        [Tooltip("Тип дороги. Цена клетки берётся отсюда.")]
-        public RoadDefinition Definition;
+        [Tooltip("Доступные типы дорог. Первый непустой — активный по умолчанию.")]
+        public RoadDefinition[] Definitions;
         [Tooltip("Вид дорог. Пусто = создастся на этом же объекте.")]
         public RoadView View;
-
         private RoadSystem system;
         private readonly List<RoadState> states = new List<RoadState>();
-
+        public RoadDefinition ActiveDefinition { get; private set; }
+        public string ActiveTypeId { get { return ActiveDefinition == null || string.IsNullOrEmpty(ActiveDefinition.Id) ? "asphalt" : ActiveDefinition.Id; } }
         // Копия построенных дорог для сохранений. Отдаём копию, а не сам список.
-        public List<RoadState> Roads
+        public List<RoadState> Roads { get { return new List<RoadState>(states); } }
+        // Выбор активного типа из списка. Возвращает false для неизвестного id.
+        public bool SetActiveDefinition(string id)
         {
-            get
-            {
-                return new List<RoadState>(states);
-            }
+            EnsureReady();
+            if (Definitions == null || string.IsNullOrEmpty(id)) return false;
+            for (int i = 0; i < Definitions.Length; i++)
+                if (Definitions[i] != null && Definitions[i].Id == id) { ActiveDefinition = Definitions[i]; return true; }
+            return false;
         }
-
-        // Готовит систему по GridVisualizer.Grid, добирает View. Без GridVisualizer гаснет.
+        // Готовит систему по GridVisualizer.Grid, добирает View и активный тип. Без GridVisualizer гаснет.
         private bool EnsureReady()
         {
             if (GridVisualizer == null)
@@ -35,45 +37,34 @@ namespace Citybuilder
                 enabled = false;
                 return false;
             }
+            if (ActiveDefinition == null && Definitions != null)
+                for (int i = 0; i < Definitions.Length; i++)
+                    if (Definitions[i] != null) { ActiveDefinition = Definitions[i]; break; }
             if (View == null)
             {
                 View = GetComponent<RoadView>();
-                if (View == null)
-                {
-                    View = gameObject.AddComponent<RoadView>();
-                }
+                if (View == null) View = gameObject.AddComponent<RoadView>();
             }
-            if (system == null)
-            {
-                system = new RoadSystem(GridVisualizer.Grid);
-            }
+            if (system == null) system = new RoadSystem(GridVisualizer.Grid);
             return true;
         }
-
-        // Класть одну клетку: своя — пропуск, иначе system.Place и учёт. Возвращает state/null.
+        // Класть одну клетку активным типом: своя — пропуск, иначе system.Place и учёт.
         public RoadState Place(GridPosition cell)
         {
             if (!EnsureReady() || system == null) return null;
             if (IsOwnRoadCell(cell)) return null;
-            RoadState state = system.Place(cell);
-            if (state == null) return null;
+            RoadState placed = system.Place(cell);
+            if (placed == null) return null;
+            RoadState state = new RoadState(placed.Id, placed.Cell, ActiveTypeId);
             states.Add(state);
             return state;
         }
-
         // Найти построенное на клетке. Нет — null.
         public RoadState FindStateAt(GridPosition cell)
         {
-            for (int i = 0; i < states.Count; i++)
-            {
-                if (states[i].Cell == cell)
-                {
-                    return states[i];
-                }
-            }
+            for (int i = 0; i < states.Count; i++) if (states[i].Cell == cell) return states[i];
             return null;
         }
-
         // Снести построенное: снятие с сетки, учёт и RefreshOccupied. Вид обновляет вызывающий.
         public bool DemolishState(RoadState state)
         {
@@ -83,20 +74,19 @@ namespace Citybuilder
             GridVisualizer.RefreshOccupied();
             return true;
         }
-
-        // Восстановить дорогу из сохранения: без оплаты, список и вид обновляются.
-        public RoadState RestoreRoad(GridPosition cell)
+        // Восстановить дорогу из сохранения: без оплаты, тип из записи (пусто = asphalt).
+        public RoadState RestoreRoad(GridPosition cell, string typeId = "asphalt")
         {
             if (!EnsureReady() || system == null) return null;
             if (IsOwnRoadCell(cell)) return null;
-            RoadState state = system.Place(cell);
-            if (state == null) return null;
+            RoadState placed = system.Place(cell);
+            if (placed == null) return null;
+            RoadState state = new RoadState(placed.Id, placed.Cell, typeId);
             states.Add(state);
             RefreshView();
             GridVisualizer.RefreshOccupied();
             return state;
         }
-
         // Снести все дороги (первый шаг загрузки слота).
         public void ClearRoads()
         {
@@ -106,44 +96,44 @@ namespace Citybuilder
             RefreshView();
             GridVisualizer.RefreshOccupied();
         }
-
         // Свободна ли клетка для стройки (не занята сеткой).
         public bool CanPlace(GridPosition cell)
         {
             if (!EnsureReady() || system == null) return false;
             return system.CanPlace(cell);
         }
-
-        // Цена одной клетки по Definition. Без системы — 0.
+        // Цена одной клетки по активному Definition. Без системы — 0.
         public int CellCost()
         {
             if (!EnsureReady() || system == null) return 0;
-            return system.CellCost(Definition);
+            return system.CellCost(ActiveDefinition);
         }
-
         // Своя клетка = уже есть в states (сравнение по Cell).
         public bool IsOwnRoadCell(GridPosition cell)
         {
-            for (int i = 0; i < states.Count; i++)
-            {
-                if (states[i].Cell == cell)
-                {
-                    return true;
-                }
-            }
+            for (int i = 0; i < states.Count; i++) if (states[i].Cell == cell) return true;
             return false;
         }
-
-        // Перестроить вид по states. View добирается лениво, как было в контроллере.
+        // Перестроить вид: у каждого типа дороги свой цвет полотна.
         public void RefreshView()
         {
             if (!EnsureReady()) return;
-            List<GridPosition> cells = new List<GridPosition>(states.Count);
+            Dictionary<string, List<GridPosition>> groups = new Dictionary<string, List<GridPosition>>();
+            Dictionary<string, Color> colors = new Dictionary<string, Color>();
+            if (Definitions != null)
+                for (int i = 0; i < Definitions.Length; i++)
+                {
+                    if (Definitions[i] == null || string.IsNullOrEmpty(Definitions[i].Id)) continue;
+                    colors[Definitions[i].Id] = Definitions[i].SurfaceColor;
+                }
             for (int i = 0; i < states.Count; i++)
             {
+                string typeId = states[i].TypeId;
+                List<GridPosition> cells;
+                if (!groups.TryGetValue(typeId, out cells)) { cells = new List<GridPosition>(); groups[typeId] = cells; }
                 cells.Add(states[i].Cell);
             }
-            View.Rebuild(cells, GridVisualizer.Grid.CellSize);
+            View.RebuildByType(groups, GridVisualizer.Grid.CellSize, colors);
         }
     }
 }

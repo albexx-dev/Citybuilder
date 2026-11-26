@@ -13,6 +13,12 @@ namespace Citybuilder
         [Tooltip("Имя для UI.")]
         public string DisplayName;
 
+        [Tooltip("Ключ имени в реестре RU/EN. Пусто — DisplayName.")]
+        public string DisplayNameKey;
+
+        [Tooltip("Цвет полотна дороги в сцене.")]
+        public Color SurfaceColor = new Color(0.35f, 0.38f, 0.42f, 1f);
+
         [Header("Construction")]
         [Tooltip("Стоимость одной клетки дороги. Не может быть отрицательной.")]
         public int CostPerCell = 10;
