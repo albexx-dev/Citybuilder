@@ -11,11 +11,11 @@ namespace Citybuilder
 
         private static bool IsBridgeLevel(RoadDefinition definition)
         {
-            return definition != null && definition.Level >= BridgeRoadNetwork.BridgeLevel;
+            return definition != null && definition.Level >= RoadCellKey.BridgeLevel;
         }
         private bool IsBridgeActive() { return IsBridgeLevel(ActiveDefinition); }
         private static bool IsBridgeTypeId(string id) { return id == BridgeRoadNetwork.Wood || id == BridgeRoadNetwork.Stone; }
-        private static RoadCellKey BridgeKey(GridPosition cell) { return new RoadCellKey(cell.X, cell.Y, BridgeRoadNetwork.BridgeLevel); }
+        private static RoadCellKey BridgeKey(GridPosition cell) { return new RoadCellKey(cell.X, cell.Y, RoadCellKey.BridgeLevel); }
         private static RoadCellKey StreetKey(GridPosition cell) { return new RoadCellKey(cell.X, cell.Y, RoadCellKey.StreetLevel); }
 
         // Дорога другого уровня не делает клетку «своей» для текущей кисти.
