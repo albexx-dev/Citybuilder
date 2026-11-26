@@ -184,6 +184,7 @@ MonoBehaviour:
   Growth: {fileID: 985593158}
   Runner: {fileID: 1821543313}
   Population: {fileID: 1069481159}
+  Placement: {fileID: 0}
   View: {fileID: 0}
 --- !u!1 &165672927
 GameObject:
@@ -330,6 +331,7 @@ MonoBehaviour:
   TaxPerWorker: 2
   placementActive: 1
   Coverage: {fileID: 0}
+  MayorRatingValue: 0
 --- !u!4 &594737065
 Transform:
   m_ObjectHideFlags: 0
@@ -455,6 +457,7 @@ GameObject:
   - component: {fileID: 985593198}
   - component: {fileID: 985593200}
   - component: {fileID: 985593199}
+  - component: {fileID: 985593201}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -709,7 +712,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Citybuilder::Citybuilder.RoadNetworkStore
   GridVisualizer: {fileID: 985593152}
-  Definition: {fileID: 11400000, guid: 2422c8bf0f99f0047bceec9226a0266f, type: 2}
+  Definitions:
+  - {fileID: 11400000, guid: 2422c8bf0f99f0047bceec9226a0266f, type: 2}
+  - {fileID: 11400000, guid: a0882cb1cbd94e92ad74247885fc70b4, type: 2}
+  - {fileID: 11400000, guid: c0e37d805b254d24b5be974dbfab63cf, type: 2}
+  - {fileID: 11400000, guid: f4b103b8927d451aa6e0c7ff1be36340, type: 2}
   View: {fileID: 985593165}
 --- !u!114 &985593165
 MonoBehaviour:
@@ -1294,6 +1301,22 @@ MonoBehaviour:
   Growth: {fileID: 985593158}
   RefreshIntervalSec: 0.5
   HeightAboveGround: 2.4
+--- !u!114 &985593201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985593151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 706c57b1e45562f47b2c228f68684a54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Citybuilder::Citybuilder.DecisionPanel
+  EventLog: {fileID: 0}
+  Treasury: {fileID: 0}
+  Runner: {fileID: 0}
+  Economy: {fileID: 0}
 --- !u!1 &1069481158
 GameObject:
   m_ObjectHideFlags: 0
@@ -1480,6 +1503,7 @@ MonoBehaviour:
   QuestLog: {fileID: 0}
   Garbage: {fileID: 0}
   Economy: {fileID: 0}
+  MilestoneCounterV2: 0
 --- !u!4 &1432023087
 Transform:
   m_ObjectHideFlags: 0
@@ -1517,6 +1541,8 @@ MonoBehaviour:
   Policy: {fileID: 0}
   Placement: {fileID: 0}
   Congestion: {fileID: 0}
+  RestoredMayorRating: 0
+  RestoredMilestoneCounterV2: 0
 --- !u!114 &1432023089
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1745,6 +1771,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Citybuilder::Citybuilder.DayNightController
   Runner: {fileID: 1821543313}
   DayNightEnabled: 1
+  DaysPerSeason: 7
   MoonPitch: 48
   MoonAzimuth: 30
   MoonColor: {r: 0.58, g: 0.68, b: 1, a: 1}
