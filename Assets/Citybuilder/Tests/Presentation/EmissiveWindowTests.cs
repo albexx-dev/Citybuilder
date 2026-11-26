@@ -68,6 +68,7 @@ namespace Citybuilder
             BlackoutViewStyle.SampleChanged -= handler;
             BlackoutViewStyle.Publish(DayNightPolicy.Sample(0f));
             Assert.AreEqual(3, calls);
+            BlackoutViewStyle.Publish(DayNightPolicy.Noon());
         }
 
         private static GameObject CreateView(out Material source)

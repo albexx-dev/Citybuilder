@@ -45,10 +45,11 @@ namespace Citybuilder
             ClearEmissive(id);
         }
 
-        // Очистка всех кэшей: повтор вызова ничего не убивает и не трогает источники.
+        // Очистка всех кэшей и старых Id: повтор вызова ничего не убивает и не трогает источники.
         private void NightClear()
         {
             foreach (EntityId id in new List<EntityId>(emissive.Keys)) ClearEmissive(id);
+            darkViews.Clear();
         }
 
         private void OnSampleChanged(DayNightSample sample)
