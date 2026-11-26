@@ -9,7 +9,13 @@ namespace Citybuilder
         private void DrawQuests(QuestSystem quests)
         {
             float y = 4f;
-            HudText.Draw(4f, y, Localization.T("quest_log_title"));
+            string header = Localization.T("quest_log_title");
+            if (quests != null)
+            {
+                QuestContext context = quests.LastContext;
+                header += "  " + MayorRating.Label(quests.CompletedCount, context.Residents, context.Balance);
+            }
+            HudText.Draw(4f, y, header);
             y += LineHeight;
             if (quests == null || quests.Active.Count == 0)
             {
