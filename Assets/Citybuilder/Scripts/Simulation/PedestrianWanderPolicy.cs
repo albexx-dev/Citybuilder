@@ -44,13 +44,14 @@ namespace Citybuilder
             goal = default(GridPosition);
             int workCount = Count(works), shopCount = Count(shops);
             GridPosition homeCell;
-            if (workCount + shopCount == 0 || !TrySpawnCell(home, out homeCell)) return false;
-            for (int i = 0; i <= workCount + shopCount; i++)
+            int cycle = workCount + shopCount + 1;
+            if (cycle == 1 || !TrySpawnCell(home, out homeCell)) return false;
+            for (int i = 0; i < cycle; i++)
             {
-                int index = purposeCursor + i;
-                if (index >= workCount + shopCount)
+                int index = (purposeCursor + i) % cycle;
+                if (index == cycle - 1)
                 {
-                    purposeCursor = index + 1;
+                    purposeCursor = 0;
                     goal = homeCell;
                     return true;
                 }
@@ -58,7 +59,7 @@ namespace Citybuilder
                 IReadOnlyList<GridPosition> source = work ? works : shops;
                 GridPosition cell;
                 if (!TrySpawnCell(source[index % source.Count], out cell)) continue;
-                purposeCursor = index + 1;
+                purposeCursor = (index + 1) % cycle;
                 goal = cell;
                 return true;
             }

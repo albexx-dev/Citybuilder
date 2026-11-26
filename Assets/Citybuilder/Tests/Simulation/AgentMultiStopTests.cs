@@ -76,6 +76,30 @@ namespace Citybuilder
             Assert.AreEqual(new GridPosition(7, 2), goal);
             Assert.IsTrue(manager.Wander.TryPickGoal(new GridPosition(2, 2), out goal));
             Assert.AreEqual(new GridPosition(3, 2), goal);
+            Assert.IsTrue(manager.Wander.TryPickGoal(new GridPosition(2, 2), out goal));
+            Assert.AreEqual(new GridPosition(6, 2), goal);
+            Assert.IsTrue(manager.Wander.TryPickGoal(new GridPosition(2, 2), out goal));
+            Assert.AreEqual(new GridPosition(7, 2), goal);
+        }
+
+        [Test]
+        public void PedestrianGoalsRepeatAfterHome()
+        {
+            GridSystem grid = new GridSystem(new GridSize(20, 20), 1f);
+            Assert.IsTrue(grid.Occupy(new GridPosition(2, 2), EntityId.New()));
+            PedestrianAgentManager manager = new PedestrianAgentManager();
+            manager.Wander.IsBlocked = grid.IsOccupied;
+            manager.Wander.SetDestinations(Make(5, 2), Make(6, 2));
+            GridPosition goal;
+            GridPosition[] expected =
+            {
+                new GridPosition(6, 2), new GridPosition(7, 2), new GridPosition(3, 2)
+            };
+            for (int i = 0; i < 6; i++)
+            {
+                Assert.IsTrue(manager.Wander.TryPickGoal(new GridPosition(2, 2), out goal));
+                Assert.AreEqual(expected[i % 3], goal);
+            }
         }
 
         [Test]

@@ -74,7 +74,7 @@ namespace Citybuilder
             cell = list[(int)(index % list.Count)];
             return true;
         }
-        // Спавн цепочки: PathFinder вызывается по каждому плечу; аллокации — только при спавне.
+        // Спавн цепочки: PathFinder по каждому плечу, общий List — только после проверки плеч.
         private void TrySpawnChain(GridPosition fromOrigin, GridPosition toOrigin, bool hasShop,
             GridPosition shopOrigin, IReadOnlyList<GridPosition> roads)
         {
@@ -83,9 +83,12 @@ namespace Citybuilder
             GridPosition from, to, shopAnchor = default(GridPosition);
             if (!TryAnchor(fromOrigin, roads, out from) || !TryAnchor(toOrigin, roads, out to)) return;
             if (hasShop && !TryAnchor(shopOrigin, roads, out shopAnchor)) return;
+            List<GridPosition> first = PathFinder(from, to);
+            if (first == null || first.Count == 0) return;
+            List<GridPosition> second = null;
+            if (hasShop) { second = PathFinder(to, shopAnchor); if (second == null || second.Count == 0) return; }
             List<GridPosition> path = new List<GridPosition>();
-            if (!AppendLeg(path, PathFinder(from, to))) return;
-            if (hasShop && !AppendLeg(path, PathFinder(to, shopAnchor))) return;
+            if (!AppendLeg(path, first) || (hasShop && !AppendLeg(path, second))) return;
             if (path.Count < 2) return;
             agents[slot] = new VehicleAgent { Active = true, Path = path };
             FeedCongestion(path[0]);
