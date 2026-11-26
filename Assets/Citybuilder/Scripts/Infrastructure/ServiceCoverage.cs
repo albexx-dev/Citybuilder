@@ -24,6 +24,8 @@ namespace Citybuilder
         private readonly Dictionary<int, Source> sources = new Dictionary<int, Source>();
         private readonly Dictionary<int, GridPosition> points = new Dictionary<int, GridPosition>();
         private int nextKey = -1;
+        // Грязный кэш: CoveredPoints пересчитывается только после изменений sources/points.
+        private int cachedCovered = -1;
 
         public int SourceCount { get { return sources.Count; } }
 
@@ -31,31 +33,33 @@ namespace Citybuilder
 
         // Локальный ключ: не расходует счётчик EntityId и не влияет на хеши ADR-009.
         // Отрицательные значения не пересекаются с EntityId.Value (> 0).
-        public void AddSource(GridPosition position, int radius) =>
-            sources[nextKey--] = new Source(position, radius > 0 ? radius : 0);
+        public void AddSource(GridPosition position, int radius)
+        { sources[nextKey--] = new Source(position, radius > 0 ? radius : 0); cachedCovered = -1; }
 
-        public void AddPoint(GridPosition position) => points[nextKey--] = position;
+        public void AddPoint(GridPosition position) { points[nextKey--] = position; cachedCovered = -1; }
 
         // Дубликат id перезаписывает источник. Отрицательный радиус — 0.
         public void SetSource(EntityId id, GridPosition position, int radius)
         {
             sources[id.Value] = new Source(position, radius > 0 ? radius : 0);
+            cachedCovered = -1;
         }
 
-        public void RemoveSource(EntityId id) { sources.Remove(id.Value); }
+        public void RemoveSource(EntityId id) { sources.Remove(id.Value); cachedCovered = -1; }
 
-        public void ClearSources() { sources.Clear(); }
+        public void ClearSources() { sources.Clear(); cachedCovered = -1; }
 
         // Дубликат id перезаписывает позицию точки.
-        public void SetPoint(EntityId id, GridPosition position) { points[id.Value] = position; }
+        public void SetPoint(EntityId id, GridPosition position) { points[id.Value] = position; cachedCovered = -1; }
 
-        public void RemovePoint(EntityId id) { points.Remove(id.Value); }
+        public void RemovePoint(EntityId id) { points.Remove(id.Value); cachedCovered = -1; }
 
         // Убирает и источники, и точки.
         public void Clear()
         {
             sources.Clear();
             points.Clear();
+            cachedCovered = -1;
         }
 
         // Точка накрыта, если хотя бы один источник достаёт до неё.
@@ -83,20 +87,16 @@ namespace Citybuilder
         }
 
         // Сколько точек спроса накрыто (перекрытие источников не двоит счёт).
-        public int CoveredPoints
+        public int CoveredPoints { get { return cachedCovered >= 0 ? cachedCovered : (cachedCovered = CountCovered()); } }
+
+        private int CountCovered()
         {
-            get
+            int covered = 0;
+            foreach (KeyValuePair<int, GridPosition> pair in points)
             {
-                int covered = 0;
-                foreach (KeyValuePair<int, GridPosition> pair in points)
-                {
-                    if (IsCovered(pair.Value))
-                    {
-                        covered = covered + 1;
-                    }
-                }
-                return covered;
+                if (IsCovered(pair.Value)) covered++;
             }
+            return covered;
         }
 
         // Доля накрытых точек 0..1. Точек нет — 1.

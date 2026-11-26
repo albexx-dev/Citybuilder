@@ -10,6 +10,8 @@ namespace Citybuilder
         private readonly GridSystem grid;
         private readonly Dictionary<GridPosition, ZoneType> zones =
             new Dictionary<GridPosition, ZoneType>();
+        // Счётчики по типам: CountZone не перебирает все назначенные клетки.
+        private readonly Dictionary<ZoneType, int> counts = new Dictionary<ZoneType, int>();
 
         public ZoneSystem(GridSystem grid)
         {
@@ -26,12 +28,20 @@ namespace Citybuilder
             {
                 return false;
             }
+            ZoneType previous;
+            bool had = zones.TryGetValue(cell, out previous);
             if (zone == ZoneType.None)
             {
+                if (had) counts[previous] = counts[previous] - 1;
                 zones.Remove(cell);
                 return true;
             }
             zones[cell] = zone;
+            if (had && previous == zone) return true;
+            if (had) counts[previous] = counts[previous] - 1;
+            int count;
+            counts.TryGetValue(zone, out count);
+            counts[zone] = count + 1;
             return true;
         }
 
@@ -51,15 +61,8 @@ namespace Citybuilder
 
         public int CountZone(ZoneType zone)
         {
-            int count = 0;
-            foreach (KeyValuePair<GridPosition, ZoneType> entry in zones)
-            {
-                if (entry.Value == zone)
-                {
-                    count++;
-                }
-            }
-            return count;
+            int count;
+            return counts.TryGetValue(zone, out count) ? count : 0;
         }
 
         // Копия всех назначенных клеток, только чтение. None не хранится.
