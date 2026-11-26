@@ -55,6 +55,27 @@ namespace Citybuilder
             Assert.IsFalse(cooldowns.ShouldPlay(AudioEventSound.None, 3.0));
         }
 
+        // Дефолт событийных звуков ≥10 с: повтор Supply в пределах окна не звучит.
+        [Test]
+        public void DefaultCooldown_AtLeastTenSeconds_SuppressesRepeat()
+        {
+            AudioEventCooldowns cooldowns = new AudioEventCooldowns();
+            Assert.IsTrue(cooldowns.CooldownSeconds >= 10.0);
+            Assert.IsTrue(cooldowns.ShouldPlay(AudioEventSound.Supply, 0.0));
+            Assert.IsFalse(cooldowns.ShouldPlay(AudioEventSound.Supply, 2.5));
+            Assert.IsFalse(cooldowns.ShouldPlay(AudioEventSound.Supply, 9.9));
+            Assert.IsTrue(cooldowns.ShouldPlay(AudioEventSound.Supply, 10.0));
+        }
+
+        [Test]
+        public void Resolve_TreasuryIncome_IsSilent()
+        {
+            Assert.AreEqual(AudioEventSound.None, AudioEventPolicy.Resolve(
+                Event(EventKind.Treasury, EventMessageCatalog.TreasuryDeficit)));
+            Assert.AreEqual(AudioEventSound.None, AudioEventPolicy.Resolve(
+                Event(EventKind.Treasury, EventMessageCatalog.QuestCompleted)));
+        }
+
         [Test]
         public void Cooldown_Reset_RestoresFirstSound()
         {

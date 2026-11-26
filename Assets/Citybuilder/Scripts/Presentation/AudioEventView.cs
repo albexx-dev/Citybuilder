@@ -25,15 +25,15 @@ namespace Citybuilder
 
         private const float FireVolumeScale = 0.9f;
         private const float CrimeVolumeScale = 0.8f;
-        private const float GarbageVolumeScale = 0.5f;
-        private const float GarbagePitch = 1.6f;
+        private const float GarbageVolumeScale = 0.12f;
+        private const float GarbagePitch = 1.05f;
         private const float BlackoutVolumeScale = 0.5f;
         private const float BlackoutPitch = 0.5f;
-        private const float SupplyVolumeScale = 0.35f;
+        private const float SupplyVolumeScale = 0.1f;
         private const float SupplyPitch = 0.8f;
-        private const float CongestionVolumeScale = 0.35f;
+        private const float CongestionVolumeScale = 0.1f;
         private const float CongestionPitch = 1.2f;
-        private const float EmploymentVolumeScale = 0.3f;
+        private const float EmploymentVolumeScale = 0.1f;
         private const float EmploymentPitch = 1.3f;
         private const float MinPollIntervalSec = 0.05f;
 

@@ -86,6 +86,18 @@ namespace Citybuilder
             Assert.IsTrue(policy.ShouldPlayCoin(5.0, 200));
         }
 
+        // Дефолтный кулдаун 10 с (жалоба на надоедливый звук): повтор в окне гасится.
+        [Test]
+        public void DefaultCooldown_AtLeastTenSeconds_DeficitRepeatSuppressed()
+        {
+            SoundCooldownPolicy policy = new SoundCooldownPolicy();
+            Assert.IsTrue(policy.CooldownSeconds >= 10.0);
+            Assert.IsTrue(policy.ShouldPlayDeficit(0.0));
+            Assert.IsFalse(policy.ShouldPlayDeficit(2.5));
+            Assert.IsFalse(policy.ShouldPlayDeficit(9.9));
+            Assert.IsTrue(policy.ShouldPlayDeficit(10.0));
+        }
+
         // Симуляция «Новой игры»: после Reset монетка звучит сразу при новом балансе, без догоняния старого.
         [Test]
         public void Reset_CoinPlaysAtOnceWithNewBalance()
