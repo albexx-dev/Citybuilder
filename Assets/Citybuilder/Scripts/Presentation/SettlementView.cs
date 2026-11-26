@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Виды зданий: детерминированные варианты кубов (EPIC-17), стройфаза всех типов (EPIC-61).
-    public class SettlementView : MonoBehaviour
+    public partial class SettlementView : MonoBehaviour
     {
         [Header("Fallback")]
         [Tooltip("Цвет куба, когда у BuildingDefinition нет префаба.")]
@@ -24,6 +24,7 @@ namespace Citybuilder
             materials[currentId] = new List<Material>();
             GameObject go = SpawnView(state, def, cellSize, skipConstructionStage, powered);
             if (go == null) { DestroyMaterials(state.Id); return null; }
+            NightHook(go, state.Id, powered, !skipConstructionStage && def.ConstructionTicks > 0);
             return views[state.Id] = go;
         }
 
@@ -31,14 +32,14 @@ namespace Citybuilder
         {
             if (state == null) return;
             GameObject go;
-            if (!views.TryGetValue(state.Id, out go)) return;
-            views.Remove(state.Id);
-            DestroySafe(go);
+            if (views.TryGetValue(state.Id, out go)) { views.Remove(state.Id); DestroySafe(go); }
+            NightRemove(state.Id);
             DestroyMaterials(state.Id);
         }
 
         public void Clear()
         {
+            NightClear();
             foreach (KeyValuePair<EntityId, GameObject> entry in views) DestroySafe(entry.Value);
             views.Clear();
             foreach (EntityId id in new List<EntityId>(materials.Keys)) DestroyMaterials(id);
