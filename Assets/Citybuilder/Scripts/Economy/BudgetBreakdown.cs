@@ -24,6 +24,15 @@ namespace Citybuilder
                 thefts.ToString(), Signed(rewards), Signed(net));
         }
 
+        // Новая строка с долгом (issue #168): процент тика уменьшает итог, тело долга — в хвосте.
+        // Старая Line и её ключ budget_breakdown остаются без изменений.
+        public static string LineWithCredit(int income, int upkeep, int thefts, int rewards, int debt, int interest)
+        {
+            int net = Net(income, upkeep, thefts, rewards) - interest;
+            return Localization.T("budget_breakdown_credit", Signed(income), upkeep.ToString(),
+                thefts.ToString(), Signed(rewards), interest.ToString(), Signed(net), debt.ToString());
+        }
+
         private static string Signed(int value)
         {
             return value >= 0 ? "+" + value : value.ToString();
