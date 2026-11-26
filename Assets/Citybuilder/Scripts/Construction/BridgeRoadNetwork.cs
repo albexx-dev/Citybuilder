@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 namespace Citybuilder
 {
-    // Occupation дорог по ключу (X,Y,Level) и A* с явными съездами 0<->1. Без Unity.
+    // Occupation дорог по ключу (X,Y,Level) и A* с явными съездами 1<->2. Без Unity.
     public class BridgeRoadNetwork
     {
         public const string Wood = "wood";
@@ -19,34 +19,34 @@ namespace Citybuilder
         // Верхний уровень доминирует при показе; нижний остаётся в occupation.
         public int TopLevel(GridPosition cell)
         {
-            return IsRoad(new RoadCellKey(cell.X, cell.Y, 1)) ? 1 : (IsRoad(new RoadCellKey(cell.X, cell.Y, 0)) ? 0 : -1);
+            return IsRoad(new RoadCellKey(cell.X, cell.Y, 2)) ? 2 : (IsRoad(new RoadCellKey(cell.X, cell.Y, 1)) ? 1 : -1);
         }
         public bool CanPlace(RoadCellKey key, string typeId)
         {
-            if (key.Level < 0 || key.Level > 1 || !grid.IsInside(key.Position)) return false;
+            if (key.Level < 1 || key.Level > 3 || !grid.IsInside(key.Position)) return false;
             if (IsRoad(key)) return false;
-            if (key.Level == 0) return !grid.IsOccupied(key.Position);
-            if (typeId != Wood && typeId != Stone) return false;
-            // Под мостом можно оставить дорогу level 0, но не здание или зону.
-            return !grid.IsOccupied(key.Position) || IsRoad(new RoadCellKey(key.X, key.Y, 0));
+            if (key.Level == 1) return !grid.IsOccupied(key.Position);
+            if (key.Level != 2 || (typeId != Wood && typeId != Stone)) return false;
+            // Под мостом можно оставить дорогу level 1, но не здание или зону.
+            return !grid.IsOccupied(key.Position) || IsRoad(new RoadCellKey(key.X, key.Y, 1));
         }
         public bool Place(RoadCellKey key, string typeId)
         {
             if (!CanPlace(key, typeId)) return false;
             roads.Add(key, typeId);
-            if (key.Level == 0) grid.Occupy(key.Position, EntityId.New());
+            if (key.Level == 1) grid.Occupy(key.Position, EntityId.New());
             return true;
         }
         public bool Demolish(RoadCellKey key)
         {
             if (!IsRoad(key)) return false;
             roads.Remove(key);
-            if (key.Level == 0) grid.Release(key.Position);
+            if (key.Level == 1) grid.Release(key.Position);
             return true;
         }
         public bool SetRamp(RoadCellKey lower, RoadCellKey upper)
         {
-            if (lower.Level != 0 || upper.Level != 1 || lower.Position != upper.Position) return false;
+            if (lower.Level != 1 || upper.Level != 2 || lower.Position != upper.Position) return false;
             if (!IsRoad(lower) || !IsRoad(upper)) return false;
             ramps.Add(lower.Position);
             return true;
@@ -87,9 +87,9 @@ namespace Citybuilder
             TryStep(new RoadCellKey(cur.X - 1, cur.Y, cur.Level), cur, open, closed, parent, g);
             TryStep(new RoadCellKey(cur.X, cur.Y + 1, cur.Level), cur, open, closed, parent, g);
             TryStep(new RoadCellKey(cur.X, cur.Y - 1, cur.Level), cur, open, closed, parent, g);
-            if (ramps.Contains(cur.Position))
+            if (cur.Level < 3 && ramps.Contains(cur.Position))
             {
-                int other = cur.Level == 0 ? 1 : 0;
+                int other = cur.Level == 1 ? 2 : 1;
                 TryStep(new RoadCellKey(cur.X, cur.Y, other), cur, open, closed, parent, g);
             }
         }

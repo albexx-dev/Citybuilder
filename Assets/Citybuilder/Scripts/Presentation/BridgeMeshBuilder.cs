@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace Citybuilder
 {
-    // Палуба и перила моста: 6 треугольников на клетку, не более 3000 на модель (ADR-018).
+    // Палуба и перила моста: 6 треугольников на клетку, не более 3000 на модель (ADR-018/022).
     public static class BridgeMeshBuilder
     {
         public const int MaxTriangles = 3000;
