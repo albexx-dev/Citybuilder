@@ -70,9 +70,6 @@ namespace Citybuilder
             states.Add(state);
             return state;
         }
-        // Найти построенное на клетке. Нет — null.
-        public RoadState FindStateAt(GridPosition cell) { return FindTopStateAt(cell); }
-        }
         // Найти построенное на клетке: верхний уровень (мост) имеет приоритет.
         public RoadState FindStateAt(GridPosition cell) { return FindTopStateAt(cell); }
         // Снести построенное: снятие с сетки, учёт и RefreshOccupied. Вид обновляет вызывающий.
