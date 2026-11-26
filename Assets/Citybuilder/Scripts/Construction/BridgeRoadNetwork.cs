@@ -37,6 +37,14 @@ namespace Citybuilder
             if (key.Level == 1) grid.Occupy(key.Position, EntityId.New());
             return true;
         }
+        // Легаси-дорогу, уже занявшую клетку через RoadSystem, добавляем без повторного Occupy.
+        public bool RegisterStreet(RoadCellKey key)
+        {
+            if (key.Level != RoadCellKey.StreetLevel || !grid.IsInside(key.Position)) return false;
+            if (!grid.IsOccupied(key.Position) || IsRoad(key)) return false;
+            roads.Add(key, "asphalt");
+            return true;
+        }
         public bool Demolish(RoadCellKey key)
         {
             if (!IsRoad(key)) return false;
