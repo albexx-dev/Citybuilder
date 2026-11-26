@@ -26,6 +26,10 @@ namespace Citybuilder
         [Tooltip("Категория каталога (задача 173). Дороги ставятся режимом «Дороги», поле — под будущую дорогу-карточку.")]
         public BuildingCategory Category = BuildingCategory.Roads;
 
+        [Header("Level")]
+        [Tooltip("Уровень полотна: 1 — обычная дорога, 2 — мост (ADR-018).")]
+        public int Level = 1;
+
         private void OnValidate()
         {
             if (string.IsNullOrWhiteSpace(Id))
