@@ -8,6 +8,10 @@ namespace Citybuilder
     public partial class EconomyTicker : MonoBehaviour
     {
         private DistrictPolicy districts;
+        private CreditLedger credit = new CreditLedger();
+
+        // Кредит партии: процент списывается на границе тика, долг виден в строке бюджета.
+        public CreditLedger Credit { get { return credit; } }
 
         // Районы зон: три корзины без override ставок. Один экземпляр для налога и инфоменю.
         public DistrictPolicy Districts

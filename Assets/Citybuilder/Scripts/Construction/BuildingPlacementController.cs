@@ -30,15 +30,8 @@ namespace Citybuilder
         public List<BuildingState> Placed { get { return store.Placed; } }
         public int PlacedRevision { get; private set; }
 
-        // Единая политика цены для стройки и HUD. Создаётся лениво; дефолт ×1 без изменений в сцене.
-        public MarketPricePolicy Market
-        {
-            get
-            {
-                if (market == null) market = new MarketPricePolicy();
-                return market;
-            }
-        }
+        // Единая политика цены для стройки и HUD: дефолт ×1 без изменений в сцене.
+        public MarketPricePolicy Market { get { return market ?? (market = new MarketPricePolicy()); } }
 
         private void Start() { EnsureReady(); }
         private void OnEnable() { placementActive = true; }

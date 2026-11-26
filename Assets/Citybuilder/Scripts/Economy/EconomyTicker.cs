@@ -21,7 +21,6 @@ namespace Citybuilder
         [Tooltip("Снимок покрытия служб. Пусто = ищется в сцене; без него дома считаются защищёнными.")] public ServiceCoverageController Coverage;
         private EmploymentSystem employment;
         private TaxSystem tax;
-        private CreditLedger credit = new CreditLedger();
         private readonly EventThrottlePolicy eventThrottle = new EventThrottlePolicy(10);
         private readonly FireTicker fireTicker = new FireTicker();
         private readonly CrimeTicker crimeTicker = new CrimeTicker();
@@ -30,14 +29,10 @@ namespace Citybuilder
         public FireSystem Fires { get { return fireTicker.Fires; } }
         // Кражи (EPIC-47) для InfoMenuView: уровень преступности и модификаторы досуга домов.
         public CrimeSystem Crimes { get { return crimeTicker.Crimes; } }
-        // Кредит партии: процент списывается на границе тика, долг виден в строке бюджета.
-        public CreditLedger Credit { get { return credit; } }
-
         public void ResetSimulation()
         {
             eventThrottle.Reset(); fireTicker.Reset(); crimeTicker.Reset();
-            credit = new CreditLedger();
-            ResetDistricts();
+            credit = new CreditLedger(); ResetDistricts();
         }
         // Фактический налоговый доход за час: зональная политика или фиксированная ставка.
         public int IncomePerHour()
@@ -126,8 +121,7 @@ namespace Citybuilder
             int baseUpkeep = UpkeepPolicy.UpkeepPerHour(Growth.Homes,
                 Placement != null ? Placement.Placed : null);
             Treasury.Treasury.Charge(EffectiveUpkeepPolicy.Apply(baseUpkeep));
-            // Процент идёт через Charge внутри CreditLedger: легальный минус, не TrySpend.
-            credit.TickInterest(Treasury.Treasury);
+            credit.TickInterest(Treasury.Treasury); // Charge внутри ledger: легальный минус, не TrySpend.
             ReportCityEvents(tickCount);
             TickFires(tickCount);
             TickCrimes(tickCount);
