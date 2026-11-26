@@ -1,6 +1,6 @@
 # Citybuilder
 
-3D city-building simulation in Unity 6 / C#. Current release: **v1.4.2** — RU/EN localization (225 keys), visible systems, save v6 and an endless city (no win/lose screens).
+3D city-building simulation in Unity 6 / C#. Current release: **v1.4.5** — «Большой город»: 100×100 grid, 1000+ residents, four road types with bridges, market/credits/districts/mayor rating, player decisions, seasons/weather, save v7; RU/EN localization (225 keys), visible systems and an endless city (no win/lose screens). Итоговые числа тестов и `bundleVersion` финализирует оркестратор на гейте #171 (`X` в документах — плейсхолдеры).
 
 ## New here? / Новому участнику
 
@@ -18,18 +18,22 @@ Open the **repository root** in Unity Hub with editor **6000.3.25f1**, then open
 
 Connected systems:
 
-- **Construction & Growth:** grid 50×50, roads with drag-preview, R/C/I zones, tick-based building growth with 3-tick construction frames (`GrowthStageView`) and deterministic visual variants, house levels 1–3 with map markers, low-poly Hospital (`3×3`) and Park (`2×2`) FBX models from the Blender pipeline (`Tools/blender-addon/`).
+- **Construction & Growth:** grid 100×100 (v1.4.5, ADR-017; `Width`/`Height`/`CellSize` come only from `GridVisualizer`), configurable building cap for 1000+ residents, roads with drag-preview, R/C/I zones, tick-based building growth with 3-tick construction frames (`GrowthStageView`) and deterministic visual variants, house levels 1–3 with map markers, low-poly Hospital (`3×3`) and Park (`2×2`) FBX models from the Blender pipeline (`Tools/blender-addon/`). Old v1–v6 slots stay loadable.
 - **Services & Needs v2:** unified `ServiceCoverageController` for Fire, Police, Health (Hospital) and Leisure (Park), 9 city need indicators (`NeedSystem`), satisfaction migration gate (`< 50%` stops move-in).
-- **Two-Sided Economy:** hourly tax collection and building upkeep (`UpkeepPolicy`), treasury deficit support, attractiveness multiplier (`0.5×..1.5×`); the HUD budget line shows taxes − upkeep − theft + rewards = total per hour.
+- **Two-Sided Economy:** hourly tax collection and building upkeep (`UpkeepPolicy`, effective ÷8), treasury deficit support, attractiveness multiplier (`0.5×..1.5×`); the HUD budget line shows taxes − upkeep − theft + rewards = total per hour.
+- **Market, credits, districts and rating (v1.4.5, ADR-019):** `MarketPricePolicy` (×1 neutral by default, applied only at price points), `CreditLedger` (principal via `Treasury.Earn`, interest and repayment via `Treasury.Charge`, deficit is legal), district overrides of tax rate and market multiplier over the base `ZoneType`, and an endless mayor rating derived from milestones with no win/lose screen. The 1/2/4 tax ladder and base assets are unchanged.
+- **Roads and bridges (v1.4.5, ADR-018):** four road types — `asphalt` and `brick` at level 0, `wood` and `stone` bridges at level ≥1 with `RoadCellKey(X, Y, Level)` and 0↔1 ramps. A lower road survives under a bridge; removing a bridge frees only its level.
+- **Player decisions (v1.4.5, ADR-020):** `DecisionController` applies a choice on the tick boundary and writes two append-only records to the event log (offer + applied choice); pending decisions are not serialized, like fires and agents. Choice buttons live in the existing «Лента»/«Статистика» IMGUI panels.
+- **Seasons and weather (v1.4.5, ADR-021):** presentation filter through `DayNightSample`/`DayNightPolicy` (six key points), emissive windows per `BlackoutViewStyle`, IMGUI effects through existing styles; money, ticks and saves are unaffected. Built-in RP only (no URP/HDRP/UI Toolkit).
 - **Living city (v1.2):** deterministic fires and theft, 10 starter quests plus an endless milestone generator (3 active quests, treasury rewards), waste accumulation with garbage trucks and depot variants (Waste Depot / compost station, 6 building types on ready-made Kenney models), day/night cycle, vehicle and pedestrian agents.
 - **Visibility & UX v2:** bottom action bar (`BottomBarView`), collapsible stats (`InfoMenuView`, `Tab`) with 8-day graphs and a click-to-focus minimap, event log (`EventLogView`, `L`) with RU/EN messages and sounds by event type, inspection panel with service radius overlay, road congestion heat coloring, tutorial with hints for v1.2 mechanics (fire, theft, garbage pickup, night) and a «Повторить обучение» / Replay tutorial button plus controls help, small-window layout, main and pause menus (`Esc`), RU/EN toggle in the HUD.
-- **Persistence:** 3 manual save slots and autosave every 24 ticks (`SaveSlotIndex`); save v6 adds optional garbage, theft, comfort and construction fields with validation and backward compatibility with v1–v5 slots. Fires and agents stay non-serialized (ADR-009/ADR-011).
+- **Persistence:** 3 manual save slots and autosave every 24 ticks (`SaveSlotIndex`); save v7 (ADR-022) adds optional road type/level, debt and interest, market multiplier, district tax rates, mayor rating and milestone-v2 counter, with v6 fallback and validation. Versions 1–7 are read, >7 is rejected; export/import (`SlotTransfer`) uses the same JSON and checks. Grid size is not serialized, so v1–v6 slots load unchanged. Fires, agents and pending decisions stay non-serialized (ADR-009/011/020).
 
 ## Requirements
 
 - Unity **6000.3.25f1** (exact version in `ProjectSettings/ProjectVersion.txt`), Built-in Render Pipeline, one scene `Assets/Citybuilder/Scenes/Prototype.unity`; UI is IMGUI only.
 - Git LFS (`git lfs install`) — 19 tracked objects (textures and icons). Without it those files stay pointers.
-- 1157 EditMode tests (v1.4.2, 943 `[Test]` + 214 `[TestCase]` in 170 files); run them via Unity Test Runner → EditMode. CI runs the required `Static validation` check on every PR, but the `Unity EditMode tests` job is skipped until repository variable `ENABLE_UNITY_TESTS=true` and Unity license secrets are set — until then EditMode is a manual gate.
+- `X` EditMode tests in `X` files (`X` `[Test]` + `X` `[TestCase]`) and `X` PlayMode tests; run them via Unity Test Runner → EditMode/PlayMode. Final counts are set by the orchestrator at the v1.4.5 gate (#171) — `X` is a placeholder, not a measured number. CI runs the required `Static validation` check on every PR, but the `Unity EditMode tests` job is skipped until repository variable `ENABLE_UNITY_TESTS=true` and Unity license secrets are set — until then EditMode is a manual gate.
 - Python 3.10+ for the static validator `Tools/ValidateRepo.py`.
 - Optional MCP stack: Unity bridge on `127.0.0.1:8080`, Blender 4.5 LTS MCP on `127.0.0.1:9876`.
 
@@ -46,7 +50,7 @@ Connected systems:
 
 ## Download
 
-Ready-to-play Windows64 build: [GitHub Release v1.4.2](https://github.com/albexx-dev/Citybuilder/releases/tag/v1.4.2) — download `Citybuilder-v1.4.2-windows64.zip`, unzip and run `CityBuilder.exe`.
+The Windows64 build for v1.4.5 is published by the orchestrator after the green gate (#171): `Citybuilder-v1.4.5-windows64.zip` on the [GitHub Releases](https://github.com/albexx-dev/Citybuilder/releases) page. The previous released build is [v1.4.2](https://github.com/albexx-dev/Citybuilder/releases/tag/v1.4.2) (`Citybuilder-v1.4.2-windows64.zip`).
 
 ## Regenerating audio
 
@@ -64,9 +68,9 @@ Bit-for-bit identical to the committed files: `click.wav`, `coin.wav`, `pop.wav`
 
 - `ONBOARDING.md` — (RU) step-by-step setup for a new contributor, from clone to first PR.
 - `CONTRIBUTING.md` — contribution rules and the pull request workflow.
-- `CHANGELOG.md` — release notes for `[v1.4.2]`, `[v1.4.1]`, `[v1.4.0]`, `[v1.3.3]`, `[v1.3.2]`, `[v1.3.1]`, `[v1.3.0]`, `[v1.2.2]`, `[v1.2.1]`, `[v1.2.0]`, `[v1.1.0]` and `[v1.1]`.
-- `ARCHITECTURE.md` — modular monolith design and implemented systems as of v1.3.
+- `CHANGELOG.md` — release notes for `[v1.4.5]`, `[v1.4.2]`, `[v1.4.1]`, `[v1.4.0]`, `[v1.3.3]`, `[v1.3.2]`, `[v1.3.1]`, `[v1.3.0]`, `[v1.2.2]`, `[v1.2.1]`, `[v1.2.0]`, `[v1.1.0]` and `[v1.1]`.
+- `ARCHITECTURE.md` — modular monolith design and implemented systems as of v1.4.5.
 - `GAME_DESIGN.md` — simulation rules, endless-game doctrine (§19) and balance (§20).
 - `UNITY_MCP_SETUP.md` — Unity/Blender MCP setup and the Blender FBX exporter addon workflow.
-- `DECISIONS/` — ADR-001…ADR-014 (event localization: ADR-013, save v6: ADR-014).
+- `DECISIONS/` — ADR-001…ADR-022 (v1.4.5 scope: ADR-017 scale, ADR-018 roads/bridges, ADR-019 market/power, ADR-020 decisions, ADR-021 visual, ADR-022 save v7; earlier: ADR-013 event localization, ADR-014 save v6).
 - GitHub Issues — current task queue, bugs and proposals (templates in `.github/ISSUE_TEMPLATE/`).
