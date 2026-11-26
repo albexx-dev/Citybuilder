@@ -9,11 +9,7 @@ namespace Citybuilder
         private BridgeRoadNetwork bridge;
         private BridgeRoadView bridgeView;
 
-        private static bool IsBridgeLevel(RoadDefinition definition)
-        {
-            return definition != null && definition.Level >= RoadCellKey.BridgeLevel;
-        }
-        private bool IsBridgeActive() { return IsBridgeLevel(ActiveDefinition); }
+        private bool IsBridgeActive() { return activeLevel >= RoadCellKey.BridgeLevel; }
         private static bool IsBridgeTypeId(string id) { return id == BridgeRoadNetwork.Wood || id == BridgeRoadNetwork.Stone; }
         private static RoadCellKey BridgeKey(GridPosition cell) { return new RoadCellKey(cell.X, cell.Y, RoadCellKey.BridgeLevel); }
         private static RoadCellKey StreetKey(GridPosition cell) { return new RoadCellKey(cell.X, cell.Y, RoadCellKey.StreetLevel); }
@@ -42,7 +38,7 @@ namespace Citybuilder
             RoadCellKey key = BridgeKey(cell);
             if (!bridge.Place(key, typeId)) return null;
             if (bridge.IsRoad(StreetKey(cell))) bridge.SetRamp(StreetKey(cell), key);
-            return new RoadState(EntityId.New(), cell, typeId, level);
+            return new RoadState(EntityId.New(), cell, typeId, key.Level);
         }
         private RoadState PlaceBridge(GridPosition cell) { return PlaceBridgeAs(cell, ActiveTypeId, ActiveLevel); }
 

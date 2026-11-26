@@ -7,7 +7,7 @@ namespace Citybuilder
         public GridPosition Cell { get; private set; }
         // v7 (ADR-018): Id типа дороги. Пусто и старые записи читаются как asphalt.
         public string TypeId { get; private set; }
-        // v7 (ADR-022): уровень полотна, земля 1 / мост 2; диапазон 1..3.
+        // v7 (ADR-018/022): уровень полотна, земля 1 / мост 2; диапазон 1..3.
         public int Level { get; private set; }
 
         public RoadState(EntityId id, GridPosition cell, string typeId = "asphalt", int level = 1)
