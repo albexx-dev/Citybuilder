@@ -7,12 +7,15 @@ namespace Citybuilder
         public GridPosition Cell { get; private set; }
         // v7 (ADR-018): Id типа дороги. Пусто и старые записи читаются как asphalt.
         public string TypeId { get; private set; }
+        // Уровень полотна: 1 — обычная дорога, 2 — мост (ADR-018).
+        public int Level { get; private set; }
 
-        public RoadState(EntityId id, GridPosition cell, string typeId = "asphalt")
+        public RoadState(EntityId id, GridPosition cell, string typeId = "asphalt", int level = 1)
         {
             Id = id;
             Cell = cell;
             TypeId = string.IsNullOrEmpty(typeId) ? "asphalt" : typeId;
+            Level = level < 1 || level > 3 ? 1 : level;
         }
     }
 }

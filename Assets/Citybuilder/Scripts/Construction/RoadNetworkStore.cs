@@ -15,8 +15,17 @@ namespace Citybuilder
         public RoadView View;
         private RoadSystem system;
         private readonly List<RoadState> states = new List<RoadState>();
+        private const int MaxRoadLevel = 3;
+        private int activeLevel = RoadCellKey.StreetLevel;
         public RoadDefinition ActiveDefinition { get; private set; }
         public string ActiveTypeId { get { return ActiveDefinition == null || string.IsNullOrEmpty(ActiveDefinition.Id) ? "asphalt" : ActiveDefinition.Id; } }
+        // Уровень всегда соответствует активному Definition (1..3, дефолт 1).
+        public int ActiveLevel { get { return activeLevel; } }
+        public void SetActiveLevel(int level)
+        {
+            if (level < RoadCellKey.StreetLevel || level > MaxRoadLevel) level = RoadCellKey.StreetLevel;
+            activeLevel = level;
+        }
         // Копия построенных дорог для сохранений. Отдаём копию, а не сам список.
         public List<RoadState> Roads { get { return new List<RoadState>(states); } }
         // Выбор активного типа из списка. Возвращает false для неизвестного id.
@@ -25,7 +34,7 @@ namespace Citybuilder
             EnsureReady();
             if (Definitions == null || string.IsNullOrEmpty(id)) return false;
             for (int i = 0; i < Definitions.Length; i++)
-                if (Definitions[i] != null && Definitions[i].Id == id) { ActiveDefinition = Definitions[i]; return true; }
+                if (Definitions[i] != null && Definitions[i].Id == id) { ActiveDefinition = Definitions[i]; SetActiveLevel(Definitions[i].Level); return true; }
             return false;
         }
         // Готовит систему по GridVisualizer.Grid, добирает View и активный тип. Без GridVisualizer гаснет.
@@ -39,7 +48,7 @@ namespace Citybuilder
             }
             if (ActiveDefinition == null && Definitions != null)
                 for (int i = 0; i < Definitions.Length; i++)
-                    if (Definitions[i] != null) { ActiveDefinition = Definitions[i]; break; }
+                    if (Definitions[i] != null) { ActiveDefinition = Definitions[i]; SetActiveLevel(Definitions[i].Level); break; }
             if (View == null)
             {
                 View = GetComponent<RoadView>();
@@ -63,8 +72,9 @@ namespace Citybuilder
             RoadState placed = system.Place(cell);
             if (placed == null) return null;
             RegisterStreet(cell);
-            states.Add(placed);
-            return placed;
+            RoadState state = new RoadState(placed.Id, placed.Cell, ActiveTypeId, activeLevel);
+            states.Add(state);
+            return state;
         }
         // Найти построенное на клетке: верхний уровень (мост) имеет приоритет.
         public RoadState FindStateAt(GridPosition cell) { return FindTopStateAt(cell); }
