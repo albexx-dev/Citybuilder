@@ -41,6 +41,7 @@ namespace Citybuilder
         private void OnDisable()
         {
             if (Runner != null && Runner.Clock != null) Runner.Clock.TickCompleted -= OnClockTick;
+            BlackoutViewStyle.Publish(DayNightPolicy.Noon());
             fogState.Restore();
         }
 
@@ -129,6 +130,7 @@ namespace Citybuilder
             RenderSettings.ambientLight = new Color(sample.AmbientR * sample.SeasonTintR,
                 sample.AmbientG * sample.SeasonTintG, sample.AmbientB * sample.SeasonTintB);
             fogState.Apply(DayNightEnabled, sample);
+            BlackoutViewStyle.Publish(sample);
         }
 
         // Сезон выводится из существующего DayNumber: нового состояния и синглтонов нет.
