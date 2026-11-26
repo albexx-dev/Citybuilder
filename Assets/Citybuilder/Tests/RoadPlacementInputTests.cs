@@ -49,5 +49,29 @@ namespace Citybuilder
             Assert.IsTrue(enough);
             Assert.IsFalse(poor);
         }
+
+        // issue #163: цена берётся из активного RoadDefinition, а не из одной константы.
+        [Test]
+        public void CellCost_DifferentRoadTypes_UseDefinitionPrices()
+        {
+            RoadDefinition asphalt = UnityEngine.ScriptableObject.CreateInstance<RoadDefinition>();
+            RoadDefinition brick = UnityEngine.ScriptableObject.CreateInstance<RoadDefinition>();
+            asphalt.Id = "asphalt"; asphalt.DisplayNameKey = "building_asphalt"; asphalt.CostPerCell = 10;
+            brick.Id = "brick"; brick.DisplayNameKey = "building_brick"; brick.CostPerCell = 18;
+            RoadSystem system = new RoadSystem(new GridSystem(new GridSize(4, 4), 1f));
+            Assert.AreEqual(10, system.CellCost(asphalt));
+            Assert.AreEqual(18, system.CellCost(brick));
+            Assert.AreEqual(0, system.CellCost(null));
+            UnityEngine.Object.DestroyImmediate(asphalt);
+            UnityEngine.Object.DestroyImmediate(brick);
+        }
+
+        [Test]
+        public void RoadState_TypeId_DefaultsToAsphaltAndKeepsExplicitType()
+        {
+            EntityId id = EntityId.New();
+            Assert.AreEqual("asphalt", new RoadState(id, new GridPosition(0, 0)).TypeId);
+            Assert.AreEqual("brick", new RoadState(id, new GridPosition(0, 0), "brick").TypeId);
+        }
     }
 }
