@@ -84,9 +84,17 @@ namespace Citybuilder
             if (cache == null) return;
             foreach (KeyValuePair<Material, Material> pair in cache)
             {
-                if (pair.Value != null) UnityEngine.Object.Destroy(pair.Value);
+                DestroyCopy(pair.Value);
             }
             cache.Clear();
+        }
+
+        // В EditMode Destroy только откладывается и пишет error в консоль — сразу DestroyImmediate.
+        private static void DestroyCopy(Material copy)
+        {
+            if (copy == null) return;
+            if (Application.isPlaying) UnityEngine.Object.Destroy(copy);
+            else UnityEngine.Object.DestroyImmediate(copy);
         }
     }
 }
