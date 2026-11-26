@@ -18,8 +18,11 @@ namespace Citybuilder
         [Header("Transport")]
         [Tooltip("Связность дорог. Пусто = старое поведение first-fit.")] public ConnectivityController Connectivity;
         [Header("Move-in")]
-        [Tooltip("Размер въезжающего домохозяйства. Минимум 1.")] public int HouseholdSize = 2;
-        [Tooltip("Пауза между въездами в секундах. Минимум 1.")] public float MoveInIntervalSec = 7f;
+        // 4 жителя = полный дом (House.asset: ResidentCapacity 4); 3 с на дом дают 1300 жителей за ~16 мин.
+        public const int DefaultHouseholdSize = 4;
+        public const float DefaultMoveInIntervalSec = 3f;
+        [Tooltip("Размер въезжающего домохозяйства. 4 = полный дом. Минимум 1.")] public int HouseholdSize = DefaultHouseholdSize;
+        [Tooltip("Пауза между въездами в секундах. Минимум 1.")] public float MoveInIntervalSec = DefaultMoveInIntervalSec;
         [Tooltip("Минимальная занятость для въезда. Ниже — новые не въезжают.")] public float MinEmployment = 0.4f;
         [Tooltip("Минимальное среднее удовлетворение потребностей (EPIC-03).")] public float MinSatisfaction = 0.5f;
         [Tooltip("Режим автовъезда. Выключите для ручного заселения.")] public bool placementActive = true;

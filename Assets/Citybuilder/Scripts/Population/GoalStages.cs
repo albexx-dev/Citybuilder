@@ -5,6 +5,8 @@ namespace Citybuilder
     public class GoalStages
     {
         public const int StageCount = 3;
+        // После 200 ступени не заканчиваются: каждые +50 жителей — новая веха без финала.
+        public const int EndlessStep = 50;
 
         private static readonly int[] Targets = { 50, 100, 200 };
         private static readonly int[] Rewards = { 1000, 2000, 4000 };
@@ -30,6 +32,20 @@ namespace Citybuilder
         public bool AllDone
         {
             get { return stage >= Targets.Length; }
+        }
+
+        // Следующая веха для HUD: 50 → 100 → 200 → 250 → 300 … без последней.
+        // Чисто функция населения: не меняет состояние и не пишется в слот (там только 0..3).
+        public int TargetFor(int residents)
+        {
+            if (residents <= 0) return Targets[0];
+            for (int i = 0; i < Targets.Length; i++)
+            {
+                if (residents < Targets[i]) return Targets[i];
+            }
+            long threshold = Targets[Targets.Length - 1];
+            while (threshold <= residents && threshold <= (long)int.MaxValue - EndlessStep) threshold += EndlessStep;
+            return (int)threshold;
         }
 
         // Доля пути внутри текущей ступени: 0..1, сверху и снизу режется.

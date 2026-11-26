@@ -80,12 +80,10 @@ namespace Citybuilder
         // Имя метода не HudText: оно скрывало бы одноимённый статический хелпер.
         private string BuildText()
         {
-            if (stages.AllDone)
-            {
-                return Localization.T("goal_done", goals.Residents);
-            }
-            int step = stages.Stage + 1;
-            return Localization.T("goal_progress", goals.Residents, stages.Target, step, GoalStages.StageCount);
+            // После 200 вехи продолжаются: экрана/строки «цель выполнена» больше нет.
+            int step = Mathf.Min(stages.Stage + 1, GoalStages.StageCount);
+            return Localization.T("goal_progress", goals.Residents, stages.TargetFor(goals.Residents),
+                step, GoalStages.StageCount);
         }
 
         // Тихое создание поверх живых симуляций. Систем нет — рисуем только HUD.
