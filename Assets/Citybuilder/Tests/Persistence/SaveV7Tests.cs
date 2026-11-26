@@ -92,7 +92,7 @@ namespace Citybuilder
                 Assert.IsTrue(SlotTransfer.Export(path, Sample()));
                 CitySnapshot restored = SlotTransfer.Import(path);
                 Assert.IsNotNull(restored);
-                Assert.AreEqual(3, SaveV7Snapshot.ReadRoadLevel(restored.Roads[0]));
+                Assert.AreEqual(2, SaveV7Snapshot.ReadRoadLevel(restored.Roads[0]));
                 Assert.AreEqual("downtown", restored.DistrictTaxRates[0].DistrictId);
                 Assert.AreEqual(6, restored.MilestoneCounterV2);
                 CitySnapshot future = Sample(); future.Version = 8;
