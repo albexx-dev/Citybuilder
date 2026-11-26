@@ -29,11 +29,16 @@ namespace Citybuilder
 
         // Пересчёт снимка покрытия после апгрейда: ServiceCoverageController.RefreshNow.
         private readonly Action coverageRebuild;
+        private readonly MarketPricePolicy market;
 
-        public UpgradeController(Action coverageRebuild)
+        public UpgradeController(Action coverageRebuild, MarketPricePolicy market = null)
         {
             this.coverageRebuild = coverageRebuild;
+            this.market = market ?? new MarketPricePolicy();
         }
+
+        // Общая политика цены с HUD и стройкой; дефолт ×1 ничего не меняет.
+        public MarketPricePolicy Market { get { return market; } }
 
         // Улучшаются только службы с радиусом и станции сетей с полезной мощностью.
         public static bool IsUpgradeable(BuildingDefinition definition)
@@ -46,8 +51,15 @@ namespace Citybuilder
         // Цена кнопки «Улучшить» для текущего уровня. 0 — кнопки нет.
         public static int PriceFor(BuildingDefinition definition, int level)
         {
+            return PriceFor(definition, level, null);
+        }
+
+        // Та же цена с множителем рынка: дефолт ×1 возвращает базу тождественно.
+        public static int PriceFor(BuildingDefinition definition, int level, MarketPricePolicy market)
+        {
             if (!IsUpgradeable(definition) || level >= HouseLevelPolicy.MaxLevel) return 0;
-            return BuildingLevelPolicy.UpgradeCost(definition.ConstructionCost, level);
+            int basePrice = BuildingLevelPolicy.UpgradeCost(definition.ConstructionCost, level);
+            return (market ?? new MarketPricePolicy()).Apply(basePrice);
         }
 
         // Гейт → цена → списание из казны → Level++ → пересчёт покрытия.
@@ -61,7 +73,7 @@ namespace Citybuilder
             {
                 return Result.Fail(Failure.MaxLevel);
             }
-            int cost = BuildingLevelPolicy.UpgradeCost(state.Definition.ConstructionCost, state.Level);
+            int cost = PriceFor(state.Definition, state.Level, market);
             if (treasury == null || !treasury.TrySpend(cost, state.Definition.Id).Success)
             {
                 return Result.Fail(Failure.NotEnoughFunds);

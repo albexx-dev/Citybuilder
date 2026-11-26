@@ -64,7 +64,8 @@ namespace Citybuilder
             if (BottomBarStyle.DrawButton(card, string.Empty, selected) && placement != null) placement.SetDefinition(def);
             GUI.Label(NameRect(card), BuildingDisplayName.Of(def), CenterLabel);
             DrawTile(card, def.Category);
-            GUI.Label(PriceRect(card), "$" + def.ConstructionCost, CenterLabel);
+            int price = placement != null ? placement.Market.Apply(def.ConstructionCost) : def.ConstructionCost;
+            GUI.Label(PriceRect(card), "$" + price, CenterLabel);
         }
 
         private static void DrawTile(Rect card, BuildingCategory category)
