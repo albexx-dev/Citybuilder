@@ -7,7 +7,8 @@ namespace Citybuilder
     public static class SaveV7Snapshot
     {
         public const int Version = 7;
-        public const int MaxRoadType = 3;
+        public const string DefaultRoadType = "asphalt";
+        private static readonly string[] KnownRoadTypes = { "asphalt", "brick", "wood", "stone" };
         public const int MaxRoadLevel = 3;
         // Запись нейтральных значений, если доменные системы ещё не наполнили поля.
         public static void Write(CitySnapshot snapshot)
@@ -40,7 +41,7 @@ namespace Citybuilder
             {
                 CitySnapshot.RoadEntry road = roads[i];
                 if (road == null) continue;
-                if (road.Type < 0 || road.Type > MaxRoadType) road.Type = 0;
+                road.Type = NormalizeRoadType(road.Type);
                 if (road.Level == 0) road.Level = 1;
                 if (road.Level < 1 || road.Level > MaxRoadLevel) road.Level = 1;
                 long key = ((long)road.X * SaveV6Snapshot.MapCells + road.Y) * 4 + road.Level;
@@ -77,10 +78,18 @@ namespace Citybuilder
         {
             return !float.IsNaN(value) && !float.IsInfinity(value);
         }
-        // Fallback для дорог: тип 0 и уровень 1, если поле отсутствует или бито.
-        public static int ReadRoadType(CitySnapshot.RoadEntry road)
+        // Неизвестный или пустой id типа → asphalt (битая запись не удаляется).
+        private static string NormalizeRoadType(string typeId)
         {
-            return road != null && road.Type >= 0 && road.Type <= MaxRoadType ? road.Type : 0;
+            if (string.IsNullOrEmpty(typeId)) return DefaultRoadType;
+            for (int i = 0; i < KnownRoadTypes.Length; i++)
+                if (KnownRoadTypes[i] == typeId) return typeId;
+            return DefaultRoadType;
+        }
+        // Fallback для дорог: id asphalt и уровень 1, если поле отсутствует или бито.
+        public static string ReadRoadType(CitySnapshot.RoadEntry road)
+        {
+            return NormalizeRoadType(road == null ? null : road.Type);
         }
         public static int ReadRoadLevel(CitySnapshot.RoadEntry road)
         {
