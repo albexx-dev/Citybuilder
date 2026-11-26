@@ -25,6 +25,14 @@ namespace Citybuilder
         // Разные типы дорог рисуются отдельными мешами со своим цветом полотна.
         public void RebuildByType(Dictionary<string, List<GridPosition>> cellsByType, float cellSize, Dictionary<string, Color> colorById)
         {
+            // Гасим все полотна типов, включая типы без клеток (ClearRoads/старый сейв).
+            for (int i = transform.childCount - 1; i >= 0; i--)
+            {
+                Transform child = transform.GetChild(i);
+                if (!child.name.StartsWith("RoadsMesh_")) continue;
+                MeshFilter filter = child.GetComponent<MeshFilter>();
+                if (filter != null && filter.sharedMesh != null) filter.sharedMesh.Clear();
+            }
             if (cellsByType == null) { Rebuild(null, cellSize); return; }
             foreach (KeyValuePair<string, List<GridPosition>> pair in cellsByType)
             {
@@ -35,11 +43,7 @@ namespace Citybuilder
             }
         }
         public void ShowPreview(List<GridPosition> cells, float cellSize, bool valid)
-        {
-            EnsurePreview();
-            FillMesh(previewMesh, cells, cellSize, 0.025f);
-            previewRenderer.sharedMaterial = valid ? validMaterial : invalidMaterial;
-        }
+        { EnsurePreview(); FillMesh(previewMesh, cells, cellSize, 0.025f); previewRenderer.sharedMaterial = valid ? validMaterial : invalidMaterial; }
         public void HidePreview() { if (previewMesh != null) previewMesh.Clear(); }
         // Классифицирует нагрузку дороги 0..1: 0 = свободно, 1 = жёлтая, 2 = красная.
         public static int BucketForLoad01(float load01)
