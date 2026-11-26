@@ -121,5 +121,26 @@ namespace Citybuilder
             station.ResidentCapacity = 4;
             Assert.AreEqual(0, UpgradeController.PriceFor(station, 1));
         }
+
+        [Test]
+        public void PriceFor_MarketDefaultIsIdentity_NonDefaultScalesBothLevels()
+        {
+            Assert.AreEqual(75, UpgradeController.PriceFor(station, 1, new MarketPricePolicy()));
+            Assert.AreEqual(125, UpgradeController.PriceFor(station, 2, new MarketPricePolicy()));
+            MarketPricePolicy market = new MarketPricePolicy(1.5);
+            Assert.AreEqual(112, UpgradeController.PriceFor(station, 1, market));
+            Assert.AreEqual(187, UpgradeController.PriceFor(station, 2, market));
+        }
+
+        [Test]
+        public void TryUpgrade_MarketMultiplier_SpendsScaledPrice()
+        {
+            UpgradeController controller = new UpgradeController(
+                delegate { rebuilds++; }, new MarketPricePolicy(1.5));
+            Assert.IsTrue(controller.TryUpgrade(state, treasury).Success);
+            Assert.AreEqual(1000 - 112, treasury.Balance);
+            Assert.AreEqual(2, state.Level);
+            Assert.AreEqual(1, rebuilds);
+        }
     }
 }
