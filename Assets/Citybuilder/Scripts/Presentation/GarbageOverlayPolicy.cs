@@ -11,10 +11,12 @@ namespace Citybuilder
         }
 
         // Заполненность бака 0..1: масштаб оверлея, а не доменная величина.
+        // Верхняя граница не даёт баку вырасти выше крыши при большом переполнении.
         public static float Load01(int accumulated)
         {
             if (accumulated <= 0) return 0f;
-            return accumulated / (float)GarbageSystem.ReadyThreshold;
+            float load = accumulated / (float)GarbageSystem.ReadyThreshold;
+            return load < 1f ? load : 1f;
         }
     }
 }
