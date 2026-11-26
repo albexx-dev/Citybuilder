@@ -17,6 +17,9 @@ namespace Citybuilder
         private readonly List<RoadState> states = new List<RoadState>();
         public RoadDefinition ActiveDefinition { get; private set; }
         public string ActiveTypeId { get { return ActiveDefinition == null || string.IsNullOrEmpty(ActiveDefinition.Id) ? "asphalt" : ActiveDefinition.Id; } }
+        private int activeLevel = 1;
+        public int ActiveLevel { get { return activeLevel; } }
+        public void SetActiveLevel(int level) { activeLevel = level < 1 ? 1 : level > 3 ? 3 : level; }
         // Копия построенных дорог для сохранений. Отдаём копию, а не сам список.
         public List<RoadState> Roads { get { return new List<RoadState>(states); } }
         // Выбор активного типа из списка. Возвращает false для неизвестного id.
@@ -55,7 +58,7 @@ namespace Citybuilder
             if (IsOwnRoadCell(cell)) return null;
             RoadState placed = system.Place(cell);
             if (placed == null) return null;
-            RoadState state = new RoadState(placed.Id, placed.Cell, ActiveTypeId);
+            RoadState state = new RoadState(placed.Id, placed.Cell, ActiveTypeId, ActiveLevel);
             states.Add(state);
             return state;
         }
@@ -75,13 +78,13 @@ namespace Citybuilder
             return true;
         }
         // Восстановить дорогу из сохранения: без оплаты, тип из записи (пусто = asphalt).
-        public RoadState RestoreRoad(GridPosition cell, string typeId = "asphalt")
+        public RoadState RestoreRoad(GridPosition cell, string typeId = "asphalt", int level = 1)
         {
             if (!EnsureReady() || system == null) return null;
             if (IsOwnRoadCell(cell)) return null;
             RoadState placed = system.Place(cell);
             if (placed == null) return null;
-            RoadState state = new RoadState(placed.Id, placed.Cell, typeId);
+            RoadState state = new RoadState(placed.Id, placed.Cell, typeId, level);
             states.Add(state);
             RefreshView();
             GridVisualizer.RefreshOccupied();

@@ -74,7 +74,7 @@ namespace Citybuilder
             Assert.IsTrue(save.SaveNow(Slot));
             CitySnapshot slot = SaveSlotStorage.Load(Application.persistentDataPath, Slot);
             Assert.IsNotNull(slot);
-            Assert.AreEqual(SaveV6Snapshot.Version, slot.Version);
+            Assert.AreEqual(SaveSystem.CurrentVersion, slot.Version);
             Assert.AreEqual(2, slot.Buildings.Count);
             Assert.AreEqual(tick, slot.TickCount);
             load.NewGame();

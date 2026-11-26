@@ -30,8 +30,8 @@ namespace Citybuilder
             CitySnapshot slot = Sample();
             CitySnapshot restored = SaveSlotStorage.FromJson(SaveSlotStorage.ToJson(slot));
             Assert.AreEqual(7, restored.Version);
-            Assert.AreEqual(2, SaveV7Snapshot.ReadRoadType(restored.Roads[0]));
-            Assert.AreEqual(3, SaveV7Snapshot.ReadRoadLevel(restored.Roads[0]));
+            Assert.AreEqual("wood", SaveV7Snapshot.ReadRoadType(restored.Roads[0]));
+            Assert.AreEqual(2, SaveV7Snapshot.ReadRoadLevel(restored.Roads[0]));
             Assert.AreEqual(12.5f, restored.Debt, 0.001f);
             Assert.AreEqual(7.25f, restored.DebtInterestPercent, 0.001f);
             Assert.AreEqual(1.4f, restored.MarketMultiplier, 0.001f);
@@ -48,7 +48,7 @@ namespace Citybuilder
                 + "\"Roads\":[{\"X\":1,\"Y\":2}]}");
             Assert.IsTrue(SaveSlotStorage.Validate(slot));
             SaveV6Snapshot.Normalize(slot);
-            Assert.AreEqual(0, SaveV7Snapshot.ReadRoadType(slot.Roads[0]));
+            Assert.AreEqual("asphalt", SaveV7Snapshot.ReadRoadType(slot.Roads[0]));
             Assert.AreEqual(1, SaveV7Snapshot.ReadRoadLevel(slot.Roads[0]));
             Assert.AreEqual(0f, slot.Debt, 0.001f);
             Assert.AreEqual(0f, slot.DebtInterestPercent, 0.001f);
@@ -62,15 +62,15 @@ namespace Citybuilder
         public void Normalize_BrokenAndDuplicates_NoExceptionAndIdempotent()
         {
             CitySnapshot slot = Sample();
-            slot.Roads.Add(new CitySnapshot.RoadEntry { X = 1, Y = 2, Type = 9, Level = 7 });
-            slot.Roads.Add(new CitySnapshot.RoadEntry { X = 1, Y = 2, Type = -1, Level = 0 });
+            slot.Roads.Add(new CitySnapshot.RoadEntry { X = 1, Y = 2, Type = "unknown", Level = 7 });
+            slot.Roads.Add(new CitySnapshot.RoadEntry { X = 1, Y = 2, Type = "", Level = 0 });
             slot.Debt = float.NaN; slot.DebtInterestPercent = 150f; slot.MarketMultiplier = -2f;
             slot.MayorRating = 101; slot.MilestoneCounterV2 = -3; slot.DistrictTaxRates.Add(null);
             slot.DistrictTaxRates.Add(new CitySnapshot.DistrictTaxEntry { DistrictId = "downtown", Rate = 0 });
             slot.DistrictTaxRates.Add(new CitySnapshot.DistrictTaxEntry { DistrictId = "downtown", Rate = 2 });
             Assert.DoesNotThrow(delegate { SaveV6Snapshot.Normalize(slot); });
             Assert.AreEqual(2, slot.Roads.Count);
-            Assert.AreEqual(0, SaveV7Snapshot.ReadRoadType(slot.Roads[1]));
+            Assert.AreEqual("asphalt", SaveV7Snapshot.ReadRoadType(slot.Roads[1]));
             Assert.AreEqual(1, SaveV7Snapshot.ReadRoadLevel(slot.Roads[1]));
             Assert.AreEqual(0f, slot.Debt, 0.001f);
             Assert.AreEqual(0f, slot.DebtInterestPercent, 0.001f);
@@ -92,7 +92,7 @@ namespace Citybuilder
                 Assert.IsTrue(SlotTransfer.Export(path, Sample()));
                 CitySnapshot restored = SlotTransfer.Import(path);
                 Assert.IsNotNull(restored);
-                Assert.AreEqual(3, SaveV7Snapshot.ReadRoadLevel(restored.Roads[0]));
+                Assert.AreEqual(2, SaveV7Snapshot.ReadRoadLevel(restored.Roads[0]));
                 Assert.AreEqual("downtown", restored.DistrictTaxRates[0].DistrictId);
                 Assert.AreEqual(6, restored.MilestoneCounterV2);
                 CitySnapshot future = Sample(); future.Version = 8;
@@ -105,7 +105,7 @@ namespace Citybuilder
         private static CitySnapshot Sample()
         {
             CitySnapshot slot = SaveSystem.BuildSnapshot(null, null, null, 5, 1, null);
-            slot.Roads.Add(new CitySnapshot.RoadEntry { X = 1, Y = 2, Type = 2, Level = 3 });
+            slot.Roads.Add(new CitySnapshot.RoadEntry { X = 1, Y = 2, Type = "wood", Level = 2 });
             slot.Debt = 12.5f; slot.DebtInterestPercent = 7.25f; slot.MarketMultiplier = 1.4f;
             slot.DistrictTaxRates.Add(new CitySnapshot.DistrictTaxEntry { DistrictId = "downtown", Rate = 3 });
             slot.MayorRating = 42; slot.MilestoneCounterV2 = 6;

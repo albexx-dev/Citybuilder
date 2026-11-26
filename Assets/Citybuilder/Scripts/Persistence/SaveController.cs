@@ -66,6 +66,7 @@ namespace Citybuilder
             // v6 (ADR-014): мусор, кражи и незавершённые стройки; серию пишет SaveSystem.
             SaveV6Snapshot.Write(snapshot, Garbage == null ? null : Garbage.Garbage,
                 Economy == null ? null : Economy.Crimes, CollectHomes(), ConstructionSnapshot.Collect());
+            WriteV7(snapshot);
             return snapshot;
         }
 
