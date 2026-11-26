@@ -6,7 +6,7 @@ namespace Citybuilder
     {
         // Монетка слышна, только если с прошлого звука казна выросла минимум на эту сумму.
         public const int CoinGrowthDollars = 10;
-        public const double DefaultCooldownSeconds = 2.5;
+        public const double DefaultCooldownSeconds = 10.0;
 
         public readonly double CooldownSeconds;
 
