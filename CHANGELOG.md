@@ -4,6 +4,16 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+## [v1.4.2] - 2026-11-26
+
+Патч по скриншоту игрока: визуал депо/оверлеев и звук.
+
+### Fixed
+
+- Огромный ящик и «дома-контейнеры»: `WasteKenneyA.prefab` child scale 2.25 → 1, `RecyclingDepotKenney` баки 1 → 0.55, `CompostStation` перенаправлен на `WasteCompostKenney` с маленькими баками; все депо вписываются в 2×2.
+- Зелёные высокие блоки над домами: `GarbageOverlayPolicy.Load01` клампится сверху (бак ≤0.63 м при любом накоплении).
+- Надоедливый звук: дефолтный кулдаун событий 2.5 → 10 с, громкости Supply/Congestion/Garbage/Employment снижены до 0.1–0.12, питч Garbage 1.6 → 1.05. Монетка по-прежнему только на наградах целей.
+
 ## [v1.4.1] - 2026-11-25
 
 Патч по отзыву владельца: деньги тратятся слишком быстро.

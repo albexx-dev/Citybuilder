@@ -89,7 +89,7 @@ Core
 
 ## 13. Testing strategy
 
-- EditMode-тесты на всю чистую логику и адаптеры: 1153 тестов в 170 файлах (`Assets/Citybuilder/Tests/`, 939 `[Test]` + 214 `[TestCase]`). Статическая валидация — `Tools/ValidateRepo.py` в CI.
+- EditMode-тесты на всю чистую логику и адаптеры: 1157 тестов в 170 файлах (`Assets/Citybuilder/Tests/`, 943 `[Test]` + 214 `[TestCase]`). Статическая валидация — `Tools/ValidateRepo.py` в CI.
 
 ## 14. Performance strategy
 

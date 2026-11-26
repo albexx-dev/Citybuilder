@@ -1,6 +1,6 @@
 # Citybuilder
 
-3D city-building simulation in Unity 6 / C#. Current release: **v1.4.1** — RU/EN localization (225 keys), visible systems, save v6 and an endless city (no win/lose screens).
+3D city-building simulation in Unity 6 / C#. Current release: **v1.4.2** — RU/EN localization (225 keys), visible systems, save v6 and an endless city (no win/lose screens).
 
 ## New here? / Новому участнику
 
@@ -29,7 +29,7 @@ Connected systems:
 
 - Unity **6000.3.25f1** (exact version in `ProjectSettings/ProjectVersion.txt`), Built-in Render Pipeline, one scene `Assets/Citybuilder/Scenes/Prototype.unity`; UI is IMGUI only.
 - Git LFS (`git lfs install`) — 19 tracked objects (textures and icons). Without it those files stay pointers.
-- 1153 EditMode tests (v1.4.1, 939 `[Test]` + 214 `[TestCase]` in 170 files); run them via Unity Test Runner → EditMode. CI runs the required `Static validation` check on every PR, but the `Unity EditMode tests` job is skipped until repository variable `ENABLE_UNITY_TESTS=true` and Unity license secrets are set — until then EditMode is a manual gate.
+- 1157 EditMode tests (v1.4.2, 943 `[Test]` + 214 `[TestCase]` in 170 files); run them via Unity Test Runner → EditMode. CI runs the required `Static validation` check on every PR, but the `Unity EditMode tests` job is skipped until repository variable `ENABLE_UNITY_TESTS=true` and Unity license secrets are set — until then EditMode is a manual gate.
 - Python 3.10+ for the static validator `Tools/ValidateRepo.py`.
 - Optional MCP stack: Unity bridge on `127.0.0.1:8080`, Blender 4.5 LTS MCP on `127.0.0.1:9876`.
 
@@ -46,7 +46,7 @@ Connected systems:
 
 ## Download
 
-Ready-to-play Windows64 build: [GitHub Release v1.4.1](https://github.com/albexx-dev/Citybuilder/releases/tag/v1.4.1) — download `Citybuilder-v1.4.1-windows64.zip`, unzip and run `CityBuilder.exe`.
+Ready-to-play Windows64 build: [GitHub Release v1.4.2](https://github.com/albexx-dev/Citybuilder/releases/tag/v1.4.2) — download `Citybuilder-v1.4.2-windows64.zip`, unzip and run `CityBuilder.exe`.
 
 ## Regenerating audio
 
@@ -64,7 +64,7 @@ Bit-for-bit identical to the committed files: `click.wav`, `coin.wav`, `pop.wav`
 
 - `ONBOARDING.md` — (RU) step-by-step setup for a new contributor, from clone to first PR.
 - `CONTRIBUTING.md` — contribution rules and the pull request workflow.
-- `CHANGELOG.md` — release notes for `[v1.4.1]`, `[v1.4.0]`, `[v1.3.3]`, `[v1.3.2]`, `[v1.3.1]`, `[v1.3.0]`, `[v1.2.2]`, `[v1.2.1]`, `[v1.2.0]`, `[v1.1.0]` and `[v1.1]`.
+- `CHANGELOG.md` — release notes for `[v1.4.2]`, `[v1.4.1]`, `[v1.4.0]`, `[v1.3.3]`, `[v1.3.2]`, `[v1.3.1]`, `[v1.3.0]`, `[v1.2.2]`, `[v1.2.1]`, `[v1.2.0]`, `[v1.1.0]` and `[v1.1]`.
 - `ARCHITECTURE.md` — modular monolith design and implemented systems as of v1.3.
 - `GAME_DESIGN.md` — simulation rules, endless-game doctrine (§19) and balance (§20).
 - `UNITY_MCP_SETUP.md` — Unity/Blender MCP setup and the Blender FBX exporter addon workflow.

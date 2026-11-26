@@ -25,10 +25,10 @@ New here? Start with [ONBOARDING.md](ONBOARDING.md) (RU): cloning, the exact Uni
 4. Keep commits small: max 5 files and 250 changed lines.
 5. Run local checks:
    - `python Tools/ValidateRepo.py` — must print `OK` with 0 `ERROR`; `WARN` lines about the 150-line soft limit are acceptable;
-   - Unity Test Runner → **EditMode** → assembly `Tests` (1153 tests in 170 files: 939 `[Test]` + 214 `[TestCase]`, including v1.3.3) must be green — this is a **manual gate** until CI is enabled below;
+   - Unity Test Runner → **EditMode** → assembly `Tests` (1157 tests in 170 files: 943 `[Test]` + 214 `[TestCase]`, including v1.3.3) must be green — this is a **manual gate** until CI is enabled below;
    - `powershell -ExecutionPolicy Bypass -File Tools/Check-UnityMcp.ps1` only when the MCP stack is in use.
 6. Push the branch and open a PR against `albexx-dev/Citybuilder:main`, filling in `.github/PULL_REQUEST_TEMPLATE.md`.
-7. CI in `.github/workflows/ci.yml` must be green. The required check is named **`Static validation`**. The optional job **`Unity EditMode tests`** runs the same 1153 EditMode tests only when repository variable `ENABLE_UNITY_TESTS=true` and Unity license credentials are configured (`UNITY_LICENSE`, or `UNITY_EMAIL` + `UNITY_PASSWORD` secrets). Without the variable the job is skipped: CI does **not** check EditMode, so run it locally in Unity. If the variable is set but credentials are missing, the job fails with an explicit error. As of v1.3.3 the variable and license secrets are not set on the repository, so EditMode stays a manual gate until a maintainer configures them.
+7. CI in `.github/workflows/ci.yml` must be green. The required check is named **`Static validation`**. The optional job **`Unity EditMode tests`** runs the same 1157 EditMode tests only when repository variable `ENABLE_UNITY_TESTS=true` and Unity license credentials are configured (`UNITY_LICENSE`, or `UNITY_EMAIL` + `UNITY_PASSWORD` secrets). Without the variable the job is skipped: CI does **not** check EditMode, so run it locally in Unity. If the variable is set but credentials are missing, the job fails with an explicit error. As of v1.3.3 the variable and license secrets are not set on the repository, so EditMode stays a manual gate until a maintainer configures them.
 8. Review by the code owner (`.github/CODEOWNERS`), then merge through the GitHub UI. Never force-push to `main`.
 
 Maintainers with admin rights can still merge locally with `git merge --no-ff` when CI is not gating, but the PR path is the default for everyone.
