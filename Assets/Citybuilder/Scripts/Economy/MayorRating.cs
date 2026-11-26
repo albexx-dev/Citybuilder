@@ -4,7 +4,7 @@ namespace Citybuilder
     // Не хранится отдельно, не имеет финиша; последствия — лента и модификаторы политик.
     public class MayorRating
     {
-        public const string ChangedEventKey = "event_mayor_rating";
+        public const string ChangedEventKey = EventMessageCatalog.MayorRatingChanged;
         private const int MilestoneStep = 50;
         private const int PerQuest = 10;
         private const int PerMilestone = 4;

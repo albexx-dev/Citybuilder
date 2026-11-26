@@ -89,6 +89,14 @@ namespace Citybuilder
                 economy.Coverage != null ? economy.Coverage.System : null,
                 economy.Treasury != null ? economy.Treasury.Treasury : null,
                 economy.EventLog != null ? economy.EventLog.Log : null);
+            // Рейтинг из вех становится модификатором ставки в TaxSystem.
+            QuestSystem quests = Quests;
+            if (economy != null && quests != null)
+            {
+                QuestContext context = quests.LastContext;
+                economy.MayorRatingValue = MayorRating.Compute(
+                    quests.CompletedCount, context.Residents, context.Balance);
+            }
         }
 
         // Награда выполнена: «поп» как у ленты событий (EventLogView.Record).

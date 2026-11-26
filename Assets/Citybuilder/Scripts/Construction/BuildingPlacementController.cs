@@ -21,6 +21,7 @@ namespace Citybuilder
         private readonly ManualBuildingsStore store = new ManualBuildingsStore();
         private readonly PlacementGhostView ghostView = new PlacementGhostView();
         private BuildingSystem system;
+        private MarketPricePolicy market;
         public bool placementActive = true;
         // PascalCase-обёртка для кода: поле serialized в сцене, переименование тронуло бы Prototype.unity.
         public bool PlacementActive { get { return placementActive; } set { placementActive = value; } }
@@ -28,6 +29,9 @@ namespace Citybuilder
         // Копия построенного: нужна покрытию, инфраструктуре и сохранениям.
         public List<BuildingState> Placed { get { return store.Placed; } }
         public int PlacedRevision { get; private set; }
+
+        // Единая политика цены для стройки и HUD: дефолт ×1 без изменений в сцене.
+        public MarketPricePolicy Market { get { return market ?? (market = new MarketPricePolicy()); } }
 
         private void Start() { EnsureReady(); }
         private void OnEnable() { placementActive = true; }
@@ -83,9 +87,10 @@ namespace Citybuilder
         {
             if (!EnsureReady()) return false;
             if (!system.CanPlace(Definition, cell)) return false;
-            if (Definition.ConstructionCost > 0 && TreasuryView != null && TreasuryView.Treasury != null)
+            int price = Market.Apply(Definition.ConstructionCost);
+            if (price > 0 && TreasuryView != null && TreasuryView.Treasury != null)
             {
-                Treasury.TransactionResult spent = TreasuryView.Treasury.TrySpend(Definition.ConstructionCost, Definition.Id);
+                Treasury.TransactionResult spent = TreasuryView.Treasury.TrySpend(price, Definition.Id);
                 if (!spent.Success) return false;
             }
             BuildingState state = system.Place(Definition, cell);

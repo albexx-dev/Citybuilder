@@ -39,7 +39,7 @@ namespace Citybuilder
             BuildingState state = BuildingInfoQuery.FindStateAt(current.Origin, growth.Homes, placement.Placed);
             Treasury treasury = growth.Treasury != null ? growth.Treasury.Treasury : null;
             UpgradeController controller = new UpgradeController(
-                delegate { if (services != null) services.RefreshNow(); });
+                delegate { if (services != null) services.RefreshNow(); }, placement.Market);
             UpgradeController.Result result = controller.TryUpgrade(state, treasury);
             // Успех меняет уровень и казну: флаг «грязный» нужен диалогу выхода без сохранения (EPIC-51).
             if (result.Success && placement.Save != null) placement.Save.MarkDirty();

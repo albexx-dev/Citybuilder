@@ -68,6 +68,46 @@ namespace Citybuilder
             Assert.IsTrue(HasActive(quests, "q_balance_ms_10000"));
         }
 
+        // Смена уровня рейтинга пишет одно событие в ленту и не повторяется без смены уровня.
+        [Test]
+        public void Tick_RatingTierChange_RecordsOneEvent()
+        {
+            QuestSystem quests = new QuestSystem();
+            CityEventLog log = new CityEventLog();
+            string key = EventMessageCatalog.MayorRatingChanged;
+
+            quests.Tick(1, MakeContext(0, 0), null, log);
+            Assert.AreEqual(0, CountMessages(log, key));
+
+            QuestContext rich = MakeContext(0, 0);
+            rich.Balance = 25000; // 25 очков → уровень 1
+            quests.Tick(2, rich, null, log);
+            Assert.AreEqual(1, CountMessages(log, key));
+
+            quests.Tick(3, rich, null, log);
+            Assert.AreEqual(1, CountMessages(log, key));
+        }
+
+        // Ключ рейтинга живёт в каталоге ленты и имеет оба перевода.
+        [Test]
+        public void MayorRatingEvent_RegisteredInCatalogWithBothLanguages()
+        {
+            bool found = false;
+            foreach (string registered in EventMessageCatalog.Keys)
+            {
+                if (registered == "event_mayor_rating") { found = true; break; }
+            }
+            Assert.IsTrue(found);
+            Assert.AreEqual(EventMessageCatalog.MayorRatingChanged, MayorRating.ChangedEventKey);
+            Localization.SetLanguage(Language.Ru);
+            Assert.AreEqual("Рейтинг мэра вырос: 60 (уровень 2, +2 $/ч)",
+                Localization.T(EventMessageCatalog.MayorRatingChanged, 60, 2, 2));
+            Localization.SetLanguage(Language.En);
+            Assert.AreEqual("Mayor rating rose: 60 (tier 2, +2 $/h)",
+                Localization.T(EventMessageCatalog.MayorRatingChanged, 60, 2, 2));
+            Localization.SetLanguage(Language.Ru);
+        }
+
         // Стартовые квесты помечены выполненными: генератор сразу работает с вехами.
         private static void CompleteStarters(QuestSystem quests)
         {

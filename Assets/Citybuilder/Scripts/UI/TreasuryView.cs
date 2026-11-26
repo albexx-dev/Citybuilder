@@ -32,10 +32,7 @@ namespace Citybuilder
         {
             get
             {
-                if (treasury == null)
-                {
-                    treasury = new Treasury(StartingBalance);
-                }
+                if (treasury == null) treasury = new Treasury(StartingBalance);
                 return treasury;
             }
         }
@@ -86,14 +83,20 @@ namespace Citybuilder
             int tick = CurrentTick();
             int thefts = theftTick == tick ? theftFines : 0;
             int earned = rewardTick == tick ? rewards : 0;
+            CreditLedger credit = Economy.Credit;
+            if (credit != null && (credit.Outstanding > 0 || credit.InterestPercent > 0))
+            {
+                int interest = credit.InterestForTick();
+                netDeficit = BudgetBreakdown.Net(income, upkeep, thefts, earned) - interest < 0;
+                return BudgetBreakdown.LineWithCredit(income, upkeep, thefts, earned, credit.Outstanding, interest);
+            }
             netDeficit = BudgetBreakdown.IsDeficit(income, upkeep, thefts, earned);
             return BudgetBreakdown.Line(income, upkeep, thefts, earned);
         }
 
         private int CurrentTick()
         {
-            return Runner != null && Runner.Clock != null
-                ? (int)Runner.Clock.CurrentTime.TickCount : -1;
+            return Runner != null && Runner.Clock != null ? (int)Runner.Clock.CurrentTime.TickCount : -1;
         }
 
         // Подписка на уже существующие события домена: новые поля в системах не нужны.

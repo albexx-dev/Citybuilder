@@ -48,7 +48,7 @@ namespace Citybuilder
         // Снимок выбранного здания: один источник запроса для клика и перерисовки после апгрейда.
         private BuildingInfo RunQuery(GridPosition cell)
         {
-            return BuildingInfoQuery.Query(
+            BuildingInfo info = BuildingInfoQuery.Query(
                 cell,
                 GridVisualizer.Grid.Size,
                 Growth != null ? Growth.Homes : null,
@@ -59,6 +59,13 @@ namespace Citybuilder
                 Water != null ? Water.Rate01 : 1f,
                 Waste != null ? Waste.Rate01 : 1f,
                 s => Connectivity != null && Connectivity.IsHomeConnected(s));
+            // Цены в панели и в каталоге идут через одну политику стройки.
+            if (Placement != null)
+            {
+                info.Cost = Placement.Market.Apply(info.Cost);
+                info.UpgradePrice = Placement.Market.Apply(info.UpgradePrice);
+            }
+            return info;
         }
 
         // Оверлей радиуса службы: после апгрейда радиус вырос — перерисовать.

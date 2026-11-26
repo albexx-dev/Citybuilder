@@ -17,28 +17,16 @@ namespace Citybuilder
         public event Action<QuestDefinition> QuestCompleted;
 
         // Активные задачи (1–3): снимок списка для QuestLogView.
-        public IReadOnlyList<QuestDefinition> Active
-        {
-            get { return active; }
-        }
+        public IReadOnlyList<QuestDefinition> Active { get { return active; } }
 
         // Сколько задач выполнено за игру (для тестов и будущих сейвов v5).
-        public int CompletedCount
-        {
-            get { return completed.Count; }
-        }
+        public int CompletedCount { get { return completed.Count; } }
 
         // Шов сейва v5 (QuestSnapshot.Write): копия id активных задач, в порядке панели.
-        public List<string> ActiveIds
-        {
-            get { return IdsOf(active); }
-        }
+        public List<string> ActiveIds { get { return IdsOf(active); } }
 
         // Шов сейва v5: живой набор выполненных id; врайтер пишет его копию.
-        public IReadOnlyCollection<string> CompletedIds
-        {
-            get { return completed; }
-        }
+        public IReadOnlyCollection<string> CompletedIds { get { return completed; } }
 
         // Восстановление слота (QuestSnapshot.Apply): выполненные id попадают в набор
         // без наград и событий — задача не выполнится повторно.
@@ -74,6 +62,8 @@ namespace Citybuilder
         // Граница тика: проверить активные, начислить награды, добрать задачи из каталога.
         public void Tick(int tick, QuestContext context, Treasury treasury, CityEventLog log)
         {
+            // Рейтинг до вех этого тика: событие пишется только при смене уровня.
+            int previousRating = MayorRating.Compute(CompletedCount, LastContext.Residents, LastContext.Balance);
             LastContext = context;
             // Буфер выполненных: событие стреляет после всех мутаций списка,
             // чтобы подписчик (например, вызвавший Reset) не сломал обход.
@@ -88,6 +78,8 @@ namespace Citybuilder
                 finished.Add(quest);
             }
             Fill(context);
+            int rating = MayorRating.Compute(CompletedCount, context.Residents, context.Balance);
+            MayorRating.Record(log, tick, rating, previousRating);
             FireCompleted(finished);
         }
 
