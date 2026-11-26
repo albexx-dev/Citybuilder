@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Citybuilder
@@ -11,8 +10,8 @@ namespace Citybuilder
         private QuestLogView questLog;
         private bool questLogSearched;
 
-        // Районы доступны адаптеру сцены: новые ссылки в инспекторе не нужны.
-        public DistrictPolicy Districts { get { return districts; } }
+        // Один набор районов с налогом: клик по строке меняет сбор в казне.
+        public DistrictPolicy Districts { get { return Economy != null ? Economy.Districts : districts; } }
 
         private void DrawCachedSections(float width)
         {
@@ -76,25 +75,38 @@ namespace Citybuilder
             return MayorRating.Label(quests.CompletedCount, context.Residents, context.Balance);
         }
 
-        // Строки районов: занятые распределяются теми же кумулятивными долями, что и по зонам.
+        // Строки районов: клик циклит ставку района, сбор идёт по тому же приоритету, что и в казне.
         private void DrawDistrictRows(ref float y)
         {
             if (Tax == null) return;
-            int[] ids = districts.DistrictIds();
-            Dictionary<int, int> employed = districts.DistributeEmployed(EmployedTotal());
-            for (int i = 0; i < ids.Length; i++)
+            DistrictPolicy policy = Districts;
+            for (int i = 0; i < BudgetZones.Length; i++)
             {
-                int count;
-                employed.TryGetValue(ids[i], out count);
-                HudText.Draw(12f, y, districts.LabelFor(Tax.Policy, ZoneType.Residential, ids[i], count));
-                y += 24f;
+                ZoneType zone = BudgetZones[i];
+                int district = policy.DistrictOfZone(zone);
+                if (district <= 0) continue;
+                string label = policy.LabelFor(Tax.Policy, zone, district, ZoneEmployed(zone));
+                if (GUI.Button(new Rect(4f, y, 260f, 26f), label))
+                {
+                    AudioController.PlayClickGlobal();
+                    policy.SetRate(district, NextLevel(policy.LevelFor(district)));
+                    RebuildCache();
+                }
+                y += 30f;
             }
         }
 
-        private int EmployedTotal()
+        private int ZoneEmployed(ZoneType zone)
         {
             if (Economy == null || Economy.Tax == null) return 0;
-            return Economy.Tax.EmployedPerZone().Total;
+            return Economy.Tax.EmployedPerZone().ByZone(zone);
+        }
+
+        private static TaxPolicy.Level NextLevel(TaxPolicy.Level level)
+        {
+            if (level == TaxPolicy.Level.Low) return TaxPolicy.Level.Normal;
+            if (level == TaxPolicy.Level.Normal) return TaxPolicy.Level.High;
+            return TaxPolicy.Level.Low;
         }
 
         private static void DrawSection(ref float y, string header, string line)

@@ -7,6 +7,7 @@ namespace Citybuilder
     public class DistrictPolicy
     {
         private readonly Dictionary<int, int> districtByCell = new Dictionary<int, int>();
+        private readonly Dictionary<ZoneType, int> districtByZone = new Dictionary<ZoneType, int>();
         private readonly Dictionary<int, TaxPolicy.Level> rates = new Dictionary<int, TaxPolicy.Level>();
         private readonly Dictionary<int, int> multipliers = new Dictionary<int, int>();
         private readonly Dictionary<int, int> seats = new Dictionary<int, int>();
@@ -19,6 +20,16 @@ namespace Citybuilder
         }
 
         public int DistrictOf(int cell) => districtByCell.ContainsKey(cell) ? districtByCell[cell] : 0;
+
+        // Зона → район: налог зоны берёт override этого района, если он задан.
+        public void AssignZone(ZoneType zone, int district)
+        {
+            if (zone == ZoneType.None || district <= 0) districtByZone.Remove(zone);
+            else districtByZone[zone] = district;
+        }
+
+        public int DistrictOfZone(ZoneType zone) => districtByZone.ContainsKey(zone) ? districtByZone[zone] : 0;
+
         // Ставка района. Битый уровень снимает override — фолбэк на зону.
         public void SetRate(int district, TaxPolicy.Level level)
         {
@@ -57,7 +68,14 @@ namespace Citybuilder
         public int RateForCell(TaxPolicy policy, ZoneType zone, int cell) => RateFor(policy, zone, DistrictOf(cell));
 
         public int IncomeFor(TaxPolicy policy, ZoneType zone, int district, int employed) =>
-            employed > 0 ? employed * RateFor(policy, zone, district) : 0;
+            IncomeFor(policy, zone, district, employed, 0);
+
+        // Сбор с занятых по ставке района с учётом бонуса рейтинга мэра.
+        public int IncomeFor(TaxPolicy policy, ZoneType zone, int district, int employed, int rating)
+        {
+            if (employed <= 0) return 0;
+            return employed * MayorRating.ModifyRate(RateFor(policy, zone, district), rating);
+        }
 
         // Рабочие места района: неизвестный район и неположительные значения пропускаются.
         public void AddSeats(int district, int count)
@@ -100,7 +118,7 @@ namespace Citybuilder
         // Новая игра: привязки клеток и все override'ы снимаются.
         public void Clear()
         {
-            districtByCell.Clear(); rates.Clear(); multipliers.Clear(); seats.Clear();
+            districtByCell.Clear(); districtByZone.Clear(); rates.Clear(); multipliers.Clear(); seats.Clear();
         }
 
         // Подпись строки района: «Район 2: высокий (4) +12 $/ч» (RU/EN из Localization).

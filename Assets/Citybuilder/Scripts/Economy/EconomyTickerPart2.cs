@@ -7,6 +7,40 @@ namespace Citybuilder
     // чтобы исходный файл не превышал мягкий лимит 150 строк.
     public partial class EconomyTicker : MonoBehaviour
     {
+        private DistrictPolicy districts;
+
+        // Районы зон: три корзины без override ставок. Один экземпляр для налога и инфоменю.
+        public DistrictPolicy Districts
+        {
+            get
+            {
+                if (districts == null)
+                {
+                    districts = new DistrictPolicy();
+                    MapZones(districts);
+                }
+                return districts;
+            }
+        }
+
+        // Рейтинг мэра из QuestSystem: модификатор ставки налога, 0 в начале партии.
+        public int MayorRatingValue;
+
+        private void ResetDistricts()
+        {
+            DistrictPolicy policy = Districts;
+            policy.Clear();
+            MapZones(policy);
+            MayorRatingValue = 0;
+        }
+
+        private static void MapZones(DistrictPolicy policy)
+        {
+            policy.AssignZone(ZoneType.Residential, 1);
+            policy.AssignZone(ZoneType.Commercial, 2);
+            policy.AssignZone(ZoneType.Industrial, 3);
+        }
+
         private void ReportCongestion(CityEventLog log, int tick)
         {
             if (Growth == null || Growth.Congestion == null || Growth.Congestion.GrowthTickMultiplier <= 1) return;

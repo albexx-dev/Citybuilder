@@ -32,10 +32,12 @@ namespace Citybuilder
         public CrimeSystem Crimes { get { return crimeTicker.Crimes; } }
         // Кредит партии: процент списывается на границе тика, долг виден в строке бюджета.
         public CreditLedger Credit { get { return credit; } }
+
         public void ResetSimulation()
         {
             eventThrottle.Reset(); fireTicker.Reset(); crimeTicker.Reset();
             credit = new CreditLedger();
+            ResetDistricts();
         }
         // Фактический налоговый доход за час: зональная политика или фиксированная ставка.
         public int IncomePerHour()
@@ -111,7 +113,8 @@ namespace Citybuilder
             if (Population.Population == null || Growth.Settlement == null || Treasury.Treasury == null) return;
             if (tax != null && tax.Treasury == Treasury.Treasury && employment != null) return;
             employment = new EmploymentSystem(Population.Population, Growth.Settlement, GetManualJobs);
-            tax = new TaxSystem(employment, Treasury.Treasury, BuildZonalJobs);
+            tax = new TaxSystem(employment, Treasury.Treasury, BuildZonalJobs,
+                Districts, () => MayorRatingValue);
         }
         private void Tick(int tickCount)
         {
