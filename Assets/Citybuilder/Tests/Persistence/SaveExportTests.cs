@@ -65,8 +65,8 @@ namespace Citybuilder
         [Test]
         public void FutureVersion_ExportAndImport_Rejected()
         {
-            CitySnapshot slot = Sample(6);
-            slot.Version = 7;
+            CitySnapshot slot = Sample(7);
+            slot.Version = 8;
             string file = SlotTransfer.DefaultPath(dir);
             Assert.IsFalse(SlotTransfer.Export(file, slot));
             Assert.IsFalse(File.Exists(file));
