@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Состояние дорожной сети: система, список и вид. Ввод живёт в RoadPlacementController.
-    public class RoadNetworkStore : MonoBehaviour
+    public partial class RoadNetworkStore : MonoBehaviour
     {
         [Header("References")]
         [Tooltip("Сетка. Обязателен: даёт Grid для RoadSystem.")]
@@ -46,30 +46,33 @@ namespace Citybuilder
                 if (View == null) View = gameObject.AddComponent<RoadView>();
             }
             if (system == null) system = new RoadSystem(GridVisualizer.Grid);
+            if (bridge == null) bridge = new BridgeRoadNetwork(GridVisualizer.Grid);
             return true;
         }
-        // Класть одну клетку активным типом: своя — пропуск, иначе system.Place и учёт.
+        // Мост уровня 2 кладётся через BridgeRoadNetwork, обычная дорога — через RoadSystem.
         public RoadState Place(GridPosition cell)
         {
             if (!EnsureReady() || system == null) return null;
+            if (IsBridgeActive())
+            {
+                RoadState bridgeState = PlaceBridge(cell);
+                if (bridgeState != null) states.Add(bridgeState);
+                return bridgeState;
+            }
             if (IsOwnRoadCell(cell)) return null;
             RoadState placed = system.Place(cell);
             if (placed == null) return null;
-            RoadState state = new RoadState(placed.Id, placed.Cell, ActiveTypeId);
-            states.Add(state);
-            return state;
+            RegisterStreet(cell);
+            states.Add(placed);
+            return placed;
         }
-        // Найти построенное на клетке. Нет — null.
-        public RoadState FindStateAt(GridPosition cell)
-        {
-            for (int i = 0; i < states.Count; i++) if (states[i].Cell == cell) return states[i];
-            return null;
-        }
+        // Найти построенное на клетке: верхний уровень (мост) имеет приоритет.
+        public RoadState FindStateAt(GridPosition cell) { return FindTopStateAt(cell); }
         // Снести построенное: снятие с сетки, учёт и RefreshOccupied. Вид обновляет вызывающий.
         public bool DemolishState(RoadState state)
         {
             if (!EnsureReady() || system == null || state == null) return false;
-            if (!system.Demolish(state)) return false;
+            if (!DemolishLayer(state)) return false;
             states.Remove(state);
             GridVisualizer.RefreshOccupied();
             return true;
@@ -77,11 +80,8 @@ namespace Citybuilder
         // Восстановить дорогу из сохранения: без оплаты, тип из записи (пусто = asphalt).
         public RoadState RestoreRoad(GridPosition cell, string typeId = "asphalt")
         {
-            if (!EnsureReady() || system == null) return null;
-            if (IsOwnRoadCell(cell)) return null;
-            RoadState placed = system.Place(cell);
-            if (placed == null) return null;
-            RoadState state = new RoadState(placed.Id, placed.Cell, typeId);
+            RoadState state = PlaceRestored(cell, typeId);
+            if (state == null) return null;
             states.Add(state);
             RefreshView();
             GridVisualizer.RefreshOccupied();
@@ -91,7 +91,7 @@ namespace Citybuilder
         public void ClearRoads()
         {
             if (!EnsureReady() || system == null) return;
-            for (int i = states.Count - 1; i >= 0; i--) system.Demolish(states[i]);
+            for (int i = states.Count - 1; i >= 0; i--) DemolishLayer(states[i]);
             states.Clear();
             RefreshView();
             GridVisualizer.RefreshOccupied();
@@ -100,6 +100,7 @@ namespace Citybuilder
         public bool CanPlace(GridPosition cell)
         {
             if (!EnsureReady() || system == null) return false;
+            if (IsBridgeActive()) return bridge.CanPlace(BridgeKey(cell), ActiveTypeId);
             return system.CanPlace(cell);
         }
         // Цена одной клетки по активному Definition. Без системы — 0.
@@ -108,13 +109,7 @@ namespace Citybuilder
             if (!EnsureReady() || system == null) return 0;
             return system.CellCost(ActiveDefinition);
         }
-        // Своя клетка = уже есть в states (сравнение по Cell).
-        public bool IsOwnRoadCell(GridPosition cell)
-        {
-            for (int i = 0; i < states.Count; i++) if (states[i].Cell == cell) return true;
-            return false;
-        }
-        // Перестроить вид: у каждого типа дороги свой цвет полотна.
+        // Перестроить вид: у каждого типа дороги свой цвет полотна, мосты — отдельно.
         public void RefreshView()
         {
             if (!EnsureReady()) return;
@@ -129,11 +124,13 @@ namespace Citybuilder
             for (int i = 0; i < states.Count; i++)
             {
                 string typeId = states[i].TypeId;
+                if (IsBridgeTypeId(typeId)) continue;
                 List<GridPosition> cells;
                 if (!groups.TryGetValue(typeId, out cells)) { cells = new List<GridPosition>(); groups[typeId] = cells; }
                 cells.Add(states[i].Cell);
             }
             View.RebuildByType(groups, GridVisualizer.Grid.CellSize, colors);
+            RefreshBridgeView(colors);
         }
     }
 }
