@@ -12,8 +12,10 @@ namespace Citybuilder
 
         public MarketPricePolicy() : this(DefaultMultiplier) { }
 
+        public MarketPricePolicy(double multiplier) { Restore(multiplier); }
+
         // Нечисло, бесконечность и неположительный множитель — нейтральный дефолт.
-        public MarketPricePolicy(double multiplier)
+        public void Restore(double multiplier)
         {
             bool valid = !double.IsNaN(multiplier) && !double.IsInfinity(multiplier) && multiplier > 0.0;
             Multiplier = valid ? multiplier : DefaultMultiplier;

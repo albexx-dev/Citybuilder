@@ -17,6 +17,14 @@ namespace Citybuilder
             InterestPercent = interestPercent < 0 ? 0 : interestPercent > 100 ? 100 : interestPercent;
         }
 
+        // Восстановление из слота v7 (ADR-022): долг — текущий остаток, тело приравнивается к нему.
+        public void Restore(int outstanding, int interestPercent)
+        {
+            Outstanding = outstanding < 0 ? 0 : outstanding;
+            Principal = Outstanding;
+            InterestPercent = interestPercent < 0 ? 0 : interestPercent > 100 ? 100 : interestPercent;
+        }
+
         // Тело кредита пополняет казну; неположительная сумма игнорируется.
         public bool Borrow(Treasury treasury, int amount)
         {

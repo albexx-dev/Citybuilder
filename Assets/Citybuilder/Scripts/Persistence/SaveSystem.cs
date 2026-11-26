@@ -109,6 +109,9 @@ namespace Citybuilder
                 CitySnapshot.RoadEntry entry = new CitySnapshot.RoadEntry();
                 entry.X = roads[i].Cell.X;
                 entry.Y = roads[i].Cell.Y;
+                // v7 (ADR-022): тип и уровень дороги приходят из RoadState.
+                entry.Type = roads[i].TypeId;
+                entry.Level = roads[i].Level;
                 snapshot.Roads.Add(entry);
             }
         }
