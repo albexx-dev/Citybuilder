@@ -7,8 +7,8 @@ namespace Citybuilder
     public class GridVisualizer : MonoBehaviour
     {
         [Header("Grid")]
-        [Tooltip("Клеток по X.")] public int Width = 50;
-        [Tooltip("Клеток по Y.")] public int Height = 50;
+        [Tooltip("Клеток по X.")] public int Width = 100;
+        [Tooltip("Клеток по Y.")] public int Height = 100;
         [Tooltip("Размер клетки в метрах.")] public float CellSize = 1f;
         [Header("Colors")]
         public Color LineColor = Color.white;

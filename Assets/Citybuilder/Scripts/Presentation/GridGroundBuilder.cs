@@ -49,7 +49,7 @@ namespace Citybuilder
             max = new Vector3(SideLength(cellsX, cellSize), y, SideLength(cellsZ, cellSize));
         }
 
-        // Границы воды: на BorderWidth шире земли с каждой стороны (62x62 при 50x50).
+        // Границы воды: на BorderWidth шире земли с каждой стороны карты.
         public static void BorderBounds(int cellsX, int cellsZ, float cellSize, float y,
             out Vector3 min, out Vector3 max)
         {

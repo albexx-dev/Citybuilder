@@ -30,10 +30,22 @@ namespace Citybuilder
         public float MaxHeight = 80f;
 
         [Header("Map")]
-        [Tooltip("Ширина карты по X в метрах.")]
-        public float MapWidth = 50f;
-        [Tooltip("Длина карты по Z в метрах.")]
-        public float MapHeight = 50f;
+        [Tooltip("Визуализатор: единственный источник размеров карты (Grid.Size × CellSize).")]
+        public GridVisualizer Visualizer;
+
+        // Запасные границы нужны только headless-тестам без визуализатора.
+        private float mapWidth;
+        private float mapHeight;
+        public float MapWidth
+        {
+            get { return Visualizer == null ? mapWidth : Visualizer.Grid.Size.Width * Visualizer.Grid.CellSize; }
+            set { mapWidth = value; }
+        }
+        public float MapHeight
+        {
+            get { return Visualizer == null ? mapHeight : Visualizer.Grid.Size.Height * Visualizer.Grid.CellSize; }
+            set { mapHeight = value; }
+        }
         [Tooltip("Запас выхода камеры за край карты в метрах.")]
         public float Margin = 10f;
 

@@ -30,7 +30,7 @@ namespace Citybuilder
         public float ModelScale = 1f;
 
         [Header("Visibility")]
-        [Tooltip("Дальность в клетках: диагональ карты 50×50 ≈71; при зуме выше — не менее высоты камеры.")]
+        [Tooltip("Дальность в клетках: не менее диагонали карты и высоты камеры при зуме.")]
         public float ViewDistanceCells = 72f;
         [Tooltip("Запас по краю пирамиды в клетках, чтобы машины не дёргались.")]
         public float FrustumMarginCells = 2f;
