@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Citybuilder
 {
     // Запись слота сохранений: F5 пишет слот 0; SaveNow(slot) поддерживает слоты 0..2 и autosave (EPIC-11).
-    public class SaveController : MonoBehaviour
+    public partial class SaveController : MonoBehaviour
     {
         [Header("References")]
         [Tooltip("Население. Опционален: иначе ищется на этом же объекте.")] public PopulationController Population;
