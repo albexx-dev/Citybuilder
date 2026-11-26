@@ -19,6 +19,7 @@ namespace Citybuilder
             values["decor_flowerbed"] = new[] { "Клумба", "Flower bed" };
             values["decor_topiary"] = new[] { "Фигурное дерево", "Topiary" };
             values["budget_breakdown_credit"] = new[] { "Налоги {0} - Содержание {1} - Кражи {2} + Награды {3} - Процент {4} = {5} $/ч | Долг {6}", "Tax {0} - Upkeep {1} - Theft {2} + Rewards {3} - Interest {4} = {5} $/h | Debt {6}" };
+            values["tick_p95_line"] = new[] { "Тик p95: {0} мс / {1}", "Tick p95: {0} ms / {1}" };
         }
     }
 }
