@@ -7,7 +7,6 @@ namespace Citybuilder
     public static class SaveV7Snapshot
     {
         public const int Version = 7;
-        public const int MapCells = 50;
         public const int MaxRoadType = 3;
         public const int MaxRoadLevel = 3;
         // Запись нейтральных значений, если доменные системы ещё не наполнили поля.
@@ -44,7 +43,7 @@ namespace Citybuilder
                 if (road.Type < 0 || road.Type > MaxRoadType) road.Type = 0;
                 if (road.Level == 0) road.Level = 1;
                 if (road.Level < 1 || road.Level > MaxRoadLevel) road.Level = 1;
-                long key = ((long)road.X * MapCells + road.Y) * 4 + road.Level;
+                long key = ((long)road.X * SaveV6Snapshot.MapCells + road.Y) * 4 + road.Level;
                 int index;
                 if (indexByCell.TryGetValue(key, out index)) { result[index] = road; continue; }
                 indexByCell.Add(key, result.Count);
@@ -68,7 +67,7 @@ namespace Citybuilder
                 if (entry.Rate < 1 || entry.Rate > 3) continue;
                 int index;
                 if (indexById.TryGetValue(entry.DistrictId, out index)) { result[index] = entry; continue; }
-                if (result.Count >= MapCells * MapCells) continue;
+                if (result.Count >= SaveV6Snapshot.MapCells * SaveV6Snapshot.MapCells) continue;
                 indexById.Add(entry.DistrictId, result.Count);
                 result.Add(entry);
             }

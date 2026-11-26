@@ -35,7 +35,9 @@ namespace Citybuilder
                 snapshot.ComfortStreak.Add(entry);
             }
         }
-        public const int MapCells = 50;
+        // _GRID 100×100 в v1.4.5: значение берётся из конфигурации GridVisualizer.
+        // Единственный источник капа координат в персистентности (SaveSlotStorage, SaveV7Snapshot).
+        public const int MapCells = 100;
         public const int MaxConstructionTicks = 10000;
         public const int MaxStreakMagnitude = 10000;
         // Загрузка и импорт применяют оба прохода: v6 и v7 (ADR-014, ADR-022).

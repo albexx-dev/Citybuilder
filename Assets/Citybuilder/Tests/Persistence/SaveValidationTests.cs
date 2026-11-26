@@ -20,7 +20,7 @@ namespace Citybuilder
         public void Validate_RejectsZoneOutsideMap()
         {
             CitySnapshot snapshot = ValidSnapshot();
-            snapshot.Zones.Add(new CitySnapshot.ZoneEntry { X = 50, Y = 0, Type = (int)ZoneType.Residential });
+            snapshot.Zones.Add(new CitySnapshot.ZoneEntry { X = 100, Y = 0, Type = (int)ZoneType.Residential });
             Assert.IsFalse(SaveSlotStorage.Validate(snapshot));
         }
 
@@ -36,7 +36,7 @@ namespace Citybuilder
         public void Validate_RejectsBuildingOutsideMap()
         {
             CitySnapshot snapshot = ValidSnapshot();
-            snapshot.Buildings.Add(new CitySnapshot.BuildingEntry { DefId = "House", X = 0, Y = 50 });
+            snapshot.Buildings.Add(new CitySnapshot.BuildingEntry { DefId = "House", X = 0, Y = 100 });
             Assert.IsFalse(SaveSlotStorage.Validate(snapshot));
         }
 
@@ -50,10 +50,19 @@ namespace Citybuilder
                 BuildingIndex = 0,
                 Size = 2,
                 HasHome = true,
-                HomeX = 99,
+                HomeX = 100,
                 HomeY = 0
             });
             Assert.IsFalse(SaveSlotStorage.Validate(snapshot));
+        }
+
+        [Test]
+        public void Validate_AcceptsCoordinatesBelowMapLimit()
+        {
+            CitySnapshot snapshot = ValidSnapshot();
+            snapshot.Zones.Add(new CitySnapshot.ZoneEntry { X = 99, Y = 99, Type = (int)ZoneType.Residential });
+            snapshot.Roads.Add(new CitySnapshot.RoadEntry { X = 99, Y = 98 });
+            Assert.IsTrue(SaveSlotStorage.Validate(snapshot));
         }
 
         [Test]
