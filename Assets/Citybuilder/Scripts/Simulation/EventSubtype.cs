@@ -8,6 +8,9 @@ namespace Citybuilder
         None = 0,
         FireStart = 1,
         Burned = 2,
-        Extinguished = 3
+        Extinguished = 3,
+        DecisionOffered = 4,
+        DecisionSuppressed = 5,
+        DecisionIgnored = 6
     }
 }
