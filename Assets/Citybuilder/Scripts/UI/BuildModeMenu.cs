@@ -97,6 +97,21 @@ namespace Citybuilder
             Zones.Brush = zone;
         }
 
+        // Активный тип дороги для панели и E2E-моста (issue #163).
+        public string ActiveRoadTypeId
+        {
+            get { return Roads != null && Roads.Store != null ? Roads.Store.ActiveTypeId : "asphalt"; }
+        }
+
+        // Выбрать тип дороги из Definition'ов стора. Пусто/неизвестный id — без изменений.
+        public bool SetRoadType(string id)
+        {
+            EnsureRefs();
+            if (Roads == null) return false;
+            if (Roads.Store == null) Roads.Store = Roads.GetComponent<RoadNetworkStore>();
+            return Roads.Store != null && Roads.Store.SetActiveDefinition(id);
+        }
+
         // Ленивый добор недостающих ссылок на том же объекте.
         private void EnsureRefs()
         {
