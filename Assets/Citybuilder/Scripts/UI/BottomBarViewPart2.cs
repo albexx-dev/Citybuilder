@@ -22,6 +22,28 @@ namespace Citybuilder
             }
         }
 
+        // Переключатель типов дорог в строке панели (issue #163). Имена берутся из RU/EN ассетов.
+        private void DrawRoadTypes(float sw, float sh)
+        {
+            RoadDefinition[] defs = Menu != null && Menu.Roads != null && Menu.Roads.Store != null
+                ? Menu.Roads.Store.Definitions : null;
+            if (defs == null || defs.Length == 0) { UiClickGuard.Set("bottom_subrow", new Rect()); return; }
+            Rect popup = HudLayout.PaletteRect(sw, sh, defs.Length);
+            UiClickGuard.Set("bottom_subrow", popup);
+            BottomBarStyle.DrawPopupBackground(popup);
+            for (int i = 0; i < defs.Length; i++)
+            {
+                if (defs[i] == null) continue;
+                float x = popup.x + i * (HudLayout.PaletteButtonWidth + HudLayout.ButtonGap);
+                Rect rect = new Rect(x, popup.y, HudLayout.PaletteButtonWidth, popup.height);
+                string key = defs[i].DisplayNameKey;
+                string label = !string.IsNullOrEmpty(key) && Localization.Has(key) ? Localization.T(key) : defs[i].DisplayName;
+                bool active = Menu.ActiveRoadTypeId == defs[i].Id;
+                if (BottomBarStyle.DrawButton(rect, IconBook.Get("road"), label, Localization.T("bottom_mode_roads"), active))
+                    Menu.SetRoadType(defs[i].Id);
+            }
+        }
+
         // Подписи считаются каждый кадр: язык мог смениться между отрисовками IMGUI.
         private static string[] Localized(string[] keys)
         {

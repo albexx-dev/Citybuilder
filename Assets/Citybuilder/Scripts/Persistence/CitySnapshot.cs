@@ -42,6 +42,10 @@ namespace Citybuilder
         {
             public int X;
             public int Y;
+            // v7 (ADR-018, issue #163/165): Id типа и уровень дороги. Пусто/0 = старая запись → asphalt, level 0.
+            // Запись, чтение и нормализацию добавляет задача #165; здесь только поля контракта.
+            public string Type;
+            public int Level;
         }
 
         // v6 (ADR-014): опциональные записи. В слотах v1–v5 полей нет — читается как пусто/0.

@@ -1,15 +1,18 @@
 namespace Citybuilder
 {
-    // Снимок построенного сегмента дороги: кто и какую клетку занимает.
+    // Снимок построенного сегмента дороги: кто, какую клетку занимает и какого типа.
     public class RoadState
     {
         public EntityId Id { get; private set; }
         public GridPosition Cell { get; private set; }
+        // v7 (ADR-018): Id типа дороги. Пусто и старые записи читаются как asphalt.
+        public string TypeId { get; private set; }
 
-        public RoadState(EntityId id, GridPosition cell)
+        public RoadState(EntityId id, GridPosition cell, string typeId = "asphalt")
         {
             Id = id;
             Cell = cell;
+            TypeId = string.IsNullOrEmpty(typeId) ? "asphalt" : typeId;
         }
     }
 }

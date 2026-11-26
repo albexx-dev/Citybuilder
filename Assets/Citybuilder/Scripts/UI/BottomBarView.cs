@@ -114,6 +114,11 @@ namespace Citybuilder
 
         private void DrawSubRow(float sw, float sh)
         {
+            if (Menu != null && Menu.CurrentMode == BuildModeMenu.Mode.Roads)
+            {
+                DrawRoadTypes(sw, sh);
+                return;
+            }
             if (Menu != null && Menu.CurrentMode == BuildModeMenu.Mode.Zones)
             {
                 DrawZoneBrushes(sw, sh);
