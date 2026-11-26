@@ -96,6 +96,24 @@ namespace Citybuilder
             Assert.Greater(System.Math.Abs(HudText.PulseColor(0f).g - HudText.PulseColor(0.4f).g), 0.01f);
         }
 
+        [Test]
+        public void FogState_RestoresSceneSettingsWhenCycleDisabled()
+        {
+            RenderSettings.fog = false;
+            RenderSettings.fogColor = new Color(0.2f, 0.3f, 0.4f);
+            RenderSettings.fogDensity = 0.01f;
+            RenderSettings.fogMode = FogMode.Linear;
+            FogPresentationState state = new FogPresentationState();
+            state.Apply(true, DayNightPolicy.Sample(0f, 3));
+            Assert.AreEqual(true, RenderSettings.fog);
+            Assert.Greater(RenderSettings.fogDensity, 0.01f);
+            state.Apply(false, DayNightPolicy.Noon());
+            Assert.AreEqual(false, RenderSettings.fog);
+            Assert.AreEqual(0.2f, RenderSettings.fogColor.r, Delta);
+            Assert.AreEqual(0.01f, RenderSettings.fogDensity, Delta);
+            Assert.AreEqual(FogMode.Linear, RenderSettings.fogMode);
+        }
+
         private static void AssertSameFog(DayNightSample expected, DayNightSample actual)
         {
             Assert.AreEqual(expected.FogDensity, actual.FogDensity, Delta);

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -40,14 +41,28 @@ namespace Citybuilder
             GUI.color = saved;
         }
 
-        // Кнопка (EPIC-19); ADR-021: пульс активной, цвет возвращается в finally.
+        // Кнопка (EPIC-19): общий хелпер даёт пульс и возврат цвета.
         public static bool DrawButton(Rect rect, string label, bool highlighted)
+        {
+            return DrawWithPulse(highlighted, () => GUI.Button(rect, label));
+        }
+
+        // Кнопка с иконкой (EPIC-66): активная пульсирует так же, как текстовая.
+        public static bool DrawButton(Rect rect, Texture2D icon, string label, bool highlighted)
+        {
+            bool clicked = DrawWithPulse(highlighted, () => GUI.Button(rect, string.Empty));
+            DrawIconAndLabel(rect, icon, label);
+            return clicked;
+        }
+
+        // Единая точка подмены/возврата GUI.backgroundColor для всех кнопок (ADR-021).
+        private static bool DrawWithPulse(bool highlighted, Func<bool> draw)
         {
             Color saved = GUI.backgroundColor;
             try
             {
                 if (highlighted) GUI.backgroundColor = HudText.PulseColor(Time.unscaledTime);
-                bool clicked = GUI.Button(rect, label);
+                bool clicked = draw();
                 if (clicked) AudioController.PlayClickGlobal();
                 return clicked;
             }
@@ -55,21 +70,6 @@ namespace Citybuilder
             {
                 GUI.backgroundColor = saved;
             }
-        }
-
-        // Кнопка с иконкой слева и подписью (EPIC-66): null-иконка деградирует в текстовую кнопку.
-        public static bool DrawButton(Rect rect, Texture2D icon, string label, bool highlighted)
-        {
-            Color saved = GUI.backgroundColor;
-            if (highlighted)
-            {
-                GUI.backgroundColor = Color.yellow;
-            }
-            bool clicked = GUI.Button(rect, string.Empty);
-            GUI.backgroundColor = saved;
-            DrawIconAndLabel(rect, icon, label);
-            if (clicked) AudioController.PlayClickGlobal();
-            return clicked;
         }
 
         // Кнопка с иконкой и тултипом: подсказка показывается при наведении (EPIC-66).

@@ -28,10 +28,12 @@ namespace Citybuilder
 
         private Light sun;
         private Light moon;
+        private FogPresentationState fogState;
 
         private void OnEnable()
         {
             if (!EnsureReady()) return;
+            fogState.Save();
             Runner.Clock.TickCompleted += OnClockTick;
             Apply(ClockHour());
         }
@@ -39,6 +41,7 @@ namespace Citybuilder
         private void OnDisable()
         {
             if (Runner != null && Runner.Clock != null) Runner.Clock.TickCompleted -= OnClockTick;
+            fogState.Restore();
         }
 
         private void OnValidate()
@@ -125,10 +128,7 @@ namespace Citybuilder
             }
             RenderSettings.ambientLight = new Color(sample.AmbientR * sample.SeasonTintR,
                 sample.AmbientG * sample.SeasonTintG, sample.AmbientB * sample.SeasonTintB);
-            RenderSettings.fog = true;
-            RenderSettings.fogMode = FogMode.ExponentialSquared;
-            RenderSettings.fogColor = new Color(sample.FogR, sample.FogG, sample.FogB);
-            RenderSettings.fogDensity = sample.FogDensity;
+            fogState.Apply(DayNightEnabled, sample);
         }
 
         // Сезон выводится из существующего DayNumber: нового состояния и синглтонов нет.
