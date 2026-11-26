@@ -50,7 +50,7 @@ Connected systems:
 
 ## Download
 
-The Windows64 build for v1.4.5 is published by the orchestrator after the green gate (#171): `Citybuilder-v1.4.5-windows64.zip` on the [GitHub Releases](https://github.com/albexx-dev/Citybuilder/releases) page. The previous released build is [v1.4.2](https://github.com/albexx-dev/Citybuilder/releases/tag/v1.4.2) (`Citybuilder-v1.4.2-windows64.zip`).
+Download the current [v1.4.5 release](https://github.com/albexx-dev/Citybuilder/releases/tag/v1.4.5): `Citybuilder-v1.4.5-windows64.zip` (SHA-256 `f75e76900406896769641565c5fe90d22e2e03aec633ec541e25a70b984f2811`). Screenshots: [day](https://github.com/albexx-dev/Citybuilder/releases/download/v1.4.5/v145-day.png), [night](https://github.com/albexx-dev/Citybuilder/releases/download/v1.4.5/v145-night.png), [roads](https://github.com/albexx-dev/Citybuilder/releases/download/v1.4.5/v145-roads-1.png). The previous released build is [v1.4.2](https://github.com/albexx-dev/Citybuilder/releases/tag/v1.4.2).
 
 ## Regenerating audio
 
