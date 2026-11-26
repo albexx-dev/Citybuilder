@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Citybuilder
 {
@@ -13,6 +14,12 @@ namespace Citybuilder
         // Занятость клетки: в сцене — GridSystem.IsOccupied, в тестах — fake. null = всё свободно.
         public Func<GridPosition, bool> IsBlocked;
 
+        // Цели Home/Work/Shop (issue #166): хост задаёт рабочие места и магазины один раз
+        // при изменении населения; в Advance только чтение и вращение курсора, без аллокаций.
+        private IReadOnlyList<GridPosition> works;
+        private IReadOnlyList<GridPosition> shops;
+        private int purposeCursor;
+
         private static readonly GridPosition[] Offsets =
             { new GridPosition(1, 0), new GridPosition(-1, 0), new GridPosition(0, 1), new GridPosition(0, -1) };
 
@@ -25,11 +32,45 @@ namespace Citybuilder
         public PedestrianWanderPolicy(int seed) { this.seed = seed; }
 
         // Сброс серии («Новая игра»/загрузка): тот же seed снова даёт те же цели.
-        public void Reset() { pickSequence = 0; }
+        public void Reset() { pickSequence = 0; purposeCursor = 0; }
+
+        // Набор целей: работа и магазин; пустые списки возвращают старое блуждание.
+        public void SetDestinations(IReadOnlyList<GridPosition> workCells, IReadOnlyList<GridPosition> shopCells)
+        { works = workCells; shops = shopCells; purposeCursor = 0; }
+
+        // Цель вращается Work → Shop → Home; выбор свободной клетки рядом со зданием.
+        private bool TryPickPurpose(GridPosition home, out GridPosition goal)
+        {
+            goal = default(GridPosition);
+            int workCount = Count(works), shopCount = Count(shops);
+            GridPosition homeCell;
+            if (workCount + shopCount == 0 || !TrySpawnCell(home, out homeCell)) return false;
+            for (int i = 0; i <= workCount + shopCount; i++)
+            {
+                int index = purposeCursor + i;
+                if (index >= workCount + shopCount)
+                {
+                    purposeCursor = index + 1;
+                    goal = homeCell;
+                    return true;
+                }
+                bool work = workCount > 0 && (shopCount == 0 || index % 2 == 0);
+                IReadOnlyList<GridPosition> source = work ? works : shops;
+                GridPosition cell;
+                if (!TrySpawnCell(source[index % source.Count], out cell)) continue;
+                purposeCursor = index + 1;
+                goal = cell;
+                return true;
+            }
+            return false;
+        }
+
+        private static int Count(IReadOnlyList<GridPosition> list) { return list == null ? 0 : list.Count; }
 
         // Случайная свободная цель на манхэттен-расстоянии 6-10 от дома. Максимум GoalAttempts попыток.
         public bool TryPickGoal(GridPosition home, out GridPosition goal)
         {
+            if (TryPickPurpose(home, out goal)) return true;
             int sequence = pickSequence;
             pickSequence += GoalAttempts;
             for (int attempt = 0; attempt < GoalAttempts; attempt++)
