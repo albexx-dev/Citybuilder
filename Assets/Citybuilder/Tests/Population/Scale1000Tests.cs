@@ -77,7 +77,7 @@ namespace Citybuilder
         [Test]
         public void MoveInPace_1300Residents_UnderTimeBudget()
         {
-            float interval = PopulationController.EffectiveInterval(3f, 1.5f);
+            float interval = PopulationController.EffectiveInterval(PopulationController.DefaultMoveInIntervalSec, 1.5f);
             Assert.AreEqual(2f, interval, 1e-4f);
             Assert.LessOrEqual(Homes * interval, 1200f);
         }

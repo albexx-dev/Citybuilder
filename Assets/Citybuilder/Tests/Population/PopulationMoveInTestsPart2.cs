@@ -26,6 +26,8 @@ namespace Citybuilder
                 SimulationRunner runner = go.AddComponent<SimulationRunner>();
                 PopulationController pop = go.AddComponent<PopulationController>();
                 pop.Runner = runner;
+                // Проверяем только масштабирование скорости: длинный интервал исключает въезд и сброс таймера.
+                pop.MoveInIntervalSec = 100f;
                 runner.SetSpeed(SimulationSpeed.Paused);
                 pop.Timer = 0f; pop.Tick(1f);
                 Assert.AreEqual(0f, pop.Timer);
