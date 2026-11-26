@@ -2,9 +2,9 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [v1.4.5] - X
+## [v1.4.5] - 2026-11-26
 
-«Большой город» — шаг 19/20 (issue #171). Дата релиза `X`, итоговые числа тестов `X` и `bundleVersion` финализирует оркестратор на гейте; этой правкой `ProjectSettings/` не трогается.
+«Большой город» — итог 20 задач (#153–#172). Дата релиза 2026-11-26, `bundleVersion: 1.4.5`.
 
 ### Added
 
@@ -17,13 +17,13 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Changed
 
-- `ARCHITECTURE.md`, `GAME_DESIGN.md`, `README.md`, `ONBOARDING.md`, `CONTRIBUTING.md`, `.github/PULL_REQUEST_TEMPLATE.md` приведены к факту v1.4.5; числа тестов заменены плейсхолдерами `X` до финального гейта.
+- `ARCHITECTURE.md`, `GAME_DESIGN.md`, `README.md`, `ONBOARDING.md`, `CONTRIBUTING.md`, `.github/PULL_REQUEST_TEMPLATE.md` приведены к факту v1.4.5; числа тестов зафиксированы на финальном гейте.
 - Баланс v1.2/v1.4.1 не изменился: `EffectiveUpkeepPolicy` (÷8), лестница 1/2/4 и базовые ассеты работают как раньше — при множителе ×1 и без районов расчёты совпадают с v1.4.2.
 
 ### Verification
 
 - `python Tools/ValidateRepo.py` — `OK`, 0 `ERROR`.
-- EditMode: `X` тестов в `X` файлах; PlayMode: `X`; Play-E2E — скриншоты и итоговые числа добавляет оркестратор на гейте #171.
+- EditMode: 1241 тестов в 182 файлах (1015 `[Test]` + 226 `[TestCase]`); PlayMode: 2; Play-E2E — скриншоты `v145-day`, `v145-night`, `v145-roads`, консоль 0 error / 0 warning.
 
 ## [v1.4.2] - 2026-11-26
 

@@ -14,7 +14,7 @@ Closes #
 ## Checklist
 
 - [ ] `python Tools/ValidateRepo.py` passes locally (no `ERROR` lines)
-- [ ] Unity **6000.3.25f1**, Test Runner → EditMode → assembly `Tests` (`X` tests in `X` files: `X` `[Test]` + `X` `[TestCase]`; final counts are set by the orchestrator at the v1.4.5 gate, #171) is green
+- [ ] Unity **6000.3.25f1**, Test Runner → EditMode → assembly `Tests` (1241 tests in 182 files: 1015 `[Test]` + 226 `[TestCase]`; counts fixed at the v1.4.5 gate, #171) is green
 - [ ] New or renamed Unity assets are committed together with their `.meta` files
 - [ ] No `Library/`, `Temp/`, `Logs/`, `Obj/`, `UserSettings/`, `Builds/`, `Screenshots/` or local configs are in the diff
 - [ ] No secrets, personal absolute paths or machine-specific settings are committed

@@ -1,6 +1,6 @@
 # Citybuilder
 
-3D city-building simulation in Unity 6 / C#. Current release: **v1.4.5** — «Большой город»: 100×100 grid, 1000+ residents, four road types with bridges, market/credits/districts/mayor rating, player decisions, seasons/weather, save v7; RU/EN localization (225 keys), visible systems and an endless city (no win/lose screens). Итоговые числа тестов и `bundleVersion` финализирует оркестратор на гейте #171 (`X` в документах — плейсхолдеры).
+3D city-building simulation in Unity 6 / C#. Current release: **v1.4.5** — «Большой город»: 100×100 grid, 1000+ residents, four road types with bridges, market/credits/districts/mayor rating, player decisions, seasons/weather, save v7; RU/EN localization (225 keys), visible systems and an endless city (no win/lose screens). Итоги гейта #171: 1241 EditMode-тест в 182 файлах, 2 PlayMode-теста, `bundleVersion: 1.4.5`.
 
 ## New here? / Новому участнику
 
@@ -33,7 +33,7 @@ Connected systems:
 
 - Unity **6000.3.25f1** (exact version in `ProjectSettings/ProjectVersion.txt`), Built-in Render Pipeline, one scene `Assets/Citybuilder/Scenes/Prototype.unity`; UI is IMGUI only.
 - Git LFS (`git lfs install`) — 19 tracked objects (textures and icons). Without it those files stay pointers.
-- `X` EditMode tests in `X` files (`X` `[Test]` + `X` `[TestCase]`) and `X` PlayMode tests; run them via Unity Test Runner → EditMode/PlayMode. Final counts are set by the orchestrator at the v1.4.5 gate (#171) — `X` is a placeholder, not a measured number. CI runs the required `Static validation` check on every PR, but the `Unity EditMode tests` job is skipped until repository variable `ENABLE_UNITY_TESTS=true` and Unity license secrets are set — until then EditMode is a manual gate.
+- 1241 EditMode tests in 182 files (1015 `[Test]` + 226 `[TestCase]`) and 2 PlayMode tests; run them via Unity Test Runner → EditMode/PlayMode. Counts measured at the v1.4.5 gate (#171). CI runs the required `Static validation` check on every PR, but the `Unity EditMode tests` job is skipped until repository variable `ENABLE_UNITY_TESTS=true` and Unity license secrets are set — until then EditMode is a manual gate.
 - Python 3.10+ for the static validator `Tools/ValidateRepo.py`.
 - Optional MCP stack: Unity bridge on `127.0.0.1:8080`, Blender 4.5 LTS MCP on `127.0.0.1:9876`.
 

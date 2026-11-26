@@ -50,7 +50,7 @@ python Tools/ValidateRepo.py
 
 Ожидается строка `OK: N tracked files, M unique GUIDs, K warning(s)`. `WARN` про мягкий лимит в 150 строк на C#-файл — это не ошибка, `ERROR` быть не должно.
 
-В Unity: **Window → General → Test Runner → EditMode → Run All**. Актуальная база — **`X` тестов в `X` файлах** (`X` `[Test]` + `X` `[TestCase]`), плюс `X` PlayMode-тестов; все должны быть зелёными. `X` — плейсхолдер: итоговые числа фиксирует оркестратор на гейте v1.4.5 (#171).
+В Unity: **Window → General → Test Runner → EditMode → Run All**. Актуальная база — **1241 тестов в 182 файлах** (1015 `[Test]` + 226 `[TestCase]`), плюс 2 PlayMode-теста; все должны быть зелёными. Итоговые числа зафиксированы на гейте v1.4.5 (#171).
 
 Сборка: **File → Build Settings** → сцена `Prototype.unity` уже добавлена → **Build**.
 
