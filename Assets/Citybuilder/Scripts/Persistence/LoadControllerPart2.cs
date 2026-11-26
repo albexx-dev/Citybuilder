@@ -49,6 +49,16 @@ namespace Citybuilder
             ConstructionSnapshot.RestoreAll(snapshot, Growth, Zones == null ? null : Zones.GridVisualizer, Placement);
         }
 
+        // v7 (ADR-022): новая игра и загрузка начинаются с нейтрального состояния партии.
+        private void ResetV7()
+        {
+            RestoredMayorRating = 0;
+            RestoredMilestoneCounterV2 = 0;
+            if (Credit != null) Credit.Restore(0, 0);
+            if (Market != null) Market.Restore(1f);
+            if (Districts != null) Districts.Clear();
+        }
+
         // v7 (ADR-022): дороги с типом/уровнем и опциональные поля; старые слоты дают дефолты v6.
         private void ApplyV7(CitySnapshot snapshot)
         {

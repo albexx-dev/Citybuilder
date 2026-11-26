@@ -55,8 +55,6 @@ namespace Citybuilder
             if (Treasury != null) Treasury.ResetBalance(Treasury.StartingBalance);
             if (Runner != null && Runner.Clock != null) Runner.Clock.RestoreTime(0);
             if (Policy != null) Policy.Policy.Set(TaxPolicy.Level.Normal);
-            RestoredMayorRating = 0;
-            RestoredMilestoneCounterV2 = 0;
             SaveController save = GetComponent<SaveController>();
             if (save != null) save.ClearDirty();
             TutorialView tut = FindFirstObjectByType<TutorialView>();
@@ -83,6 +81,7 @@ namespace Citybuilder
         public void ClearAll()
         {
             // ID, горение и кражи не сериализуются: повторная загрузка даёт те же номера и чистое состояние.
+            ResetV7();
             EntityId.Reset();
             ConstructionSnapshot.Clear();
             if (Demolition != null) Demolition.ClearGrown();
