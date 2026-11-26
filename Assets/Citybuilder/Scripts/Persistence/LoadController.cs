@@ -93,6 +93,8 @@ namespace Citybuilder
             if (goal != null) goal.RestoreStage(0);
             EventLogView eventLog = FindFirstObjectByType<EventLogView>();
             if (eventLog != null) eventLog.ClearLog();
+            DecisionPanel decisions = FindFirstObjectByType<DecisionPanel>();
+            if (decisions != null) decisions.ResetDecisions();
             EconomyTicker ticker = FindFirstObjectByType<EconomyTicker>();
             if (ticker != null) ticker.ResetSimulation();
             MetricsRecorder metricsRecorder = FindFirstObjectByType<MetricsRecorder>();

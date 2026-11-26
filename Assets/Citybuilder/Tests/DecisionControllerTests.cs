@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Citybuilder
 {
@@ -88,6 +89,50 @@ namespace Citybuilder
                 EventMessageCatalog.DecisionSuppressButton, EventMessageCatalog.DecisionIgnoreButton };
             foreach (string key in keys) Assert.IsTrue(Localization.Has(key), key);
             Assert.AreEqual("Тушить за $25", Localization.T(EventMessageCatalog.DecisionSuppressButton, 25));
+        }
+
+        [Test]
+        public void Resolve_UsesCurrentTick_WhenLaterThanOffer()
+        {
+            Assert.IsTrue(controller.Expected(5, 12));
+            Assert.IsTrue(controller.Resolve(5, true, 31));
+            CityEvent resolved = log.Snapshot()[1];
+            Assert.AreEqual(31, resolved.Tick);
+            Assert.AreEqual(EventMessageCatalog.DecisionSuppressed, resolved.MessageKey);
+            Assert.AreEqual(75, treasury.Balance);
+            Assert.AreEqual(5, extinguished[0]);
+        }
+
+        [Test]
+        public void FireTicker_ExtinguishHome_StopsBurning_AndLogsDifferentKeys()
+        {
+            BuildingDefinition def = ScriptableObject.CreateInstance<BuildingDefinition>();
+            def.Id = "house";
+            GridPosition at = new GridPosition(20, 20);
+            BuildingState home = new BuildingState(EntityId.New(), def, at, new List<GridPosition> { at });
+            FireTicker ticker = new FireTicker();
+            CityEventLog fireLog = new CityEventLog();
+            List<BuildingState> homes = new List<BuildingState> { home };
+            ticker.Tick(40, homes, null, fireLog, null, null);
+            ticker.Fires.ForceIgnite(home, 41);
+            Assert.IsTrue(ticker.Fires.IsBurning(home.Id));
+            Assert.IsTrue(ticker.ExtinguishHome(home.Id.Value, 42));
+            Assert.IsFalse(ticker.Fires.IsBurning(home.Id));
+            IReadOnlyList<CityEvent> snap = fireLog.Snapshot();
+            Assert.AreEqual(2, snap.Count);
+            Assert.AreNotEqual(snap[0].MessageKey, snap[1].MessageKey);
+            Assert.AreEqual(EventSubtype.Extinguished, snap[1].Subtype);
+            Assert.AreEqual(42, snap[1].Tick);
+        }
+
+        [Test]
+        public void DecisionGuard_EmptyRect_StopsBlockingClicks()
+        {
+            UiClickGuard.Set("decision_panel", new Rect(0f, 0f, 120f, 40f));
+            Vector2 point = new Vector2(10f, Screen.height - 10f);
+            Assert.IsTrue(UiClickGuard.IsOverMenu(point));
+            UiClickGuard.Set("decision_panel", new Rect());
+            Assert.IsFalse(UiClickGuard.IsOverMenu(point));
         }
     }
 }
