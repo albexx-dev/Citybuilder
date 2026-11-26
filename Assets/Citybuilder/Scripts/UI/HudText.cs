@@ -16,6 +16,13 @@ namespace Citybuilder
 
         private const float NormalBackingAlpha = 0.55f;
         private const float ContrastBackingAlpha = 0.9f;
+        private const float PulseSpeed = 4f;
+        private const float PulseGainMax = 0.22f;
+
+        // ADR-021: ночь холодная, рассвет и закат тёплые.
+        private static readonly Color NightColor = new Color(0.62f, 0.78f, 1f);
+        private static readonly Color DawnColor = new Color(1f, 0.74f, 0.48f);
+        private static readonly Color DuskColor = new Color(1f, 0.66f, 0.42f);
 
         private static GameSettings profile;
 
@@ -37,12 +44,13 @@ namespace Citybuilder
             Draw(x, y, text, Color.white);
         }
 
-        // Тот же рисунок с цветом текста: нужен, чтобы дефицитная строка отличалась,
-        // не меняя подложку и все существующие вызовы. Размер и контраст берутся из профиля.
+        // Тот же рисунок с цветом текста; ADR-021: все временные подмены GUI возвращаются в finally.
         public static void Draw(float x, float y, string text, Color textColor)
         {
             if (string.IsNullOrEmpty(text)) return;
             int savedFontSize = GUI.skin.label.fontSize;
+            Color savedColor = GUI.color;
+            Color savedContentColor = GUI.contentColor;
             if (FontScale > 1f)
                 GUI.skin.label.fontSize = ScaledFontSize(savedFontSize);
             try
@@ -54,24 +62,45 @@ namespace Citybuilder
             finally
             {
                 GUI.skin.label.fontSize = savedFontSize;
+                GUI.color = savedColor;
+                GUI.contentColor = savedContentColor;
             }
         }
 
         private static void DrawBacking(float x, float y, Vector2 size)
         {
-            Color savedColor = GUI.color;
             GUI.color = new Color(0f, 0f, 0f, BackingAlpha);
             float height = HudLayout.BackingHeight(size.y);
             GUI.DrawTexture(new Rect(x - 4f, y - BackingPadY, size.x + 8f, height), Texture2D.whiteTexture);
-            GUI.color = savedColor;
         }
 
         private static void DrawLabel(float x, float y, Vector2 size, string text, Color textColor)
         {
-            Color savedContentColor = GUI.contentColor;
             GUI.contentColor = textColor;
             GUI.Label(new Rect(x, y, size.x, size.y), text);
-            GUI.contentColor = savedContentColor;
+        }
+
+        // Чистая математика пульса: 0..1, детерминирована от переданного времени.
+        public static float PulseGain(float timeSeconds)
+        {
+            return (Mathf.Sin(timeSeconds * PulseSpeed) + 1f) * 0.5f;
+        }
+
+        // Тёплый пульс активной кнопки; цвет всегда в границах [0, 1].
+        public static Color PulseColor(float timeSeconds)
+        {
+            float gain = PulseGain(timeSeconds);
+            return new Color(1f, 0.78f + gain * PulseGainMax, 0.25f + gain * 0.35f, 1f);
+        }
+
+        // Цвет строки часов: ночь холодная, рассвет/закат тёплые, день белый.
+        public static Color TimeColor(int hour)
+        {
+            int h = ((hour % 24) + 24) % 24;
+            if (h < 6 || h >= 22) return NightColor;
+            if (h < 9) return DawnColor;
+            if (h > 17) return DuskColor;
+            return Color.white;
         }
     }
 }

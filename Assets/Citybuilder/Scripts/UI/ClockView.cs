@@ -19,19 +19,22 @@ namespace Citybuilder
         // Замер тика для HUD и E2E-моста: доступен без правок сцены (issue #161).
         public TickDurationMeter Profiler { get { return profiler; } }
 
+        private SimulationRunner subscribedRunner;
+
         private void OnEnable()
         {
-            SimulationRunner runner = ResolveRunner();
-            if (runner == null) return;
-            runner.Clock.TickStarted += OnTickStarted;
-            runner.Clock.TickCompleted += OnTickCompleted;
+            subscribedRunner = ResolveRunner();
+            if (subscribedRunner == null || subscribedRunner.Clock == null) return;
+            subscribedRunner.Clock.TickStarted += OnTickStarted;
+            subscribedRunner.Clock.TickCompleted += OnTickCompleted;
         }
 
         private void OnDisable()
         {
-            if (Runner == null) return;
-            Runner.Clock.TickStarted -= OnTickStarted;
-            Runner.Clock.TickCompleted -= OnTickCompleted;
+            if (subscribedRunner == null || subscribedRunner.Clock == null) return;
+            subscribedRunner.Clock.TickStarted -= OnTickStarted;
+            subscribedRunner.Clock.TickCompleted -= OnTickCompleted;
+            subscribedRunner = null;
         }
 
         private void OnTickStarted(SimulationTime time) { profiler.Begin(); }
@@ -41,7 +44,9 @@ namespace Citybuilder
         {
             SimulationRunner runner = ResolveRunner();
             if (runner == null || runner.Clock == null) return;
-            HudText.Draw(HudLayout.TopLeftX, HudLayout.TopLeftRowY(3), Format(runner.Clock.CurrentTime, runner.Speed));
+            HudText.Draw(HudLayout.TopLeftX, HudLayout.TopLeftRowY(3),
+                Format(runner.Clock.CurrentTime, runner.Speed),
+                HudText.TimeColor(runner.Clock.CurrentTime.HourOfDay));
             if (profiler.Count == 0) return;
             string p95 = profiler.P95Milliseconds().ToString("F2", CultureInfo.InvariantCulture);
             HudText.Draw(HudLayout.TopLeftX, HudLayout.TopLeftRowY(ProfilerRow),

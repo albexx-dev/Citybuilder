@@ -1,8 +1,7 @@
 namespace Citybuilder
 {
-    // Чистая математика цикла дня и ночи (EPIC-58): 6 ключевых точек суток,
-    // линейная интерполяция между ними. Без Unity-типов — покрыта EditMode-тестами.
-    // Точки: 0 (ночь), 6 (рассвет), 9 (утро), 12 (полдень), 18 (закат), 22 (вечер).
+    // Чистая математика цикла дня и ночи (EPIC-58): 6 точек — 0, 6, 9, 12, 18, 22 —
+    // с линейной интерполяцией. Без Unity-типов — покрыта EditMode-тестами.
     public static class DayNightPolicy
     {
         public const float HoursPerDay = 24f;
@@ -12,6 +11,9 @@ namespace Citybuilder
         public const float MaxSunIntensity = 1.1f;
         public const float MaxMoonIntensity = 0.3f;
         public const float DegreesPerHour = 15f; // полный оборот солнца за сутки
+        public const int SeasonCount = 4;
+        public const float MinFogDensity = 0.003f;
+        public const float MaxFogDensity = 0.02f;
 
         // Столбцы: pitch, sunI, moonI, sunR, sunG, sunB, ambR, ambG, ambB.
         // Ночью ambient темнее и холоднее (доминирует синий), днём — тёплый.
@@ -26,6 +28,17 @@ namespace Citybuilder
         };
 
         private static readonly float[] KeyHours = { 0f, 6f, 9f, 12f, 18f, 22f };
+
+        private static readonly float[,] SeasonTints =
+        {
+            { 1.00f, 1.00f, 1.00f },
+            { 1.06f, 1.02f, 0.90f },
+            { 1.08f, 0.90f, 0.74f },
+            { 0.86f, 0.93f, 1.10f },
+        };
+
+        private const float NightFogR = 0.10f, NightFogG = 0.13f, NightFogB = 0.22f;
+        private const float DayFogR = 0.62f, DayFogG = 0.70f, DayFogB = 0.82f;
 
         // Фиксированный полдень: безопасное состояние при выключенном цикле (#69).
         public static DayNightSample Noon()
@@ -49,6 +62,36 @@ namespace Citybuilder
             float start = KeyHours[segment];
             float t = (normalized - start) / (SegmentEnd(segment) - start);
             return LerpRows(segment, (segment + 1) % KeyPointCount, t, normalized);
+        }
+
+        // Presentation-фильтр (issue #170): час + индекс сезона, без новых полей в сейве.
+        public static DayNightSample Sample(float hour, int seasonIndex)
+        {
+            DayNightSample light = Sample(hour);
+            int season = WrapSeason(seasonIndex);
+            float tintR = SeasonTints[season, 0], tintG = SeasonTints[season, 1], tintB = SeasonTints[season, 2];
+            float day = Clamp01((light.SunIntensity - MinSunIntensity) / (MaxSunIntensity - MinSunIntensity));
+            float density = FogDensityAt(day, season);
+            float fogR = Clamp01(Lerp(NightFogR, DayFogR, day) * tintR);
+            float fogG = Clamp01(Lerp(NightFogG, DayFogG, day) * tintG);
+            float fogB = Clamp01(Lerp(NightFogB, DayFogB, day) * tintB);
+            return new DayNightSample(light.SunPitch, light.SunAzimuth, light.SunIntensity, light.MoonIntensity,
+                light.SunColorR, light.SunColorG, light.SunColorB,
+                light.AmbientR, light.AmbientG, light.AmbientB,
+                tintR, tintG, tintB, fogR, fogG, fogB, density);
+        }
+
+        private static int WrapSeason(int index)
+        {
+            int wrapped = index % SeasonCount;
+            return wrapped < 0 ? wrapped + SeasonCount : wrapped;
+        }
+
+        private static float FogDensityAt(float day, int season)
+        {
+            float density = 0.004f + (1f - day) * 0.006f;
+            if (season == 3) density += 0.004f; else if (season == 2) density += 0.002f;
+            return Clamp(density, MinFogDensity, MaxFogDensity);
         }
 
         // Сегмент: последняя ключевая точка, чей час не позже текущего.

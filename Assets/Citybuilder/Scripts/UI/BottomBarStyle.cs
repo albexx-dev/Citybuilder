@@ -1,10 +1,10 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Citybuilder
 {
-    // Единый стиль нижней панели действий (EPIC-13): тёмная подложка и кнопки без расползания стилей.
-    // EPIC-66: кнопки с иконкой слева и тултипы при наведении; хвост #66 — с задержкой 0.4 с.
+    // Единый стиль нижней панели (EPIC-13/66): подложка, кнопки с иконкой и тултипы с задержкой 0.4 с.
     public static class BottomBarStyle
     {
         private static readonly Color BarBackground = new Color(0f, 0f, 0f, 0.72f);
@@ -17,10 +17,8 @@ namespace Citybuilder
         private const float TextRightInset = 1f;
         private const float IconSizeReduction = 12f;
 
-        // Стиль создаётся лениво из OnGUI-пути: шрифт и wordWrap общие для всех кнопок панели.
         private static GUIStyle buttonLabel;
         private static GUIStyle ButtonLabel => buttonLabel ?? (buttonLabel = new GUIStyle(GUI.skin.label) { fontSize = ButtonFontSize, wordWrap = false });
-        // Время наведения по кнопке (ключ — Rect): заполнение ведёт TooltipHoverPolicy.Track.
         private static readonly Dictionary<Rect, float> hoverStarts = new Dictionary<Rect, float>();
 
         // Тёмная полоса панели на всю ширину.
@@ -43,33 +41,35 @@ namespace Citybuilder
             GUI.color = saved;
         }
 
-        // Кнопка с подсветкой активного состояния и звуком клика (EPIC-19).
+        // Кнопка (EPIC-19): общий хелпер даёт пульс и возврат цвета.
         public static bool DrawButton(Rect rect, string label, bool highlighted)
         {
-            Color saved = GUI.backgroundColor;
-            if (highlighted)
-            {
-                GUI.backgroundColor = Color.yellow;
-            }
-            bool clicked = GUI.Button(rect, label);
-            GUI.backgroundColor = saved;
-            if (clicked) AudioController.PlayClickGlobal();
+            return DrawWithPulse(highlighted, () => GUI.Button(rect, label));
+        }
+
+        // Кнопка с иконкой (EPIC-66): активная пульсирует так же, как текстовая.
+        public static bool DrawButton(Rect rect, Texture2D icon, string label, bool highlighted)
+        {
+            bool clicked = DrawWithPulse(highlighted, () => GUI.Button(rect, string.Empty));
+            DrawIconAndLabel(rect, icon, label);
             return clicked;
         }
 
-        // Кнопка с иконкой слева и подписью (EPIC-66): null-иконка деградирует в текстовую кнопку.
-        public static bool DrawButton(Rect rect, Texture2D icon, string label, bool highlighted)
+        // Единая точка подмены/возврата GUI.backgroundColor для всех кнопок (ADR-021).
+        private static bool DrawWithPulse(bool highlighted, Func<bool> draw)
         {
             Color saved = GUI.backgroundColor;
-            if (highlighted)
+            try
             {
-                GUI.backgroundColor = Color.yellow;
+                if (highlighted) GUI.backgroundColor = HudText.PulseColor(Time.unscaledTime);
+                bool clicked = draw();
+                if (clicked) AudioController.PlayClickGlobal();
+                return clicked;
             }
-            bool clicked = GUI.Button(rect, string.Empty);
-            GUI.backgroundColor = saved;
-            DrawIconAndLabel(rect, icon, label);
-            if (clicked) AudioController.PlayClickGlobal();
-            return clicked;
+            finally
+            {
+                GUI.backgroundColor = saved;
+            }
         }
 
         // Кнопка с иконкой и тултипом: подсказка показывается при наведении (EPIC-66).
@@ -79,8 +79,7 @@ namespace Citybuilder
             return DrawButton(rect, icon, label, highlighted);
         }
 
-        // Тултип над кнопкой при наведении: только в OnGUI-пути, пустой текст молча пропускается.
-        // Хвост #66: показывается после TooltipHoverPolicy.HoverDelaySeconds на кнопке.
+        // Тултип в OnGUI-пути: пустой текст пропускается, задержка через TooltipHoverPolicy.
         public static void DrawTooltip(Rect rect, string text)
         {
             if (string.IsNullOrEmpty(text) || Event.current == null) return;
