@@ -10,6 +10,7 @@ namespace Citybuilder
         public const string TreasuryDeficit = "event_treasury_deficit";
         public const string UnemploymentHigh = "event_unemployment_high";
         public const string QuestCompleted = "event_quest_completed";
+        public const string MayorRatingChanged = "event_mayor_rating";
         public const string SupplyPowerDeficit = "event_supply_power_deficit";
         public const string SupplyWaterDeficit = "event_supply_water_deficit";
         public const string SupplyWasteDeficit = "event_supply_waste_deficit";
@@ -40,6 +41,7 @@ namespace Citybuilder
             { TreasuryDeficit, new[] { "Дефицит казны: баланс ${0}", "Treasury deficit: balance ${0}" } },
             { UnemploymentHigh, new[] { "Высокая безработица: занятость {0}%", "High unemployment: employment {0}%" } },
             { QuestCompleted, new[] { "Задача выполнена: {0} (+{1}$)", "Quest completed: {0} (+{1}$)" } },
+            { MayorRatingChanged, new[] { "Рейтинг мэра вырос: {0} (уровень {1}, +{2} $/ч)", "Mayor rating rose: {0} (tier {1}, +{2} $/h)" } },
             { SupplyPowerDeficit, new[] { "Энергия {0}%: рост замедлен", "Power {0}%: growth slowed" } },
             { SupplyWaterDeficit, new[] { "Вода {0}%: рост замедлен", "Water {0}%: growth slowed" } },
             { SupplyWasteDeficit, new[] { "Мусор {0}%: рост замедлен", "Waste {0}%: growth slowed" } },

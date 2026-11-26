@@ -74,6 +74,8 @@ namespace Citybuilder
         // Граница тика: проверить активные, начислить награды, добрать задачи из каталога.
         public void Tick(int tick, QuestContext context, Treasury treasury, CityEventLog log)
         {
+            // Рейтинг до вех этого тика: событие пишется только при смене уровня.
+            int previousRating = MayorRating.Compute(CompletedCount, LastContext.Residents, LastContext.Balance);
             LastContext = context;
             // Буфер выполненных: событие стреляет после всех мутаций списка,
             // чтобы подписчик (например, вызвавший Reset) не сломал обход.
@@ -88,6 +90,8 @@ namespace Citybuilder
                 finished.Add(quest);
             }
             Fill(context);
+            int rating = MayorRating.Compute(CompletedCount, context.Residents, context.Balance);
+            MayorRating.Record(log, tick, rating, previousRating);
             FireCompleted(finished);
         }
 
