@@ -52,6 +52,13 @@ namespace Citybuilder
             Assert.AreEqual(1, net.TopLevel(cell));
             Assert.IsTrue(net.IsRoad(new RoadCellKey(2, 0, 1)));
         }
+        [Test] public void RampClearedOnDemolish_NotRestoredByReplacing()
+        {
+            BridgeRoadNetwork net = MakeNetwork(true, true);
+            Assert.IsTrue(net.Demolish(new RoadCellKey(1, 0, 1)));
+            Assert.IsTrue(net.Place(new RoadCellKey(1, 0, 1), "asphalt"));
+            Assert.IsNull(net.FindPath(new RoadCellKey(0, 0, 1), new RoadCellKey(4, 0, 1)));
+        }
         [Test] public void Mesh_RailingsStayWithinTriangleCap()
         {
             List<RoadCellKey> cells = new List<RoadCellKey>();

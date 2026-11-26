@@ -41,6 +41,7 @@ namespace Citybuilder
         {
             if (!IsRoad(key)) return false;
             roads.Remove(key);
+            ramps.Remove(key.Position);
             if (key.Level == 1) grid.Release(key.Position);
             return true;
         }
