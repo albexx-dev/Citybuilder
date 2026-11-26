@@ -135,3 +135,12 @@ v1.4 patterns are fixed by `DECISIONS/ADR-016-v14-scope.md` (issue #111, 2026-11
 - **Agent LOD/culling:** blocked by ADR-001 until Profiler numbers (`TotalResidents > 1000` with tick pressure or simulation tick p95 > 5 ms); no Jobs/Burst/DOTS without a new ADR.
 
 Earlier decisions already shipped: event-log localization (`DECISIONS/ADR-013-event-localization.md`), catalog names from assets, depot variants and save v6 (`DECISIONS/ADR-014-save-v6.md`). Per-building ambient occlusion remains a candidate, but is outside the v1.4 scope above.
+
+### v1.4.5 «Большой город» — decisions fixed before code
+
+- `DECISIONS/ADR-017-scale.md`: grid 100×100 (`GridVisualizer` is the single source of Width/Height/CellSize), 1000+ residents, configurable building cap, old v1–v6 slots stay loadable; agent limits 12/30 unchanged without profiler numbers.
+- `DECISIONS/ADR-018-roads-bridges.md`: four road types (asphalt/brick/wood/stone), level-based cell key, bridges with ramps 0↔1 and upper-level priority; ordinary roads need no A* changes; the multi-level ban in AGENTS.md is lifted only for roads.
+- `DECISIONS/ADR-019-market-power.md` + `ADR-012-amendment.md`: market price ×1 default, `CreditLedger` via `Treasury.Charge`, district overrides over `ZoneType`, endless mayor rating without win screens; `EffectiveUpkeepPolicy` (÷8) and balance tests unchanged.
+- `DECISIONS/ADR-020-life-decisions.md`: `DecisionController` in domain without Unity events or a new bus, append-only `CityEventLog` records choices, agents/queues stay presentation-only (`RouteSystem` remains domain).
+- `DECISIONS/ADR-021-visual.md`: seasons/weather as a presentation filter through `DayNightSample`/`DayNightPolicy`, emissive windows per `BlackoutViewStyle`, IMGUI effects only; no URP/HDRP/UI Toolkit; shadows/LOD only after ADR-001 measurements.
+- `DECISIONS/ADR-022-save-v7.md`: version 7 on write, versions 1–7 readable, >7 rejected; optional fields with v6 fallback, same rules for export/import.
