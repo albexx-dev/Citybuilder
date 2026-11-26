@@ -7,7 +7,6 @@ namespace Citybuilder
     public static class SaveV6Snapshot
     {
         public const int Version = 6;
-
         // Запись доступных систем. Отсутствующая система даёт пустое значение — как слот v5.
         public static void Write(CitySnapshot snapshot, GarbageSystem garbage, CrimeSystem crimes,
             List<BuildingState> homes, List<CitySnapshot.ConstructionProgressEntry> sites)
@@ -21,7 +20,6 @@ namespace Citybuilder
             WriteComfort(snapshot, homes);
             if (sites != null) snapshot.ConstructionProgress.AddRange(sites);
         }
-
         // Серия комфорта дома привязана к координатам: порядок списка зданий при загрузке плывёт.
         private static void WriteComfort(CitySnapshot snapshot, List<BuildingState> homes)
         {
@@ -37,13 +35,20 @@ namespace Citybuilder
                 snapshot.ComfortStreak.Add(entry);
             }
         }
-
-        public const int MapCells = 50;
+        // _GRID 100×100 в v1.4.5: значение берётся из конфигурации GridVisualizer.
+        // Единственный источник капа координат в персистентности (SaveSlotStorage, SaveV7Snapshot).
+        public const int MapCells = 100;
         public const int MaxConstructionTicks = 10000;
         public const int MaxStreakMagnitude = 10000;
+        // Загрузка и импорт применяют оба прохода: v6 и v7 (ADR-014, ADR-022).
+        public static void Normalize(CitySnapshot snapshot)
+        {
+            NormalizeV6(snapshot);
+            SaveV7Snapshot.Normalize(snapshot);
+        }
 
         // Нормализация только полей v6 перед применением слота; v1–v5 не отклоняются и не меняются.
-        public static void Normalize(CitySnapshot snapshot)
+        private static void NormalizeV6(CitySnapshot snapshot)
         {
             if (snapshot == null) return;
             snapshot.GarbageQueue = NormalizeGarbage(snapshot.GarbageQueue);
@@ -66,7 +71,6 @@ namespace Citybuilder
             }
             return result;
         }
-
         private static List<CitySnapshot.ConstructionProgressEntry> NormalizeSites(
             List<CitySnapshot.ConstructionProgressEntry> source)
         {
@@ -83,7 +87,6 @@ namespace Citybuilder
             }
             return result;
         }
-
         private static List<CitySnapshot.ComfortStreakEntry> NormalizeStreaks(
             List<CitySnapshot.ComfortStreakEntry> source)
         {
@@ -121,19 +124,16 @@ namespace Citybuilder
             return snapshot == null || snapshot.GarbageQueue == null
                 ? new List<CitySnapshot.GarbageQueueEntry>() : snapshot.GarbageQueue;
         }
-
         public static List<CitySnapshot.ConstructionProgressEntry> ReadSites(CitySnapshot snapshot)
         {
             return snapshot == null || snapshot.ConstructionProgress == null
                 ? new List<CitySnapshot.ConstructionProgressEntry>() : snapshot.ConstructionProgress;
         }
-
         public static int ReadThefts(CitySnapshot snapshot)
         {
             if (snapshot == null || snapshot.TheftCounter < 0) return 0;
             return snapshot.TheftCounter;
         }
-
         // Серия дома из v6; для слота v5 и чужой клетки честный fallback — 0.
         public static int ReadStreak(CitySnapshot snapshot, int x, int y)
         {

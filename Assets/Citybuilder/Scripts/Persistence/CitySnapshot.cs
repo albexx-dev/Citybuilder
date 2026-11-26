@@ -42,10 +42,10 @@ namespace Citybuilder
         {
             public int X;
             public int Y;
-            // v7 (ADR-018, issue #163/165): Id типа и уровень дороги. Пусто/0 = старая запись → asphalt, level 0.
-            // Запись, чтение и нормализацию добавляет задача #165; здесь только поля контракта.
+            // v7 (ADR-018/022): Id типа дороги (asphalt/brick/wood/stone) и уровень (земля 1, мост 2).
+            // Пустое значение = старый слот v1–v6 → asphalt; Level=0 тоже трактуется как 1.
             public string Type;
-            public int Level;
+            public int Level = 1;
         }
 
         // v6 (ADR-014): опциональные записи. В слотах v1–v5 полей нет — читается как пусто/0.
@@ -74,9 +74,17 @@ namespace Citybuilder
             public int TicksElapsed;
         }
 
-        // v1 — без TaxLevel, v2 — с TaxLevel, v3 — плюс ручные здания,
-        // v4 — плюс ступень цели, v5 — уровни и ставки, v6 — опциональные поля ниже.
-        public int Version = 6;
+        // v7 (ADR-022): ставка по району — идентификатор и ступень 1..3.
+        [Serializable]
+        public class DistrictTaxEntry
+        {
+            public string DistrictId;
+            public int Rate;
+        }
+
+        // v1 — без TaxLevel, v2 — с TaxLevel, v3 — плюс ручные здания, v4 — ступень цели,
+        // v5 — уровни и ставки, v6 — очереди/кражи/стройка, v7 — поля ниже.
+        public int Version = 7;
         public long TickCount;
         public int Balance;
         // Налоговая политика: 0 = не задано (слот v1) → обычный, 1/2/3 = низкий/обычный/высокий.
@@ -102,5 +110,12 @@ namespace Citybuilder
         public List<GarbageQueueEntry> GarbageQueue = new List<GarbageQueueEntry>();
         public List<ComfortStreakEntry> ComfortStreak = new List<ComfortStreakEntry>();
         public List<ConstructionProgressEntry> ConstructionProgress = new List<ConstructionProgressEntry>();
+        // v7 (ADR-022): все поля необязательны; отсутствие/null/битое значение → дефолт v6.
+        public float Debt;
+        public float DebtInterestPercent;
+        public float MarketMultiplier = 1f;
+        public List<DistrictTaxEntry> DistrictTaxRates = new List<DistrictTaxEntry>();
+        public int MayorRating;
+        public int MilestoneCounterV2;
     }
 }

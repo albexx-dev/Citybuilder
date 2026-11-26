@@ -9,7 +9,6 @@ namespace Citybuilder
     public static class SaveSlotStorage
     {
         public const string SlotFileName = "slot0.json";
-        private const int MapCells = 50;
 
         public static string ToJson(CitySnapshot snapshot)
         {
@@ -113,7 +112,7 @@ namespace Citybuilder
 
         private static bool InMap(int x, int y)
         {
-            return x >= 0 && y >= 0 && x < MapCells && y < MapCells;
+            return x >= 0 && y >= 0 && x < SaveV6Snapshot.MapCells && y < SaveV6Snapshot.MapCells;
         }
 
         private static bool ValidateHouseholds(List<CitySnapshot.HouseholdEntry> households, int buildingCount)
