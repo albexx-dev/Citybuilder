@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Citybuilder
 {
@@ -62,6 +63,37 @@ namespace Citybuilder
                     AssertTintInBounds(sample.SeasonTintR, sample.SeasonTintG, sample.SeasonTintB);
                 }
             }
+        }
+
+        [Test]
+        public void TimeColor_MarksNightDawnDayAndDusk()
+        {
+            Color night = HudText.TimeColor(2);
+            Color dawn = HudText.TimeColor(7);
+            Color day = HudText.TimeColor(12);
+            Color dusk = HudText.TimeColor(19);
+            Assert.Greater(night.b, night.r);
+            Assert.Greater(dawn.r, dawn.b);
+            Assert.AreEqual(1f, day.r, Delta);
+            Assert.Greater(dusk.r, dusk.b);
+            Assert.AreEqual(night.r, HudText.TimeColor(26).r, Delta);
+        }
+
+        [Test]
+        public void PulseColor_IsBoundedAndDeterministic()
+        {
+            for (int i = 0; i < 20; i++)
+            {
+                float t = i * 0.37f;
+                float gain = HudText.PulseGain(t);
+                Assert.GreaterOrEqual(gain, 0f);
+                Assert.LessOrEqual(gain, 1f);
+                Assert.AreEqual(gain, HudText.PulseGain(t), Delta);
+                Color color = HudText.PulseColor(t);
+                Assert.GreaterOrEqual(color.g, 0.78f);
+                Assert.LessOrEqual(color.g, 1f);
+            }
+            Assert.Greater(System.Math.Abs(HudText.PulseColor(0f).g - HudText.PulseColor(0.4f).g), 0.01f);
         }
 
         private static void AssertSameFog(DayNightSample expected, DayNightSample actual)

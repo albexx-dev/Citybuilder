@@ -15,7 +15,9 @@ namespace Citybuilder
             SimulationRunner runner = Runner;
             if (runner == null) runner = GetComponent<SimulationRunner>();
             if (runner == null || runner.Clock == null) return;
-            HudText.Draw(HudLayout.TopLeftX, HudLayout.TopLeftRowY(3), Format(runner.Clock.CurrentTime, runner.Speed));
+            HudText.Draw(HudLayout.TopLeftX, HudLayout.TopLeftRowY(3),
+                Format(runner.Clock.CurrentTime, runner.Speed),
+                HudText.TimeColor(runner.Clock.CurrentTime.HourOfDay));
         }
 
         // Единая точка смены скорости для E2E-моста.
