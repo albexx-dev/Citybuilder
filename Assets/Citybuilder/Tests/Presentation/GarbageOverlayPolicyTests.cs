@@ -62,5 +62,12 @@ namespace Citybuilder
             Assert.AreEqual(0.5f, GarbageOverlayPolicy.Load01(GarbageSystem.ReadyThreshold / 2), 0.0001f);
             Assert.AreEqual(1f, GarbageOverlayPolicy.Load01(GarbageSystem.ReadyThreshold), 0.0001f);
         }
+
+        [Test]
+        public void Load01_ClampsAboveThreshold()
+        {
+            Assert.AreEqual(1f, GarbageOverlayPolicy.Load01(GarbageSystem.ReadyThreshold + 1), 0.0001f);
+            Assert.AreEqual(1f, GarbageOverlayPolicy.Load01(200), 0.0001f);
+        }
     }
 }
