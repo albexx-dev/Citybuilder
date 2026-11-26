@@ -16,11 +16,15 @@ namespace Citybuilder
         public SimulationRunner Runner;
         [Tooltip("Население. Пусто = ищется в сцене: даёт число жителей для пропорции 1:5.")]
         public PopulationController Population;
+        [Tooltip("Ручная стройка. Пусто = ищется в сцене: даёт работы и магазины как цели.")]
+        public BuildingPlacementController Placement;
         [Tooltip("Вид пешеходов. Пусто = ищется в сцене.")]
         public PedestrianAgentView View;
 
         private PedestrianAgentManager manager;
         private readonly List<GridPosition> homes = new List<GridPosition>();
+        private readonly List<GridPosition> works = new List<GridPosition>();
+        private readonly List<GridPosition> shops = new List<GridPosition>();
         private int lastResidents = -1;
 
         private void Start()
@@ -51,6 +55,7 @@ namespace Citybuilder
         {
             if (Runner == null) Runner = FindFirstObjectByType<SimulationRunner>();
             if (Population == null) Population = FindFirstObjectByType<PopulationController>();
+            if (Placement == null) Placement = FindFirstObjectByType<BuildingPlacementController>();
             if (View == null) View = FindFirstObjectByType<PedestrianAgentView>();
         }
 
@@ -73,7 +78,8 @@ namespace Citybuilder
             int residents = Population.Population != null ? Population.Population.TotalResidents : 0;
             if (residents == lastResidents) return;
             lastResidents = residents;
-            CollectHomes();
+            CollectTargets();
+            manager.Wander.SetDestinations(works, shops);
             manager.OnPopulationChanged(residents, homes);
         }
 
@@ -85,16 +91,27 @@ namespace Citybuilder
             if (View != null) View.Sync(manager);
         }
 
-        // Точки спавна — выросшие жилые дома (SettlementSystem через Growth).
-        private void CollectHomes()
+        // Точки спавна — дома, цели — работа и магазины (выросшие и ручные).
+        private void CollectTargets()
         {
             homes.Clear();
+            works.Clear();
+            shops.Clear();
             List<BuildingState> grown = Growth.Homes;
-            for (int i = 0; i < grown.Count; i++)
-            {
-                BuildingDefinition def = grown[i] != null ? grown[i].Definition : null;
-                if (def != null && def.AllowedZone == ZoneType.Residential) homes.Add(grown[i].Origin);
-            }
+            for (int i = 0; i < grown.Count; i++) AddTarget(grown[i]);
+            if (Placement == null || Placement.Placed == null) return;
+            List<BuildingState> placed = Placement.Placed;
+            for (int i = 0; i < placed.Count; i++) AddTarget(placed[i]);
+        }
+
+        private void AddTarget(BuildingState state)
+        {
+            BuildingDefinition def = state != null ? state.Definition : null;
+            if (def == null) return;
+            if (def.AllowedZone == ZoneType.Residential) { homes.Add(state.Origin); return; }
+            if (def.JobsProvided <= 0) return;
+            if (def.Id == "shop") shops.Add(state.Origin);
+            else works.Add(state.Origin);
         }
     }
 }

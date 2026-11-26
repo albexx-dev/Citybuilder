@@ -27,6 +27,7 @@ namespace Citybuilder
         private int lastRoadCount;
         private readonly List<GridPosition> homes = new List<GridPosition>();
         private readonly List<GridPosition> works = new List<GridPosition>();
+        private readonly List<GridPosition> shops = new List<GridPosition>();
         private readonly List<GridPosition> roads = new List<GridPosition>();
 
         private void Start()
@@ -100,28 +101,32 @@ namespace Citybuilder
             lastRoadCount = count;
             CollectTargets();
             CollectRoads();
-            manager.SpawnForNewRoad(latest.Cell, homes, works, roads);
+            manager.SpawnForNewRoad(latest.Cell, homes, works, shops, roads);
         }
 
-        // Дома — жилые здания; работы — остальные выросшие и ручные с рабочими местами.
+        // Дома — жилые здания; магазины — shop; работы — остальные здания с рабочими местами.
         private void CollectTargets()
         {
             homes.Clear();
             works.Clear();
+            shops.Clear();
             List<BuildingState> grown = Growth.Homes;
             for (int i = 0; i < grown.Count; i++)
             {
                 BuildingDefinition def = grown[i] != null ? grown[i].Definition : null;
                 if (def == null) continue;
                 if (def.AllowedZone == ZoneType.Residential) homes.Add(grown[i].Origin);
+                else if (def.Id == "shop") shops.Add(grown[i].Origin);
                 else if (def.JobsProvided > 0) works.Add(grown[i].Origin);
             }
             if (Placement == null || Placement.Placed == null) return;
             List<BuildingState> placed = Placement.Placed;
             for (int i = 0; i < placed.Count; i++)
             {
-                BuildingDefinition placedDef = placed[i] != null ? placed[i].Definition : null;
-                if (placedDef != null && placedDef.JobsProvided > 0) works.Add(placed[i].Origin);
+                BuildingDefinition def = placed[i] != null ? placed[i].Definition : null;
+                if (def == null) continue;
+                if (def.Id == "shop") shops.Add(placed[i].Origin);
+                else if (def.JobsProvided > 0) works.Add(placed[i].Origin);
             }
         }
 
