@@ -18,6 +18,10 @@ namespace Citybuilder
             values["decor_hedge"] = new[] { "Изгородь", "Hedge" };
             values["decor_flowerbed"] = new[] { "Клумба", "Flower bed" };
             values["decor_topiary"] = new[] { "Фигурное дерево", "Topiary" };
+            // Районы и рейтинг мэра (issue #169, ADR-019).
+            values["district_name"] = new[] { "Район {0}", "District {0}" };
+            values["mayor_rating_line"] = new[] { "Рейтинг мэра: {0} (уровень {1}, +{2} $/ч к налогам)", "Mayor rating: {0} (tier {1}, +{2} $/h tax)" };
+            values["event_mayor_rating"] = new[] { "Рейтинг мэра вырос: {0} (уровень {1}, +{2} $/ч)", "Mayor rating rose: {0} (tier {1}, +{2} $/h)" };
         }
     }
 }

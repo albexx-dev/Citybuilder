@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Citybuilder
@@ -6,11 +7,18 @@ namespace Citybuilder
     // чтобы исходный файл не превышал мягкий лимит 150 строк.
     public partial class InfoMenuView : MonoBehaviour
     {
+        private readonly DistrictPolicy districts = new DistrictPolicy();
+        private QuestLogView questLog;
+        private bool questLogSearched;
+
+        // Районы доступны адаптеру сцены: новые ссылки в инспекторе не нужны.
+        public DistrictPolicy Districts { get { return districts; } }
+
         private void DrawCachedSections(float width)
         {
             float y = 4f;
             DrawSection(ref y, Localization.T("info_section_city"), cachedLines[0]);
-            DrawSection(ref y, Localization.T("info_section_goal"), cachedLines[1]);
+            DrawSection(ref y, Localization.T("info_section_goal") + "  " + RatingLine(), cachedLines[1]);
             DrawHeader(ref y, Localization.T("info_section_networks"));
             for (int i = 2; i <= 6; i++) DrawLine(ref y, cachedLines[i]);
             DrawHeader(ref y, Localization.T("info_section_services"));
@@ -30,6 +38,7 @@ namespace Citybuilder
         {
             DrawHeader(ref y, Localization.T("info_section_budget"));
             if (Tax != null) DrawTaxRows(ref y, width);
+            DrawDistrictRows(ref y);
             if (Upkeep != null)
             {
                 Color c = Upkeep.CurrentLook == UpkeepStatusPolicy.Look.Deficit ? UpkeepView.DeficitColor : Color.white;
@@ -51,6 +60,41 @@ namespace Citybuilder
                 }
                 y += 30f;
             }
+        }
+
+        // Рейтинг выводится из выполненных вех и казны: отдельного сохранённого значения нет.
+        private string RatingLine()
+        {
+            if (!questLogSearched)
+            {
+                questLog = FindFirstObjectByType<QuestLogView>();
+                questLogSearched = true;
+            }
+            QuestSystem quests = questLog != null ? questLog.Quests : null;
+            if (quests == null) return string.Empty;
+            QuestContext context = quests.LastContext;
+            return MayorRating.Label(quests.CompletedCount, context.Residents, context.Balance);
+        }
+
+        // Строки районов: занятые распределяются теми же кумулятивными долями, что и по зонам.
+        private void DrawDistrictRows(ref float y)
+        {
+            if (Tax == null) return;
+            int[] ids = districts.DistrictIds();
+            Dictionary<int, int> employed = districts.DistributeEmployed(EmployedTotal());
+            for (int i = 0; i < ids.Length; i++)
+            {
+                int count;
+                employed.TryGetValue(ids[i], out count);
+                HudText.Draw(12f, y, districts.LabelFor(Tax.Policy, ZoneType.Residential, ids[i], count));
+                y += 24f;
+            }
+        }
+
+        private int EmployedTotal()
+        {
+            if (Economy == null || Economy.Tax == null) return 0;
+            return Economy.Tax.EmployedPerZone().Total;
         }
 
         private static void DrawSection(ref float y, string header, string line)
