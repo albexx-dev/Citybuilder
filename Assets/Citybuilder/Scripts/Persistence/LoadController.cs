@@ -38,6 +38,7 @@ namespace Citybuilder
             SnapshotLevels.ApplyAll(snapshot, homes, Placement == null ? null : Placement.Placed);
             LoadedHouseViewRefresh.Apply(Growth, homes);
             ApplyV6(snapshot, homes);
+            ApplyV7(snapshot);
             ApplyMeta(snapshot);
             SaveController save = GetComponent<SaveController>();
             if (save != null) save.ClearDirty();
@@ -54,6 +55,8 @@ namespace Citybuilder
             if (Treasury != null) Treasury.ResetBalance(Treasury.StartingBalance);
             if (Runner != null && Runner.Clock != null) Runner.Clock.RestoreTime(0);
             if (Policy != null) Policy.Policy.Set(TaxPolicy.Level.Normal);
+            RestoredMayorRating = 0;
+            RestoredMilestoneCounterV2 = 0;
             SaveController save = GetComponent<SaveController>();
             if (save != null) save.ClearDirty();
             TutorialView tut = FindFirstObjectByType<TutorialView>();
@@ -121,13 +124,7 @@ namespace Citybuilder
                 LoadSystem.ApplyZones(snapshot, Zones.Zones);
                 Zones.RepaintAll();
             }
-            if (Roads != null && snapshot.Roads != null)
-            {
-                for (int i = 0; i < snapshot.Roads.Count; i++)
-                {
-                    if (snapshot.Roads[i] != null) Roads.RestoreRoad(new GridPosition(snapshot.Roads[i].X, snapshot.Roads[i].Y));
-                }
-            }
+            // Дороги восстанавливаются в ApplyV7 с типом и уровнем из слота.
             List<BuildingState> homes = ApplyBuildings(snapshot);
             if (Population != null && Population.Population != null) LoadSystem.ApplyHouseholds(snapshot, Population.Population, homes);
             return homes;
