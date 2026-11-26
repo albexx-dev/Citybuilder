@@ -474,8 +474,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d1c90e9dbeae214fa11f66f3c9b187d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Citybuilder.GridVisualizer
-  Width: 50
-  Height: 50
+  Width: 100
+  Height: 100
   CellSize: 1
   LineColor: {r: 1, g: 1, b: 1, a: 1}
   HoverColor: {r: 1, g: 1, b: 0, a: 0.4}
@@ -608,7 +608,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6e8e1f61493484b45af48640f86a4863, type: 2}
   - {fileID: 11400000, guid: c2e8ed06ab3f413f81e2a816f76b4c1c, type: 2}
   TicksPerGrowth: 5
-  MaxSettlements: 80
+  MaxSettlements: 400
   placementActive: 1
 --- !u!114 &985593159
 MonoBehaviour:
@@ -1333,8 +1333,8 @@ MonoBehaviour:
   Waste: {fileID: 0}
   Services: {fileID: 0}
   Connectivity: {fileID: 985593168}
-  HouseholdSize: 2
-  MoveInIntervalSec: 7
+  HouseholdSize: 4
+  MoveInIntervalSec: 3
   MinEmployment: 0.4
   MinSatisfaction: 0.5
   placementActive: 1
@@ -1636,8 +1636,7 @@ MonoBehaviour:
   DragSpeed: 240
   MinHeight: 5
   MaxHeight: 80
-  MapWidth: 50
-  MapHeight: 50
+  Visualizer: {fileID: 985593152}
   Margin: 10
 --- !u!81 &1652839696
 AudioListener:

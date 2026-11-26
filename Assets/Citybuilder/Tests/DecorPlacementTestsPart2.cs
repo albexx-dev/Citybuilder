@@ -24,7 +24,7 @@ namespace Citybuilder
                 decor.ZonePainter = painter;
                 Assert.IsTrue(painter.Zones.SetZone(new GridPosition(2, 2), ZoneType.Industrial));
                 Assert.IsFalse(decor.CanPlaceAt(new GridPosition(2, 2)));
-                Assert.IsFalse(decor.CanPlaceAt(new GridPosition(99, 99)));
+                Assert.IsFalse(decor.CanPlaceAt(new GridPosition(101, 101)));
             }
             finally
             {

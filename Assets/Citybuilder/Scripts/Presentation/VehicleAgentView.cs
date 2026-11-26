@@ -30,7 +30,7 @@ namespace Citybuilder
         public float ModelScale = 1f;
 
         [Header("Visibility")]
-        [Tooltip("Дальность в клетках: не менее диагонали карты и высоты камеры при зуме.")]
+        [Tooltip("Дальность в клетках; с запасом по высоте камеры и границам карты. Настройка по замерам ADR-001.")]
         public float ViewDistanceCells = 72f;
         [Tooltip("Запас по краю пирамиды в клетках, чтобы машины не дёргались.")]
         public float FrustumMarginCells = 2f;
